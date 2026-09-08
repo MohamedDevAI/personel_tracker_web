@@ -1,8 +1,31 @@
 import React from 'react';
-import { LayoutDashboard, Wallet, Flame, Target, CheckSquare, Plus, Database, Sparkles, Moon, Sun } from 'lucide-react';
+import { LayoutDashboard, Wallet, Flame, Target, CheckSquare, Plus, Database, Sparkles, Moon, Sun, LucideIcon } from 'lucide-react';
+import { BackendHealth } from '../types';
 
-export default function Navbar({ activeTab, setActiveTab, onOpenQuickAdd, backendStatus, theme, toggleTheme }) {
-  const navItems = [
+interface NavItem {
+  id: string;
+  label: string;
+  icon: LucideIcon;
+}
+
+interface NavbarProps {
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+  onOpenQuickAdd: () => void;
+  backendStatus: BackendHealth;
+  theme: string;
+  toggleTheme: () => void;
+}
+
+export default function Navbar({
+  activeTab,
+  setActiveTab,
+  onOpenQuickAdd,
+  backendStatus,
+  theme,
+  toggleTheme
+}: NavbarProps) {
+  const navItems: NavItem[] = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'finances', label: 'Finances', icon: Wallet },
     { id: 'habits', label: 'Habits', icon: Flame },

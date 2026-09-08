@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, ArrowUpRight, ArrowDownRight, DollarSign, Filter, PieChart } from 'lucide-react';
+import { Plus, Trash2, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Expense, ExpenseType } from '../types';
 
-export default function Finances({ expenses, onAddExpense, onDeleteExpense }) {
-  const [filterType, setFilterType] = useState('ALL');
+interface FinancesProps {
+  expenses: Expense[];
+  onAddExpense: (item: Omit<Expense, 'id'>) => void;
+  onDeleteExpense: (id: string) => void;
+}
+
+export default function Finances({ expenses, onAddExpense, onDeleteExpense }: FinancesProps) {
+  const [filterType, setFilterType] = useState<'ALL' | ExpenseType>('ALL');
   const [showAddModal, setShowAddModal] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     amount: '',
-    type: 'EXPENSE',
+    type: 'EXPENSE' as ExpenseType,
     category: 'Tech & Work',
     date: new Date().toISOString().split('T')[0],
     notes: ''
@@ -28,7 +35,7 @@ export default function Finances({ expenses, onAddExpense, onDeleteExpense }) {
     .reduce((s, e) => s + Number(e.amount), 0);
   const netSavings = totalIncome - totalExpense;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title || !formData.amount) return;
     onAddExpense({
@@ -88,7 +95,7 @@ export default function Finances({ expenses, onAddExpense, onDeleteExpense }) {
       {/* Filter Toolbar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <div style={{ display: 'flex', gap: '8px' }}>
-          {['ALL', 'EXPENSE', 'INCOME'].map(type => (
+          {(['ALL', 'EXPENSE', 'INCOME'] as const).map(type => (
             <button
               key={type}
               onClick={() => setFilterType(type)}
@@ -133,9 +140,7 @@ export default function Finances({ expenses, onAddExpense, onDeleteExpense }) {
                       height: '32px',
                       borderRadius: '8px',
                       background: item.type === 'INCOME' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(244, 63, 94, 0.15)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
                       color: item.type === 'INCOME' ? '#34d399' : '#fb7185'
                     }}>
                       {item.type === 'INCOME' ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}

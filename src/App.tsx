@@ -8,19 +8,20 @@ import Goals from './pages/Goals';
 import Tasks from './pages/Tasks';
 import { api, checkBackendHealth } from './services/api';
 import { ShieldCheck, GitBranch, Terminal } from 'lucide-react';
+import { Expense, Habit, Goal, TaskItem, BackendHealth } from './types';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
-  const [theme, setTheme] = useState('dark');
-  const [backendStatus, setBackendStatus] = useState({ connected: false, mode: 'local' });
+  const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const [isQuickAddOpen, setIsQuickAddOpen] = useState<boolean>(false);
+  const [theme, setTheme] = useState<string>('dark');
+  const [backendStatus, setBackendStatus] = useState<BackendHealth>({ connected: false, mode: 'local' });
 
   // Core Data States
-  const [expenses, setExpenses] = useState([]);
-  const [habits, setHabits] = useState([]);
-  const [goals, setGoals] = useState([]);
-  const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [habits, setHabits] = useState<Habit[]>([]);
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [tasks, setTasks] = useState<TaskItem[]>([]);
+  const [_loading, setLoading] = useState<boolean>(true);
 
   // Initialize theme and load data
   useEffect(() => {
@@ -56,47 +57,47 @@ export default function App() {
   };
 
   // Handlers for data mutations
-  const handleAddExpense = async (item) => {
+  const handleAddExpense = async (item: Omit<Expense, 'id'>) => {
     const created = await api.createExpense(item);
     setExpenses(prev => [created, ...prev]);
   };
 
-  const handleDeleteExpense = async (id) => {
+  const _handleDeleteExpense = async (id: string) => {
     await api.deleteExpense(id);
     setExpenses(prev => prev.filter(e => e.id !== id));
   };
 
-  const handleToggleHabit = async (id) => {
+  const handleToggleHabit = async (id: string) => {
     const updated = await api.toggleHabit(id);
     setHabits(prev => prev.map(h => h.id === id ? updated : h));
   };
 
-  const handleAddHabit = async (habit) => {
+  const handleAddHabit = async (habit: Pick<Habit, 'title' | 'category' | 'targetFrequency'>) => {
     const created = await api.createHabit(habit);
     setHabits(prev => [...prev, created]);
   };
 
-  const handleUpdateGoalProgress = async (id, val) => {
+  const handleUpdateGoalProgress = async (id: string, val: number) => {
     const updated = await api.updateGoalProgress(id, val);
     setGoals(prev => prev.map(g => g.id === id ? updated : g));
   };
 
-  const handleAddGoal = async (goal) => {
+  const handleAddGoal = async (goal: Omit<Goal, 'id'>) => {
     const created = await api.createGoal(goal);
     setGoals(prev => [...prev, created]);
   };
 
-  const handleToggleTask = async (id) => {
+  const handleToggleTask = async (id: string) => {
     const updated = await api.toggleTask(id);
     setTasks(prev => prev.map(t => t.id === id ? updated : t));
   };
 
-  const handleAddTask = async (task) => {
+  const handleAddTask = async (task: Omit<TaskItem, 'id' | 'completed'>) => {
     const created = await api.createTask(task);
     setTasks(prev => [created, ...prev]);
   };
 
-  const handleDeleteTask = async (id) => {
+  const handleDeleteTask = async (id: string) => {
     await api.deleteTask(id);
     setTasks(prev => prev.filter(t => t.id !== id));
   };

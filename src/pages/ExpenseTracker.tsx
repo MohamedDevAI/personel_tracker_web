@@ -3,25 +3,31 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { expenseApi } from '../services/expenseApi';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Plus, Trash2, ArrowUpRight, ArrowDownRight, Tag } from 'lucide-react';
+import { Category, Transaction, DashboardSummary, TransactionType } from '../types';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28DFF', '#FF6699', '#44CEF6', '#B1D5C8'];
 
+interface PieDataItem {
+  name: string;
+  value: number;
+}
+
 export default function ExpenseTracker() {
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState('transactions');
+  const [activeTab, setActiveTab] = useState<'transactions' | 'categories'>('transactions');
 
   // Queries
-  const { data: summary, isLoading: isSummaryLoading } = useQuery({
+  const { data: summary } = useQuery<DashboardSummary>({
     queryKey: ['dashboardSummary'],
     queryFn: expenseApi.getDashboardSummary
   });
 
-  const { data: transactions = [], isLoading: isTransactionsLoading } = useQuery({
+  const { data: transactions = [] } = useQuery<Transaction[]>({
     queryKey: ['transactions'],
     queryFn: expenseApi.getTransactions
   });
 
-  const { data: categories = [], isLoading: isCategoriesLoading } = useQuery({
+  const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ['categories'],
     queryFn: () => expenseApi.getCategories()
   });
@@ -64,14 +70,20 @@ export default function ExpenseTracker() {
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   
   const [txForm, setTxForm] = useState({
-    title: '', amountSar: '', type: 'DEBIT', categoryId: '', transactionDate: new Date().toISOString().split('T')[0], note: ''
+    title: '',
+    amountSar: '',
+    type: 'DEBIT' as TransactionType,
+    categoryId: '',
+    transactionDate: new Date().toISOString().split('T')[0],
+    note: ''
   });
 
   const [catForm, setCatForm] = useState({
-    name: '', type: 'DEBIT'
+    name: '',
+    type: 'DEBIT' as TransactionType
   });
 
-  const handleTxSubmit = (e) => {
+  const handleTxSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     addTransaction.mutate({
       note: txForm.title + (txForm.note ? ` - ${txForm.note}` : ''),
@@ -84,7 +96,7 @@ export default function ExpenseTracker() {
     setTxForm({ ...txForm, title: '', amountSar: '', note: '' });
   };
 
-  const handleCatSubmit = (e) => {
+  const handleCatSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     addCategory.mutate(catForm);
     setShowCategoryModal(false);
@@ -92,10 +104,10 @@ export default function ExpenseTracker() {
   };
 
   // Prepare chart data
-  const pieData = summary?.expensesByCategory 
+  const pieData: PieDataItem[] = summary?.expensesByCategory 
     ? Object.keys(summary.expensesByCategory).map(key => ({
         name: key,
-        value: summary.expensesByCategory[key]
+        value: summary.expensesByCategory ? summary.expensesByCategory[key] : 0
       }))
     : [];
 
@@ -134,7 +146,7 @@ export default function ExpenseTracker() {
         </div>
         <div className="glass-panel" style={{ padding: '18px' }}>
           <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '4px' }}>NET BALANCE</div>
-          <div style={{ fontSize: '1.6rem', fontWeight: 800, color: (summary?.balance >= 0) ? '#38bdf8' : '#f43f5e', fontFamily: 'var(--font-display)' }}>
+          <div style={{ fontSize: '1.6rem', fontWeight: 800, color: (summary && summary.balance >= 0) ? '#38bdf8' : '#f43f5e', fontFamily: 'var(--font-display)' }}>
             SAR {summary?.balance?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00'}
           </div>
         </div>
@@ -204,7 +216,7 @@ export default function ExpenseTracker() {
                       </td>
                       <td style={{ padding: '14px 20px', textAlign: 'center' }}>
                         <button
-                          onClick={() => deleteTransaction.mutate(item.id)}
+                          onClick={() => item.id && deleteTransaction.mutate(item.id)}
                           className="btn-icon" style={{ margin: '0 auto', width: '30px', height: '30px', color: '#f43f5e' }}
                         >
                           <Trash2 size={14} />
@@ -234,7 +246,7 @@ export default function ExpenseTracker() {
                       </td>
                       <td style={{ padding: '14px 20px', textAlign: 'center' }}>
                         <button
-                          onClick={() => deleteCategory.mutate(cat.id)}
+                          onClick={() => cat.id && deleteCategory.mutate(cat.id)}
                           className="btn-icon" style={{ margin: '0 auto', width: '30px', height: '30px', color: '#f43f5e' }}
                         >
                           <Trash2 size={14} />
@@ -265,11 +277,11 @@ export default function ExpenseTracker() {
                       paddingAngle={5}
                       dataKey="value"
                     >
-                      {pieData.map((entry, index) => (
+                      {pieData.map((_entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value) => `SAR ${value.toFixed(2)}`} />
+                    <Tooltip formatter={(value: any) => `SAR ${Number(value).toFixed(2)}`} />
                     <Legend />
                   </PieChart>
                 </ResponsiveContainer>
@@ -291,7 +303,7 @@ export default function ExpenseTracker() {
             <form onSubmit={handleTxSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
                 <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Type</label>
-                <select value={txForm.type} onChange={(e) => setTxForm({...txForm, type: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '8px' }}>
+                <select value={txForm.type} onChange={(e) => setTxForm({...txForm, type: e.target.value as TransactionType})} style={{ width: '100%', padding: '8px', borderRadius: '8px' }}>
                   <option value="DEBIT">Debit (Expense)</option>
                   <option value="CREDIT">Credit (Income)</option>
                 </select>
@@ -338,7 +350,7 @@ export default function ExpenseTracker() {
               </div>
               <div>
                 <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Type</label>
-                <select value={catForm.type} onChange={(e) => setCatForm({...catForm, type: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '8px' }}>
+                <select value={catForm.type} onChange={(e) => setCatForm({...catForm, type: e.target.value as TransactionType})} style={{ width: '100%', padding: '8px', borderRadius: '8px' }}>
                   <option value="DEBIT">Debit</option>
                   <option value="CREDIT">Credit</option>
                 </select>

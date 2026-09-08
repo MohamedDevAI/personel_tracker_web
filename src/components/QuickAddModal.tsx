@@ -1,22 +1,47 @@
 import React, { useState } from 'react';
-import { X, Wallet, Flame, Target, CheckSquare } from 'lucide-react';
+import { X, Wallet, Flame, Target, CheckSquare, LucideIcon } from 'lucide-react';
+import { Expense, Habit, Goal, TaskItem, ExpenseType, TaskPriority } from '../types';
 
-export default function QuickAddModal({ isOpen, onClose, onAddExpense, onAddHabit, onAddGoal, onAddTask }) {
-  const [tab, setTab] = useState('expense');
+interface QuickAddModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onAddExpense: (expense: Omit<Expense, 'id'>) => void;
+  onAddHabit: (habit: Pick<Habit, 'title' | 'category' | 'targetFrequency'>) => void;
+  onAddGoal: (goal: Omit<Goal, 'id'>) => void;
+  onAddTask: (task: Omit<TaskItem, 'id' | 'completed'>) => void;
+}
+
+type TabType = 'expense' | 'habit' | 'goal' | 'task';
+
+interface TabConfig {
+  id: TabType;
+  label: string;
+  icon: LucideIcon;
+}
+
+export default function QuickAddModal({
+  isOpen,
+  onClose,
+  onAddExpense,
+  onAddHabit,
+  onAddGoal,
+  onAddTask
+}: QuickAddModalProps) {
+  const [tab, setTab] = useState<TabType>('expense');
 
   // Form states
   const [expTitle, setExpTitle] = useState('');
   const [expAmount, setExpAmount] = useState('');
-  const [expType, setExpType] = useState('EXPENSE');
+  const [expType, setExpType] = useState<ExpenseType>('EXPENSE');
 
   const [habitTitle, setHabitTitle] = useState('');
   const [goalTitle, setGoalTitle] = useState('');
   const [taskTitle, setTaskTitle] = useState('');
-  const [taskPriority, setTaskPriority] = useState('HIGH');
+  const [taskPriority, setTaskPriority] = useState<TaskPriority>('HIGH');
 
   if (!isOpen) return null;
 
-  const handleExpenseSubmit = (e) => {
+  const handleExpenseSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!expTitle || !expAmount) return;
     onAddExpense({
@@ -26,10 +51,12 @@ export default function QuickAddModal({ isOpen, onClose, onAddExpense, onAddHabi
       category: 'General',
       date: new Date().toISOString().split('T')[0]
     });
+    setExpTitle('');
+    setExpAmount('');
     onClose();
   };
 
-  const handleHabitSubmit = (e) => {
+  const handleHabitSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!habitTitle) return;
     onAddHabit({
@@ -37,10 +64,11 @@ export default function QuickAddModal({ isOpen, onClose, onAddExpense, onAddHabi
       category: 'Productivity',
       targetFrequency: 'Daily'
     });
+    setHabitTitle('');
     onClose();
   };
 
-  const handleGoalSubmit = (e) => {
+  const handleGoalSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!goalTitle) return;
     onAddGoal({
@@ -49,10 +77,11 @@ export default function QuickAddModal({ isOpen, onClose, onAddExpense, onAddHabi
       progress: 0,
       targetDate: ''
     });
+    setGoalTitle('');
     onClose();
   };
 
-  const handleTaskSubmit = (e) => {
+  const handleTaskSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!taskTitle) return;
     onAddTask({
@@ -61,8 +90,16 @@ export default function QuickAddModal({ isOpen, onClose, onAddExpense, onAddHabi
       category: 'General',
       dueDate: new Date().toISOString().split('T')[0]
     });
+    setTaskTitle('');
     onClose();
   };
+
+  const tabs: TabConfig[] = [
+    { id: 'expense', label: 'Cash', icon: Wallet },
+    { id: 'habit', label: 'Habit', icon: Flame },
+    { id: 'goal', label: 'Goal', icon: Target },
+    { id: 'task', label: 'Task', icon: CheckSquare }
+  ];
 
   return (
     <div style={{
@@ -86,12 +123,7 @@ export default function QuickAddModal({ isOpen, onClose, onAddExpense, onAddHabi
 
         {/* Quick Tabs */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', marginBottom: '20px' }}>
-          {[
-            { id: 'expense', label: 'Cash', icon: Wallet },
-            { id: 'habit', label: 'Habit', icon: Flame },
-            { id: 'goal', label: 'Goal', icon: Target },
-            { id: 'task', label: 'Task', icon: CheckSquare }
-          ].map(t => {
+          {tabs.map(t => {
             const Icon = t.icon;
             const active = tab === t.id;
             return (
@@ -139,7 +171,7 @@ export default function QuickAddModal({ isOpen, onClose, onAddExpense, onAddHabi
                 onChange={e => setExpAmount(e.target.value)}
                 required
               />
-              <select value={expType} onChange={e => setExpType(e.target.value)}>
+              <select value={expType} onChange={e => setExpType(e.target.value as ExpenseType)}>
                 <option value="EXPENSE">Expense (-)</option>
                 <option value="INCOME">Income (+)</option>
               </select>
@@ -189,7 +221,7 @@ export default function QuickAddModal({ isOpen, onClose, onAddExpense, onAddHabi
               onChange={e => setTaskTitle(e.target.value)}
               required
             />
-            <select value={taskPriority} onChange={e => setTaskPriority(e.target.value)}>
+            <select value={taskPriority} onChange={e => setTaskPriority(e.target.value as TaskPriority)}>
               <option value="HIGH">High Priority</option>
               <option value="MEDIUM">Medium Priority</option>
               <option value="LOW">Low Priority</option>

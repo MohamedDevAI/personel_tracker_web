@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
-import { Flame, Plus, CheckCircle2, Circle, Sparkles, Trophy, Award } from 'lucide-react';
+import { Flame, Plus, CheckCircle2, Circle, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { Habit } from '../types';
 
-export default function Habits({ habits, onToggleHabit, onAddHabit }) {
+interface HabitsProps {
+  habits: Habit[];
+  onToggleHabit: (id: string) => void;
+  onAddHabit: (habit: Pick<Habit, 'title' | 'category' | 'targetFrequency'>) => void;
+}
+
+export default function Habits({ habits, onToggleHabit, onAddHabit }: HabitsProps) {
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -13,7 +20,7 @@ export default function Habits({ habits, onToggleHabit, onAddHabit }) {
   const categories = ['Health', 'Productivity', 'Mindset', 'Learning', 'Fitness', 'Finance'];
   const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-  const handleToggle = (id, isDone) => {
+  const handleToggle = (id: string, isDone: boolean) => {
     onToggleHabit(id);
     if (!isDone) {
       confetti({
@@ -24,7 +31,7 @@ export default function Habits({ habits, onToggleHabit, onAddHabit }) {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title) return;
     onAddHabit(formData);
@@ -51,7 +58,7 @@ export default function Habits({ habits, onToggleHabit, onAddHabit }) {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '20px' }}>
         {habits.map(habit => {
           const completedCount = habit.history.filter(x => x === 1).length;
-          const consistency = Math.round((completedCount / habit.history.length) * 100);
+          const consistency = Math.round((completedCount / (habit.history.length || 1)) * 100);
 
           return (
             <div key={habit.id} className="glass-panel" style={{ padding: '22px', position: 'relative' }}>

@@ -1,13 +1,23 @@
 import React, { useState } from 'react';
-import { CheckSquare, Plus, Trash2, CheckCircle2, Circle, AlertCircle, Calendar } from 'lucide-react';
+import { Plus, Trash2, CheckCircle2, Circle, Calendar } from 'lucide-react';
+import { TaskItem, TaskPriority } from '../types';
 
-export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }) {
-  const [filter, setFilter] = useState('ALL');
+interface TasksProps {
+  tasks: TaskItem[];
+  onToggleTask: (id: string) => void;
+  onAddTask: (task: Omit<TaskItem, 'id' | 'completed'>) => void;
+  onDeleteTask: (id: string) => void;
+}
+
+type TaskFilter = 'ALL' | 'PENDING' | 'COMPLETED' | 'HIGH';
+
+export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }: TasksProps) {
+  const [filter, setFilter] = useState<TaskFilter>('ALL');
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     category: 'Development',
-    priority: 'HIGH',
+    priority: 'HIGH' as TaskPriority,
     dueDate: new Date().toISOString().split('T')[0]
   });
 
@@ -20,7 +30,7 @@ export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }) 
     return true;
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title) return;
     onAddTask(formData);
@@ -33,11 +43,18 @@ export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }) 
     setShowModal(false);
   };
 
-  const getPriorityBadge = (p) => {
+  const getPriorityBadge = (p: TaskPriority) => {
     if (p === 'HIGH') return <span className="badge badge-rose">HIGH</span>;
     if (p === 'MEDIUM') return <span className="badge badge-amber">MED</span>;
     return <span className="badge badge-indigo">LOW</span>;
   };
+
+  const filterOptions: { id: TaskFilter; label: string }[] = [
+    { id: 'ALL', label: 'All Tasks' },
+    { id: 'PENDING', label: 'Pending' },
+    { id: 'COMPLETED', label: 'Completed' },
+    { id: 'HIGH', label: 'High Priority' }
+  ];
 
   return (
     <div style={{ padding: '0 24px 48px', maxWidth: '1440px', margin: '0 auto' }}>
@@ -56,12 +73,7 @@ export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }) 
 
       {/* Filter Tabs */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
-        {[
-          { id: 'ALL', label: 'All Tasks' },
-          { id: 'PENDING', label: 'Pending' },
-          { id: 'COMPLETED', label: 'Completed' },
-          { id: 'HIGH', label: 'High Priority' }
-        ].map(item => (
+        {filterOptions.map(item => (
           <button
             key={item.id}
             onClick={() => setFilter(item.id)}
@@ -179,7 +191,7 @@ export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }) 
                   <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Priority</label>
                   <select
                     value={formData.priority}
-                    onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, priority: e.target.value as TaskPriority })}
                   >
                     <option value="HIGH">High Priority</option>
                     <option value="MEDIUM">Medium Priority</option>

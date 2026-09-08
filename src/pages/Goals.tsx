@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
-import { Target, Plus, Calendar, Flag, Sparkles, CheckCircle, ChevronRight } from 'lucide-react';
+import { Plus, Calendar, Sparkles, CheckCircle } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { Goal } from '../types';
 
-export default function Goals({ goals, onUpdateProgress, onAddGoal }) {
+interface GoalsProps {
+  goals: Goal[];
+  onUpdateProgress: (id: string, val: number) => void;
+  onAddGoal: (goal: Omit<Goal, 'id'>) => void;
+}
+
+export default function Goals({ goals, onUpdateProgress, onAddGoal }: GoalsProps) {
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -16,7 +23,7 @@ export default function Goals({ goals, onUpdateProgress, onAddGoal }) {
 
   const categories = ['Career', 'Finance', 'Fitness', 'Learning', 'Personal'];
 
-  const handleIncrement = (id, currentProgress, step) => {
+  const handleIncrement = (id: string, currentProgress: number, step: number) => {
     const nextVal = Math.min(100, Math.max(0, currentProgress + step));
     onUpdateProgress(id, nextVal);
     if (nextVal === 100) {
@@ -24,7 +31,7 @@ export default function Goals({ goals, onUpdateProgress, onAddGoal }) {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title) return;
     onAddGoal(formData);

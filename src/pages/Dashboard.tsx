@@ -1,8 +1,27 @@
 import React from 'react';
-import { ArrowUpRight, ArrowDownRight, Flame, Target, CheckCircle2, Circle, TrendingUp, Sparkles, Plus, Calendar } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Flame, CheckCircle2, Circle, TrendingUp, Calendar } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { Expense, Habit, Goal, TaskItem } from '../types';
 
-export default function Dashboard({ expenses, habits, goals, tasks, onToggleHabit, onToggleTask, onNavigate }) {
+interface DashboardProps {
+  expenses: Expense[];
+  habits: Habit[];
+  goals: Goal[];
+  tasks: TaskItem[];
+  onToggleHabit: (id: string) => void;
+  onToggleTask: (id: string) => void;
+  onNavigate: (tab: string) => void;
+}
+
+export default function Dashboard({
+  expenses,
+  habits,
+  goals,
+  tasks,
+  onToggleHabit,
+  onToggleTask,
+  onNavigate
+}: DashboardProps) {
   // Financial computations
   const totalIncome = expenses
     .filter(e => e.type === 'INCOME')
@@ -11,7 +30,7 @@ export default function Dashboard({ expenses, habits, goals, tasks, onToggleHabi
     .filter(e => e.type === 'EXPENSE')
     .reduce((sum, e) => sum + Number(e.amount), 0);
   const netSavings = totalIncome - totalExpense;
-  const savingsRate = totalIncome > 0 ? ((netSavings / totalIncome) * 100).toFixed(1) : 0;
+  const savingsRate = totalIncome > 0 ? ((netSavings / totalIncome) * 100).toFixed(1) : '0';
 
   // Habit metrics
   const maxStreak = habits.length > 0 ? Math.max(...habits.map(h => h.streak || 0)) : 0;
@@ -25,7 +44,7 @@ export default function Dashboard({ expenses, habits, goals, tasks, onToggleHabi
   // Task metrics
   const completedTasks = tasks.filter(t => t.completed).length;
 
-  const handleHabitCheck = (id, currentlyDone) => {
+  const handleHabitCheck = (id: string, currentlyDone: boolean) => {
     onToggleHabit(id);
     if (!currentlyDone) {
       confetti({ particleCount: 40, spread: 60, origin: { y: 0.75 } });

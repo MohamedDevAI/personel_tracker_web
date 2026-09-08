@@ -1,9 +1,28 @@
 // API Service for Spring Boot Backend with Local Fallback Engine
+import { Expense, Habit, Goal, TaskItem, BackendHealth } from '../types';
 
 const API_BASE = '/api';
 
+interface InitialStorage {
+  dashboard: {
+    streakDays: number;
+    monthlyIncome: number;
+    monthlyExpense: number;
+    savingsRate: number;
+    activeHabitsCount: number;
+    completedTasksToday: number;
+    totalTasksToday: number;
+    goalsCompletedCount: number;
+    activeGoalsCount: number;
+  };
+  expenses: Expense[];
+  habits: Habit[];
+  goals: Goal[];
+  tasks: TaskItem[];
+}
+
 // Initial Mock Seed Data (Refined, Realistic, High-Value)
-const initialStorage = {
+const initialStorage: InitialStorage = {
   dashboard: {
     streakDays: 14,
     monthlyIncome: 6450.00,
@@ -46,7 +65,7 @@ const initialStorage = {
 };
 
 // Initialize localStorage if empty
-const getLocal = (key) => {
+const getLocal = <K extends keyof InitialStorage>(key: K): InitialStorage[K] => {
   const data = localStorage.getItem(`pt_${key}`);
   if (!data) {
     localStorage.setItem(`pt_${key}`, JSON.stringify(initialStorage[key]));
@@ -59,17 +78,17 @@ const getLocal = (key) => {
   }
 };
 
-const setLocal = (key, val) => {
+const setLocal = <K extends keyof InitialStorage>(key: K, val: InitialStorage[K]): void => {
   localStorage.setItem(`pt_${key}`, JSON.stringify(val));
 };
 
 // Check backend connectivity
-export const checkBackendHealth = async () => {
+export const checkBackendHealth = async (): Promise<BackendHealth> => {
   try {
     const res = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(1500) });
     if (res.ok) {
       const data = await res.json();
-      return { connected: true, ...data };
+      return { connected: true, mode: 'remote', ...data };
     }
     return { connected: false, mode: 'local' };
   } catch (err) {
@@ -79,7 +98,7 @@ export const checkBackendHealth = async () => {
 
 export const api = {
   // Expenses API
-  getExpenses: async () => {
+  getExpenses: async (): Promise<Expense[]> => {
     try {
       const res = await fetch(`${API_BASE}/expenses`, { signal: AbortSignal.timeout(2000) });
       if (res.ok) return await res.json();
@@ -87,7 +106,7 @@ export const api = {
     return getLocal('expenses');
   },
 
-  createExpense: async (expense) => {
+  createExpense: async (expense: Omit<Expense, 'id'>): Promise<Expense> => {
     try {
       const res = await fetch(`${API_BASE}/expenses`, {
         method: 'POST',
@@ -97,13 +116,13 @@ export const api = {
       if (res.ok) return await res.json();
     } catch (e) {}
     const list = getLocal('expenses');
-    const newItem = { ...expense, id: Date.now().toString() };
+    const newItem: Expense = { ...expense, id: Date.now().toString() };
     const updated = [newItem, ...list];
     setLocal('expenses', updated);
     return newItem;
   },
 
-  deleteExpense: async (id) => {
+  deleteExpense: async (id: string): Promise<boolean> => {
     try {
       await fetch(`${API_BASE}/expenses/${id}`, { method: 'DELETE' });
     } catch (e) {}
@@ -113,7 +132,7 @@ export const api = {
   },
 
   // Habits API
-  getHabits: async () => {
+  getHabits: async (): Promise<Habit[]> => {
     try {
       const res = await fetch(`${API_BASE}/habits`, { signal: AbortSignal.timeout(2000) });
       if (res.ok) return await res.json();
@@ -121,7 +140,7 @@ export const api = {
     return getLocal('habits');
   },
 
-  toggleHabit: async (id) => {
+  toggleHabit: async (id: string): Promise<Habit> => {
     try {
       const res = await fetch(`${API_BASE}/habits/${id}/toggle`, { method: 'POST' });
       if (res.ok) return await res.json();
@@ -137,10 +156,12 @@ export const api = {
       return h;
     });
     setLocal('habits', updated);
-    return updated.find(h => h.id === id);
+    const result = updated.find(h => h.id === id);
+    if (!result) throw new Error('Habit not found');
+    return result;
   },
 
-  createHabit: async (habit) => {
+  createHabit: async (habit: Pick<Habit, 'title' | 'category' | 'targetFrequency'>): Promise<Habit> => {
     try {
       const res = await fetch(`${API_BASE}/habits`, {
         method: 'POST',
@@ -150,7 +171,7 @@ export const api = {
       if (res.ok) return await res.json();
     } catch (e) {}
     const list = getLocal('habits');
-    const newItem = {
+    const newItem: Habit = {
       ...habit,
       id: Date.now().toString(),
       streak: 1,
@@ -163,7 +184,7 @@ export const api = {
   },
 
   // Goals API
-  getGoals: async () => {
+  getGoals: async (): Promise<Goal[]> => {
     try {
       const res = await fetch(`${API_BASE}/goals`, { signal: AbortSignal.timeout(2000) });
       if (res.ok) return await res.json();
@@ -171,7 +192,7 @@ export const api = {
     return getLocal('goals');
   },
 
-  updateGoalProgress: async (id, newProgress) => {
+  updateGoalProgress: async (id: string, newProgress: number): Promise<Goal> => {
     try {
       const res = await fetch(`${API_BASE}/goals/${id}/progress?value=${newProgress}`, { method: 'PATCH' });
       if (res.ok) return await res.json();
@@ -179,10 +200,12 @@ export const api = {
     const list = getLocal('goals');
     const updated = list.map(g => g.id === id ? { ...g, progress: Math.min(100, Math.max(0, newProgress)) } : g);
     setLocal('goals', updated);
-    return updated.find(g => g.id === id);
+    const result = updated.find(g => g.id === id);
+    if (!result) throw new Error('Goal not found');
+    return result;
   },
 
-  createGoal: async (goal) => {
+  createGoal: async (goal: Omit<Goal, 'id'>): Promise<Goal> => {
     try {
       const res = await fetch(`${API_BASE}/goals`, {
         method: 'POST',
@@ -192,14 +215,14 @@ export const api = {
       if (res.ok) return await res.json();
     } catch (e) {}
     const list = getLocal('goals');
-    const newItem = { ...goal, id: Date.now().toString(), status: 'IN_PROGRESS' };
+    const newItem: Goal = { ...goal, id: Date.now().toString(), status: 'IN_PROGRESS' };
     const updated = [...list, newItem];
     setLocal('goals', updated);
     return newItem;
   },
 
   // Tasks API
-  getTasks: async () => {
+  getTasks: async (): Promise<TaskItem[]> => {
     try {
       const res = await fetch(`${API_BASE}/tasks`, { signal: AbortSignal.timeout(2000) });
       if (res.ok) return await res.json();
@@ -207,7 +230,7 @@ export const api = {
     return getLocal('tasks');
   },
 
-  toggleTask: async (id) => {
+  toggleTask: async (id: string): Promise<TaskItem> => {
     try {
       const res = await fetch(`${API_BASE}/tasks/${id}/toggle`, { method: 'POST' });
       if (res.ok) return await res.json();
@@ -215,10 +238,12 @@ export const api = {
     const list = getLocal('tasks');
     const updated = list.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
     setLocal('tasks', updated);
-    return updated.find(t => t.id === id);
+    const result = updated.find(t => t.id === id);
+    if (!result) throw new Error('Task not found');
+    return result;
   },
 
-  createTask: async (task) => {
+  createTask: async (task: Omit<TaskItem, 'id' | 'completed'>): Promise<TaskItem> => {
     try {
       const res = await fetch(`${API_BASE}/tasks`, {
         method: 'POST',
@@ -228,13 +253,13 @@ export const api = {
       if (res.ok) return await res.json();
     } catch (e) {}
     const list = getLocal('tasks');
-    const newItem = { ...task, id: Date.now().toString(), completed: false };
+    const newItem: TaskItem = { ...task, id: Date.now().toString(), completed: false };
     const updated = [newItem, ...list];
     setLocal('tasks', updated);
     return newItem;
   },
 
-  deleteTask: async (id) => {
+  deleteTask: async (id: string): Promise<boolean> => {
     try {
       await fetch(`${API_BASE}/tasks/${id}`, { method: 'DELETE' });
     } catch (e) {}
