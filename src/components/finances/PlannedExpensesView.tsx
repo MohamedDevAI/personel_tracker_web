@@ -1,12 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { 
   Target, Plus, Search, Filter, Calendar, Trash2, CheckCircle2, 
-  Clock, AlertTriangle, TrendingDown, DollarSign
+  Clock, AlertTriangle, TrendingDown, DollarSign, CheckSquare,
+  Pencil, ArrowUpRight, Check, XCircle
 } from 'lucide-react';
 import { Category, PlannedExpense, PlannedExpenseStatus, Transaction } from '../../types';
 import { MONTH_NAMES } from '../../services/expenseApi';
 import { plannedExpenseApi } from '../../services/plannedExpenseApi';
 import PlannedExpenseModal from './PlannedExpenseModal';
+import FulfillPaymentModal from './FulfillPaymentModal';
 import ConfirmDeleteModal from '../common/ConfirmDeleteModal';
 
 interface PlannedExpensesViewProps {
@@ -19,11 +21,16 @@ export default function PlannedExpensesView({
   transactions = []
 }: PlannedExpensesViewProps) {
   const [plans, setPlans] = useState<PlannedExpense[]>(() => plannedExpenseApi.getPlannedExpenses());
-  const [selectedMonth, setSelectedMonth] = useState<string>('Mar');
+  const [selectedMonth, setSelectedMonth] = useState<string>('Jul');
   const [selectedYear, setSelectedYear] = useState<number>(2026);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | PlannedExpenseStatus>('ALL');
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Modals
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editingPlan, setEditingPlan] = useState<PlannedExpense | null>(null);
+  const [activeFulfillPlan, setActiveFulfillPlan] = useState<PlannedExpense | null>(null);
+  const [deletePlan, setDeletePlan] = useState<PlannedExpense | null>(null);
 
   // Reload plans
   const refreshPlans = () => {
@@ -35,7 +42,6 @@ export default function PlannedExpensesView({
     const expenses: Record<string, number> = {};
     for (const tx of transactions) {
       if (String(tx.type).toUpperCase() !== 'CREDIT') {
-        // match month and year
         const matchesMonth = tx.month === selectedMonth;
         let matchesYear = true;
         if (tx.date) {
@@ -67,41 +73,47 @@ export default function PlannedExpensesView({
       const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (p.notes && p.notes.toLowerCase().includes(searchQuery.toLowerCase()));
-      const matchesStatus = statusFilter === 'ALL' || p.status === statusFilter;
+      
+      let matchesStatus = true;
+      if (statusFilter !== 'ALL') {
+        if (statusFilter === 'Fulfilled') {
+          matchesStatus = p.isFulfilled || p.status === 'Fulfilled' || ((p.paidAmount ?? 0) >= p.plannedAmount);
+        } else if (statusFilter === 'Partial') {
+          matchesStatus = (p.paidAmount ?? 0) > 0 && (p.paidAmount ?? 0) < p.plannedAmount && !p.isFulfilled;
+        } else {
+          matchesStatus = p.status === statusFilter;
+        }
+      }
+
       return matchesMonth && matchesYear && matchesSearch && matchesStatus;
     });
   }, [plans, selectedMonth, selectedYear, searchQuery, statusFilter]);
 
-  const handleAddPlan = (newPlan: Omit<PlannedExpense, 'id' | 'createdAt'>) => {
-    plannedExpenseApi.createPlannedExpense(newPlan);
+  const handleCreateOrUpdatePlan = (planData: Omit<PlannedExpense, 'id' | 'createdAt'>) => {
+    if (editingPlan) {
+      plannedExpenseApi.updatePlannedExpense(editingPlan.id, planData);
+      setEditingPlan(null);
+    } else {
+      plannedExpenseApi.createPlannedExpense(planData);
+    }
     refreshPlans();
   };
 
-  const [deletePlanId, setDeletePlanId] = useState<string | null>(null);
-  const [deletePlanTitle, setDeletePlanTitle] = useState<string>('');
-
-  const triggerDeletePlan = (plan: PlannedExpense) => {
-    setDeletePlanId(plan.id);
-    setDeletePlanTitle(`${plan.title} (${plan.category} - SAR ${plan.plannedAmount})`);
+  const handleSaveFulfillment = (id: string, isFulfilled: boolean, paidAmount: number) => {
+    plannedExpenseApi.setFulfillmentAndPayment(id, isFulfilled, paidAmount);
+    refreshPlans();
   };
 
   const handleConfirmDeletePlan = () => {
-    if (deletePlanId) {
-      plannedExpenseApi.deletePlannedExpense(deletePlanId);
+    if (deletePlan) {
+      plannedExpenseApi.deletePlannedExpense(deletePlan.id);
       refreshPlans();
-      setDeletePlanId(null);
-      setDeletePlanTitle('');
+      setDeletePlan(null);
     }
   };
 
-  const handleToggleStatus = (plan: PlannedExpense) => {
-    const nextStatus: PlannedExpenseStatus = plan.status === 'Fulfilled' ? 'Planned' : 'Fulfilled';
-    plannedExpenseApi.updatePlannedExpense(plan.id, { status: nextStatus });
-    refreshPlans();
-  };
-
   const formatSAR = (val: number) => {
-    return `SAR ${Math.round(val).toLocaleString('en-US')}`;
+    return `SAR ${Number(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
   return (
@@ -111,10 +123,10 @@ export default function PlannedExpensesView({
       <div className="planned-header-row">
         <div>
           <h2 className="planned-header-title">
-            Planned Expenses & <span className="emerald-gradient-text">Budget Allocation</span>
+            Planned Expenses & <span className="emerald-gradient-text">Fulfillment Tracker</span>
           </h2>
           <p className="planned-header-subtitle">
-            Set expected spending limits per category, track Planned vs Actual variance in Saudi Riyals (SAR), and control monthly cash outflow.
+            Plan monthly expenses, track fulfilled vs unfulfilled items, and manage exactly how much you paid (all figures in SAR).
           </p>
         </div>
 
@@ -125,6 +137,7 @@ export default function PlannedExpensesView({
               value={selectedMonth}
               onChange={e => setSelectedMonth(e.target.value)}
               className="select-custom-pill"
+              title="Select Month"
             >
               {MONTH_NAMES.map(m => (
                 <option key={m} value={m}>{m}</option>
@@ -134,6 +147,7 @@ export default function PlannedExpensesView({
               value={selectedYear}
               onChange={e => setSelectedYear(Number(e.target.value))}
               className="select-custom-pill"
+              title="Select Year"
             >
               <option value={2024}>2024</option>
               <option value={2025}>2025</option>
@@ -142,8 +156,14 @@ export default function PlannedExpensesView({
             </select>
           </div>
 
-          <button onClick={() => setIsModalOpen(true)} className="btn btn-primary">
-            <Plus size={16} /> + Add Planned Expense
+          <button 
+            onClick={() => {
+              setEditingPlan(null);
+              setIsAddModalOpen(true);
+            }} 
+            className="btn btn-primary"
+          >
+            <Plus size={16} /> + Plan An Expense
           </button>
         </div>
       </div>
@@ -153,35 +173,36 @@ export default function PlannedExpensesView({
         <div className="planned-kpi-card total-planned">
           <div className="planned-kpi-label">TOTAL PLANNED BUDGET</div>
           <div className="planned-kpi-val">{formatSAR(budgetSummary.totalPlanned)}</div>
-          <div className="planned-kpi-meta">{selectedMonth} {selectedYear} allocation</div>
+          <div className="planned-kpi-meta">{selectedMonth} {selectedYear} ({filteredPlans.length} items)</div>
         </div>
 
         <div className="planned-kpi-card actual-spent">
-          <div className="planned-kpi-label">ACTUAL SPENT SO FAR</div>
-          <div className="planned-kpi-val">{formatSAR(budgetSummary.totalActualSpent)}</div>
-          <div className="planned-kpi-meta">Across planned categories</div>
+          <div className="planned-kpi-label">TOTAL AMOUNT PAID</div>
+          <div className="planned-kpi-val text-emerald">{formatSAR(budgetSummary.totalPaid)}</div>
+          <div className="planned-kpi-meta">Paid towards planned goals</div>
         </div>
 
-        <div className={`planned-kpi-card ${budgetSummary.remainingBudget >= 0 ? 'remaining-budget' : 'over-budget'}`}>
+        <div className={`planned-kpi-card ${budgetSummary.totalRemaining === 0 ? 'remaining-budget' : 'over-budget'}`}>
           <div className="planned-kpi-label">
-            {budgetSummary.remainingBudget >= 0 ? 'REMAINING BUDGET' : 'OVER BUDGET'}
+            {budgetSummary.totalRemaining === 0 ? 'REMAINING UNPAID' : 'PENDING PAYMENT'}
           </div>
-          <div className={`planned-kpi-val ${budgetSummary.remainingBudget >= 0 ? 'remaining-text' : 'over-text'}`}>
-            {formatSAR(Math.abs(budgetSummary.remainingBudget))}
+          <div className={`planned-kpi-val ${budgetSummary.totalRemaining === 0 ? 'remaining-text' : 'over-text'}`}>
+            {formatSAR(budgetSummary.totalRemaining)}
           </div>
           <div className="planned-kpi-meta">
-            {budgetSummary.remainingBudget >= 0 ? 'Available surplus' : 'Exceeded allocated budget'}
+            {budgetSummary.totalRemaining === 0 ? 'All planned expenses fulfilled!' : 'Balance left to pay'}
           </div>
         </div>
 
         <div className="planned-kpi-card burn-rate">
-          <div className="planned-kpi-label">BUDGET UTILIZATION</div>
-          <div className="planned-kpi-val">{budgetSummary.adherenceRate}%</div>
+          <div className="planned-kpi-label">FULFILLMENT STATUS</div>
+          <div className="planned-kpi-val">{budgetSummary.fulfillmentRate}%</div>
           <div className="planned-kpi-meta">
+            <span>{budgetSummary.fulfilledCount} of {budgetSummary.totalItems} items fulfilled</span>
             <div className="mini-progress-bar">
               <div 
-                className={`mini-progress-fill ${budgetSummary.adherenceRate > 90 ? 'alert' : ''}`}
-                style={{ width: `${Math.min(100, budgetSummary.adherenceRate)}%` }}
+                className="mini-progress-fill"
+                style={{ width: `${Math.min(100, budgetSummary.fulfillmentRate)}%` }}
               />
             </div>
           </div>
@@ -240,35 +261,42 @@ export default function PlannedExpensesView({
             className="borrow-select-filter"
           >
             <option value="ALL">All Statuses</option>
-            <option value="Planned">Planned</option>
-            <option value="Fulfilled">Fulfilled</option>
-            <option value="Pending">Pending</option>
+            <option value="Fulfilled">Fulfilled (Complete)</option>
+            <option value="Partial">Partially Paid</option>
+            <option value="Planned">Unfulfilled / Planned</option>
           </select>
         </div>
       </div>
 
-      {/* Table */}
+      {/* Planned Expenses Table */}
       <div className="borrow-table-container glass-panel">
         <table className="borrow-data-table">
           <thead>
             <tr>
               <th>Expense Objective</th>
               <th>Category</th>
-              <th>Target Month</th>
-              <th>Due Date</th>
+              <th>Period</th>
               <th className="th-amount">Planned Budget</th>
-              <th>Status</th>
+              <th className="th-amount">Amount Paid</th>
+              <th className="th-amount">Remaining</th>
+              <th>Fulfillment Status</th>
               <th className="th-action">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredPlans.length === 0 ? (
               <tr>
-                <td colSpan={7} className="empty-table-cell">
+                <td colSpan={8} className="empty-table-cell">
                   <div className="empty-table-placeholder">
                     <Target size={28} />
                     <p>No planned expenses recorded for {selectedMonth} {selectedYear}.</p>
-                    <button onClick={() => setIsModalOpen(true)} className="btn btn-secondary btn-sm">
+                    <button 
+                      onClick={() => {
+                        setEditingPlan(null);
+                        setIsAddModalOpen(true);
+                      }} 
+                      className="btn btn-secondary btn-sm"
+                    >
                       + Plan An Expense
                     </button>
                   </div>
@@ -276,7 +304,13 @@ export default function PlannedExpensesView({
               </tr>
             ) : (
               filteredPlans.map(plan => {
-                const isFulfilled = plan.status === 'Fulfilled';
+                const isFulfilled = plan.isFulfilled || plan.status === 'Fulfilled' || ((plan.paidAmount ?? 0) >= plan.plannedAmount);
+                const paidVal = isFulfilled 
+                  ? plan.plannedAmount 
+                  : (plan.paidAmount !== undefined ? plan.paidAmount : 0);
+                const remainingVal = Math.max(0, plan.plannedAmount - paidVal);
+                const isPartial = !isFulfilled && paidVal > 0;
+
                 return (
                   <tr key={plan.id} className="borrow-row">
                     {/* Title */}
@@ -294,15 +328,11 @@ export default function PlannedExpensesView({
                       </span>
                     </td>
 
-                    {/* Month */}
-                    <td>{plan.month} {plan.year}</td>
-
-                    {/* Due Date */}
+                    {/* Month / Year */}
                     <td>
-                      <div className="date-cell-flex">
-                        <Calendar size={13} className="date-icon" />
-                        <span>{plan.dueDate || 'End of Month'}</span>
-                      </div>
+                      <span className="text-secondary font-medium">
+                        {plan.month} {plan.year}
+                      </span>
                     </td>
 
                     {/* Planned Amount */}
@@ -310,27 +340,70 @@ export default function PlannedExpensesView({
                       {formatSAR(plan.plannedAmount)}
                     </td>
 
-                    {/* Status */}
+                    {/* Amount Paid */}
+                    <td className="td-amount td-paid">
+                      {formatSAR(paidVal)}
+                    </td>
+
+                    {/* Remaining Due */}
+                    <td className={`td-amount td-remaining ${remainingVal === 0 ? 'zero-due' : ''}`}>
+                      {remainingVal === 0 ? 'SAR 0.00' : formatSAR(remainingVal)}
+                    </td>
+
+                    {/* Status Badge (Click to open fulfillment modal) */}
                     <td>
                       <button 
-                        onClick={() => handleToggleStatus(plan)}
-                        className={`badge badge-interactive ${isFulfilled ? 'badge-emerald' : 'badge-amber'}`}
-                        title="Click to toggle status"
+                        onClick={() => setActiveFulfillPlan(plan)}
+                        className={`badge badge-interactive ${isFulfilled ? 'badge-fulfilled' : (isPartial ? 'badge-partial' : 'badge-unfulfilled')}`}
+                        title="Click to update fulfillment or paid amount"
                       >
-                        {isFulfilled ? <CheckCircle2 size={12} /> : <Clock size={12} />}
-                        {plan.status}
+                        {isFulfilled ? (
+                          <>
+                            <CheckCircle2 size={13} />
+                            <span>Fulfilled (100%)</span>
+                          </>
+                        ) : isPartial ? (
+                          <>
+                            <Clock size={13} />
+                            <span>Partial ({Math.round((paidVal / plan.plannedAmount) * 100)}%)</span>
+                          </>
+                        ) : (
+                          <>
+                            <XCircle size={13} />
+                            <span>Not Fulfilled</span>
+                          </>
+                        )}
                       </button>
                     </td>
 
-                    {/* Action */}
+                    {/* Actions */}
                     <td className="td-action">
-                      <button
-                        onClick={() => triggerDeletePlan(plan)}
-                        className="btn-icon-delete"
-                        title="Delete Plan"
-                      >
-                        <Trash2 size={15} />
-                      </button>
+                      <div className="table-actions-cluster">
+                        <button
+                          onClick={() => setActiveFulfillPlan(plan)}
+                          className="btn-icon-fulfill"
+                          title="Update Fulfillment & How much paid"
+                        >
+                          <CheckSquare size={15} />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditingPlan(plan);
+                            setIsAddModalOpen(true);
+                          }}
+                          className="btn-icon"
+                          title="Edit Plan"
+                        >
+                          <Pencil size={15} />
+                        </button>
+                        <button
+                          onClick={() => setDeletePlan(plan)}
+                          className="btn-icon-delete"
+                          title="Delete Plan"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -340,29 +413,38 @@ export default function PlannedExpensesView({
         </table>
       </div>
 
-      {/* Modal */}
+      {/* Add / Edit Plan Modal */}
       <PlannedExpenseModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSubmit={handleAddPlan}
+        isOpen={isAddModalOpen}
+        onClose={() => {
+          setIsAddModalOpen(false);
+          setEditingPlan(null);
+        }}
+        onSubmit={handleCreateOrUpdatePlan}
         categories={categories}
         initialMonth={selectedMonth}
         initialYear={selectedYear}
+        initialPlan={editingPlan}
       />
 
-      {/* Delete Confirmation Modal */}
+      {/* Dedicated Fulfillment & Payment Modal */}
+      <FulfillPaymentModal
+        isOpen={Boolean(activeFulfillPlan)}
+        onClose={() => setActiveFulfillPlan(null)}
+        plan={activeFulfillPlan}
+        onSave={handleSaveFulfillment}
+      />
+
+      {/* Delete Confirmation Modal (Yes / No) */}
       <ConfirmDeleteModal
-        isOpen={Boolean(deletePlanId)}
+        isOpen={Boolean(deletePlan)}
         title="Delete Planned Expense"
         message="Are you sure you want to delete this planned expense? Please choose Yes to delete or No to cancel."
-        itemName={deletePlanTitle}
+        itemName={deletePlan ? `${deletePlan.title} (${deletePlan.category} - ${formatSAR(deletePlan.plannedAmount)})` : ''}
         confirmText="Yes, Delete"
         cancelText="No, Keep"
         onConfirm={handleConfirmDeletePlan}
-        onCancel={() => {
-          setDeletePlanId(null);
-          setDeletePlanTitle('');
-        }}
+        onCancel={() => setDeletePlan(null)}
       />
 
     </div>

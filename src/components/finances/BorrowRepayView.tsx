@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { 
-  HandCoins, Plus, Search, Filter, ArrowDownLeft, ArrowUpRight, 
-  Trash2, CheckCircle2, Clock, CalendarClock, User, Calendar, 
+import {
+  HandCoins, Plus, Search, Filter, ArrowDownLeft, ArrowUpRight,
+  Trash2, CheckCircle2, Clock, CalendarClock, User, Calendar,
   CheckSquare
 } from 'lucide-react';
 import { BorrowRepayRecord, BorrowRepayType, PlannedRepayment, PlannedRepaymentStatus } from '../../types';
@@ -114,7 +114,7 @@ export default function BorrowRepayView() {
         (r.notes && r.notes.toLowerCase().includes(searchQuery.toLowerCase()));
       const matchesType = typeFilter === 'ALL' || r.type === typeFilter;
       const matchesCreditor = selectedCreditorFilter === 'ALL' || r.creditorName === selectedCreditorFilter;
-      
+
       const { month, year } = parseDateMonthYear(r.date);
       const matchesMonth = selectedMonth === 'ALL' || month === selectedMonth;
       const matchesYear = selectedYear === 'ALL' || year === selectedYear;
@@ -129,7 +129,7 @@ export default function BorrowRepayView() {
       const matchesSearch = p.creditorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (p.notes && p.notes.toLowerCase().includes(searchQuery.toLowerCase()));
       const matchesStatus = plannedStatusFilter === 'ALL' || p.status === plannedStatusFilter;
-      
+
       const { month, year } = parseDateMonthYear(p.targetDate);
       const matchesMonth = selectedMonth === 'ALL' || month === selectedMonth;
       const matchesYear = selectedYear === 'ALL' || year === selectedYear;
@@ -214,29 +214,26 @@ export default function BorrowRepayView() {
 
   return (
     <div className="borrow-repay-container">
-      
+
       {/* Top Header */}
       <div className="borrow-repay-header">
         <div>
           <h2 className="borrow-repay-title">
             Borrow & Repay <span className="emerald-gradient-text">Management</span>
           </h2>
-          <p className="borrow-repay-subtitle">
-            Split into two steps: Track live credit transactions, and plan future debt repayments. All values in Indian Rupees (₹).
-          </p>
         </div>
 
         {/* Action Buttons depending on Step */}
         <div className="borrow-header-buttons">
           {activeStep === 'credit_tracker' ? (
             <>
-              <button 
+              <button
                 onClick={() => handleOpenCreditModal('Borrow')}
                 className="btn btn-secondary btn-borrow-action"
               >
                 <ArrowDownLeft size={16} /> + Log Borrow
               </button>
-              <button 
+              <button
                 onClick={() => handleOpenCreditModal('Repaid')}
                 className="btn btn-primary"
               >
@@ -244,7 +241,7 @@ export default function BorrowRepayView() {
               </button>
             </>
           ) : (
-            <button 
+            <button
               onClick={() => setIsPlannedModalOpen(true)}
               className="btn btn-primary"
             >
@@ -321,7 +318,7 @@ export default function BorrowRepayView() {
                 {formatINR(stats.netOutstanding)}
               </div>
               <div className="borrow-kpi-meta">
-                {stats.netOutstanding > 0 
+                {stats.netOutstanding > 0
                   ? `${stats.activeCreditorsCount} creditor(s) pending settlement`
                   : 'All borrowed money fully settled!'}
               </div>
@@ -336,7 +333,7 @@ export default function BorrowRepayView() {
               </h3>
               <div className="creditors-chip-grid">
                 {creditorSummaries.map(c => (
-                  <div 
+                  <div
                     key={c.creditorName}
                     onClick={() => setSelectedCreditorFilter(prev => prev === c.creditorName ? 'ALL' : c.creditorName)}
                     className={`creditor-chip-card ${selectedCreditorFilter === c.creditorName ? 'active-filter' : ''} ${c.status === 'Settled' ? 'settled' : 'pending'}`}
@@ -405,6 +402,7 @@ export default function BorrowRepayView() {
 
               {/* Year Filter */}
               <div className="filter-select-wrapper">
+                <Clock size={14} className="filter-icon" />
                 <select
                   value={selectedYear}
                   onChange={e => setSelectedYear(e.target.value)}
@@ -471,7 +469,7 @@ export default function BorrowRepayView() {
                       <div className="empty-table-placeholder">
                         <HandCoins size={28} />
                         <p>No borrow or repayment records found for the selected month/year filter.</p>
-                        <button 
+                        <button
                           onClick={() => handleOpenCreditModal('Borrow')}
                           className="btn btn-secondary btn-sm"
                         >
@@ -593,6 +591,7 @@ export default function BorrowRepayView() {
 
               {/* Year Filter */}
               <div className="filter-select-wrapper">
+                <Clock size={14} className="filter-icon" />
                 <select
                   value={selectedYear}
                   onChange={e => setSelectedYear(e.target.value)}
@@ -643,7 +642,7 @@ export default function BorrowRepayView() {
                       <div className="empty-table-placeholder">
                         <CalendarClock size={28} />
                         <p>No planned repayments found for the selected month/year filter.</p>
-                        <button 
+                        <button
                           onClick={() => setIsPlannedModalOpen(true)}
                           className="btn btn-secondary btn-sm"
                         >

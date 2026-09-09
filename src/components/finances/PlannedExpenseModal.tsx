@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Target, X } from 'lucide-react';
+import { Target, X, CheckCircle2, Clock } from 'lucide-react';
 import { Category, PlannedExpense, PlannedExpenseStatus } from '../../types';
 import { MONTH_NAMES } from '../../services/expenseApi';
 
@@ -10,6 +10,7 @@ interface PlannedExpenseModalProps {
   categories?: Category[];
   initialMonth?: string;
   initialYear?: number;
+  initialPlan?: PlannedExpense | null;
 }
 
 export default function PlannedExpenseModal({
@@ -17,8 +18,9 @@ export default function PlannedExpenseModal({
   onClose,
   onSubmit,
   categories = [],
-  initialMonth = 'Mar',
-  initialYear = 2026
+  initialMonth = 'Jul',
+  initialYear = 2026,
+  initialPlan = null
 }: PlannedExpenseModalProps) {
   const [form, setForm] = useState({
     title: '',
@@ -26,40 +28,78 @@ export default function PlannedExpenseModal({
     month: initialMonth,
     year: initialYear,
     plannedAmount: '',
+    paidAmount: '0',
+    isFulfilled: false,
     dueDate: '',
-    status: 'Planned' as PlannedExpenseStatus,
     notes: ''
   });
 
   useEffect(() => {
     if (isOpen) {
-      setForm({
-        title: '',
-        category: categories[0]?.name || 'Grocery',
-        month: initialMonth,
-        year: initialYear,
-        plannedAmount: '',
-        dueDate: '',
-        status: 'Planned',
-        notes: ''
-      });
+      if (initialPlan) {
+        const fulfilled = initialPlan.isFulfilled ?? (initialPlan.status === 'Fulfilled');
+        setForm({
+          title: initialPlan.title,
+          category: initialPlan.category,
+          month: initialPlan.month,
+          year: initialPlan.year,
+          plannedAmount: String(initialPlan.plannedAmount),
+          paidAmount: String(initialPlan.paidAmount ?? (fulfilled ? initialPlan.plannedAmount : 0)),
+          isFulfilled: fulfilled,
+          dueDate: initialPlan.dueDate || '',
+          notes: initialPlan.notes || ''
+        });
+      } else {
+        setForm({
+          title: '',
+          category: categories[0]?.name || 'Grocery',
+          month: initialMonth,
+          year: initialYear,
+          plannedAmount: '',
+          paidAmount: '0',
+          isFulfilled: false,
+          dueDate: '',
+          notes: ''
+        });
+      }
     }
-  }, [isOpen, initialMonth, initialYear, categories]);
+  }, [isOpen, initialPlan, initialMonth, initialYear, categories]);
 
   if (!isOpen) return null;
+
+  const plannedNum = Math.max(0, parseFloat(form.plannedAmount) || 0);
+  const paidNum = Math.max(0, parseFloat(form.paidAmount) || 0);
+  const remaining = Math.max(0, plannedNum - (form.isFulfilled ? plannedNum : paidNum));
+
+  const handleToggleFulfilled = (fulfilled: boolean) => {
+    setForm(prev => ({
+      ...prev,
+      isFulfilled: fulfilled,
+      paidAmount: fulfilled ? prev.plannedAmount : (paidNum >= plannedNum ? '0' : prev.paidAmount)
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title.trim() || !form.category || !form.plannedAmount || Number(form.plannedAmount) <= 0) return;
+
+    const plannedAmt = Math.abs(parseFloat(form.plannedAmount));
+    const paidAmt = form.isFulfilled ? plannedAmt : Math.max(0, parseFloat(form.paidAmount) || 0);
+    const finalFulfilled = form.isFulfilled || paidAmt >= plannedAmt;
+    const finalStatus: PlannedExpenseStatus = finalFulfilled 
+      ? 'Fulfilled' 
+      : (paidAmt > 0 ? 'Partial' : 'Planned');
 
     onSubmit({
       title: form.title.trim(),
       category: form.category,
       month: form.month,
       year: Number(form.year),
-      plannedAmount: Math.abs(parseFloat(form.plannedAmount)),
+      plannedAmount: plannedAmt,
+      paidAmount: paidAmt,
+      isFulfilled: finalFulfilled,
       dueDate: form.dueDate || undefined,
-      status: form.status,
+      status: finalStatus,
       notes: form.notes.trim()
     });
 
@@ -77,7 +117,9 @@ export default function PlannedExpenseModal({
               <Target size={20} />
             </div>
             <div>
-              <h3 className="modal-title-main">Add Planned Expense</h3>
+              <h3 className="modal-title-main">
+                {initialPlan ? 'Edit Planned Expense' : 'Add Planned Expense'}
+              </h3>
               <div className="modal-subtitle-schema">Budget Planning in Saudi Riyals (SAR)</div>
             </div>
           </div>
@@ -90,12 +132,12 @@ export default function PlannedExpenseModal({
           
           {/* Title */}
           <div className="form-group-custom">
-            <label className="form-label-custom">Expense Title / Objective</label>
+            <label className="form-label-custom">Expense Title / Item</label>
             <input
               type="text"
               value={form.title}
               onChange={e => setForm(prev => ({ ...prev, title: e.target.value }))}
-              placeholder="e.g. Monthly Grocery & Provisions"
+              placeholder="e.g. Laptop, Tabby, Bakala..."
               className="form-input-custom"
               required
               autoFocus
@@ -105,12 +147,11 @@ export default function PlannedExpenseModal({
           {/* Category & Planned Amount */}
           <div className="form-grid-two-cols">
             <div className="form-group-custom">
-              <label className="form-label-custom">Category (MongoDB)</label>
+              <label className="form-label-custom">Category</label>
               <select
                 value={form.category}
                 onChange={e => setForm(prev => ({ ...prev, category: e.target.value }))}
                 className="form-input-custom select-custom"
-                required
               >
                 {categories.map(c => (
                   <option key={c.id || c._id || c.name} value={c.name}>
@@ -127,10 +168,17 @@ export default function PlannedExpenseModal({
                 <input
                   type="number"
                   step="any"
-                  min="1"
+                  min="0.01"
                   value={form.plannedAmount}
-                  onChange={e => setForm(prev => ({ ...prev, plannedAmount: e.target.value }))}
-                  placeholder="1500"
+                  onChange={e => {
+                    const val = e.target.value;
+                    setForm(prev => ({
+                      ...prev,
+                      plannedAmount: val,
+                      paidAmount: prev.isFulfilled ? val : prev.paidAmount
+                    }));
+                  }}
+                  placeholder="748.17"
                   className="form-input-custom input-with-prefix"
                   required
                 />
@@ -168,30 +216,67 @@ export default function PlannedExpenseModal({
             </div>
           </div>
 
-          {/* Due Date & Status */}
-          <div className="form-grid-two-cols">
-            <div className="form-group-custom">
-              <label className="form-label-custom">Expected Due Date (Optional)</label>
-              <input
-                type="date"
-                value={form.dueDate}
-                onChange={e => setForm(prev => ({ ...prev, dueDate: e.target.value }))}
-                className="form-input-custom"
-              />
+          {/* Fulfillment Option */}
+          <div className="fulfill-section-box">
+            <label className="form-label-custom">Is this expense fulfilled?</label>
+            <div className="fulfill-toggle-buttons">
+              <button
+                type="button"
+                onClick={() => handleToggleFulfilled(false)}
+                className={`fulfill-toggle-btn ${!form.isFulfilled ? 'active-no' : ''}`}
+              >
+                <Clock size={16} />
+                <span>No, Not Fulfilled</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleToggleFulfilled(true)}
+                className={`fulfill-toggle-btn ${form.isFulfilled ? 'active-yes' : ''}`}
+              >
+                <CheckCircle2 size={16} />
+                <span>Yes, Complete / Fulfilled</span>
+              </button>
             </div>
 
-            <div className="form-group-custom">
-              <label className="form-label-custom">Status</label>
-              <select
-                value={form.status}
-                onChange={e => setForm(prev => ({ ...prev, status: e.target.value as PlannedExpenseStatus }))}
-                className="form-input-custom select-custom"
-              >
-                <option value="Planned">Planned</option>
-                <option value="Fulfilled">Fulfilled</option>
-                <option value="Pending">Pending</option>
-              </select>
-            </div>
+            {/* If Not Fulfilled: How much I paid */}
+            {!form.isFulfilled ? (
+              <div className="fulfill-partial-input-wrap">
+                <div className="fulfill-paid-label-row">
+                  <label className="form-label-custom">If not, how much did you pay? (SAR)</label>
+                  <span className="fulfill-remaining-hint">
+                    Remaining: <strong>SAR {remaining.toFixed(2)}</strong>
+                  </span>
+                </div>
+                <div className="currency-input-wrap">
+                  <span className="currency-symbol-prefix">SAR</span>
+                  <input
+                    type="number"
+                    step="any"
+                    min="0"
+                    max={plannedNum || undefined}
+                    value={form.paidAmount}
+                    onChange={e => setForm(prev => ({ ...prev, paidAmount: e.target.value }))}
+                    placeholder="0.00"
+                    className="form-input-custom input-with-prefix"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="fulfill-quick-note">
+                ✓ Recorded as 100% complete (Paid SAR {plannedNum.toFixed(2)})
+              </div>
+            )}
+          </div>
+
+          {/* Due Date (Optional) */}
+          <div className="form-group-custom">
+            <label className="form-label-custom">Expected Due Date (Optional)</label>
+            <input
+              type="date"
+              value={form.dueDate}
+              onChange={e => setForm(prev => ({ ...prev, dueDate: e.target.value }))}
+              className="form-input-custom"
+            />
           </div>
 
           {/* Notes */}
@@ -201,7 +286,7 @@ export default function PlannedExpenseModal({
               type="text"
               value={form.notes}
               onChange={e => setForm(prev => ({ ...prev, notes: e.target.value }))}
-              placeholder="e.g. Needs approval or quarterly allocation"
+              placeholder="e.g. Tabby installment, Bakala groceries, etc."
               className="form-input-custom"
             />
           </div>
@@ -212,7 +297,7 @@ export default function PlannedExpenseModal({
               Cancel
             </button>
             <button type="submit" className="btn btn-primary">
-              Save Planned Expense
+              {initialPlan ? 'Save Changes' : 'Save Planned Expense'}
             </button>
           </div>
 

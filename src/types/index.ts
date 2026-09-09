@@ -127,15 +127,17 @@ export interface PlannedRepayment {
 }
 
 // Planned Expenses Types (in SAR)
-export type PlannedExpenseStatus = 'Planned' | 'Fulfilled' | 'Pending' | 'Overdue';
+export type PlannedExpenseStatus = 'Planned' | 'Fulfilled' | 'Pending' | 'Overdue' | 'Partial';
 
 export interface PlannedExpense {
   id: string;
   title: string;
   category: string;
-  month: string; // e.g. "Mar"
+  month: string; // e.g. "Jul"
   year: number;  // e.g. 2026
   plannedAmount: number; // in SAR
+  paidAmount?: number;   // Amount paid so far in SAR
+  isFulfilled?: boolean; // Whether fulfilled (paid in full) or not
   currency?: string; // 'SAR'
   dueDate?: string;
   status: PlannedExpenseStatus;
