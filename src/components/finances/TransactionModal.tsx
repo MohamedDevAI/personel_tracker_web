@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
-import { TransactionType } from '../../types';
-import { MONTH_NAMES } from '../../services/expenseApi';
+import { Category, TransactionType } from '../../types';
+import { MONTH_NAMES, INITIAL_CATEGORIES } from '../../services/expenseApi';
 import { PAYMENT_METHODS } from './financeConstants';
 
 interface TransactionModalProps {
@@ -16,6 +16,7 @@ interface TransactionModalProps {
     amount: number;
     type: TransactionType;
   }) => void;
+  categories?: Category[];
   initialDate: string;
   initialMonth: string;
   initialType: TransactionType;
@@ -25,14 +26,23 @@ export default function TransactionModal({
   isOpen,
   onClose,
   onSubmit,
+  categories = [],
   initialDate,
   initialMonth,
   initialType
 }: TransactionModalProps) {
+  const activeCategories: Category[] = (categories && categories.length > 0) ? categories : INITIAL_CATEGORIES;
+
+  const defaultCategoryForType = (t: TransactionType) => {
+    const isCredit = t === 'Credit';
+    const match = activeCategories.find((c: Category) => String(c.type).toUpperCase() === (isCredit ? 'CREDIT' : 'DEBIT'));
+    return match ? match.name : (isCredit ? 'Salary' : 'Food');
+  };
+
   const [txForm, setTxForm] = useState({
     date: initialDate,
     month: initialMonth,
-    category: initialType === 'Debit' ? 'Groceries' : 'Salary',
+    category: defaultCategoryForType(initialType),
     customCategory: '',
     description: '',
     paymentMethod: 'Account',
@@ -45,7 +55,7 @@ export default function TransactionModal({
       setTxForm({
         date: initialDate,
         month: initialMonth,
-        category: initialType === 'Debit' ? 'Groceries' : 'Salary',
+        category: defaultCategoryForType(initialType),
         customCategory: '',
         description: '',
         paymentMethod: 'Account',
@@ -53,7 +63,22 @@ export default function TransactionModal({
         type: initialType
       });
     }
-  }, [isOpen, initialDate, initialMonth, initialType]);
+  }, [isOpen, initialDate, initialMonth, initialType, categories]);
+
+  const typeCategories = useMemo(() => {
+    const isCredit = txForm.type === 'Credit';
+    const matching = activeCategories.filter((c: Category) => String(c.type).toUpperCase() === (isCredit ? 'CREDIT' : 'DEBIT'));
+    const others = activeCategories.filter((c: Category) => String(c.type).toUpperCase() !== (isCredit ? 'CREDIT' : 'DEBIT'));
+    return { matching, others };
+  }, [activeCategories, txForm.type]);
+
+  const handleTypeSwitch = (nextType: TransactionType) => {
+    setTxForm(prev => ({
+      ...prev,
+      type: nextType,
+      category: prev.category === '__custom__' ? '__custom__' : defaultCategoryForType(nextType)
+    }));
+  };
 
   if (!isOpen) return null;
 
@@ -86,120 +111,96 @@ export default function TransactionModal({
   };
 
   return (
-    <div style={{
-      position: 'fixed', inset: 0,
-      background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100,
-      padding: '16px'
-    }}>
-      <div className="glass-panel" style={{ width: '100%', maxWidth: '500px', padding: '28px', background: 'var(--bg-secondary)' }}>
+    <div className="modal-overlay-backdrop">
+      <div className="glass-panel modal-content-card">
         
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+        <div className="modal-header-row">
           <div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Log Financial Transaction</h3>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>MongoDB Schema: date, month, category, description, paymentMethod, amount, type</div>
+            <h3 className="modal-title-main">Log Financial Transaction</h3>
+            <div className="modal-subtitle-schema">MongoDB Schema: date, month, category, description, paymentMethod, amount, type</div>
           </div>
           <button onClick={onClose} className="btn-icon">✕</button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <form onSubmit={handleSubmit} className="modal-form-vertical">
           
           {/* Type Switcher */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+          <div className="modal-type-buttons-grid">
             <button
               type="button"
-              onClick={() => setTxForm({ ...txForm, type: 'Credit' })}
-              style={{
-                padding: '10px',
-                borderRadius: '8px',
-                border: txForm.type === 'Credit' ? '1px solid #10b981' : '1px solid var(--border-subtle)',
-                background: txForm.type === 'Credit' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(0,0,0,0.2)',
-                color: txForm.type === 'Credit' ? '#10b981' : 'var(--text-secondary)',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px'
-              }}
+              onClick={() => handleTypeSwitch('Credit')}
+              className={`modal-type-btn modal-type-btn-credit ${txForm.type === 'Credit' ? 'active' : ''}`}
             >
               <ArrowUpRight size={16} /> Credit (Income)
             </button>
 
             <button
               type="button"
-              onClick={() => setTxForm({ ...txForm, type: 'Debit' })}
-              style={{
-                padding: '10px',
-                borderRadius: '8px',
-                border: txForm.type === 'Debit' ? '1px solid #f43f5e' : '1px solid var(--border-subtle)',
-                background: txForm.type === 'Debit' ? 'rgba(244, 63, 94, 0.15)' : 'rgba(0,0,0,0.2)',
-                color: txForm.type === 'Debit' ? '#f43f5e' : 'var(--text-secondary)',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px'
-              }}
+              onClick={() => handleTypeSwitch('Debit')}
+              className={`modal-type-btn modal-type-btn-debit ${txForm.type === 'Debit' ? 'active' : ''}`}
             >
               <ArrowDownRight size={16} /> Debit (Expense)
             </button>
           </div>
 
           {/* Date & Month */}
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '10px' }}>
+          <div className="modal-grid-2col">
             <div>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Date</label>
+              <label className="modal-field-label">Date</label>
               <input 
                 type="date" 
                 value={txForm.date} 
                 onChange={(e) => handleDateChange(e.target.value)} 
                 required 
-                style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }} 
+                className="modal-input-field" 
               />
             </div>
             <div>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Month (Auto)</label>
+              <label className="modal-field-label">Month (Auto)</label>
               <input 
                 type="text" 
                 value={txForm.month} 
                 readOnly
-                style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-subtle)', color: '#10b981', fontWeight: 700 }} 
+                className="modal-readonly-input" 
               />
             </div>
           </div>
 
           {/* Description */}
           <div>
-            <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Description / Title</label>
+            <label className="modal-field-label">Description / Title</label>
             <input 
               type="text" 
               placeholder="e.g. Salary, Grocery run, Consulting invoice..."
               value={txForm.description} 
               onChange={(e) => setTxForm({...txForm, description: e.target.value})} 
               required 
-              style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }} 
+              className="modal-input-field" 
             />
           </div>
 
-          {/* Category */}
+          {/* Category from MongoDB collection */}
           <div>
-            <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Category</label>
+            <label className="modal-field-label">Category (MongoDB Collection)</label>
             <select 
               value={txForm.category} 
               onChange={(e) => setTxForm({...txForm, category: e.target.value})} 
-              style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', background: '#101522', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}
+              className="modal-select-field"
             >
-              <option value="Salary">Salary</option>
-              <option value="Consulting">Consulting</option>
-              <option value="Investments">Investments</option>
-              <option value="Housing">Housing</option>
-              <option value="Groceries">Groceries</option>
-              <option value="Dining">Dining</option>
-              <option value="Software">Software</option>
-              <option value="Tech & Work">Tech & Work</option>
-              <option value="Utilities">Utilities</option>
+              {typeCategories.matching.length > 0 && (
+                <optgroup label={`${txForm.type} Categories`}>
+                  {typeCategories.matching.map((c: Category) => (
+                    <option key={c.id || c._id || c.name} value={c.name}>{c.name}</option>
+                  ))}
+                </optgroup>
+              )}
+              {typeCategories.others.length > 0 && (
+                <optgroup label={`Other Categories`}>
+                  {typeCategories.others.map((c: Category) => (
+                    <option key={c.id || c._id || c.name} value={c.name}>{c.name}</option>
+                  ))}
+                </optgroup>
+              )}
               <option value="__custom__">+ Enter Custom Category...</option>
             </select>
 
@@ -210,19 +211,19 @@ export default function TransactionModal({
                 value={txForm.customCategory}
                 onChange={(e) => setTxForm({...txForm, customCategory: e.target.value})}
                 required
-                style={{ marginTop: '8px', width: '100%', padding: '8px 12px', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}
+                className="modal-custom-input"
               />
             )}
           </div>
 
           {/* Payment Method & Amount */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          <div className="modal-grid-equal">
             <div>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Payment Method</label>
+              <label className="modal-field-label">Payment Method</label>
               <select 
                 value={txForm.paymentMethod} 
                 onChange={(e) => setTxForm({...txForm, paymentMethod: e.target.value})} 
-                style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', background: '#101522', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}
+                className="modal-select-field"
               >
                 {PAYMENT_METHODS.map(pm => (
                   <option key={pm} value={pm}>{pm}</option>
@@ -231,7 +232,7 @@ export default function TransactionModal({
             </div>
 
             <div>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Amount (SAR)</label>
+              <label className="modal-field-label">Amount (SAR)</label>
               <input 
                 type="number" 
                 step="0.01" 
@@ -239,13 +240,13 @@ export default function TransactionModal({
                 value={txForm.amount} 
                 onChange={(e) => setTxForm({...txForm, amount: e.target.value})} 
                 required 
-                style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }} 
+                className="modal-input-field" 
               />
             </div>
           </div>
 
           {/* Modal Buttons */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '14px' }}>
+          <div className="modal-footer-actions">
             <button type="button" onClick={onClose} className="btn btn-secondary">Cancel</button>
             <button type="submit" className="btn btn-primary">Save to Ledger</button>
           </div>

@@ -24,101 +24,76 @@ export default function FinanceSummaryCards({
   const savingsRate = totalCredit > 0 ? ((netBalance / totalCredit) * 100).toFixed(1) : '0';
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginBottom: '28px' }}>
+    <div className="finance-summary-grid">
       
       {/* Total Credit */}
-      <div className="glass-panel" style={{ padding: '20px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: '#10b981' }} />
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.05em' }}>
+      <div className="glass-panel finance-kpi-card finance-kpi-credit">
+        <div className="kpi-card-top">
+          <div className="kpi-card-label">
             {isAll ? `${selectedYear} TOTAL CREDIT` : `${periodLabel} CREDIT`}
           </div>
-          <div style={{
-            width: '28px', height: '28px', borderRadius: '8px',
-            background: 'rgba(16, 185, 129, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981'
-          }}>
+          <div className="kpi-card-icon kpi-icon-credit">
             <ArrowUpRight size={16} />
           </div>
         </div>
-        <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#10b981', fontFamily: 'var(--font-display)', marginBottom: '4px' }}>
+        <div className="kpi-card-value kpi-val-credit">
           +SAR {formatCurrency(totalCredit)}
         </div>
-        <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+        <div className="kpi-card-footer">
           Inflows & Salary deposits
         </div>
       </div>
 
       {/* Total Debit */}
-      <div className="glass-panel" style={{ padding: '20px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: '#f43f5e' }} />
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.05em' }}>
+      <div className="glass-panel finance-kpi-card finance-kpi-debit">
+        <div className="kpi-card-top">
+          <div className="kpi-card-label">
             {isAll ? `${selectedYear} TOTAL DEBIT` : `${periodLabel} DEBIT`}
           </div>
-          <div style={{
-            width: '28px', height: '28px', borderRadius: '8px',
-            background: 'rgba(244, 63, 94, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f43f5e'
-          }}>
+          <div className="kpi-card-icon kpi-icon-debit">
             <ArrowDownRight size={16} />
           </div>
         </div>
-        <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#f43f5e', fontFamily: 'var(--font-display)', marginBottom: '4px' }}>
+        <div className="kpi-card-value kpi-val-debit">
           -SAR {formatCurrency(Math.abs(totalDebit))}
         </div>
-        <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+        <div className="kpi-card-footer">
           Expenses & Outgoing payments
         </div>
       </div>
 
       {/* Net Monthly Balance */}
-      <div className="glass-panel" style={{ padding: '20px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ 
-          position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', 
-          background: netBalance >= 0 ? '#38bdf8' : '#f43f5e' 
-        }} />
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.05em' }}>
+      <div className={`glass-panel finance-kpi-card ${netBalance >= 0 ? 'finance-kpi-savings' : 'finance-kpi-debit'}`}>
+        <div className="kpi-card-top">
+          <div className="kpi-card-label">
             {isAll ? `${selectedYear} NET SAVINGS` : `${periodLabel} NET SAVINGS`}
           </div>
-          <div style={{
-            width: '28px', height: '28px', borderRadius: '8px',
-            background: netBalance >= 0 ? 'rgba(56, 189, 248, 0.15)' : 'rgba(244, 63, 94, 0.15)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: netBalance >= 0 ? '#38bdf8' : '#f43f5e'
-          }}>
+          <div className={`kpi-card-icon ${netBalance >= 0 ? 'kpi-icon-savings' : 'kpi-icon-debit'}`}>
             <Wallet size={16} />
           </div>
         </div>
-        <div style={{ 
-          fontSize: '1.75rem', fontWeight: 800, 
-          color: netBalance >= 0 ? '#38bdf8' : '#f43f5e', 
-          fontFamily: 'var(--font-display)', marginBottom: '4px' 
-        }}>
+        <div className={`kpi-card-value ${netBalance >= 0 ? 'kpi-val-savings' : 'kpi-val-debit'}`}>
           SAR {formatCurrency(netBalance)}
         </div>
-        <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+        <div className="kpi-card-footer">
           {totalCredit > 0 ? `${savingsRate}% savings rate` : 'Cash balance for period'}
         </div>
       </div>
 
       {/* Monthly Activity */}
-      <div className="glass-panel" style={{ padding: '20px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: '#8b5cf6' }} />
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.05em' }}>
+      <div className="glass-panel finance-kpi-card finance-kpi-count">
+        <div className="kpi-card-top">
+          <div className="kpi-card-label">
             TRANSACTIONS COUNT
           </div>
-          <div style={{
-            width: '28px', height: '28px', borderRadius: '8px',
-            background: 'rgba(139, 92, 246, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8b5cf6'
-          }}>
+          <div className="kpi-card-icon kpi-icon-count">
             <Filter size={16} />
           </div>
         </div>
-        <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'var(--font-display)', marginBottom: '4px' }}>
-          {transactionCount} <span style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-muted)' }}>Entries</span>
+        <div className="kpi-card-value kpi-val-count">
+          {transactionCount} <span className="kpi-unit-text">Entries</span>
         </div>
-        <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+        <div className="kpi-card-footer">
           In {isAll ? `${selectedYear}` : `${selectedMonth} ${selectedYear}`}
         </div>
       </div>

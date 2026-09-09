@@ -31,38 +31,33 @@ export default function CategoryModal({
   };
 
   return (
-    <div style={{
-      position: 'fixed', inset: 0,
-      background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100,
-      padding: '16px'
-    }}>
-      <div className="glass-panel" style={{ width: '100%', maxWidth: '420px', padding: '28px', background: 'var(--bg-secondary)' }}>
-        <h3 style={{ fontSize: '1.25rem', marginBottom: '16px' }}>Add Ledger Category</h3>
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+    <div className="modal-overlay-backdrop">
+      <div className="glass-panel modal-content-card modal-content-card-sm">
+        <h3 className="modal-title-main">Add Ledger Category</h3>
+        <form onSubmit={handleSubmit} className="modal-form-vertical">
           <div>
-            <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Name</label>
+            <label className="modal-field-label">Name</label>
             <input 
               type="text" 
               placeholder="e.g. Investments, Consulting, Health..."
               value={catForm.name} 
               onChange={(e) => setCatForm({...catForm, name: e.target.value})} 
               required 
-              style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }} 
+              className="modal-input-field" 
             />
           </div>
           <div>
-            <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Type</label>
+            <label className="modal-field-label">Type</label>
             <select 
               value={catForm.type} 
               onChange={(e) => setCatForm({...catForm, type: e.target.value as TransactionType})} 
-              style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', background: '#101522', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}
+              className="modal-select-field"
             >
               <option value="Debit">Debit (Expense)</option>
               <option value="Credit">Credit (Income)</option>
             </select>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '12px' }}>
+          <div className="modal-footer-actions">
             <button type="button" onClick={onClose} className="btn btn-secondary">Cancel</button>
             <button type="submit" className="btn btn-primary">Save Category</button>
           </div>

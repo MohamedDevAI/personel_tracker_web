@@ -64,40 +64,40 @@ const INITIAL_SEED_TRANSACTIONS: Transaction[] = [
   }),
   normalizeTransaction({
     _id: '6aa008173fdcf0e63ade4d59',
-    date: '2026-03-05T10:30:00.000+00:00',
+    date: '2026-03-01T00:00:00.000+00:00',
     month: 'Mar',
-    category: 'Groceries',
-    description: 'Organic Market & Whole Foods',
+    category: 'Food',
+    description: 'Tabby Food Delivery',
     paymentMethod: 'Card',
-    amount: 420.50,
+    amount: 83.32,
     type: 'Debit'
   }),
   normalizeTransaction({
-    _id: '6aa008173fdcf0e63ade4d60',
-    date: '2026-03-10T14:15:00.000+00:00',
+    _id: '6aa008173fdcf0e63ade4d5a',
+    date: '2026-03-01T00:00:00.000+00:00',
     month: 'Mar',
-    category: 'Housing',
-    description: 'Monthly Apartment Lease & Utilities',
-    paymentMethod: 'Account',
-    amount: 1800.00,
+    category: 'Credit Payback',
+    description: 'Tamara Installment',
+    paymentMethod: 'Card',
+    amount: 331.59,
     type: 'Debit'
   }),
   normalizeTransaction({
-    _id: '6aa008173fdcf0e63ade4d61',
-    date: '2026-03-18T09:00:00.000+00:00',
+    _id: '6aa008173fdcf0e63ade4d5c',
+    date: '2026-03-01T00:00:00.000+00:00',
     month: 'Mar',
-    category: 'Software',
-    description: 'Cloud Infrastructure & JetBrains Suite',
+    category: 'Grocery',
+    description: 'Bakala & Supermarket',
     paymentMethod: 'Card',
-    amount: 95.00,
+    amount: 111.28,
     type: 'Debit'
   }),
   normalizeTransaction({
     _id: '6aa008173fdcf0e63ade4d62',
     date: '2026-02-01T00:00:00.000+00:00',
     month: 'Feb',
-    category: 'Consulting',
-    description: 'Architecture Advisory Retainer',
+    category: 'Salary',
+    description: 'Monthly Salary Credit',
     paymentMethod: 'Account',
     amount: 4500,
     type: 'Credit'
@@ -106,8 +106,8 @@ const INITIAL_SEED_TRANSACTIONS: Transaction[] = [
     _id: '6aa008173fdcf0e63ade4d63',
     date: '2026-02-14T18:00:00.000+00:00',
     month: 'Feb',
-    category: 'Dining',
-    description: 'Fine Dining & Hospitality',
+    category: 'Food',
+    description: 'Dining & Food Services',
     paymentMethod: 'Card',
     amount: 310.00,
     type: 'Debit'
@@ -126,24 +126,28 @@ const INITIAL_SEED_TRANSACTIONS: Transaction[] = [
     _id: '6aa008173fdcf0e63ade4d65',
     date: '2026-01-20T12:00:00.000+00:00',
     month: 'Jan',
-    category: 'Tech & Work',
-    description: '4K UltraFine Ergonomic Display',
+    category: 'Transport',
+    description: 'Metro & City Taxi Transport',
     paymentMethod: 'Account',
-    amount: 850.00,
+    amount: 150.00,
     type: 'Debit'
   })
 ];
 
-const INITIAL_CATEGORIES: Category[] = [
-  { id: 'cat-1', name: 'Salary', type: 'Credit' },
-  { id: 'cat-2', name: 'Consulting', type: 'Credit' },
-  { id: 'cat-3', name: 'Investments', type: 'Credit' },
-  { id: 'cat-4', name: 'Housing', type: 'Debit' },
-  { id: 'cat-5', name: 'Groceries', type: 'Debit' },
-  { id: 'cat-6', name: 'Software', type: 'Debit' },
-  { id: 'cat-7', name: 'Tech & Work', type: 'Debit' },
-  { id: 'cat-8', name: 'Dining', type: 'Debit' },
-  { id: 'cat-9', name: 'Utilities', type: 'Debit' }
+export const INITIAL_CATEGORIES: Category[] = [
+  { id: '6aa002ef3a7c887c0edfcc42', name: 'Salary', type: 'Credit' },
+  { id: '6aa002fd3a7c887c0edfcc43', name: 'Got Credit', type: 'Credit' },
+  { id: '6aa01140261b3962a4405ae3', name: 'Return Borrowed Money', type: 'Credit' },
+  { id: 'Credit Borrow', name: 'Credit Borrow', type: 'Credit' },
+  { id: '6aa002b13a7c887c0edfcc3e', name: 'Food', type: 'Debit' },
+  { id: '6aa002c33a7c887c0edfcc3f', name: 'Credit Given', type: 'Debit' },
+  { id: '6aa002cb3a7c887c0edfcc40', name: 'Credit Repay', type: 'Debit' },
+  { id: 'Credit Payback', name: 'Credit Payback', type: 'Debit' },
+  { id: 'Grocery', name: 'Grocery', type: 'Debit' },
+  { id: 'Family Expense', name: 'Family Expense', type: 'Debit' },
+  { id: 'Transport', name: 'Transport', type: 'Debit' },
+  { id: 'Miscellaneous', name: 'Miscellaneous', type: 'Debit' },
+  { id: 'Medical', name: 'Medical', type: 'Debit' }
 ];
 
 const getLocalTransactions = (): Transaction[] => {
@@ -172,7 +176,13 @@ const getLocalCategories = (): Category[] => {
   }
   try {
     const parsed = JSON.parse(data);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_CATEGORIES;
+    // If old mock categories like 'Consulting' or 'Housing' exist in cache, replace with MongoDB categories
+    const hasOldMock = Array.isArray(parsed) && parsed.some(c => c.name === 'Consulting' || c.name === 'Housing');
+    if (hasOldMock || !Array.isArray(parsed) || parsed.length === 0) {
+      localStorage.setItem('pt_db_categories', JSON.stringify(INITIAL_CATEGORIES));
+      return INITIAL_CATEGORIES;
+    }
+    return parsed;
   } catch (e) {
     return INITIAL_CATEGORIES;
   }
@@ -187,7 +197,7 @@ export const expenseApi = {
   getCategories: async (type?: TransactionType): Promise<Category[]> => {
     try {
       const url = type ? `${API_BASE}/categories?type=${type}` : `${API_BASE}/categories`;
-      const { data } = await axios.get<Category[]>(url, { timeout: 1500 });
+      const { data } = await axios.get<Category[]>(url, { timeout: 5000 });
       if (Array.isArray(data) && data.length > 0) {
         setLocalCategories(data);
         return data;
@@ -231,7 +241,7 @@ export const expenseApi = {
   // Transactions
   getTransactions: async (): Promise<Transaction[]> => {
     try {
-      const { data } = await axios.get<any[]>(`${API_BASE}/transactions`, { timeout: 1500 });
+      const { data } = await axios.get<any[]>(`${API_BASE}/transactions`, { timeout: 6000 });
       if (Array.isArray(data) && data.length > 0) {
         const normalized = data.map(normalizeTransaction);
         setLocalTransactions(normalized);
