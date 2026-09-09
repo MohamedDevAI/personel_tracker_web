@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { Category, TransactionType } from '../../types';
-import { MONTH_NAMES, INITIAL_CATEGORIES } from '../../services/expenseApi';
+import { MONTH_NAMES } from '../../services/expenseApi';
 import { PAYMENT_METHODS } from './financeConstants';
 
 interface TransactionModalProps {
@@ -31,12 +31,12 @@ export default function TransactionModal({
   initialMonth,
   initialType
 }: TransactionModalProps) {
-  const activeCategories: Category[] = (categories && categories.length > 0) ? categories : INITIAL_CATEGORIES;
+  const activeCategories: Category[] = categories || [];
 
   const defaultCategoryForType = (t: TransactionType) => {
     const isCredit = t === 'Credit';
     const match = activeCategories.find((c: Category) => String(c.type).toUpperCase() === (isCredit ? 'CREDIT' : 'DEBIT'));
-    return match ? match.name : (isCredit ? 'Salary' : 'Food');
+    return match ? match.name : (activeCategories[0]?.name || (isCredit ? 'Salary' : 'Food'));
   };
 
   const [txForm, setTxForm] = useState({
