@@ -46,6 +46,10 @@ export default function ExpenseTracker() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['dashboardSummary'] });
+    },
+    onError: (err: any) => {
+      console.error('Failed to create transaction:', err);
+      alert('Failed to save transaction: ' + (err.response?.data?.message || err.message));
     }
   });
 
@@ -220,14 +224,12 @@ export default function ExpenseTracker() {
 
   return (
     <div className="finances-container">
-      
+
       {/* Page Header */}
       <div className="finances-header">
         <div className="finances-header-info">
           <div className="finances-header-badge-row">
-            <span className="badge badge-emerald">
-              <CheckCircle2 size={12} /> MongoDB Atlas Schema Aligned
-            </span>
+
             <span className="finances-records-count">
               Total Records: {transactions.length}
             </span>
@@ -244,8 +246,8 @@ export default function ExpenseTracker() {
           <button onClick={() => setShowCategoryModal(true)} className="btn btn-secondary">
             <Tag size={16} /> Add Category
           </button>
-          <button 
-            onClick={() => handleOpenAddModal('Debit')} 
+          <button
+            onClick={() => handleOpenAddModal('Debit')}
             className="btn btn-secondary btn-log-expense"
           >
             <ArrowDownRight size={16} /> Log Expense
@@ -281,22 +283,22 @@ export default function ExpenseTracker() {
 
       {/* Main Grid: Transactions / Categories on Left, Outflow Breakdown on Right */}
       <div className="finances-main-grid">
-        
+
         {/* Left Column: Persistent Tab Switcher + Equal-Height Scrollable Tables */}
         <div className="finances-left-column">
-          
+
           {/* Persistent View Switcher & Toolbar */}
           <div className="finances-table-toolbar">
-            
+
             {/* View switcher tabs (Always visible!) */}
             <div className="finances-tabs-group">
-              <button 
+              <button
                 onClick={() => setActiveTab('transactions')}
                 className={activeTab === 'transactions' ? 'btn btn-primary finances-tab-btn' : 'btn btn-secondary finances-tab-btn'}
               >
                 Transactions List ({filteredTransactions.length})
               </button>
-              <button 
+              <button
                 onClick={() => setActiveTab('categories')}
                 className={activeTab === 'categories' ? 'btn btn-primary finances-tab-btn' : 'btn btn-secondary finances-tab-btn'}
               >
@@ -340,7 +342,7 @@ export default function ExpenseTracker() {
                 </select>
               </div>
             ) : (
-              <button 
+              <button
                 onClick={() => setShowCategoryModal(true)}
                 className="btn btn-secondary finances-add-cat-btn"
               >

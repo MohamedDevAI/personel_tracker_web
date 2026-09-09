@@ -95,33 +95,63 @@ export const expenseApi = {
   },
 
   createTransaction: async (transaction: Omit<Transaction, 'id' | '_id'>): Promise<Transaction> => {
-    const dateVal = transaction.date || transaction.transactionDate || new Date().toISOString();
-    const dateObj = new Date(dateVal);
+    const rawDate = transaction.date || transaction.transactionDate || new Date().toISOString();
+    
+    // Format date as ISO-8601 string: 2026-03-01T00:00:00.000Z for Spring Boot / MongoDB Jackson deserialization
+    let isoDateStr: string;
+    let dateOnlyStr: string;
+    
+    if (typeof rawDate === 'string' && rawDate.includes('T')) {
+      isoDateStr = rawDate;
+      dateOnlyStr = rawDate.split('T')[0];
+    } else {
+      dateOnlyStr = String(rawDate);
+      const parsed = new Date(rawDate);
+      if (!isNaN(parsed.getTime())) {
+        isoDateStr = parsed.toISOString();
+      } else {
+        isoDateStr = `${rawDate}T00:00:00.000Z`;
+      }
+    }
+
+    const dateObj = new Date(isoDateStr);
     const month = transaction.month || (!isNaN(dateObj.getTime()) ? MONTH_NAMES[dateObj.getMonth()] : 'Mar');
     
+    const isCredit = String(transaction.type).toUpperCase() === 'CREDIT';
+    const amountVal = Number(transaction.amount !== undefined ? transaction.amount : (transaction.amountSar || 0));
+
     const payload = {
       ...transaction,
-      date: dateVal,
+      date: isoDateStr,
+      transactionDate: dateOnlyStr,
       month,
-      amount: Number(transaction.amount !== undefined ? transaction.amount : (transaction.amountSar || 0)),
-      amountSar: Number(transaction.amount !== undefined ? transaction.amount : (transaction.amountSar || 0)),
+      amount: amountVal,
+      amountSar: amountVal,
       description: transaction.description || transaction.note || 'Transaction',
       note: transaction.description || transaction.note || 'Transaction',
       paymentMethod: transaction.paymentMethod || 'Account',
-      type: String(transaction.type).toUpperCase() === 'CREDIT' ? 'Credit' : 'Debit'
+      type: isCredit ? 'Credit' : 'Debit'
     };
 
-    const { data } = await axios.post<any>(`${API_BASE}/transactions`, payload, { timeout: 4000 });
+    const { data } = await axios.post<any>(`${API_BASE}/transactions`, payload, { timeout: 6000 });
     return normalizeTransaction(data);
   },
 
   updateTransaction: async (id: string, transaction: Partial<Transaction>): Promise<Transaction> => {
-    const { data } = await axios.put<any>(`${API_BASE}/transactions/${id}`, transaction, { timeout: 4000 });
+    const updatePayload: any = { ...transaction };
+    if (updatePayload.date) {
+      const rawDate = updatePayload.date;
+      if (typeof rawDate === 'string' && !rawDate.includes('T')) {
+        const parsed = new Date(rawDate);
+        updatePayload.date = !isNaN(parsed.getTime()) ? parsed.toISOString() : `${rawDate}T00:00:00.000Z`;
+      }
+    }
+    const { data } = await axios.put<any>(`${API_BASE}/transactions/${id}`, updatePayload, { timeout: 6000 });
     return normalizeTransaction(data);
   },
 
   deleteTransaction: async (id: string): Promise<void> => {
-    await axios.delete(`${API_BASE}/transactions/${id}`, { timeout: 4000 });
+    await axios.delete(`${API_BASE}/transactions/${id}`, { timeout: 6000 });
   },
 
   // Dashboard Summary
