@@ -1,320 +1,164 @@
+import axios from 'axios';
 import { PlannedExpense } from '../types';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 const STORAGE_KEY = 'pt_planned_expenses';
 
-const INITIAL_SAMPLE_PLANS: PlannedExpense[] = [
-  // User's July Planning (Complete: 2,384.86 SAR)
-  {
-    id: 'pe-jul-1',
-    title: 'Laptop',
-    category: 'Shopping',
-    month: 'Jul',
-    year: 2026,
-    plannedAmount: 748.17,
-    paidAmount: 748.17,
-    isFulfilled: true,
-    status: 'Fulfilled',
-    notes: 'Laptop allocation',
-    createdAt: '2026-07-01T08:00:00.000Z'
-  },
-  {
-    id: 'pe-jul-2',
-    title: 'Recharge',
-    category: 'Utilities',
-    month: 'Jul',
-    year: 2026,
-    plannedAmount: 103.5,
-    paidAmount: 103.5,
-    isFulfilled: true,
-    status: 'Fulfilled',
-    notes: 'Mobile / data recharge',
-    createdAt: '2026-07-01T08:00:00.000Z'
-  },
-  {
-    id: 'pe-jul-3',
-    title: 'Bakala',
-    category: 'Grocery',
-    month: 'Jul',
-    year: 2026,
-    plannedAmount: 500,
-    paidAmount: 500,
-    isFulfilled: true,
-    status: 'Fulfilled',
-    notes: 'Bakala local grocery supplies',
-    createdAt: '2026-07-01T08:00:00.000Z'
-  },
-  {
-    id: 'pe-jul-4',
-    title: 'Tabby',
-    category: 'Credit Payback',
-    month: 'Jul',
-    year: 2026,
-    plannedAmount: 85.5,
-    paidAmount: 85.5,
-    isFulfilled: true,
-    status: 'Fulfilled',
-    notes: 'Tabby split payment',
-    createdAt: '2026-07-01T08:00:00.000Z'
-  },
-  {
-    id: 'pe-jul-5',
-    title: 'Tamara',
-    category: 'Credit Payback',
-    month: 'Jul',
-    year: 2026,
-    plannedAmount: 46.1,
-    paidAmount: 46.1,
-    isFulfilled: true,
-    status: 'Fulfilled',
-    notes: 'Tamara installment',
-    createdAt: '2026-07-01T08:00:00.000Z'
-  },
-  {
-    id: 'pe-jul-6',
-    title: 'Tablet',
-    category: 'Shopping',
-    month: 'Jul',
-    year: 2026,
-    plannedAmount: 750,
-    paidAmount: 750,
-    isFulfilled: true,
-    status: 'Fulfilled',
-    notes: 'Tablet device allocation',
-    createdAt: '2026-07-01T08:00:00.000Z'
-  },
-  {
-    id: 'pe-jul-7',
-    title: 'Tabby',
-    category: 'Credit Payback',
-    month: 'Jul',
-    year: 2026,
-    plannedAmount: 54.87,
-    paidAmount: 54.87,
-    isFulfilled: true,
-    status: 'Fulfilled',
-    notes: 'Tabby installment',
-    createdAt: '2026-07-01T08:00:00.000Z'
-  },
-  {
-    id: 'pe-jul-8',
-    title: 'Tabby',
-    category: 'Credit Payback',
-    month: 'Jul',
-    year: 2026,
-    plannedAmount: 48.36,
-    paidAmount: 48.36,
-    isFulfilled: true,
-    status: 'Fulfilled',
-    notes: 'Tabby installment',
-    createdAt: '2026-07-01T08:00:00.000Z'
-  },
-  {
-    id: 'pe-jul-9',
-    title: 'Tabby',
-    category: 'Credit Payback',
-    month: 'Jul',
-    year: 2026,
-    plannedAmount: 48.36,
-    paidAmount: 48.36,
-    isFulfilled: true,
-    status: 'Fulfilled',
-    notes: 'Tabby installment',
-    createdAt: '2026-07-01T08:00:00.000Z'
-  },
-
-  // March 2026 sample plans
-  {
-    id: 'pe-1',
-    title: 'Monthly Grocery & Provisions',
-    category: 'Grocery',
-    month: 'Mar',
-    year: 2026,
-    plannedAmount: 1500,
-    paidAmount: 850,
-    isFulfilled: false,
-    dueDate: '2026-03-25',
-    status: 'Partial',
-    notes: 'Supermarket and weekly supplies',
-    createdAt: '2026-03-01T08:00:00.000Z'
-  },
-  {
-    id: 'pe-2',
-    title: 'Dining & Food Orders',
-    category: 'Food',
-    month: 'Mar',
-    year: 2026,
-    plannedAmount: 800,
-    paidAmount: 0,
-    isFulfilled: false,
-    dueDate: '2026-03-31',
-    status: 'Planned',
-    notes: 'Weekend dining budget',
-    createdAt: '2026-03-01T08:00:00.000Z'
-  },
-  {
-    id: 'pe-3',
-    title: 'Fuel & Commute',
-    category: 'Transport',
-    month: 'Mar',
-    year: 2026,
-    plannedAmount: 500,
-    paidAmount: 200,
-    isFulfilled: false,
-    dueDate: '2026-03-28',
-    status: 'Partial',
-    notes: 'Fuel and public transit budget',
-    createdAt: '2026-03-01T08:00:00.000Z'
-  },
-  {
-    id: 'pe-4',
-    title: 'Medical & Healthcare Check',
-    category: 'Medical',
-    month: 'Mar',
-    year: 2026,
-    plannedAmount: 350,
-    paidAmount: 350,
-    isFulfilled: true,
-    dueDate: '2026-03-15',
-    status: 'Fulfilled',
-    notes: 'Prescriptions and clinic visit',
-    createdAt: '2026-03-01T08:00:00.000Z'
-  }
-];
-
 export const plannedExpenseApi = {
-  getPlannedExpenses: (): PlannedExpense[] => {
+  // Fetch live from MongoDB Atlas via Spring Boot API: /api/finance_planned
+  fetchFromDb: async (month?: string, year?: number): Promise<PlannedExpense[]> => {
+    try {
+      const params: Record<string, any> = {};
+      if (month && month !== 'ALL') params.month = month;
+      if (year) params.year = year;
+      const res = await axios.get<PlannedExpense[]>(`${API_BASE}/finance_planned`, { params, timeout: 6000 });
+      if (Array.isArray(res.data) && res.data.length > 0) {
+        // Cache in localStorage for offline availability
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(res.data));
+        return res.data;
+      }
+    } catch (err) {
+      console.warn('Could not fetch from /api/finance_planned, falling back to local storage:', err);
+    }
+    return plannedExpenseApi.getPlannedExpenses(month, year);
+  },
+
+  // Synchronous getter from cache / storage
+  getPlannedExpenses: (filterMonth?: string, filterYear?: number): PlannedExpense[] => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed: PlannedExpense[] = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          // Check if July items are present, if not, merge them
-          const hasJuly = parsed.some(p => p.month === 'Jul');
-          if (!hasJuly) {
-            const julyPlans = INITIAL_SAMPLE_PLANS.filter(p => p.month === 'Jul');
-            const merged = [...julyPlans, ...parsed];
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-            return merged;
-          }
-          return parsed;
+          if (!filterMonth && !filterYear) return parsed;
+          return parsed.filter(p => {
+            const matchesM = !filterMonth || filterMonth === 'ALL' || p.month === filterMonth;
+            const matchesY = !filterYear || p.year === filterYear;
+            return matchesM && matchesY;
+          });
         }
       }
     } catch (e) {
-      console.warn('Failed to load planned expenses:', e);
+      console.warn('Failed to parse local planned expenses:', e);
     }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_SAMPLE_PLANS));
-    return INITIAL_SAMPLE_PLANS;
+    return [];
   },
 
-  createPlannedExpense: (plan: Omit<PlannedExpense, 'id' | 'createdAt'>): PlannedExpense => {
-    const plans = plannedExpenseApi.getPlannedExpenses();
+  // Create planned expense in MongoDB
+  createPlannedExpense: async (plan: Omit<PlannedExpense, 'id' | 'createdAt'>): Promise<PlannedExpense> => {
     const plannedAmt = Math.abs(Number(plan.plannedAmount) || 0);
     const isFulfilled = plan.isFulfilled ?? (plan.status === 'Fulfilled');
     const paidAmt = isFulfilled 
       ? plannedAmt 
       : (plan.paidAmount !== undefined ? Math.max(0, Number(plan.paidAmount)) : 0);
-
     const status = isFulfilled ? 'Fulfilled' : (paidAmt > 0 ? 'Partial' : (plan.status || 'Planned'));
 
-    const newPlan: PlannedExpense = {
+    const payload = {
       ...plan,
-      id: `pe-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
       plannedAmount: plannedAmt,
       paidAmount: paidAmt,
       isFulfilled,
       status,
+      currency: 'SAR',
       createdAt: new Date().toISOString()
     };
-    const updated = [newPlan, ...plans];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    return newPlan;
-  },
 
-  updatePlannedExpense: (id: string, updates: Partial<PlannedExpense>): PlannedExpense | null => {
-    const plans = plannedExpenseApi.getPlannedExpenses();
-    const index = plans.findIndex(p => p.id === id);
-    if (index === -1) return null;
-
-    const current = plans[index];
-    const plannedAmt = updates.plannedAmount !== undefined 
-      ? Math.abs(Number(updates.plannedAmount)) 
-      : current.plannedAmount;
-
-    let isFulfilled = updates.isFulfilled !== undefined 
-      ? updates.isFulfilled 
-      : (updates.status === 'Fulfilled' ? true : current.isFulfilled ?? (current.status === 'Fulfilled'));
-
-    let paidAmt = updates.paidAmount !== undefined 
-      ? Number(updates.paidAmount) 
-      : (current.paidAmount ?? (current.status === 'Fulfilled' ? plannedAmt : 0));
-
-    if (isFulfilled) {
-      paidAmt = plannedAmt;
-    } else {
-      if (updates.isFulfilled === false && updates.paidAmount === undefined && paidAmt >= plannedAmt) {
-        paidAmt = 0;
+    try {
+      const res = await axios.post<PlannedExpense>(`${API_BASE}/finance_planned`, payload, { timeout: 6000 });
+      if (res.data) {
+        // update cache
+        const all = plannedExpenseApi.getPlannedExpenses();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify([res.data, ...all]));
+        return res.data;
       }
+    } catch (err) {
+      console.warn('API create failed, saving to local cache:', err);
     }
 
-    const status = isFulfilled ? 'Fulfilled' : (paidAmt > 0 ? 'Partial' : (updates.status || 'Planned'));
-
-    const updatedPlan: PlannedExpense = {
-      ...current,
-      ...updates,
-      plannedAmount: plannedAmt,
-      paidAmount: paidAmt,
-      isFulfilled,
-      status
+    // Local fallback
+    const localPlan: PlannedExpense = {
+      ...payload,
+      id: `pe-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`
     };
-    plans[index] = updatedPlan;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(plans));
-    return updatedPlan;
+    const current = plannedExpenseApi.getPlannedExpenses();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([localPlan, ...current]));
+    return localPlan;
   },
 
-  setFulfillmentAndPayment: (id: string, isFulfilled: boolean, paidAmount?: number): PlannedExpense | null => {
-    const plans = plannedExpenseApi.getPlannedExpenses();
-    const index = plans.findIndex(p => p.id === id);
+  // Update planned expense in MongoDB
+  updatePlannedExpense: async (id: string, updates: Partial<PlannedExpense>): Promise<PlannedExpense | null> => {
+    try {
+      const res = await axios.put<PlannedExpense>(`${API_BASE}/finance_planned/${id}`, updates, { timeout: 6000 });
+      if (res.data) {
+        const all = plannedExpenseApi.getPlannedExpenses().map(p => p.id === id ? res.data : p);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+        return res.data;
+      }
+    } catch (err) {
+      console.warn('API update failed, updating local cache:', err);
+    }
+
+    // Local fallback
+    const all = plannedExpenseApi.getPlannedExpenses();
+    const index = all.findIndex(p => p.id === id);
     if (index === -1) return null;
-
-    const current = plans[index];
-    const plannedAmt = current.plannedAmount;
-    const finalPaid = isFulfilled ? plannedAmt : Math.max(0, Number(paidAmount) || 0);
-    const finalFulfilled = isFulfilled || finalPaid >= plannedAmt;
-    const status = finalFulfilled ? 'Fulfilled' : (finalPaid > 0 ? 'Partial' : 'Planned');
-
-    const updatedPlan: PlannedExpense = {
-      ...current,
-      isFulfilled: finalFulfilled,
-      paidAmount: finalPaid,
-      status
-    };
-    plans[index] = updatedPlan;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(plans));
-    return updatedPlan;
+    const updated = { ...all[index], ...updates };
+    all[index] = updated;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+    return updated;
   },
 
-  deletePlannedExpense: (id: string): void => {
-    const plans = plannedExpenseApi.getPlannedExpenses();
-    const filtered = plans.filter(p => p.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+  // Delete planned expense in MongoDB
+  deletePlannedExpense: async (id: string): Promise<void> => {
+    try {
+      await axios.delete(`${API_BASE}/finance_planned/${id}`, { timeout: 6000 });
+    } catch (err) {
+      console.warn('API delete failed:', err);
+    }
+    const all = plannedExpenseApi.getPlannedExpenses().filter(p => p.id !== id);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
   },
 
-  getMonthlyBudgetSummary: (month: string, year: number, actualCategoryExpenses: Record<string, number> = {}) => {
-    const plans = plannedExpenseApi.getPlannedExpenses().filter(p => p.month === month && p.year === year);
-    const totalPlanned = plans.reduce((acc, p) => acc + Number(p.plannedAmount), 0);
+  // Set fulfillment and payment
+  setFulfillmentAndPayment: async (id: string, isFulfilled: boolean, paidAmount?: number): Promise<PlannedExpense | null> => {
+    return plannedExpenseApi.updatePlannedExpense(id, {
+      isFulfilled,
+      paidAmount,
+      status: isFulfilled ? 'Fulfilled' : ((paidAmount ?? 0) > 0 ? 'Partial' : 'Planned')
+    });
+  },
+
+  // Calculate monthly summary
+  getMonthlyBudgetSummary: (
+    plansOrMonth: PlannedExpense[] | string,
+    actualOrYear?: Record<string, number> | number,
+    actualCategoryExpensesRecord: Record<string, number> = {}
+  ) => {
+    let plans: PlannedExpense[] = [];
+    let actualCategoryExpenses: Record<string, number> = {};
+
+    if (Array.isArray(plansOrMonth)) {
+      plans = plansOrMonth;
+      actualCategoryExpenses = (actualOrYear && typeof actualOrYear === 'object') ? (actualOrYear as Record<string, number>) : {};
+    } else {
+      const month = plansOrMonth;
+      const year = typeof actualOrYear === 'number' ? actualOrYear : undefined;
+      plans = plannedExpenseApi.getPlannedExpenses(month, year);
+      actualCategoryExpenses = actualCategoryExpensesRecord || {};
+    }
+    const totalPlanned = plans.reduce((acc, p) => acc + Number(p.plannedAmount || 0), 0);
 
     const totalPaid = plans.reduce((acc, p) => {
       if (p.isFulfilled || p.status === 'Fulfilled') {
-        return acc + Number(p.plannedAmount);
+        return acc + Number(p.plannedAmount || 0);
       }
-      return acc + (p.paidAmount !== undefined ? Number(p.paidAmount) : 0);
+      return acc + Number(p.paidAmount || 0);
     }, 0);
 
     const totalRemaining = Math.max(0, totalPlanned - totalPaid);
     const fulfilledCount = plans.filter(p => p.isFulfilled || p.status === 'Fulfilled' || ((p.paidAmount ?? 0) >= p.plannedAmount)).length;
     const fulfillmentRate = totalPlanned > 0 ? Math.min(100, Math.round((totalPaid / totalPlanned) * 100)) : 0;
 
-    // Sum actual spent across categories from live transactions
     let totalActualSpent = 0;
     const categoryVariance: Array<{
       category: string;
@@ -326,7 +170,7 @@ export const plannedExpenseApi = {
 
     const groupedPlans: Record<string, number> = {};
     for (const p of plans) {
-      groupedPlans[p.category] = (groupedPlans[p.category] || 0) + Number(p.plannedAmount);
+      groupedPlans[p.category] = (groupedPlans[p.category] || 0) + Number(p.plannedAmount || 0);
     }
 
     for (const [cat, plannedAmt] of Object.entries(groupedPlans)) {

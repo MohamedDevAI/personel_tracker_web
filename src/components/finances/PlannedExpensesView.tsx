@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   Target, Plus, Search, Filter, Calendar, Trash2, CheckCircle2, 
   Clock, AlertTriangle, TrendingDown, DollarSign, CheckSquare,
-  Pencil, ArrowUpRight, Check, XCircle
+  Pencil, ArrowUpRight, Check, XCircle, Database
 } from 'lucide-react';
 import { Category, PlannedExpense, PlannedExpenseStatus, Transaction } from '../../types';
 import { MONTH_NAMES } from '../../services/expenseApi';
@@ -20,22 +21,57 @@ export default function PlannedExpensesView({
   categories = [],
   transactions = []
 }: PlannedExpensesViewProps) {
-  const [plans, setPlans] = useState<PlannedExpense[]>(() => plannedExpenseApi.getPlannedExpenses());
+  const queryClient = useQueryClient();
+
   const [selectedMonth, setSelectedMonth] = useState<string>('Jul');
   const [selectedYear, setSelectedYear] = useState<number>(2026);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | PlannedExpenseStatus>('ALL');
-  
+
   // Modals
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingPlan, setEditingPlan] = useState<PlannedExpense | null>(null);
   const [activeFulfillPlan, setActiveFulfillPlan] = useState<PlannedExpense | null>(null);
   const [deletePlan, setDeletePlan] = useState<PlannedExpense | null>(null);
 
-  // Reload plans
-  const refreshPlans = () => {
-    setPlans(plannedExpenseApi.getPlannedExpenses());
-  };
+  // Live Query from MongoDB via Spring Boot API: /api/finance_planned
+  const { data: plans = [], isLoading } = useQuery<PlannedExpense[]>({
+    queryKey: ['plannedExpenses', selectedMonth, selectedYear],
+    queryFn: () => plannedExpenseApi.fetchFromDb(selectedMonth, selectedYear)
+  });
+
+  // Mutations
+  const savePlanMutation = useMutation({
+    mutationFn: (planData: Omit<PlannedExpense, 'id' | 'createdAt'>) => {
+      if (editingPlan) {
+        return plannedExpenseApi.updatePlannedExpense(editingPlan.id, planData);
+      }
+      return plannedExpenseApi.createPlannedExpense(planData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['plannedExpenses'] });
+      setEditingPlan(null);
+      setIsAddModalOpen(false);
+    }
+  });
+
+  const fulfillMutation = useMutation({
+    mutationFn: ({ id, isFulfilled, paidAmount }: { id: string; isFulfilled: boolean; paidAmount: number }) => {
+      return plannedExpenseApi.setFulfillmentAndPayment(id, isFulfilled, paidAmount);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['plannedExpenses'] });
+      setActiveFulfillPlan(null);
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => plannedExpenseApi.deletePlannedExpense(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['plannedExpenses'] });
+      setDeletePlan(null);
+    }
+  });
 
   // Compute actual spending by category for the selected month and year from live MongoDB transactions
   const actualCategoryExpenses = useMemo(() => {
@@ -60,20 +96,13 @@ export default function PlannedExpensesView({
     return expenses;
   }, [transactions, selectedMonth, selectedYear]);
 
-  // Budget summary with variance
-  const budgetSummary = useMemo(() => {
-    return plannedExpenseApi.getMonthlyBudgetSummary(selectedMonth, selectedYear, actualCategoryExpenses);
-  }, [plans, selectedMonth, selectedYear, actualCategoryExpenses]);
-
   // Filtered plans
   const filteredPlans = useMemo(() => {
     return plans.filter(p => {
-      const matchesMonth = p.month === selectedMonth;
-      const matchesYear = p.year === selectedYear;
       const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (p.notes && p.notes.toLowerCase().includes(searchQuery.toLowerCase()));
-      
+
       let matchesStatus = true;
       if (statusFilter !== 'ALL') {
         if (statusFilter === 'Fulfilled') {
@@ -85,30 +114,26 @@ export default function PlannedExpensesView({
         }
       }
 
-      return matchesMonth && matchesYear && matchesSearch && matchesStatus;
+      return matchesSearch && matchesStatus;
     });
-  }, [plans, selectedMonth, selectedYear, searchQuery, statusFilter]);
+  }, [plans, searchQuery, statusFilter]);
+
+  // Budget summary with variance
+  const budgetSummary = useMemo(() => {
+    return plannedExpenseApi.getMonthlyBudgetSummary(filteredPlans, actualCategoryExpenses);
+  }, [filteredPlans, actualCategoryExpenses]);
 
   const handleCreateOrUpdatePlan = (planData: Omit<PlannedExpense, 'id' | 'createdAt'>) => {
-    if (editingPlan) {
-      plannedExpenseApi.updatePlannedExpense(editingPlan.id, planData);
-      setEditingPlan(null);
-    } else {
-      plannedExpenseApi.createPlannedExpense(planData);
-    }
-    refreshPlans();
+    savePlanMutation.mutate(planData);
   };
 
   const handleSaveFulfillment = (id: string, isFulfilled: boolean, paidAmount: number) => {
-    plannedExpenseApi.setFulfillmentAndPayment(id, isFulfilled, paidAmount);
-    refreshPlans();
+    fulfillMutation.mutate({ id, isFulfilled, paidAmount });
   };
 
   const handleConfirmDeletePlan = () => {
     if (deletePlan) {
-      plannedExpenseApi.deletePlannedExpense(deletePlan.id);
-      refreshPlans();
-      setDeletePlan(null);
+      deleteMutation.mutate(deletePlan.id);
     }
   };
 
@@ -126,7 +151,7 @@ export default function PlannedExpensesView({
             Planned Expenses & <span className="emerald-gradient-text">Fulfillment Tracker</span>
           </h2>
           <p className="planned-header-subtitle">
-            Plan monthly expenses, track fulfilled vs unfulfilled items, and manage exactly how much you paid (all figures in SAR).
+            Connected to MongoDB collection <code className="db-collection-badge">finance_planned</code>. Real-time budget fulfillment and payment tracking in SAR.
           </p>
         </div>
 
@@ -173,13 +198,13 @@ export default function PlannedExpensesView({
         <div className="planned-kpi-card total-planned">
           <div className="planned-kpi-label">TOTAL PLANNED BUDGET</div>
           <div className="planned-kpi-val">{formatSAR(budgetSummary.totalPlanned)}</div>
-          <div className="planned-kpi-meta">{selectedMonth} {selectedYear} ({filteredPlans.length} items)</div>
+          <div className="planned-kpi-meta">{selectedMonth} {selectedYear} ({filteredPlans.length} items from DB)</div>
         </div>
 
         <div className="planned-kpi-card actual-spent">
           <div className="planned-kpi-label">TOTAL AMOUNT PAID</div>
           <div className="planned-kpi-val text-emerald">{formatSAR(budgetSummary.totalPaid)}</div>
-          <div className="planned-kpi-meta">Paid towards planned goals</div>
+          <div className="planned-kpi-meta">Paid towards planned items</div>
         </div>
 
         <div className={`planned-kpi-card ${budgetSummary.totalRemaining === 0 ? 'remaining-budget' : 'over-budget'}`}>
@@ -284,12 +309,21 @@ export default function PlannedExpensesView({
             </tr>
           </thead>
           <tbody>
-            {filteredPlans.length === 0 ? (
+            {isLoading ? (
+              <tr>
+                <td colSpan={8} className="empty-table-cell">
+                  <div className="empty-table-placeholder">
+                    <Database size={28} className="animate-spin text-primary" />
+                    <p>Loading planned expenses from MongoDB...</p>
+                  </div>
+                </td>
+              </tr>
+            ) : filteredPlans.length === 0 ? (
               <tr>
                 <td colSpan={8} className="empty-table-cell">
                   <div className="empty-table-placeholder">
                     <Target size={28} />
-                    <p>No planned expenses recorded for {selectedMonth} {selectedYear}.</p>
+                    <p>No planned expenses recorded in database for {selectedMonth} {selectedYear}.</p>
                     <button 
                       onClick={() => {
                         setEditingPlan(null);
@@ -312,7 +346,7 @@ export default function PlannedExpensesView({
                 const isPartial = !isFulfilled && paidVal > 0;
 
                 return (
-                  <tr key={plan.id} className="borrow-row">
+                  <tr key={plan.id || plan.title} className="borrow-row">
                     {/* Title */}
                     <td>
                       <div className="plan-title-cell">
