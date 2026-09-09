@@ -1,22 +1,30 @@
 // Core TypeScript Interfaces and Types for Personal Tracker
 
-export type TransactionType = 'CREDIT' | 'DEBIT';
+export type TransactionType = 'CREDIT' | 'DEBIT' | 'Credit' | 'Debit';
 
 export interface Category {
   id?: string;
+  _id?: string;
   name: string;
   type: TransactionType;
   createdAt?: string;
 }
 
 export interface Transaction {
+  _id?: string;
   id?: string;
-  amountSar: number;
-  type: TransactionType;
+  date?: string;
+  transactionDate?: string;
+  month?: string;
+  category: string;
   categoryId?: string;
   categoryName?: string;
-  transactionDate: string;
+  description?: string;
   note?: string;
+  paymentMethod?: string;
+  amount: number;
+  amountSar?: number;
+  type: TransactionType;
   createdAt?: string;
 }
 
