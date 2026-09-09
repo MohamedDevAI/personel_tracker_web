@@ -11,10 +11,19 @@ import OutflowBreakdownCard from '../components/finances/OutflowBreakdownCard';
 import CategoryTable from '../components/finances/CategoryTable';
 import TransactionModal from '../components/finances/TransactionModal';
 import CategoryModal from '../components/finances/CategoryModal';
+import FinanceTabsHeader, { FinanceTabKey } from '../components/finances/FinanceTabsHeader';
+import BorrowRepayView from '../components/finances/BorrowRepayView';
+import PlannedExpensesView from '../components/finances/PlannedExpensesView';
+import FinanceAnalyticsReportView from '../components/finances/FinanceAnalyticsReportView';
+import { borrowRepayApi } from '../services/borrowRepayApi';
+import { plannedExpenseApi } from '../services/plannedExpenseApi';
 import '../components/finances/finances.css';
 
 export default function ExpenseTracker() {
   const queryClient = useQueryClient();
+
+  // Top-level Finance Hub Tab
+  const [financeMainTab, setFinanceMainTab] = useState<FinanceTabKey>('ledger');
 
   // Queries
   const { data: transactions = [], isLoading: isTxsLoading } = useQuery<Transaction[]>({
@@ -27,7 +36,16 @@ export default function ExpenseTracker() {
     queryFn: () => expenseApi.getCategories()
   });
 
-  // UI States
+  // Dynamic pill counters for sub-tabs
+  const outstandingDebtCount = useMemo(() => {
+    return borrowRepayApi.getCreditorSummaries().filter(s => s.netBalance > 0).length;
+  }, [financeMainTab]);
+
+  const activePlansCount = useMemo(() => {
+    return plannedExpenseApi.getPlannedExpenses().filter(p => p.status === 'Planned').length;
+  }, [financeMainTab]);
+
+  // UI States for Ledger
   const [activeTab, setActiveTab] = useState<'transactions' | 'categories'>('transactions');
   const [selectedYear, setSelectedYear] = useState<number>(2026);
   const [selectedMonth, setSelectedMonth] = useState<string>('Mar'); // 'All' or 'Jan'..'Dec'
@@ -229,163 +247,200 @@ export default function ExpenseTracker() {
       <div className="finances-header">
         <div className="finances-header-info">
           <div className="finances-header-badge-row">
-
             <span className="finances-records-count">
-              Total Records: {transactions.length}
+              Total Transactions: {transactions.length}
             </span>
           </div>
           <h1 className="finances-header-title">
-            Monthly <span className="emerald-gradient-text">Financial Ledger</span>
+            Personal <span className="emerald-gradient-text">Finance Hub</span>
           </h1>
           <p className="finances-header-subtitle">
-            Filter transactions by month and year, inspect cash flows, and manage your ledger.
+            Track expenses, plan monthly budgets, manage money borrowed & repaid, and inspect combined financial intelligence.
           </p>
         </div>
 
         <div className="finances-header-actions">
-          <button onClick={() => setShowCategoryModal(true)} className="btn btn-secondary">
-            <Tag size={16} /> Add Category
-          </button>
-          <button
-            onClick={() => handleOpenAddModal('Debit')}
-            className="btn btn-secondary btn-log-expense"
-          >
-            <ArrowDownRight size={16} /> Log Expense
-          </button>
-          <button onClick={() => handleOpenAddModal('Credit')} className="btn btn-primary">
-            <Plus size={16} /> Log Transaction
-          </button>
-        </div>
-      </div>
-
-      {/* Year & Month Filter Toolbar */}
-      <MonthYearFilter
-        selectedYear={selectedYear}
-        setSelectedYear={setSelectedYear}
-        selectedMonth={selectedMonth}
-        setSelectedMonth={setSelectedMonth}
-        availableYears={availableYears}
-        monthlyTransactionCounts={monthlyTransactionCounts}
-        totalTransactionsForYear={totalTransactionsForYear}
-        onPrevMonth={handlePrevMonth}
-        onNextMonth={handleNextMonth}
-      />
-
-      {/* Dynamic Monthly KPI Cards */}
-      <FinanceSummaryCards
-        selectedMonth={selectedMonth}
-        selectedYear={selectedYear}
-        totalCredit={monthlyStats.totalCredit}
-        totalDebit={monthlyStats.totalDebit}
-        netBalance={monthlyStats.netBalance}
-        transactionCount={monthlyStats.count}
-      />
-
-      {/* Main Grid: Transactions / Categories on Left, Outflow Breakdown on Right */}
-      <div className="finances-main-grid">
-
-        {/* Left Column: Persistent Tab Switcher + Equal-Height Scrollable Tables */}
-        <div className="finances-left-column">
-
-          {/* Persistent View Switcher & Toolbar */}
-          <div className="finances-table-toolbar">
-
-            {/* View switcher tabs (Always visible!) */}
-            <div className="finances-tabs-group">
-              <button
-                onClick={() => setActiveTab('transactions')}
-                className={activeTab === 'transactions' ? 'btn btn-primary finances-tab-btn' : 'btn btn-secondary finances-tab-btn'}
-              >
-                Transactions List ({filteredTransactions.length})
+          {financeMainTab === 'ledger' && (
+            <>
+              <button onClick={() => setShowCategoryModal(true)} className="btn btn-secondary">
+                <Tag size={16} /> Add Category
               </button>
               <button
-                onClick={() => setActiveTab('categories')}
-                className={activeTab === 'categories' ? 'btn btn-primary finances-tab-btn' : 'btn btn-secondary finances-tab-btn'}
+                onClick={() => handleOpenAddModal('Debit')}
+                className="btn btn-secondary btn-log-expense"
               >
-                Categories ({categories.length})
+                <ArrowDownRight size={16} /> Log Expense
               </button>
-            </div>
-
-            {/* Filter toolbar if transactions tab, or Add Category if categories tab */}
-            {activeTab === 'transactions' ? (
-              <div className="finances-toolbar-actions">
-                <div className="finances-search-box">
-                  <Search size={14} className="finances-search-icon" />
-                  <input
-                    type="text"
-                    placeholder="Search note, category..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="finances-search-input"
-                  />
-                </div>
-
-                <select
-                  value={typeFilter}
-                  onChange={(e) => setTypeFilter(e.target.value as any)}
-                  className="finances-type-select"
-                >
-                  <option value="ALL">All Types</option>
-                  <option value="Credit">Credit (+)</option>
-                  <option value="Debit">Debit (-)</option>
-                </select>
-
-                <select
-                  value={categoryFilter}
-                  onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="finances-type-select"
-                >
-                  <option value="ALL">All Categories</option>
-                  {categories.map(c => (
-                    <option key={c.id || c._id || c.name} value={c.name}>{c.name}</option>
-                  ))}
-                </select>
-              </div>
-            ) : (
-              <button
-                onClick={() => setShowCategoryModal(true)}
-                className="btn btn-secondary finances-add-cat-btn"
-              >
-                <Tag size={14} /> Add Category
+              <button onClick={() => handleOpenAddModal('Credit')} className="btn btn-primary">
+                <Plus size={16} /> Log Transaction
               </button>
-            )}
-          </div>
-
-          {/* Table Component with 90vh height and internal scrolling */}
-          {activeTab === 'transactions' ? (
-            <TransactionTable
-              transactions={filteredTransactions}
-              categories={categories}
-              isLoading={isTxsLoading}
-              selectedMonth={selectedMonth}
-              selectedYear={selectedYear}
-              onDeleteTransaction={(id) => deleteTransactionMutation.mutate(id)}
-              onOpenAddModal={handleOpenAddModal}
-            />
-          ) : (
-            <CategoryTable
-              categories={categories}
-              onDeleteCategory={(id) => deleteCategoryMutation.mutate(id)}
-            />
+            </>
           )}
         </div>
+      </div>
 
-        {/* Right Column: Donut Chart & Ranked Categories (Height matches 90vh) */}
-        <div className="finances-analytics-col">
-          <div className="finances-analytics-header">
-            <span className="finances-analytics-title">
-              SPENDING ANALYTICS
-            </span>
-          </div>
-          <OutflowBreakdownCard
+      {/* 4-Tab Finance Hub Sub-Navigation Bar */}
+      <FinanceTabsHeader
+        activeTab={financeMainTab}
+        onSelectTab={setFinanceMainTab}
+        outstandingDebtCount={outstandingDebtCount}
+        activePlansCount={activePlansCount}
+      />
+
+      {/* View 1: Expense Tracked (Monthly Financial Ledger) */}
+      {financeMainTab === 'ledger' && (
+        <>
+          {/* Year & Month Filter Toolbar */}
+          <MonthYearFilter
+            selectedYear={selectedYear}
+            setSelectedYear={setSelectedYear}
+            selectedMonth={selectedMonth}
+            setSelectedMonth={setSelectedMonth}
+            availableYears={availableYears}
+            monthlyTransactionCounts={monthlyTransactionCounts}
+            totalTransactionsForYear={totalTransactionsForYear}
+            onPrevMonth={handlePrevMonth}
+            onNextMonth={handleNextMonth}
+          />
+
+          {/* Dynamic Monthly KPI Cards */}
+          <FinanceSummaryCards
             selectedMonth={selectedMonth}
             selectedYear={selectedYear}
+            totalCredit={monthlyStats.totalCredit}
             totalDebit={monthlyStats.totalDebit}
-            pieData={monthlyStats.pieData}
-            onOpenAddModal={handleOpenAddModal}
+            netBalance={monthlyStats.netBalance}
+            transactionCount={monthlyStats.count}
           />
-        </div>
-      </div>
+
+          {/* Main Grid: Transactions / Categories on Left, Outflow Breakdown on Right */}
+          <div className="finances-main-grid">
+
+            {/* Left Column: Persistent Tab Switcher + Equal-Height Scrollable Tables */}
+            <div className="finances-left-column">
+
+              {/* Persistent View Switcher & Toolbar */}
+              <div className="finances-table-toolbar">
+
+                {/* View switcher tabs (Always visible!) */}
+                <div className="finances-tabs-group">
+                  <button
+                    onClick={() => setActiveTab('transactions')}
+                    className={activeTab === 'transactions' ? 'btn btn-primary finances-tab-btn' : 'btn btn-secondary finances-tab-btn'}
+                  >
+                    Transactions List ({filteredTransactions.length})
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('categories')}
+                    className={activeTab === 'categories' ? 'btn btn-primary finances-tab-btn' : 'btn btn-secondary finances-tab-btn'}
+                  >
+                    Categories ({categories.length})
+                  </button>
+                </div>
+
+                {/* Filter toolbar if transactions tab, or Add Category if categories tab */}
+                {activeTab === 'transactions' ? (
+                  <div className="finances-toolbar-actions">
+                    <div className="finances-search-box">
+                      <Search size={14} className="finances-search-icon" />
+                      <input
+                        type="text"
+                        placeholder="Search note, category..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="finances-search-input"
+                      />
+                    </div>
+
+                    <select
+                      value={typeFilter}
+                      onChange={(e) => setTypeFilter(e.target.value as any)}
+                      className="finances-type-select"
+                    >
+                      <option value="ALL">All Types</option>
+                      <option value="Credit">Credit (+)</option>
+                      <option value="Debit">Debit (-)</option>
+                    </select>
+
+                    <select
+                      value={categoryFilter}
+                      onChange={(e) => setCategoryFilter(e.target.value)}
+                      className="finances-type-select"
+                    >
+                      <option value="ALL">All Categories</option>
+                      {categories.map(c => (
+                        <option key={c.id || c._id || c.name} value={c.name}>{c.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setShowCategoryModal(true)}
+                    className="btn btn-secondary finances-add-cat-btn"
+                  >
+                    <Tag size={14} /> Add Category
+                  </button>
+                )}
+              </div>
+
+              {/* Table Component with 90vh height and internal scrolling */}
+              {activeTab === 'transactions' ? (
+                <TransactionTable
+                  transactions={filteredTransactions}
+                  categories={categories}
+                  isLoading={isTxsLoading}
+                  selectedMonth={selectedMonth}
+                  selectedYear={selectedYear}
+                  onDeleteTransaction={(id) => deleteTransactionMutation.mutate(id)}
+                  onOpenAddModal={handleOpenAddModal}
+                />
+              ) : (
+                <CategoryTable
+                  categories={categories}
+                  onDeleteCategory={(id) => deleteCategoryMutation.mutate(id)}
+                />
+              )}
+            </div>
+
+            {/* Right Column: Donut Chart & Ranked Categories (Height matches 90vh) */}
+            <div className="finances-analytics-col">
+              <div className="finances-analytics-header">
+                <span className="finances-analytics-title">
+                  SPENDING ANALYTICS
+                </span>
+              </div>
+              <OutflowBreakdownCard
+                selectedMonth={selectedMonth}
+                selectedYear={selectedYear}
+                totalDebit={monthlyStats.totalDebit}
+                pieData={monthlyStats.pieData}
+                onOpenAddModal={handleOpenAddModal}
+              />
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* View 2: Planned Expenses */}
+      {financeMainTab === 'planned' && (
+        <PlannedExpensesView
+          categories={categories}
+          transactions={transactions}
+        />
+      )}
+
+      {/* View 3: Borrow and Repay (Dedicated Creditor Tracker in INR ₹) */}
+      {financeMainTab === 'borrow_repay' && (
+        <BorrowRepayView />
+      )}
+
+      {/* View 4: Analytics and Report (Unified Combination) */}
+      {financeMainTab === 'analytics' && (
+        <FinanceAnalyticsReportView
+          transactions={transactions}
+          categories={categories}
+        />
+      )}
 
       {/* Add Transaction Dialog */}
       <TransactionModal

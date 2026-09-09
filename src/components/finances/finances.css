@@ -1025,3 +1025,1055 @@
   font-weight: 600;
 }
 
+/* =========================================================
+   NEW: 4-TAB FINANCE HUB NAVIGATION
+   ========================================================= */
+.finance-nav-tabs-wrapper {
+  margin: 6px 0 32px 0;
+}
+
+.finance-nav-tabs-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(16, 21, 34, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  padding: 6px;
+  border-radius: 14px;
+  width: fit-content;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.finance-main-nav-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.finance-main-nav-tab:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.finance-main-nav-tab.active {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(168, 85, 247, 0.2));
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(129, 140, 248, 0.35);
+}
+
+.finance-nav-pill-counter {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.finance-nav-pill-counter.alert {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+/* =========================================================
+   BORROW AND REPAY VIEW STYLES (INR ₹)
+   ========================================================= */
+.borrow-repay-container,
+.planned-expenses-container,
+.analytics-report-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.borrow-repay-header,
+.planned-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.borrow-repay-title,
+.planned-header-title {
+  font-size: 1.65rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+}
+
+.borrow-repay-subtitle,
+.planned-header-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  max-width: 650px;
+  line-height: 1.5;
+}
+
+.borrow-header-buttons,
+.planned-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-borrow-action {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.btn-borrow-action:hover {
+  background: rgba(245, 158, 11, 0.2);
+}
+
+/* 2-Step Switcher: 1. Planned Repayment | 2. Credit Tracker */
+.borrow-two-step-tabs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(16, 21, 34, 0.6);
+  border: 1px solid var(--border-subtle);
+  padding: 6px;
+  border-radius: 12px;
+  width: fit-content;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.borrow-step-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.borrow-step-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.borrow-step-btn.active {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(168, 85, 247, 0.2));
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(129, 140, 248, 0.35);
+}
+
+.step-counter {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #c7d2fe;
+}
+
+.step-counter.alert {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+}
+
+.actions-inline-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-table-action-pay {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-table-action-pay:hover {
+  background: rgba(16, 185, 129, 0.25);
+  color: #ffffff;
+}
+
+.borrow-kpi-grid,
+.planned-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.borrow-kpi-card,
+.planned-kpi-card {
+  background: rgba(16, 21, 34, 0.6);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.borrow-kpi-card:hover,
+.planned-kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(99, 102, 241, 0.35);
+}
+
+.borrow-kpi-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.borrow-kpi-label,
+.planned-kpi-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.borrow-kpi-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.borrow-icon {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+
+.repaid-icon {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+.outstanding-icon {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fb7185;
+}
+
+.borrow-kpi-val,
+.planned-kpi-val {
+  font-size: 1.7rem;
+  font-weight: 800;
+  font-family: var(--font-display);
+}
+
+.borrow-text {
+  color: #fbbf24;
+}
+
+.repaid-text {
+  color: #34d399;
+}
+
+.outstanding-text {
+  color: #fb7185;
+}
+
+.settled-text {
+  color: #34d399;
+}
+
+.borrow-kpi-meta,
+.planned-kpi-meta {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+/* Creditors Section */
+.creditors-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.creditors-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.creditors-chip-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.creditor-chip-card {
+  background: rgba(21, 27, 43, 0.5);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.creditor-chip-card:hover {
+  background: rgba(26, 34, 54, 0.7);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.creditor-chip-card.active-filter {
+  border-color: #6366f1;
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.creditor-chip-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.creditor-chip-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.balance-due {
+  color: #fb7185;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.balance-cleared {
+  color: #34d399;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.creditor-chip-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-link-settle {
+  background: none;
+  border: none;
+  color: #a5b4fc;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.btn-link-settle:hover {
+  color: #c7d2fe;
+  text-decoration: underline;
+}
+
+/* Borrow Table Toolbar */
+.borrow-table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.borrow-search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(16, 21, 34, 0.7);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 8px 14px;
+  flex: 1;
+  min-width: 260px;
+  max-width: 420px;
+}
+
+.borrow-search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  width: 100%;
+}
+
+.borrow-filters-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.borrow-select-filter {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.borrow-select-filter option {
+  background: #111827;
+  color: #ffffff;
+}
+
+/* Borrow & Repay Data Table */
+.borrow-table-container {
+  overflow-x: auto;
+  border-radius: 16px;
+  max-height: 80vh;
+}
+
+.borrow-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.borrow-data-table th {
+  padding: 14px 20px;
+  background: #101522;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.borrow-data-table th.th-amount {
+  text-align: right;
+}
+
+.borrow-data-table th.th-action {
+  text-align: center;
+  width: 70px;
+}
+
+.borrow-row {
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background 0.2s ease;
+}
+
+.borrow-row:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.borrow-data-table td {
+  padding: 14px 20px;
+  font-size: 0.9rem;
+}
+
+.creditor-avatar-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.creditor-avatar-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.creditor-fullname {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.date-cell-flex {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.date-icon {
+  color: var(--text-muted);
+}
+
+.badge-borrow {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-repaid {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.td-amount {
+  text-align: right;
+  font-weight: 700;
+  font-family: var(--font-display);
+}
+
+.borrow-amt {
+  color: #fbbf24;
+}
+
+.repaid-amt {
+  color: #34d399;
+}
+
+.plan-amt {
+  color: #818cf8;
+}
+
+.notes-text {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.td-action {
+  text-align: center;
+}
+
+.btn-icon-delete {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-icon-delete:hover {
+  color: #fb7185;
+  background: rgba(244, 63, 94, 0.1);
+}
+
+/* Borrow Modal Specifics */
+.modal-header-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-icon-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-icon-badge.borrow {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+}
+
+.modal-icon-badge.repaid {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+
+.modal-icon-badge.planned {
+  background: rgba(99, 102, 241, 0.2);
+  color: #818cf8;
+}
+
+.borrow-type-toggle-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.borrow-type-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.borrow-type-btn.active-borrow {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: #fbbf24;
+  color: #fbbf24;
+}
+
+.borrow-type-btn.active-repaid {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #34d399;
+  color: #34d399;
+}
+
+.btn-emerald-solid {
+  background: #10b981;
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.btn-emerald-solid:hover {
+  background: #059669;
+}
+
+/* =========================================================
+   PLANNED EXPENSES VIEW STYLES
+   ========================================================= */
+.select-custom-pill {
+  background: rgba(16, 21, 34, 0.7);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.month-year-select-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.category-variance-card {
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.variance-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}
+
+.variance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.variance-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+}
+
+.variance-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.variance-cat-name {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--text-primary);
+}
+
+.variance-numbers {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.variance-badge {
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.badge-good {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+.badge-alert {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fb7185;
+}
+
+.variance-meter-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.variance-meter-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.fill-success {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.fill-danger {
+  background: linear-gradient(90deg, #f43f5e, #fb7185);
+}
+
+.plan-title-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.plan-title-main {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.plan-notes-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.badge-interactive {
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.badge-interactive:hover {
+  opacity: 0.8;
+}
+
+/* =========================================================
+   ANALYTICS & REPORT VIEW STYLES
+   ========================================================= */
+.report-header-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.report-badge-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
+  font-size: 0.76rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.report-title-main {
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.report-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  max-width: 650px;
+  line-height: 1.5;
+}
+
+.btn-print-report {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.report-three-pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.pillar-card {
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pillar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pillar-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ledger-icon {
+  background: rgba(99, 102, 241, 0.2);
+  color: #818cf8;
+}
+
+.planned-icon {
+  background: rgba(236, 72, 153, 0.2);
+  color: #f472b6;
+}
+
+.debt-icon {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+}
+
+.pillar-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.pillar-caption {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.pillar-stats-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+}
+
+.pillar-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.pillar-stat-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 4px 0;
+}
+
+.pillar-stat-row.total-highlight {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stat-green {
+  color: #34d399;
+}
+
+.stat-red {
+  color: #fb7185;
+}
+
+.stat-blue {
+  color: #60a5fa;
+}
+
+.stat-amber {
+  color: #fbbf24;
+}
+
+.report-matrix-card,
+.report-creditors-section {
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.matrix-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--text-primary);
+}
+
+.matrix-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+}
+
+.matrix-table-wrap {
+  overflow-x: auto;
+}
+
+.report-matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.report-matrix-table th {
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.3);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-subtle);
+  text-align: left;
+}
+
+.report-matrix-table td {
+  padding: 14px 16px;
+  font-size: 0.88rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.matrix-cat-badge {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.health-bar-track {
+  width: 120px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.health-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+}
+
+.health-bar-fill.safe {
+  background: #10b981;
+}
+
+.health-bar-fill.danger {
+  background: #f43f5e;
+}
+
+.creditor-report-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.creditor-report-item {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.creditor-report-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.creditor-report-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.creditor-report-numbers {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.creditor-report-bottom {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 8px;
+}
+
+
