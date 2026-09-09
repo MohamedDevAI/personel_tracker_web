@@ -17,6 +17,7 @@ import PlannedExpensesView from '../components/finances/PlannedExpensesView';
 import FinanceAnalyticsReportView from '../components/finances/FinanceAnalyticsReportView';
 import { borrowRepayApi } from '../services/borrowRepayApi';
 import { plannedExpenseApi } from '../services/plannedExpenseApi';
+import ConfirmDeleteModal from '../components/common/ConfirmDeleteModal';
 import '../components/finances/finances.css';
 
 export default function ExpenseTracker() {
@@ -58,6 +59,19 @@ export default function ExpenseTracker() {
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [modalType, setModalType] = useState<TransactionType>('Credit');
 
+  // Deletion Confirmation Dialog State (Yes / No)
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    isOpen: boolean;
+    type: 'transaction' | 'category';
+    id: string;
+    itemName: string;
+  }>({
+    isOpen: false,
+    type: 'transaction',
+    id: '',
+    itemName: ''
+  });
+
   // Mutations
   const addTransactionMutation = useMutation({
     mutationFn: expenseApi.createTransaction,
@@ -92,6 +106,35 @@ export default function ExpenseTracker() {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
     }
   });
+
+  const promptDeleteTransaction = (id: string) => {
+    const tx = transactions.find(t => (t.id || t._id) === id);
+    setDeleteConfirm({
+      isOpen: true,
+      type: 'transaction',
+      id,
+      itemName: tx ? `${tx.description || tx.category} (SAR ${tx.amount})` : 'Selected Transaction'
+    });
+  };
+
+  const promptDeleteCategory = (id: string) => {
+    const cat = categories.find(c => (c.id || c._id) === id);
+    setDeleteConfirm({
+      isOpen: true,
+      type: 'category',
+      id,
+      itemName: cat ? cat.name : 'Selected Category'
+    });
+  };
+
+  const handleExecuteDelete = () => {
+    if (deleteConfirm.type === 'transaction') {
+      deleteTransactionMutation.mutate(deleteConfirm.id);
+    } else {
+      deleteCategoryMutation.mutate(deleteConfirm.id);
+    }
+    setDeleteConfirm(prev => ({ ...prev, isOpen: false }));
+  };
 
   // Unique available years
   const availableYears = useMemo(() => {
@@ -391,13 +434,13 @@ export default function ExpenseTracker() {
                   isLoading={isTxsLoading}
                   selectedMonth={selectedMonth}
                   selectedYear={selectedYear}
-                  onDeleteTransaction={(id) => deleteTransactionMutation.mutate(id)}
+                  onDeleteTransaction={promptDeleteTransaction}
                   onOpenAddModal={handleOpenAddModal}
                 />
               ) : (
                 <CategoryTable
                   categories={categories}
-                  onDeleteCategory={(id) => deleteCategoryMutation.mutate(id)}
+                  onDeleteCategory={promptDeleteCategory}
                 />
               )}
             </div>
@@ -465,6 +508,18 @@ export default function ExpenseTracker() {
         isOpen={showCategoryModal}
         onClose={() => setShowCategoryModal(false)}
         onSubmit={(catData) => addCategoryMutation.mutate(catData)}
+      />
+
+      {/* Confirm Deletion Dialog (Yes / No Prompt) */}
+      <ConfirmDeleteModal
+        isOpen={deleteConfirm.isOpen}
+        title={deleteConfirm.type === 'transaction' ? 'Delete Transaction' : 'Delete Category'}
+        message="Are you sure you want to delete this data? Please choose Yes to delete or No to cancel."
+        itemName={deleteConfirm.itemName}
+        confirmText="Yes, Delete"
+        cancelText="No, Cancel"
+        onConfirm={handleExecuteDelete}
+        onCancel={() => setDeleteConfirm(prev => ({ ...prev, isOpen: false }))}
       />
 
     </div>

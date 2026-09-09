@@ -7,6 +7,7 @@ import { Category, PlannedExpense, PlannedExpenseStatus, Transaction } from '../
 import { MONTH_NAMES } from '../../services/expenseApi';
 import { plannedExpenseApi } from '../../services/plannedExpenseApi';
 import PlannedExpenseModal from './PlannedExpenseModal';
+import ConfirmDeleteModal from '../common/ConfirmDeleteModal';
 
 interface PlannedExpensesViewProps {
   categories?: Category[];
@@ -76,10 +77,20 @@ export default function PlannedExpensesView({
     refreshPlans();
   };
 
-  const handleDeletePlan = (id: string) => {
-    if (window.confirm('Delete this planned expense item?')) {
-      plannedExpenseApi.deletePlannedExpense(id);
+  const [deletePlanId, setDeletePlanId] = useState<string | null>(null);
+  const [deletePlanTitle, setDeletePlanTitle] = useState<string>('');
+
+  const triggerDeletePlan = (plan: PlannedExpense) => {
+    setDeletePlanId(plan.id);
+    setDeletePlanTitle(`${plan.title} (${plan.category} - SAR ${plan.plannedAmount})`);
+  };
+
+  const handleConfirmDeletePlan = () => {
+    if (deletePlanId) {
+      plannedExpenseApi.deletePlannedExpense(deletePlanId);
       refreshPlans();
+      setDeletePlanId(null);
+      setDeletePlanTitle('');
     }
   };
 
@@ -314,7 +325,7 @@ export default function PlannedExpensesView({
                     {/* Action */}
                     <td className="td-action">
                       <button
-                        onClick={() => handleDeletePlan(plan.id)}
+                        onClick={() => triggerDeletePlan(plan)}
                         className="btn-icon-delete"
                         title="Delete Plan"
                       >
@@ -337,6 +348,21 @@ export default function PlannedExpensesView({
         categories={categories}
         initialMonth={selectedMonth}
         initialYear={selectedYear}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmDeleteModal
+        isOpen={Boolean(deletePlanId)}
+        title="Delete Planned Expense"
+        message="Are you sure you want to delete this planned expense? Please choose Yes to delete or No to cancel."
+        itemName={deletePlanTitle}
+        confirmText="Yes, Delete"
+        cancelText="No, Keep"
+        onConfirm={handleConfirmDeletePlan}
+        onCancel={() => {
+          setDeletePlanId(null);
+          setDeletePlanTitle('');
+        }}
       />
 
     </div>

@@ -2,19 +2,25 @@ import React, { useState, useMemo } from 'react';
 import { 
   HandCoins, Plus, Search, Filter, ArrowDownLeft, ArrowUpRight, 
   Trash2, CheckCircle2, Clock, CalendarClock, User, Calendar, 
-  DollarSign, CheckSquare
+  CheckSquare
 } from 'lucide-react';
 import { BorrowRepayRecord, BorrowRepayType, PlannedRepayment, PlannedRepaymentStatus } from '../../types';
 import { borrowRepayApi } from '../../services/borrowRepayApi';
+import { MONTH_NAMES } from '../../services/expenseApi';
 import BorrowRepayModal from './BorrowRepayModal';
 import PlannedRepaymentModal from './PlannedRepaymentModal';
+import ConfirmDeleteModal from '../common/ConfirmDeleteModal';
 
-type BorrowRepayStep = 'planned_repayment' | 'credit_tracker';
+type BorrowRepayStep = 'credit_tracker' | 'planned_repayment';
 
 export default function BorrowRepayView() {
   const [activeStep, setActiveStep] = useState<BorrowRepayStep>('credit_tracker');
 
-  // Step 2 Data: Credit Tracker
+  // Month & Year Filter state (shared across both steps)
+  const [selectedMonth, setSelectedMonth] = useState<string>('ALL');
+  const [selectedYear, setSelectedYear] = useState<string>('ALL');
+
+  // Step 1 Data: Credit Tracker
   const [records, setRecords] = useState<BorrowRepayRecord[]>(() => borrowRepayApi.getRecords());
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<'ALL' | BorrowRepayType>('ALL');
@@ -23,16 +29,67 @@ export default function BorrowRepayView() {
   const [modalInitialType, setModalInitialType] = useState<BorrowRepayType>('Borrow');
   const [modalInitialCreditor, setModalInitialCreditor] = useState<string>('');
 
-  // Step 1 Data: Planned Repayments
+  // Step 2 Data: Planned Repayments
   const [plannedRepayments, setPlannedRepayments] = useState<PlannedRepayment[]>(() => borrowRepayApi.getPlannedRepayments());
   const [isPlannedModalOpen, setIsPlannedModalOpen] = useState(false);
   const [plannedStatusFilter, setPlannedStatusFilter] = useState<'ALL' | PlannedRepaymentStatus>('ALL');
+
+  // Delete Confirmation Modal state
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    isOpen: boolean;
+    type: 'credit_record' | 'planned_repayment';
+    id: string;
+    itemName: string;
+  }>({
+    isOpen: false,
+    type: 'credit_record',
+    id: '',
+    itemName: ''
+  });
 
   // Reload data
   const refreshAllData = () => {
     setRecords(borrowRepayApi.getRecords());
     setPlannedRepayments(borrowRepayApi.getPlannedRepayments());
   };
+
+  // Helper to extract month name and year from date string (supports YYYY-MM-DD, M/D/YYYY, ISO)
+  const parseDateMonthYear = (dateStr: string) => {
+    if (!dateStr) return { month: '', year: '' };
+    if (dateStr.includes('/')) {
+      const parts = dateStr.split('/');
+      if (parts.length === 3) {
+        const mIdx = parseInt(parts[0], 10) - 1;
+        const y = parts[2].trim();
+        const m = mIdx >= 0 && mIdx < 12 ? MONTH_NAMES[mIdx] : '';
+        return { month: m, year: y };
+      }
+    }
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) {
+      return {
+        month: MONTH_NAMES[d.getMonth()],
+        year: String(d.getFullYear())
+      };
+    }
+    return { month: '', year: '' };
+  };
+
+  // Available years from records
+  const availableYears = useMemo(() => {
+    const years = new Set<string>();
+    records.forEach(r => {
+      const { year } = parseDateMonthYear(r.date);
+      if (year) years.add(year);
+    });
+    plannedRepayments.forEach(p => {
+      const { year } = parseDateMonthYear(p.targetDate);
+      if (year) years.add(year);
+    });
+    // Add default years if empty
+    ['2024', '2025', '2026'].forEach(y => years.add(y));
+    return Array.from(years).sort().reverse();
+  }, [records, plannedRepayments]);
 
   // Creditor summaries & stats (INR)
   const creditorSummaries = useMemo(() => {
@@ -50,26 +107,36 @@ export default function BorrowRepayView() {
     return Array.from(new Set([...fromRecords, ...fromPlans])).filter(Boolean);
   }, [records, plannedRepayments]);
 
-  // Filtered Credit Tracker records
+  // Filtered Credit Tracker records (with Month-wise & Year-wise filtering)
   const filteredRecords = useMemo(() => {
     return records.filter(r => {
       const matchesSearch = r.creditorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (r.notes && r.notes.toLowerCase().includes(searchQuery.toLowerCase()));
       const matchesType = typeFilter === 'ALL' || r.type === typeFilter;
       const matchesCreditor = selectedCreditorFilter === 'ALL' || r.creditorName === selectedCreditorFilter;
-      return matchesSearch && matchesType && matchesCreditor;
-    });
-  }, [records, searchQuery, typeFilter, selectedCreditorFilter]);
+      
+      const { month, year } = parseDateMonthYear(r.date);
+      const matchesMonth = selectedMonth === 'ALL' || month === selectedMonth;
+      const matchesYear = selectedYear === 'ALL' || year === selectedYear;
 
-  // Filtered Planned Repayments
+      return matchesSearch && matchesType && matchesCreditor && matchesMonth && matchesYear;
+    });
+  }, [records, searchQuery, typeFilter, selectedCreditorFilter, selectedMonth, selectedYear]);
+
+  // Filtered Planned Repayments (with Month-wise & Year-wise filtering)
   const filteredPlannedRepayments = useMemo(() => {
     return plannedRepayments.filter(p => {
       const matchesSearch = p.creditorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (p.notes && p.notes.toLowerCase().includes(searchQuery.toLowerCase()));
       const matchesStatus = plannedStatusFilter === 'ALL' || p.status === plannedStatusFilter;
-      return matchesSearch && matchesStatus;
+      
+      const { month, year } = parseDateMonthYear(p.targetDate);
+      const matchesMonth = selectedMonth === 'ALL' || month === selectedMonth;
+      const matchesYear = selectedYear === 'ALL' || year === selectedYear;
+
+      return matchesSearch && matchesStatus && matchesMonth && matchesYear;
     });
-  }, [plannedRepayments, searchQuery, plannedStatusFilter]);
+  }, [plannedRepayments, searchQuery, plannedStatusFilter, selectedMonth, selectedYear]);
 
   // Planned Repayments Stats
   const plannedStats = useMemo(() => {
@@ -90,11 +157,13 @@ export default function BorrowRepayView() {
     refreshAllData();
   };
 
-  const handleDeleteCreditRecord = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this borrow/repay entry?')) {
-      borrowRepayApi.deleteRecord(id);
-      refreshAllData();
-    }
+  const triggerDeleteCreditRecord = (item: BorrowRepayRecord) => {
+    setDeleteConfirm({
+      isOpen: true,
+      type: 'credit_record',
+      id: item.id,
+      itemName: `${item.creditorName} (${item.type} ₹${item.amount}) on ${item.date}`
+    });
   };
 
   const handleOpenCreditModal = (type: BorrowRepayType, creditorName: string = '') => {
@@ -109,18 +178,29 @@ export default function BorrowRepayView() {
     refreshAllData();
   };
 
-  const handleDeletePlannedRepayment = (id: string) => {
-    if (window.confirm('Delete this planned repayment?')) {
-      borrowRepayApi.deletePlannedRepayment(id);
-      refreshAllData();
+  const triggerDeletePlannedRepayment = (plan: PlannedRepayment) => {
+    setDeleteConfirm({
+      isOpen: true,
+      type: 'planned_repayment',
+      id: plan.id,
+      itemName: `${plan.creditorName} - Scheduled Repayment ₹${plan.plannedAmount} for ${plan.targetDate}`
+    });
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteConfirm.type === 'credit_record') {
+      borrowRepayApi.deleteRecord(deleteConfirm.id);
+    } else {
+      borrowRepayApi.deletePlannedRepayment(deleteConfirm.id);
     }
+    setDeleteConfirm({ isOpen: false, type: 'credit_record', id: '', itemName: '' });
+    refreshAllData();
   };
 
   const handleMarkAsPaid = (id: string) => {
     const res = borrowRepayApi.markPlannedRepaymentAsPaid(id);
     if (res) {
       refreshAllData();
-      alert(`Marked repayment to ${res.plan.creditorName} as Paid and recorded ₹${res.plan.plannedAmount} into Credit Tracker!`);
     }
   };
 
@@ -142,7 +222,7 @@ export default function BorrowRepayView() {
             Borrow & Repay <span className="emerald-gradient-text">Management</span>
           </h2>
           <p className="borrow-repay-subtitle">
-            Split into two steps: Plan your debt repayments, and track all actual borrow & repaid transactions. All values in Indian Rupees (₹).
+            Split into two steps: Track live credit transactions, and plan future debt repayments. All values in Indian Rupees (₹).
           </p>
         </div>
 
@@ -174,7 +254,7 @@ export default function BorrowRepayView() {
         </div>
       </div>
 
-      {/* Two-Step Switcher: 1. Planned Repayment | 2. Credit Tracker */}
+      {/* Two-Step Switcher */}
       <div className="borrow-two-step-tabs">
         <button
           onClick={() => setActiveStep('credit_tracker')}
@@ -293,7 +373,7 @@ export default function BorrowRepayView() {
             </div>
           )}
 
-          {/* Toolbar */}
+          {/* Toolbar with Month-wise Filter, Year Filter, Type & Creditor Filters */}
           <div className="borrow-table-toolbar">
             <div className="borrow-search-wrapper">
               <Search size={15} className="search-icon" />
@@ -307,6 +387,38 @@ export default function BorrowRepayView() {
             </div>
 
             <div className="borrow-filters-group">
+              {/* Month-wise Filter */}
+              <div className="filter-select-wrapper">
+                <Calendar size={14} className="filter-icon" />
+                <select
+                  value={selectedMonth}
+                  onChange={e => setSelectedMonth(e.target.value)}
+                  className="borrow-select-filter"
+                  title="Filter by Month"
+                >
+                  <option value="ALL">All Months</option>
+                  {MONTH_NAMES.map(m => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Year Filter */}
+              <div className="filter-select-wrapper">
+                <select
+                  value={selectedYear}
+                  onChange={e => setSelectedYear(e.target.value)}
+                  className="borrow-select-filter"
+                  title="Filter by Year"
+                >
+                  <option value="ALL">All Years</option>
+                  {availableYears.map(y => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Type Filter */}
               <div className="filter-select-wrapper">
                 <Filter size={14} className="filter-icon" />
                 <select
@@ -320,6 +432,7 @@ export default function BorrowRepayView() {
                 </select>
               </div>
 
+              {/* Creditor Filter */}
               {existingCreditors.length > 0 && (
                 <div className="filter-select-wrapper">
                   <User size={14} className="filter-icon" />
@@ -357,7 +470,7 @@ export default function BorrowRepayView() {
                     <td colSpan={6} className="empty-table-cell">
                       <div className="empty-table-placeholder">
                         <HandCoins size={28} />
-                        <p>No borrow or repayment records found.</p>
+                        <p>No borrow or repayment records found for the selected month/year filter.</p>
                         <button 
                           onClick={() => handleOpenCreditModal('Borrow')}
                           className="btn btn-secondary btn-sm"
@@ -405,7 +518,7 @@ export default function BorrowRepayView() {
 
                         <td className="td-action">
                           <button
-                            onClick={() => handleDeleteCreditRecord(item.id)}
+                            onClick={() => triggerDeleteCreditRecord(item)}
                             className="btn-icon-delete"
                             title="Delete Record"
                           >
@@ -448,7 +561,7 @@ export default function BorrowRepayView() {
             </div>
           </div>
 
-          {/* Toolbar for Planned Repayments */}
+          {/* Toolbar for Planned Repayments with Month & Year Filter */}
           <div className="borrow-table-toolbar">
             <div className="borrow-search-wrapper">
               <Search size={15} className="search-icon" />
@@ -461,18 +574,52 @@ export default function BorrowRepayView() {
               />
             </div>
 
-            <div className="filter-select-wrapper">
-              <Filter size={14} className="filter-icon" />
-              <select
-                value={plannedStatusFilter}
-                onChange={e => setPlannedStatusFilter(e.target.value as any)}
-                className="borrow-select-filter"
-              >
-                <option value="ALL">All Statuses</option>
-                <option value="Scheduled">Scheduled</option>
-                <option value="Pending">Pending</option>
-                <option value="Paid">Paid</option>
-              </select>
+            <div className="borrow-filters-group">
+              {/* Month-wise Filter */}
+              <div className="filter-select-wrapper">
+                <Calendar size={14} className="filter-icon" />
+                <select
+                  value={selectedMonth}
+                  onChange={e => setSelectedMonth(e.target.value)}
+                  className="borrow-select-filter"
+                  title="Filter by Month"
+                >
+                  <option value="ALL">All Months</option>
+                  {MONTH_NAMES.map(m => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Year Filter */}
+              <div className="filter-select-wrapper">
+                <select
+                  value={selectedYear}
+                  onChange={e => setSelectedYear(e.target.value)}
+                  className="borrow-select-filter"
+                  title="Filter by Year"
+                >
+                  <option value="ALL">All Years</option>
+                  {availableYears.map(y => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Status Filter */}
+              <div className="filter-select-wrapper">
+                <Filter size={14} className="filter-icon" />
+                <select
+                  value={plannedStatusFilter}
+                  onChange={e => setPlannedStatusFilter(e.target.value as any)}
+                  className="borrow-select-filter"
+                >
+                  <option value="ALL">All Statuses</option>
+                  <option value="Scheduled">Scheduled</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Paid">Paid</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -495,7 +642,7 @@ export default function BorrowRepayView() {
                     <td colSpan={6} className="empty-table-cell">
                       <div className="empty-table-placeholder">
                         <CalendarClock size={28} />
-                        <p>No planned repayments scheduled yet.</p>
+                        <p>No planned repayments found for the selected month/year filter.</p>
                         <button 
                           onClick={() => setIsPlannedModalOpen(true)}
                           className="btn btn-secondary btn-sm"
@@ -553,7 +700,7 @@ export default function BorrowRepayView() {
                               </button>
                             )}
                             <button
-                              onClick={() => handleDeletePlannedRepayment(plan.id)}
+                              onClick={() => triggerDeletePlannedRepayment(plan)}
                               className="btn-icon-delete"
                               title="Delete Plan"
                             >
@@ -571,7 +718,7 @@ export default function BorrowRepayView() {
         </>
       )}
 
-      {/* Modals */}
+      {/* Entry Modals */}
       <BorrowRepayModal
         isOpen={isCreditModalOpen}
         onClose={() => setIsCreditModalOpen(false)}
@@ -586,6 +733,18 @@ export default function BorrowRepayView() {
         onClose={() => setIsPlannedModalOpen(false)}
         onSubmit={handleAddPlannedRepayment}
         existingCreditors={existingCreditors}
+      />
+
+      {/* Dedicated Yes / No Delete Confirmation Dialog */}
+      <ConfirmDeleteModal
+        isOpen={deleteConfirm.isOpen}
+        title={deleteConfirm.type === 'credit_record' ? 'Delete Credit Transaction' : 'Delete Planned Repayment'}
+        message="Are you sure you want to delete this data? Please choose Yes to delete or No to cancel."
+        itemName={deleteConfirm.itemName}
+        confirmText="Yes, Delete"
+        cancelText="No, Keep"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteConfirm({ isOpen: false, type: 'credit_record', id: '', itemName: '' })}
       />
 
     </div>

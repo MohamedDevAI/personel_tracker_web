@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Trash2, CheckCircle2, Circle, Calendar } from 'lucide-react';
 import { TaskItem, TaskPriority } from '../types';
+import ConfirmDeleteModal from '../components/common/ConfirmDeleteModal';
 
 interface TasksProps {
   tasks: TaskItem[];
@@ -14,6 +15,8 @@ type TaskFilter = 'ALL' | 'PENDING' | 'COMPLETED' | 'HIGH';
 export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }: TasksProps) {
   const [filter, setFilter] = useState<TaskFilter>('ALL');
   const [showModal, setShowModal] = useState(false);
+  const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
+  const [deleteTaskTitle, setDeleteTaskTitle] = useState<string>('');
   const [formData, setFormData] = useState({
     title: '',
     category: 'Development',
@@ -124,7 +127,10 @@ export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }: 
                 <div className="task-row-right">
                   {getPriorityBadge(task.priority)}
                   <button
-                    onClick={() => onDeleteTask(task.id)}
+                    onClick={() => {
+                      setDeleteTaskId(task.id);
+                      setDeleteTaskTitle(task.title);
+                    }}
                     className="btn-icon task-delete-btn"
                     title="Delete task"
                   >
@@ -203,6 +209,23 @@ export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }: 
           </div>
         </div>
       )}
+
+      {/* Confirm Task Deletion Modal (Yes / No Prompt) */}
+      <ConfirmDeleteModal
+        isOpen={Boolean(deleteTaskId)}
+        title="Delete Task"
+        message="Are you sure you want to delete this task? Please choose Yes to delete or No to cancel."
+        itemName={deleteTaskTitle}
+        confirmText="Yes, Delete"
+        cancelText="No, Cancel"
+        onConfirm={() => {
+          if (deleteTaskId) {
+            onDeleteTask(deleteTaskId);
+            setDeleteTaskId(null);
+          }
+        }}
+        onCancel={() => setDeleteTaskId(null)}
+      />
     </div>
 
   );
