@@ -5,6 +5,12 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
 export const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as const;
 
+// Remove legacy mock storage if previously seeded in user browser
+try {
+  localStorage.removeItem('pt_db_transactions');
+  localStorage.removeItem('pt_db_categories');
+} catch (e) {}
+
 export const normalizeTransaction = (item: any): Transaction => {
   const id = item._id || item.id || (typeof item === 'object' && item !== null && item._id ? String(item._id) : String(Date.now()));
   const dateVal = item.date || item.transactionDate || new Date().toISOString();
@@ -51,288 +57,119 @@ export const normalizeTransaction = (item: any): Transaction => {
   };
 };
 
-const INITIAL_SEED_TRANSACTIONS: Transaction[] = [
-  normalizeTransaction({
-    _id: '6aa008173fdcf0e63ade4d58',
-    date: '2026-03-01T00:00:00.000+00:00',
-    month: 'Mar',
-    category: 'Salary',
-    description: 'Salary',
-    paymentMethod: 'Account',
-    amount: 5000,
-    type: 'Credit'
-  }),
-  normalizeTransaction({
-    _id: '6aa008173fdcf0e63ade4d59',
-    date: '2026-03-01T00:00:00.000+00:00',
-    month: 'Mar',
-    category: 'Food',
-    description: 'Tabby Food Delivery',
-    paymentMethod: 'Card',
-    amount: 83.32,
-    type: 'Debit'
-  }),
-  normalizeTransaction({
-    _id: '6aa008173fdcf0e63ade4d5a',
-    date: '2026-03-01T00:00:00.000+00:00',
-    month: 'Mar',
-    category: 'Credit Payback',
-    description: 'Tamara Installment',
-    paymentMethod: 'Card',
-    amount: 331.59,
-    type: 'Debit'
-  }),
-  normalizeTransaction({
-    _id: '6aa008173fdcf0e63ade4d5c',
-    date: '2026-03-01T00:00:00.000+00:00',
-    month: 'Mar',
-    category: 'Grocery',
-    description: 'Bakala & Supermarket',
-    paymentMethod: 'Card',
-    amount: 111.28,
-    type: 'Debit'
-  }),
-  normalizeTransaction({
-    _id: '6aa008173fdcf0e63ade4d62',
-    date: '2026-02-01T00:00:00.000+00:00',
-    month: 'Feb',
-    category: 'Salary',
-    description: 'Monthly Salary Credit',
-    paymentMethod: 'Account',
-    amount: 4500,
-    type: 'Credit'
-  }),
-  normalizeTransaction({
-    _id: '6aa008173fdcf0e63ade4d63',
-    date: '2026-02-14T18:00:00.000+00:00',
-    month: 'Feb',
-    category: 'Food',
-    description: 'Dining & Food Services',
-    paymentMethod: 'Card',
-    amount: 310.00,
-    type: 'Debit'
-  }),
-  normalizeTransaction({
-    _id: '6aa008173fdcf0e63ade4d64',
-    date: '2026-01-01T00:00:00.000+00:00',
-    month: 'Jan',
-    category: 'Salary',
-    description: 'New Year Milestone Bonus',
-    paymentMethod: 'Account',
-    amount: 3000,
-    type: 'Credit'
-  }),
-  normalizeTransaction({
-    _id: '6aa008173fdcf0e63ade4d65',
-    date: '2026-01-20T12:00:00.000+00:00',
-    month: 'Jan',
-    category: 'Transport',
-    description: 'Metro & City Taxi Transport',
-    paymentMethod: 'Account',
-    amount: 150.00,
-    type: 'Debit'
-  })
-];
-
-export const INITIAL_CATEGORIES: Category[] = [
-  { id: '6aa002ef3a7c887c0edfcc42', name: 'Salary', type: 'Credit' },
-  { id: '6aa002fd3a7c887c0edfcc43', name: 'Got Credit', type: 'Credit' },
-  { id: '6aa01140261b3962a4405ae3', name: 'Return Borrowed Money', type: 'Credit' },
-  { id: 'Credit Borrow', name: 'Credit Borrow', type: 'Credit' },
-  { id: '6aa002b13a7c887c0edfcc3e', name: 'Food', type: 'Debit' },
-  { id: '6aa002c33a7c887c0edfcc3f', name: 'Credit Given', type: 'Debit' },
-  { id: '6aa002cb3a7c887c0edfcc40', name: 'Credit Repay', type: 'Debit' },
-  { id: 'Credit Payback', name: 'Credit Payback', type: 'Debit' },
-  { id: 'Grocery', name: 'Grocery', type: 'Debit' },
-  { id: 'Family Expense', name: 'Family Expense', type: 'Debit' },
-  { id: 'Transport', name: 'Transport', type: 'Debit' },
-  { id: 'Miscellaneous', name: 'Miscellaneous', type: 'Debit' },
-  { id: 'Medical', name: 'Medical', type: 'Debit' }
-];
-
-const getLocalTransactions = (): Transaction[] => {
-  const data = localStorage.getItem('pt_db_transactions');
-  if (!data) {
-    localStorage.setItem('pt_db_transactions', JSON.stringify(INITIAL_SEED_TRANSACTIONS));
-    return INITIAL_SEED_TRANSACTIONS;
-  }
-  try {
-    const parsed = JSON.parse(data);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed.map(normalizeTransaction) : INITIAL_SEED_TRANSACTIONS;
-  } catch (e) {
-    return INITIAL_SEED_TRANSACTIONS;
-  }
-};
-
-const setLocalTransactions = (txs: Transaction[]): void => {
-  localStorage.setItem('pt_db_transactions', JSON.stringify(txs));
-};
-
-const getLocalCategories = (): Category[] => {
-  const data = localStorage.getItem('pt_db_categories');
-  if (!data) {
-    localStorage.setItem('pt_db_categories', JSON.stringify(INITIAL_CATEGORIES));
-    return INITIAL_CATEGORIES;
-  }
-  try {
-    const parsed = JSON.parse(data);
-    // If old mock categories like 'Consulting' or 'Housing' exist in cache, replace with MongoDB categories
-    const hasOldMock = Array.isArray(parsed) && parsed.some(c => c.name === 'Consulting' || c.name === 'Housing');
-    if (hasOldMock || !Array.isArray(parsed) || parsed.length === 0) {
-      localStorage.setItem('pt_db_categories', JSON.stringify(INITIAL_CATEGORIES));
-      return INITIAL_CATEGORIES;
-    }
-    return parsed;
-  } catch (e) {
-    return INITIAL_CATEGORIES;
-  }
-};
-
-const setLocalCategories = (cats: Category[]): void => {
-  localStorage.setItem('pt_db_categories', JSON.stringify(cats));
-};
-
 export const expenseApi = {
-  // Categories
+  // Categories from MongoDB Collection
   getCategories: async (type?: TransactionType): Promise<Category[]> => {
     try {
       const url = type ? `${API_BASE}/categories?type=${type}` : `${API_BASE}/categories`;
-      const { data } = await axios.get<Category[]>(url, { timeout: 5000 });
-      if (Array.isArray(data) && data.length > 0) {
-        setLocalCategories(data);
+      const { data } = await axios.get<Category[]>(url, { timeout: 6000 });
+      if (Array.isArray(data)) {
         return data;
       }
     } catch (e) {
-      // Use local storage fallback
+      console.warn('Unable to load categories from MongoDB:', e);
     }
-    const local = getLocalCategories();
-    if (type) {
-      const targetType = String(type).toUpperCase();
-      return local.filter(c => String(c.type).toUpperCase() === targetType);
-    }
-    return local;
+    return [];
   },
 
   createCategory: async (category: Omit<Category, 'id'>): Promise<Category> => {
-    try {
-      const { data } = await axios.post<Category>(`${API_BASE}/categories`, category, { timeout: 2000 });
-      if (data) {
-        const local = getLocalCategories();
-        setLocalCategories([...local, data]);
-        return data;
-      }
-    } catch (e) {
-      // local fallback
-    }
-    const local = getLocalCategories();
-    const newCat: Category = { ...category, id: `cat-${Date.now()}` };
-    setLocalCategories([...local, newCat]);
-    return newCat;
+    const { data } = await axios.post<Category>(`${API_BASE}/categories`, category, { timeout: 4000 });
+    return data;
   },
 
   deleteCategory: async (id: string): Promise<void> => {
-    try {
-      await axios.delete(`${API_BASE}/categories/${id}`, { timeout: 2000 });
-    } catch (e) {}
-    const local = getLocalCategories().filter(c => c.id !== id && c._id !== id);
-    setLocalCategories(local);
+    await axios.delete(`${API_BASE}/categories/${id}`, { timeout: 4000 });
   },
 
-  // Transactions
+  // Transactions from MongoDB Collection
   getTransactions: async (): Promise<Transaction[]> => {
     try {
-      const { data } = await axios.get<any[]>(`${API_BASE}/transactions`, { timeout: 6000 });
-      if (Array.isArray(data) && data.length > 0) {
-        const normalized = data.map(normalizeTransaction);
-        setLocalTransactions(normalized);
-        return normalized;
+      const { data } = await axios.get<any[]>(`${API_BASE}/transactions`, { timeout: 8000 });
+      if (Array.isArray(data)) {
+        return data.map(normalizeTransaction);
       }
     } catch (e) {
-      // Local storage fallback
+      console.warn('Unable to load transactions from MongoDB:', e);
     }
-    return getLocalTransactions();
+    return [];
   },
 
   createTransaction: async (transaction: Omit<Transaction, 'id' | '_id'>): Promise<Transaction> => {
-    const dateVal = transaction.date || transaction.transactionDate || new Date().toISOString();
-    const dateObj = new Date(dateVal);
+    const rawDate = transaction.date || transaction.transactionDate || new Date().toISOString();
+    
+    // Format date as ISO-8601 string: 2026-03-01T00:00:00.000Z for Spring Boot / MongoDB Jackson deserialization
+    let isoDateStr: string;
+    let dateOnlyStr: string;
+    
+    if (typeof rawDate === 'string' && rawDate.includes('T')) {
+      isoDateStr = rawDate;
+      dateOnlyStr = rawDate.split('T')[0];
+    } else {
+      dateOnlyStr = String(rawDate);
+      const parsed = new Date(rawDate);
+      if (!isNaN(parsed.getTime())) {
+        isoDateStr = parsed.toISOString();
+      } else {
+        isoDateStr = `${rawDate}T00:00:00.000Z`;
+      }
+    }
+
+    const dateObj = new Date(isoDateStr);
     const month = transaction.month || (!isNaN(dateObj.getTime()) ? MONTH_NAMES[dateObj.getMonth()] : 'Mar');
     
+    const isCredit = String(transaction.type).toUpperCase() === 'CREDIT';
+    const amountVal = Number(transaction.amount !== undefined ? transaction.amount : (transaction.amountSar || 0));
+
     const payload = {
       ...transaction,
-      date: dateVal,
+      date: isoDateStr,
+      transactionDate: dateOnlyStr,
       month,
-      amount: Number(transaction.amount !== undefined ? transaction.amount : (transaction.amountSar || 0)),
-      amountSar: Number(transaction.amount !== undefined ? transaction.amount : (transaction.amountSar || 0)),
+      amount: amountVal,
+      amountSar: amountVal,
       description: transaction.description || transaction.note || 'Transaction',
       note: transaction.description || transaction.note || 'Transaction',
       paymentMethod: transaction.paymentMethod || 'Account',
-      type: String(transaction.type).toUpperCase() === 'CREDIT' ? 'Credit' : 'Debit'
+      type: isCredit ? 'Credit' : 'Debit'
     };
 
-    try {
-      const { data } = await axios.post<any>(`${API_BASE}/transactions`, payload, { timeout: 2000 });
-      if (data) {
-        const normalized = normalizeTransaction(data);
-        const current = getLocalTransactions();
-        setLocalTransactions([normalized, ...current]);
-        return normalized;
-      }
-    } catch (e) {
-      // local fallback
-    }
-
-    const localTx = normalizeTransaction({
-      ...payload,
-      _id: `tx-${Date.now()}`
-    });
-    const current = getLocalTransactions();
-    setLocalTransactions([localTx, ...current]);
-    return localTx;
+    const { data } = await axios.post<any>(`${API_BASE}/transactions`, payload, { timeout: 6000 });
+    return normalizeTransaction(data);
   },
 
   updateTransaction: async (id: string, transaction: Partial<Transaction>): Promise<Transaction> => {
-    try {
-      const { data } = await axios.put<any>(`${API_BASE}/transactions/${id}`, transaction, { timeout: 2000 });
-      if (data) {
-        const normalized = normalizeTransaction(data);
-        const current = getLocalTransactions().map(t => (t.id === id || t._id === id ? normalized : t));
-        setLocalTransactions(current);
-        return normalized;
+    const updatePayload: any = { ...transaction };
+    if (updatePayload.date) {
+      const rawDate = updatePayload.date;
+      if (typeof rawDate === 'string' && !rawDate.includes('T')) {
+        const parsed = new Date(rawDate);
+        updatePayload.date = !isNaN(parsed.getTime()) ? parsed.toISOString() : `${rawDate}T00:00:00.000Z`;
       }
-    } catch (e) {}
-
-    const current = getLocalTransactions();
-    const existing = current.find(t => t.id === id || t._id === id) || ({} as Transaction);
-    const updated = normalizeTransaction({ ...existing, ...transaction, id, _id: id });
-    setLocalTransactions(current.map(t => (t.id === id || t._id === id ? updated : t)));
-    return updated;
+    }
+    const { data } = await axios.put<any>(`${API_BASE}/transactions/${id}`, updatePayload, { timeout: 6000 });
+    return normalizeTransaction(data);
   },
 
   deleteTransaction: async (id: string): Promise<void> => {
-    try {
-      await axios.delete(`${API_BASE}/transactions/${id}`, { timeout: 2000 });
-    } catch (e) {}
-    const current = getLocalTransactions().filter(t => t.id !== id && t._id !== id);
-    setLocalTransactions(current);
+    await axios.delete(`${API_BASE}/transactions/${id}`, { timeout: 6000 });
   },
 
   // Dashboard Summary
   getDashboardSummary: async (): Promise<DashboardSummary> => {
     try {
-      const { data } = await axios.get<DashboardSummary>(`${API_BASE}/expense-dashboard/summary`, { timeout: 1500 });
+      const { data } = await axios.get<DashboardSummary>(`${API_BASE}/expense-dashboard/summary`, { timeout: 4000 });
       if (data && (data.totalCredit > 0 || data.totalDebit > 0)) {
         return data;
       }
     } catch (e) {}
 
-    const txs = getLocalTransactions();
+    const txs = await expenseApi.getTransactions();
     let totalCredit = 0;
     let totalDebit = 0;
     const expensesByCategory: Record<string, number> = {};
 
     for (const tx of txs) {
-      const amt = Number(tx.amount || tx.amountSar || 0);
+      const amt = Math.abs(Number(tx.amount || tx.amountSar || 0));
       const isCredit = String(tx.type).toUpperCase() === 'CREDIT';
       if (isCredit) {
         totalCredit += amt;

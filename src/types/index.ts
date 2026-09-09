@@ -88,3 +88,57 @@ export interface BackendHealth {
   database?: string;
   timestamp?: number;
 }
+
+// Borrow & Repay Types (INR)
+export type BorrowRepayType = 'Borrow' | 'Repaid';
+
+export interface BorrowRepayRecord {
+  id: string;
+  creditorName: string;
+  date: string;
+  type: BorrowRepayType;
+  amount: number; // Stored as positive number, displayed with sign based on type
+  currency?: string; // 'INR'
+  notes?: string;
+  createdAt?: string;
+}
+
+export interface CreditorSummary {
+  creditorName: string;
+  totalBorrowed: number;
+  totalRepaid: number;
+  netBalance: number; // positive = still owe creditor, 0 = settled
+  lastActivityDate: string;
+  status: 'Outstanding' | 'Settled' | 'Overpaid';
+}
+
+// Planned Repayment Types (INR)
+export type PlannedRepaymentStatus = 'Scheduled' | 'Paid' | 'Pending';
+
+export interface PlannedRepayment {
+  id: string;
+  creditorName: string;
+  targetDate: string;
+  targetMonth?: string;
+  plannedAmount: number; // in INR
+  status: PlannedRepaymentStatus;
+  notes?: string;
+  createdAt?: string;
+}
+
+// Planned Expenses Types (in SAR)
+export type PlannedExpenseStatus = 'Planned' | 'Fulfilled' | 'Pending' | 'Overdue';
+
+export interface PlannedExpense {
+  id: string;
+  title: string;
+  category: string;
+  month: string; // e.g. "Mar"
+  year: number;  // e.g. 2026
+  plannedAmount: number; // in SAR
+  currency?: string; // 'SAR'
+  dueDate?: string;
+  status: PlannedExpenseStatus;
+  notes?: string;
+  createdAt?: string;
+}
