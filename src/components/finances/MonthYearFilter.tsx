@@ -1,6 +1,6 @@
 import React from 'react';
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
-import { MONTH_NAMES } from '../../utils/dateHelpers';
+import { MONTH_NAMES, getCurrentMonth, getCurrentYear } from '../../utils/dateHelpers';
 
 interface MonthYearFilterProps {
   selectedYear: number;
@@ -25,6 +25,10 @@ export default function MonthYearFilter({
   onPrevMonth,
   onNextMonth
 }: MonthYearFilterProps) {
+  const currentMonth = getCurrentMonth();
+  const currentYear = getCurrentYear();
+  const isCurrentActive = selectedYear === currentYear && selectedMonth === currentMonth;
+
   return (
     <div className="glass-panel month-filter-panel">
       <div className="month-filter-top-row">
@@ -68,10 +72,11 @@ export default function MonthYearFilter({
 
           {/* Quick jump to Current Month */}
           <button 
-            onClick={() => { setSelectedYear(2026); setSelectedMonth('Mar'); }}
-            className="btn btn-secondary btn-jump-current"
+            onClick={() => { setSelectedYear(currentYear); setSelectedMonth(currentMonth); }}
+            className={`btn btn-secondary btn-jump-current ${isCurrentActive ? 'active' : ''}`}
+            title={`Jump to Current Month (${currentMonth} ${currentYear})`}
           >
-            Jump to Mar 2026
+            Current Month ({currentMonth} {currentYear})
           </button>
         </div>
 

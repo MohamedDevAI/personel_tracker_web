@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { expenseApi } from '../services/expenseApi';
-import { MONTH_NAMES } from '../utils/dateHelpers';
+import { MONTH_NAMES, getCurrentYear, getCurrentMonth } from '../utils/dateHelpers';
 import { Plus, Tag, ArrowDownRight, CheckCircle2, Search } from 'lucide-react';
 import { Category, Transaction, TransactionType } from '../types';
 import { parseTxDate } from '../components/finances/financeConstants';
@@ -47,10 +47,10 @@ export default function ExpenseTracker() {
     return plannedExpenseApi.getPlannedExpenses().filter(p => p.status === 'Planned').length;
   }, [financeMainTab]);
 
-  // UI States for Ledger
+  // UI States for Ledger — defaults dynamically to current real-world month & year
   const [activeTab, setActiveTab] = useState<'transactions' | 'categories'>('transactions');
-  const [selectedYear, setSelectedYear] = useState<number>(2026);
-  const [selectedMonth, setSelectedMonth] = useState<string>('Mar'); // 'All' or 'Jan'..'Dec'
+  const [selectedYear, setSelectedYear] = useState<number>(() => getCurrentYear());
+  const [selectedMonth, setSelectedMonth] = useState<string>(() => getCurrentMonth()); // 'All' or 'Jan'..'Dec'
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [typeFilter, setTypeFilter] = useState<'ALL' | 'Credit' | 'Debit'>('ALL');
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
@@ -139,7 +139,8 @@ export default function ExpenseTracker() {
 
   // Unique available years
   const availableYears = useMemo(() => {
-    const years = new Set<number>([2026]);
+    const currentYr = getCurrentYear();
+    const years = new Set<number>([currentYr]);
     transactions.forEach(t => {
       const { year } = parseTxDate(t);
       if (!isNaN(year) && year > 1900 && year < 2100) {
@@ -273,15 +274,28 @@ export default function ExpenseTracker() {
 
   // Default date for modal based on selection
   const modalDefaultDate = useMemo(() => {
-    const monthIdx = selectedMonth !== 'All' ? MONTH_NAMES.indexOf(selectedMonth as any) : new Date().getMonth();
-    const safeMonthIdx = monthIdx >= 0 ? monthIdx : 2; // Mar
+    const now = new Date();
+    const currentYr = now.getFullYear();
+    const currentM = MONTH_NAMES[now.getMonth()];
+
+    // If currently browsing current month & year (or 'All' in current year), default to today's exact date!
+    if (
+      selectedYear === currentYr &&
+      (selectedMonth === 'All' || selectedMonth.toLowerCase() === currentM.toLowerCase())
+    ) {
+      return now.toISOString().split('T')[0];
+    }
+
+    const monthIdx = selectedMonth !== 'All' ? MONTH_NAMES.indexOf(selectedMonth as any) : now.getMonth();
+    const safeMonthIdx = monthIdx >= 0 ? monthIdx : now.getMonth();
     const monthNum = String(safeMonthIdx + 1).padStart(2, '0');
     return `${selectedYear}-${monthNum}-01`;
   }, [selectedMonth, selectedYear]);
 
   const modalDefaultMonth = useMemo(() => {
-    const monthIdx = selectedMonth !== 'All' ? MONTH_NAMES.indexOf(selectedMonth as any) : new Date().getMonth();
-    return MONTH_NAMES[monthIdx >= 0 ? monthIdx : 2];
+    const now = new Date();
+    const monthIdx = selectedMonth !== 'All' ? MONTH_NAMES.indexOf(selectedMonth as any) : now.getMonth();
+    return MONTH_NAMES[monthIdx >= 0 ? monthIdx : now.getMonth()];
   }, [selectedMonth]);
 
   return (
@@ -470,12 +484,17 @@ export default function ExpenseTracker() {
         <PlannedExpensesView
           categories={categories}
           transactions={transactions}
+          initialMonth={selectedMonth !== 'All' ? selectedMonth : getCurrentMonth()}
+          initialYear={selectedYear}
         />
       )}
 
       {/* View 3: Borrow and Repay (Dedicated Creditor Tracker in INR ₹) */}
       {financeMainTab === 'borrow_repay' && (
-        <BorrowRepayView />
+        <BorrowRepayView
+          initialMonth={selectedMonth !== 'All' ? selectedMonth : getCurrentMonth()}
+          initialYear={String(selectedYear)}
+        />
       )}
 
       {/* View 4: Analytics and Report (Unified Combination) */}
@@ -483,6 +502,8 @@ export default function ExpenseTracker() {
         <FinanceAnalyticsReportView
           transactions={transactions}
           categories={categories}
+          initialMonth={selectedMonth !== 'All' ? selectedMonth : getCurrentMonth()}
+          initialYear={selectedYear}
         />
       )}
 

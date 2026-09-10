@@ -4,7 +4,7 @@
  */
 
 import { useState, useMemo, useCallback } from 'react';
-import { MONTH_NAMES, parseTxDate } from '../utils/dateHelpers';
+import { MONTH_NAMES, getCurrentMonth, getCurrentYear, parseTxDate } from '../utils/dateHelpers';
 import type { Transaction } from '../types';
 
 interface TransactionFilterState {
@@ -26,8 +26,8 @@ interface MonthlyStats {
 export function useTransactionFilters(transactions: Transaction[]) {
   // ── Filter State ────────────────────────────────────────────────────────
 
-  const [selectedYear, setSelectedYear] = useState<number>(2026);
-  const [selectedMonth, setSelectedMonth] = useState<string>('Mar');
+  const [selectedYear, setSelectedYear] = useState<number>(() => getCurrentYear());
+  const [selectedMonth, setSelectedMonth] = useState<string>(() => getCurrentMonth());
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [typeFilter, setTypeFilter] = useState<'ALL' | 'Credit' | 'Debit'>('ALL');
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
@@ -35,7 +35,7 @@ export function useTransactionFilters(transactions: Transaction[]) {
   // ── Available Years ─────────────────────────────────────────────────────
 
   const availableYears = useMemo(() => {
-    const years = new Set<number>([2026]);
+    const years = new Set<number>([getCurrentYear()]);
     transactions.forEach((t) => {
       const { year } = parseTxDate(t);
       if (!isNaN(year) && year > 1900 && year < 2100) {
@@ -165,19 +165,31 @@ export function useTransactionFilters(transactions: Transaction[]) {
   // ── Modal Default Date ──────────────────────────────────────────────────
 
   const modalDefaultDate = useMemo(() => {
+    const now = new Date();
+    const currentYr = now.getFullYear();
+    const currentM = MONTH_NAMES[now.getMonth()];
+
+    if (
+      selectedYear === currentYr &&
+      (selectedMonth === 'All' || selectedMonth.toLowerCase() === currentM.toLowerCase())
+    ) {
+      return now.toISOString().split('T')[0];
+    }
+
     const monthIdx = selectedMonth !== 'All'
       ? MONTH_NAMES.indexOf(selectedMonth as any)
-      : new Date().getMonth();
-    const safeIdx = monthIdx >= 0 ? monthIdx : 2;
+      : now.getMonth();
+    const safeIdx = monthIdx >= 0 ? monthIdx : now.getMonth();
     const monthNum = String(safeIdx + 1).padStart(2, '0');
     return `${selectedYear}-${monthNum}-01`;
   }, [selectedMonth, selectedYear]);
 
   const modalDefaultMonth = useMemo(() => {
+    const now = new Date();
     const monthIdx = selectedMonth !== 'All'
       ? MONTH_NAMES.indexOf(selectedMonth as any)
-      : new Date().getMonth();
-    return MONTH_NAMES[monthIdx >= 0 ? monthIdx : 2];
+      : now.getMonth();
+    return MONTH_NAMES[monthIdx >= 0 ? monthIdx : now.getMonth()];
   }, [selectedMonth]);
 
   return {

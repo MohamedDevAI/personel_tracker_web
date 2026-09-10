@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { Category, TransactionType } from '../../types';
-import { MONTH_NAMES } from '../../utils/dateHelpers';
+import { MONTH_NAMES, getCurrentMonth } from '../../utils/dateHelpers';
 import { PAYMENT_METHODS } from './financeConstants';
 
 interface TransactionModalProps {
@@ -84,7 +84,7 @@ export default function TransactionModal({
 
   const handleDateChange = (dateVal: string) => {
     const d = new Date(dateVal);
-    const m = !isNaN(d.getTime()) ? MONTH_NAMES[d.getMonth()] : 'Mar';
+    const m = !isNaN(d.getTime()) ? MONTH_NAMES[d.getMonth()] : getCurrentMonth();
     setTxForm(prev => ({
       ...prev,
       date: dateVal,
