@@ -1,0 +1,92 @@
+/* ==========================================================================
+   QUICK ADD MODAL STYLES (QuickAddModal.css)
+   ========================================================================== */
+
+.quickadd-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 16px;
+}
+
+.quickadd-card {
+  width: 100%;
+  max-width: 460px;
+  padding: 24px;
+  background: var(--bg-secondary);
+}
+
+.quickadd-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.quickadd-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.quickadd-close-btn {
+  width: 32px;
+  height: 32px;
+}
+
+.quickadd-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.quickadd-tab-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 4px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: var(--transition-smooth);
+}
+
+.quickadd-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+
+.quickadd-tab-btn.active {
+  background: var(--accent-gradient);
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+}
+
+.quickadd-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quickadd-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.quickadd-submit-btn {
+  margin-top: 8px;
+  justify-content: center;
+  width: 100%;
+}

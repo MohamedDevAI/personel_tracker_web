@@ -57,12 +57,12 @@ export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }: 
   ];
 
   return (
-    <div style={{ padding: '0 24px 48px', maxWidth: '1440px', margin: '0 auto' }}>
+    <div className="page-container">
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
+      <div className="page-header">
         <div>
-          <h1 style={{ fontSize: '1.85rem' }}>Daily <span className="gradient-text">Execution & Tasks</span></h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+          <h1 className="page-header-title">Daily <span className="gradient-text">Execution & Tasks</span></h1>
+          <p className="page-header-subtitle">
             Capture, prioritize, and execute mission-critical action items.
           </p>
         </div>
@@ -72,19 +72,12 @@ export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }: 
       </div>
 
       {/* Filter Tabs */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+      <div className="tasks-filter-bar">
         {filterOptions.map(item => (
           <button
             key={item.id}
             onClick={() => setFilter(item.id)}
-            className="btn btn-secondary"
-            style={{
-              fontSize: '0.8rem',
-              padding: '6px 14px',
-              background: filter === item.id ? 'var(--bg-surface)' : 'transparent',
-              borderColor: filter === item.id ? 'var(--accent-primary)' : 'var(--border-subtle)',
-              color: filter === item.id ? 'var(--text-primary)' : 'var(--text-muted)'
-            }}
+            className={`btn btn-secondary tasks-filter-btn ${filter === item.id ? 'active' : ''}`}
           >
             {item.label}
           </button>
@@ -92,30 +85,21 @@ export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }: 
       </div>
 
       {/* Task List */}
-      <div className="glass-panel" style={{ padding: '12px' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div className="glass-panel tasks-list-panel">
+        <div className="tasks-page-list">
           {filteredTasks.length === 0 ? (
-            <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
+            <div className="tasks-empty-state">
               No tasks match this filter. Everything is up to date!
             </div>
           ) : (
             filteredTasks.map(task => (
               <div
                 key={task.id}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '14px 18px',
-                  borderRadius: '12px',
-                  background: task.completed ? 'rgba(255,255,255,0.01)' : 'rgba(255,255,255,0.03)',
-                  border: '1px solid var(--border-subtle)',
-                  transition: 'background 0.2s ease'
-                }}
+                className={`task-row-card ${task.completed ? 'completed' : 'pending'}`}
               >
                 <div
                   onClick={() => onToggleTask(task.id)}
-                  style={{ display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer', flex: 1 }}
+                  className="task-row-left"
                 >
                   {task.completed ? (
                     <CheckCircle2 size={20} color="#10b981" />
@@ -123,18 +107,13 @@ export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }: 
                     <Circle size={20} color="var(--text-muted)" />
                   )}
                   <div>
-                    <div style={{
-                      fontSize: '0.92rem',
-                      fontWeight: 600,
-                      textDecoration: task.completed ? 'line-through' : 'none',
-                      color: task.completed ? 'var(--text-muted)' : 'var(--text-primary)'
-                    }}>
+                    <div className={`task-row-title ${task.completed ? 'completed' : ''}`}>
                       {task.title}
                     </div>
-                    <div style={{ display: 'flex', gap: '12px', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                    <div className="task-row-meta">
                       <span>{task.category}</span>
                       {task.dueDate && (
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span className="task-due-date">
                           <Calendar size={11} /> Due: {task.dueDate}
                         </span>
                       )}
@@ -142,12 +121,11 @@ export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }: 
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div className="task-row-right">
                   {getPriorityBadge(task.priority)}
                   <button
                     onClick={() => onDeleteTask(task.id)}
-                    className="btn-icon"
-                    style={{ width: '30px', height: '30px', color: '#f43f5e' }}
+                    className="btn-icon task-delete-btn"
                     title="Delete task"
                   >
                     <Trash2 size={13} />
@@ -161,37 +139,29 @@ export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }: 
 
       {/* Modal: Add Task */}
       {showModal && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(0,0,0,0.7)',
-          backdropFilter: 'blur(8px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 100,
-          padding: '16px'
-        }}>
-          <div className="glass-panel" style={{ width: '100%', maxWidth: '440px', padding: '28px', background: 'var(--bg-secondary)' }}>
-            <h3 style={{ fontSize: '1.3rem', marginBottom: '18px' }}>Create New Task</h3>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div className="modal-overlay-backdrop">
+          <div className="glass-panel modal-content-card modal-content-card-sm">
+            <h3 className="modal-title-main">Create New Task</h3>
+            <form onSubmit={handleSubmit} className="modal-form-vertical">
               <div>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Task Title</label>
+                <label className="modal-field-label">Task Title</label>
                 <input
                   type="text"
                   placeholder="e.g. Implement Spring Security filter"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   required
+                  className="modal-input-field"
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div className="modal-grid-equal">
                 <div>
-                  <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Priority</label>
+                  <label className="modal-field-label">Priority</label>
                   <select
                     value={formData.priority}
                     onChange={(e) => setFormData({ ...formData, priority: e.target.value as TaskPriority })}
+                    className="modal-select-field"
                   >
                     <option value="HIGH">High Priority</option>
                     <option value="MEDIUM">Medium Priority</option>
@@ -200,10 +170,11 @@ export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }: 
                 </div>
 
                 <div>
-                  <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Category</label>
+                  <label className="modal-field-label">Category</label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    className="modal-select-field"
                   >
                     {categories.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
@@ -211,15 +182,16 @@ export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }: 
               </div>
 
               <div>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Due Date</label>
+                <label className="modal-field-label">Due Date</label>
                 <input
                   type="date"
                   value={formData.dueDate}
                   onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
+                  className="modal-input-field"
                 />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '12px' }}>
+              <div className="modal-footer-actions">
                 <button type="button" onClick={() => setShowModal(false)} className="btn btn-secondary">
                   Cancel
                 </button>
@@ -232,5 +204,6 @@ export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }: 
         </div>
       )}
     </div>
+
   );
 }

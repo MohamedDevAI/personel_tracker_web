@@ -59,168 +59,140 @@ export default function Dashboard({
   });
 
   return (
-    <div style={{ padding: '0 24px 48px', maxWidth: '1440px', margin: '0 auto' }}>
+    <div className="page-container">
       {/* Top Banner */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '28px' }}>
+      <div className="page-header">
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '4px' }}>
+          <div className="page-header-date">
             <Calendar size={14} />
             <span>{todayDate}</span>
           </div>
-          <h1 style={{ fontSize: '2rem', letterSpacing: '-0.03em' }}>
+          <h1 className="page-header-title">
             Executive <span className="gradient-text">Overview</span>
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+          <p className="page-header-subtitle">
             Welcome back! You are maintaining an active {maxStreak}-day streak and {savingsRate}% net savings rate.
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button onClick={() => onNavigate('habits')} className="btn btn-secondary" style={{ fontSize: '0.82rem' }}>
+        <div className="page-header-actions">
+          <button onClick={() => onNavigate('habits')} className="btn btn-secondary">
             <Flame size={14} color="#f59e0b" /> Daily Habits
           </button>
-          <button onClick={() => onNavigate('finances')} className="btn btn-secondary" style={{ fontSize: '0.82rem' }}>
+          <button onClick={() => onNavigate('finances')} className="btn btn-secondary">
             <TrendingUp size={14} color="#10b981" /> Financial Ledger
           </button>
         </div>
       </div>
 
       {/* KPI Metric Cards */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-        gap: '18px',
-        marginBottom: '28px'
-      }}>
+      <div className="dashboard-kpi-grid">
         {/* Net Cash Flow */}
-        <div className="glass-panel" style={{ padding: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>NET CASH FLOW</span>
+        <div className="glass-panel dashboard-kpi-card">
+          <div className="dashboard-kpi-top">
+            <span className="dashboard-kpi-label">NET CASH FLOW</span>
             <span className="badge badge-emerald">+{savingsRate}% Saved</span>
           </div>
-          <div style={{ fontSize: '1.85rem', fontWeight: 800, fontFamily: 'var(--font-display)', marginBottom: '8px' }}>
+          <div className="dashboard-kpi-value">
             ${netSavings.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </div>
-          <div style={{ display: 'flex', gap: '16px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#10b981' }}>
+          <div className="dashboard-cashflow-row">
+            <span className="dashboard-cashflow-in">
               <ArrowUpRight size={14} /> In: ${totalIncome.toLocaleString()}
             </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#f43f5e' }}>
+            <span className="dashboard-cashflow-out">
               <ArrowDownRight size={14} /> Out: ${totalExpense.toLocaleString()}
             </span>
           </div>
         </div>
 
         {/* Longest Streak */}
-        <div className="glass-panel" style={{ padding: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>HABIT MOMENTUM</span>
+        <div className="glass-panel dashboard-kpi-card">
+          <div className="dashboard-kpi-top">
+            <span className="dashboard-kpi-label">HABIT MOMENTUM</span>
             <span className="badge badge-amber"><Flame size={12} fill="#f59e0b" /> Active</span>
           </div>
-          <div style={{ fontSize: '1.85rem', fontWeight: 800, fontFamily: 'var(--font-display)', marginBottom: '8px' }}>
-            {maxStreak} <span style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-muted)' }}>Days Streak</span>
+          <div className="dashboard-kpi-value">
+            {maxStreak} <span className="dashboard-kpi-unit">Days Streak</span>
           </div>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+          <div className="dashboard-kpi-subtext">
             {habitsDoneToday} of {habits.length} habits completed for today
           </div>
         </div>
 
         {/* Strategic Goals Progress */}
-        <div className="glass-panel" style={{ padding: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>STRATEGIC MILESTONES</span>
+        <div className="glass-panel dashboard-kpi-card">
+          <div className="dashboard-kpi-top">
+            <span className="dashboard-kpi-label">STRATEGIC MILESTONES</span>
             <span className="badge badge-indigo">{goals.length} Active</span>
           </div>
-          <div style={{ fontSize: '1.85rem', fontWeight: 800, fontFamily: 'var(--font-display)', marginBottom: '8px' }}>
-            {avgGoalProgress}% <span style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-muted)' }}>Achieved</span>
+          <div className="dashboard-kpi-value">
+            {avgGoalProgress}% <span className="dashboard-kpi-unit">Achieved</span>
           </div>
-          <div style={{
-            height: '6px',
-            background: 'rgba(255,255,255,0.08)',
-            borderRadius: '999px',
-            overflow: 'hidden',
-            marginTop: '8px'
-          }}>
-            <div style={{
-              width: `${avgGoalProgress}%`,
-              height: '100%',
-              background: 'var(--accent-gradient)',
-              borderRadius: '999px'
-            }} />
+          <div className="dashboard-progress-track">
+            <div 
+              className="dashboard-progress-bar"
+              style={{ width: `${avgGoalProgress}%` }} 
+            />
           </div>
         </div>
 
         {/* Daily Tasks */}
-        <div className="glass-panel" style={{ padding: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>TODAY'S EXECUTION</span>
+        <div className="glass-panel dashboard-kpi-card">
+          <div className="dashboard-kpi-top">
+            <span className="dashboard-kpi-label">TODAY'S EXECUTION</span>
             <span className="badge badge-emerald">{completedTasks}/{tasks.length} Completed</span>
           </div>
-          <div style={{ fontSize: '1.85rem', fontWeight: 800, fontFamily: 'var(--font-display)', marginBottom: '8px' }}>
+          <div className="dashboard-kpi-value">
             {tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0}%
           </div>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+          <div className="dashboard-kpi-subtext">
             {tasks.filter(t => !t.completed && t.priority === 'HIGH').length} high-priority tasks pending
           </div>
         </div>
       </div>
 
       {/* Main Grid: Habits & Cash Flow Breakdown */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px', marginBottom: '28px' }}>
+      <div className="dashboard-split-grid">
         
         {/* Today's Habits Checklist */}
-        <div className="glass-panel" style={{ padding: '24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+        <div className="glass-panel dashboard-card-section">
+          <div className="dashboard-card-header">
             <div>
-              <h3 style={{ fontSize: '1.15rem' }}>Today's Habit Checklist</h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Check off habits to compound your streak</p>
+              <h3 className="dashboard-card-title">Today's Habit Checklist</h3>
+              <p className="dashboard-card-subtitle">Check off habits to compound your streak</p>
             </div>
-            <button onClick={() => onNavigate('habits')} className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '0.78rem' }}>
+            <button onClick={() => onNavigate('habits')} className="btn btn-secondary dashboard-btn-action">
               View All
             </button>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div className="habits-list-vertical">
             {habits.slice(0, 4).map(habit => (
               <div
                 key={habit.id}
                 onClick={() => handleHabitCheck(habit.id, habit.completedToday)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '12px 16px',
-                  borderRadius: '12px',
-                  background: habit.completedToday ? 'rgba(16, 185, 129, 0.08)' : 'rgba(255,255,255,0.02)',
-                  border: habit.completedToday ? '1px solid rgba(16, 185, 129, 0.25)' : '1px solid var(--border-subtle)',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
+                className={`habit-row-item ${habit.completedToday ? 'done' : ''}`}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="habit-info-group">
                   {habit.completedToday ? (
                     <CheckCircle2 size={20} color="#10b981" />
                   ) : (
                     <Circle size={20} color="var(--text-muted)" />
                   )}
                   <div>
-                    <div style={{
-                      fontSize: '0.9rem',
-                      fontWeight: 600,
-                      textDecoration: habit.completedToday ? 'line-through' : 'none',
-                      color: habit.completedToday ? 'var(--text-muted)' : 'var(--text-primary)'
-                    }}>
+                    <div className={`habit-title-text ${habit.completedToday ? 'done' : ''}`}>
                       {habit.title}
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    <div className="habit-meta-text">
                       {habit.category} • {habit.targetFrequency}
                     </div>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div className="habit-streak-display">
                   <Flame size={14} color={habit.streak > 5 ? '#f59e0b' : 'var(--text-muted)'} fill={habit.streak > 5 ? '#f59e0b' : 'none'} />
-                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: habit.streak > 5 ? '#fbbf24' : 'var(--text-secondary)' }}>
+                  <span className={`habit-streak-count ${habit.streak > 5 ? 'active' : ''}`}>
                     {habit.streak}d
                   </span>
                 </div>
@@ -230,59 +202,48 @@ export default function Dashboard({
         </div>
 
         {/* Financial Flow & Recent Ledger */}
-        <div className="glass-panel" style={{ padding: '24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+        <div className="glass-panel dashboard-card-section">
+          <div className="dashboard-card-header">
             <div>
-              <h3 style={{ fontSize: '1.15rem' }}>Financial Cash Flow</h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Recent transactions and inflows</p>
+              <h3 className="dashboard-card-title">Financial Cash Flow</h3>
+              <p className="dashboard-card-subtitle">Recent transactions and inflows</p>
             </div>
-            <button onClick={() => onNavigate('finances')} className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '0.78rem' }}>
+            <button onClick={() => onNavigate('finances')} className="btn btn-secondary dashboard-btn-action">
               Ledger
             </button>
           </div>
 
           {/* Cashflow Visual Progress Ratio */}
-          <div style={{ marginBottom: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '6px' }}>
+          <div className="dashboard-cashflow-container">
+            <div className="dashboard-burn-rate-header">
               <span>Monthly Burn Rate</span>
               <span>${totalExpense.toFixed(0)} of ${totalIncome.toFixed(0)}</span>
             </div>
-            <div style={{ height: '8px', background: 'rgba(255,255,255,0.06)', borderRadius: '999px', overflow: 'hidden', display: 'flex' }}>
-              <div style={{
-                width: `${totalIncome > 0 ? Math.min(100, (totalExpense / totalIncome) * 100) : 0}%`,
-                background: 'var(--rose-gradient)',
-                height: '100%'
-              }} />
-              <div style={{
-                width: `${totalIncome > 0 ? Math.max(0, 100 - (totalExpense / totalIncome) * 100) : 100}%`,
-                background: 'var(--emerald-gradient)',
-                height: '100%'
-              }} />
+            <div className="dashboard-burn-rate-track">
+              <div 
+                className="burn-rate-expense-bar"
+                style={{
+                  width: `${totalIncome > 0 ? Math.min(100, (totalExpense / totalIncome) * 100) : 0}%`
+                }} 
+              />
+              <div 
+                className="burn-rate-savings-bar"
+                style={{
+                  width: `${totalIncome > 0 ? Math.max(0, 100 - (totalExpense / totalIncome) * 100) : 100}%`
+                }} 
+              />
             </div>
           </div>
 
           {/* Transaction items */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div className="habits-list-vertical">
             {expenses.slice(0, 4).map(item => (
-              <div key={item.id} style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '10px 14px',
-                borderRadius: '10px',
-                background: 'rgba(255,255,255,0.02)',
-                border: '1px solid var(--border-subtle)'
-              }}>
+              <div key={item.id} className="dashboard-tx-item">
                 <div>
-                  <div style={{ fontSize: '0.88rem', fontWeight: 600 }}>{item.title}</div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{item.category} • {item.date}</div>
+                  <div className="dashboard-tx-title">{item.title}</div>
+                  <div className="dashboard-tx-meta">{item.category} • {item.date}</div>
                 </div>
-                <div style={{
-                  fontSize: '0.92rem',
-                  fontWeight: 700,
-                  fontFamily: 'var(--font-display)',
-                  color: item.type === 'INCOME' ? '#10b981' : '#f43f5e'
-                }}>
+                <div className={`dashboard-tx-amount ${item.type === 'INCOME' ? 'dashboard-tx-income' : 'dashboard-tx-expense'}`}>
                   {item.type === 'INCOME' ? '+' : '-'}${Number(item.amount).toFixed(2)}
                 </div>
               </div>
@@ -293,35 +254,32 @@ export default function Dashboard({
       </div>
 
       {/* Strategic Goals & High Priority Tasks Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
+      <div className="dashboard-split-grid">
         
         {/* Goals Progress */}
-        <div className="glass-panel" style={{ padding: '24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+        <div className="glass-panel dashboard-card-section">
+          <div className="dashboard-card-header">
             <div>
-              <h3 style={{ fontSize: '1.15rem' }}>Strategic Milestones</h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Quarterly and annual pursuits</p>
+              <h3 className="dashboard-card-title">Strategic Milestones</h3>
+              <p className="dashboard-card-subtitle">Quarterly and annual pursuits</p>
             </div>
-            <button onClick={() => onNavigate('goals')} className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '0.78rem' }}>
+            <button onClick={() => onNavigate('goals')} className="btn btn-secondary dashboard-btn-action">
               Manage
             </button>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div className="dashboard-goals-list">
             {goals.slice(0, 3).map(goal => (
               <div key={goal.id}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <span style={{ fontSize: '0.88rem', fontWeight: 600 }}>{goal.title}</span>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-primary)' }}>{goal.progress}%</span>
+                <div className="dashboard-goal-row">
+                  <span className="dashboard-goal-title">{goal.title}</span>
+                  <span className="dashboard-goal-pct">{goal.progress}%</span>
                 </div>
-                <div style={{ height: '7px', background: 'rgba(255,255,255,0.06)', borderRadius: '999px', overflow: 'hidden' }}>
-                  <div style={{
-                    width: `${goal.progress}%`,
-                    height: '100%',
-                    background: 'var(--accent-gradient)',
-                    borderRadius: '999px',
-                    transition: 'width 0.4s ease'
-                  }} />
+                <div className="dashboard-goal-track">
+                  <div 
+                    className="dashboard-progress-bar"
+                    style={{ width: `${goal.progress}%` }} 
+                  />
                 </div>
               </div>
             ))}
@@ -329,44 +287,31 @@ export default function Dashboard({
         </div>
 
         {/* High Priority Tasks */}
-        <div className="glass-panel" style={{ padding: '24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+        <div className="glass-panel dashboard-card-section">
+          <div className="dashboard-card-header">
             <div>
-              <h3 style={{ fontSize: '1.15rem' }}>High Priority Action Items</h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Key deliverables for today</p>
+              <h3 className="dashboard-card-title">High Priority Action Items</h3>
+              <p className="dashboard-card-subtitle">Key deliverables for today</p>
             </div>
-            <button onClick={() => onNavigate('tasks')} className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '0.78rem' }}>
+            <button onClick={() => onNavigate('tasks')} className="btn btn-secondary dashboard-btn-action">
               Task Board
             </button>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div className="habits-list-vertical">
             {tasks.filter(t => t.priority === 'HIGH').slice(0, 4).map(task => (
               <div
                 key={task.id}
                 onClick={() => onToggleTask(task.id)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '11px 14px',
-                  borderRadius: '10px',
-                  background: task.completed ? 'rgba(255,255,255,0.02)' : 'rgba(99, 102, 241, 0.05)',
-                  border: '1px solid var(--border-subtle)',
-                  cursor: 'pointer'
-                }}
+                className={`dashboard-task-item ${task.completed ? 'completed' : 'pending'}`}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div className="dashboard-task-left">
                   {task.completed ? <CheckCircle2 size={18} color="#10b981" /> : <Circle size={18} color="#6366f1" />}
-                  <span style={{
-                    fontSize: '0.88rem',
-                    textDecoration: task.completed ? 'line-through' : 'none',
-                    color: task.completed ? 'var(--text-muted)' : 'var(--text-primary)'
-                  }}>
+                  <span className={`dashboard-task-title ${task.completed ? 'completed' : ''}`}>
                     {task.title}
                   </span>
                 </div>
-                <span className="badge badge-rose" style={{ fontSize: '0.68rem' }}>HIGH</span>
+                <span className="badge badge-rose badge-priority-sm">HIGH</span>
               </div>
             ))}
           </div>

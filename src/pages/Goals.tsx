@@ -48,12 +48,12 @@ export default function Goals({ goals, onUpdateProgress, onAddGoal }: GoalsProps
   };
 
   return (
-    <div style={{ padding: '0 24px 48px', maxWidth: '1440px', margin: '0 auto' }}>
+    <div className="page-container">
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
+      <div className="page-header">
         <div>
-          <h1 style={{ fontSize: '1.85rem' }}>Strategic <span className="cyan-gradient-text">Goals & Milestones</span></h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+          <h1 className="page-header-title">Strategic <span className="cyan-gradient-text">Goals & Milestones</span></h1>
+          <p className="page-header-subtitle">
             High-leverage targets and quarterly achievements tracked systematically.
           </p>
         </div>
@@ -63,14 +63,14 @@ export default function Goals({ goals, onUpdateProgress, onAddGoal }: GoalsProps
       </div>
 
       {/* Goals Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '20px' }}>
+      <div className="goals-page-grid">
         {goals.map(goal => {
           const isDone = goal.progress >= 100;
 
           return (
-            <div key={goal.id} className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div key={goal.id} className="glass-panel goal-card-item">
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                <div className="goal-card-top">
                   <span className="badge badge-indigo">{goal.category}</span>
                   {isDone ? (
                     <span className="badge badge-emerald"><CheckCircle size={12} /> Achieved</span>
@@ -79,54 +79,48 @@ export default function Goals({ goals, onUpdateProgress, onAddGoal }: GoalsProps
                   )}
                 </div>
 
-                <h3 style={{ fontSize: '1.2rem', marginBottom: '8px' }}>{goal.title}</h3>
+                <h3 className="goal-card-title">{goal.title}</h3>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '18px' }}>
+                <div className="goal-deadline-row">
                   <Calendar size={13} />
                   <span>Target Deadline: {goal.targetDate || 'Continuous'}</span>
                 </div>
 
                 {/* Progress Visual */}
-                <div style={{ marginBottom: '14px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '6px', fontWeight: 600 }}>
-                    <span style={{ color: 'var(--text-secondary)' }}>Overall Progress</span>
-                    <span style={{ color: isDone ? '#10b981' : 'var(--accent-primary)' }}>{goal.progress}%</span>
+                <div className="goal-progress-section">
+                  <div className="goal-progress-header">
+                    <span>Overall Progress</span>
+                    <span className={`goal-progress-pct ${isDone ? 'done' : ''}`}>{goal.progress}%</span>
                   </div>
-                  <div style={{ height: '8px', background: 'rgba(255,255,255,0.06)', borderRadius: '999px', overflow: 'hidden' }}>
-                    <div style={{
-                      width: `${goal.progress}%`,
-                      height: '100%',
-                      background: isDone ? 'var(--emerald-gradient)' : 'var(--cyan-gradient)',
-                      borderRadius: '999px',
-                      transition: 'width 0.3s ease'
-                    }} />
+                  <div className="goal-progress-track">
+                    <div 
+                      className={`goal-progress-fill ${isDone ? 'done' : ''}`}
+                      style={{ width: `${goal.progress}%` }} 
+                    />
                   </div>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+              <div className="goal-action-buttons">
                 <button
                   onClick={() => handleIncrement(goal.id, goal.progress, 10)}
                   disabled={isDone}
-                  className="btn btn-secondary"
-                  style={{ flex: 1, justifyContent: 'center', fontSize: '0.8rem', padding: '8px 12px' }}
+                  className="btn btn-secondary goal-step-btn"
                 >
                   +10%
                 </button>
                 <button
                   onClick={() => handleIncrement(goal.id, goal.progress, 25)}
                   disabled={isDone}
-                  className="btn btn-secondary"
-                  style={{ flex: 1, justifyContent: 'center', fontSize: '0.8rem', padding: '8px 12px' }}
+                  className="btn btn-secondary goal-step-btn"
                 >
                   +25%
                 </button>
                 <button
                   onClick={() => handleIncrement(goal.id, 0, 100)}
                   disabled={isDone}
-                  className="btn btn-primary"
-                  style={{ flex: 1.2, justifyContent: 'center', fontSize: '0.8rem', padding: '8px 12px' }}
+                  className="btn btn-primary goal-step-btn goal-finish-btn"
                 >
                   <Sparkles size={14} /> Finish
                 </button>
@@ -138,62 +132,56 @@ export default function Goals({ goals, onUpdateProgress, onAddGoal }: GoalsProps
 
       {/* Modal: Add Goal */}
       {showModal && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(0,0,0,0.7)',
-          backdropFilter: 'blur(8px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 100,
-          padding: '16px'
-        }}>
-          <div className="glass-panel" style={{ width: '100%', maxWidth: '440px', padding: '28px', background: 'var(--bg-secondary)' }}>
-            <h3 style={{ fontSize: '1.3rem', marginBottom: '18px' }}>Define New Milestone</h3>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div className="modal-overlay-backdrop">
+          <div className="glass-panel modal-content-card modal-content-card-sm">
+            <h3 className="modal-title-main">Define New Milestone</h3>
+            <form onSubmit={handleSubmit} className="modal-form-vertical">
               <div>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Milestone Title</label>
+                <label className="modal-field-label">Milestone Title</label>
                 <input
                   type="text"
                   placeholder="e.g. Build SaaS MVP"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   required
+                  className="modal-input-field"
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Category</label>
+                <label className="modal-field-label">Category</label>
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="modal-select-field"
                 >
                   {categories.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
 
               <div>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Target Deadline</label>
+                <label className="modal-field-label">Target Deadline</label>
                 <input
                   type="date"
                   value={formData.targetDate}
                   onChange={(e) => setFormData({ ...formData, targetDate: e.target.value })}
+                  className="modal-input-field"
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Starting Progress (%)</label>
+                <label className="modal-field-label">Starting Progress (%)</label>
                 <input
                   type="number"
                   min="0"
                   max="100"
                   value={formData.progress}
                   onChange={(e) => setFormData({ ...formData, progress: parseInt(e.target.value) || 0 })}
+                  className="modal-input-field"
                 />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '12px' }}>
+              <div className="modal-footer-actions">
                 <button type="button" onClick={() => setShowModal(false)} className="btn btn-secondary">
                   Cancel
                 </button>

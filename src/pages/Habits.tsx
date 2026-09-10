@@ -40,12 +40,12 @@ export default function Habits({ habits, onToggleHabit, onAddHabit }: HabitsProp
   };
 
   return (
-    <div style={{ padding: '0 24px 48px', maxWidth: '1440px', margin: '0 auto' }}>
+    <div className="page-container">
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
+      <div className="page-header">
         <div>
-          <h1 style={{ fontSize: '1.85rem' }}>Habit & <span className="gradient-text">Routine Engine</span></h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+          <h1 className="page-header-title">Habit & <span className="gradient-text">Routine Engine</span></h1>
+          <p className="page-header-subtitle">
             Transform consistency into identity. Build compounding micro-habits.
           </p>
         </div>
@@ -55,61 +55,43 @@ export default function Habits({ habits, onToggleHabit, onAddHabit }: HabitsProp
       </div>
 
       {/* Habits Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '20px' }}>
+      <div className="habits-page-grid">
         {habits.map(habit => {
           const completedCount = habit.history.filter(x => x === 1).length;
           const consistency = Math.round((completedCount / (habit.history.length || 1)) * 100);
 
           return (
-            <div key={habit.id} className="glass-panel" style={{ padding: '22px', position: 'relative' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
+            <div key={habit.id} className="glass-panel habit-full-card">
+              <div className="habit-full-card-top">
                 <div>
-                  <span className="badge badge-indigo" style={{ marginBottom: '6px' }}>{habit.category}</span>
-                  <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>{habit.title}</h3>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Target: {habit.targetFrequency}</div>
+                  <span className="badge badge-indigo habit-category-badge">{habit.category}</span>
+                  <h3 className="habit-full-title">{habit.title}</h3>
+                  <div className="habit-target-freq">Target: {habit.targetFrequency}</div>
                 </div>
 
                 {/* Streak Badge */}
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '6px 12px',
-                  borderRadius: '12px',
-                  background: 'rgba(245, 158, 11, 0.12)',
-                  border: '1px solid rgba(245, 158, 11, 0.3)'
-                }}>
+                <div className="habit-streak-pill">
                   <Flame size={18} color="#f59e0b" fill="#f59e0b" />
-                  <span style={{ fontSize: '1rem', fontWeight: 800, color: '#fbbf24', fontFamily: 'var(--font-display)' }}>
+                  <span className="habit-streak-pill-val">
                     {habit.streak}
                   </span>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>days</span>
+                  <span className="habit-streak-unit">days</span>
                 </div>
               </div>
 
               {/* Weekly History Heatmap */}
-              <div style={{ marginTop: '16px', marginBottom: '18px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px' }}>
+              <div className="habit-heatmap-container">
+                <div className="habit-heatmap-header">
                   <span>Last 7 Days</span>
-                  <span style={{ color: '#10b981', fontWeight: 600 }}>{consistency}% Consistency</span>
+                  <span className="habit-consistency-val">{consistency}% Consistency</span>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px' }}>
+                <div className="habit-heatmap-grid">
                   {habit.history.map((val, idx) => (
-                    <div key={idx} style={{ textAlign: 'center' }}>
-                      <div style={{
-                        height: '32px',
-                        borderRadius: '8px',
-                        background: val === 1 ? 'var(--emerald-gradient)' : 'rgba(255,255,255,0.05)',
-                        border: '1px solid var(--border-subtle)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'white',
-                        boxShadow: val === 1 ? '0 0 10px rgba(16, 185, 129, 0.3)' : 'none'
-                      }}>
+                    <div key={idx} className="habit-heatmap-cell">
+                      <div className={`habit-heatmap-box ${val === 1 ? 'completed' : 'missed'}`}>
                         {val === 1 && <Sparkles size={12} />}
                       </div>
-                      <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
+                      <span className="habit-heatmap-dayname">
                         {dayNames[idx]}
                       </span>
                     </div>
@@ -120,14 +102,7 @@ export default function Habits({ habits, onToggleHabit, onAddHabit }: HabitsProp
               {/* Action Toggle for Today */}
               <button
                 onClick={() => handleToggle(habit.id, habit.completedToday)}
-                className={`btn ${habit.completedToday ? 'btn-secondary' : 'btn-primary'}`}
-                style={{
-                  width: '100%',
-                  justifyContent: 'center',
-                  background: habit.completedToday ? 'rgba(16, 185, 129, 0.15)' : 'var(--accent-gradient)',
-                  borderColor: habit.completedToday ? 'rgba(16, 185, 129, 0.4)' : 'transparent',
-                  color: habit.completedToday ? '#34d399' : 'white'
-                }}
+                className={`btn habit-toggle-btn ${habit.completedToday ? 'btn-secondary done' : 'btn-primary'}`}
               >
                 {habit.completedToday ? (
                   <>
@@ -146,46 +121,39 @@ export default function Habits({ habits, onToggleHabit, onAddHabit }: HabitsProp
 
       {/* Modal: Add Habit */}
       {showModal && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(0,0,0,0.7)',
-          backdropFilter: 'blur(8px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 100,
-          padding: '16px'
-        }}>
-          <div className="glass-panel" style={{ width: '100%', maxWidth: '440px', padding: '28px', background: 'var(--bg-secondary)' }}>
-            <h3 style={{ fontSize: '1.3rem', marginBottom: '18px' }}>Build New Habit</h3>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div className="modal-overlay-backdrop">
+          <div className="glass-panel modal-content-card modal-content-card-sm">
+            <h3 className="modal-title-main">Build New Habit</h3>
+            <form onSubmit={handleSubmit} className="modal-form-vertical">
               <div>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Habit Name</label>
+                <label className="modal-field-label">Habit Name</label>
                 <input
                   type="text"
                   placeholder="e.g. Read 20 Pages"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   required
+                  className="modal-input-field"
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Category</label>
+                <label className="modal-field-label">Category</label>
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="modal-select-field"
                 >
                   {categories.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
 
               <div>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Target Frequency</label>
+                <label className="modal-field-label">Target Frequency</label>
                 <select
                   value={formData.targetFrequency}
                   onChange={(e) => setFormData({ ...formData, targetFrequency: e.target.value })}
+                  className="modal-select-field"
                 >
                   <option value="Daily">Daily (7 days / week)</option>
                   <option value="Weekdays">Weekdays (Mon-Fri)</option>
@@ -194,12 +162,12 @@ export default function Habits({ habits, onToggleHabit, onAddHabit }: HabitsProp
                 </select>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '12px' }}>
+              <div className="modal-footer-actions">
                 <button type="button" onClick={() => setShowModal(false)} className="btn btn-secondary">
                   Cancel
                 </button>
                 <button type="submit" className="btn btn-primary">
-                  Create Habit
+                  Save Habit
                 </button>
               </div>
             </form>

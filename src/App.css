@@ -1,0 +1,44 @@
+/* ==========================================================================
+   APPLICATION ROOT & FOOTER STYLES (App.css)
+   ========================================================================== */
+
+.app-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main-content {
+  flex: 1;
+  padding-top: 8px;
+}
+
+.app-footer {
+  margin-top: auto;
+  border-top: 1px solid var(--border-subtle);
+  padding: 20px 32px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.app-footer-brand-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-footer-links-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.app-footer-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}

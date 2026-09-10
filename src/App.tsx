@@ -9,6 +9,7 @@ import Tasks from './pages/Tasks';
 import { api, checkBackendHealth } from './services/api';
 import { ShieldCheck, GitBranch, Terminal } from 'lucide-react';
 import { Expense, Habit, Goal, TaskItem, BackendHealth } from './types';
+import './App.css';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<string>('dashboard');
@@ -62,11 +63,6 @@ export default function App() {
     setExpenses(prev => [created, ...prev]);
   };
 
-  const _handleDeleteExpense = async (id: string) => {
-    await api.deleteExpense(id);
-    setExpenses(prev => prev.filter(e => e.id !== id));
-  };
-
   const handleToggleHabit = async (id: string) => {
     const updated = await api.toggleHabit(id);
     setHabits(prev => prev.map(h => h.id === id ? updated : h));
@@ -77,8 +73,8 @@ export default function App() {
     setHabits(prev => [...prev, created]);
   };
 
-  const handleUpdateGoalProgress = async (id: string, val: number) => {
-    const updated = await api.updateGoalProgress(id, val);
+  const handleUpdateGoalProgress = async (id: string, progress: number) => {
+    const updated = await api.updateGoalProgress(id, progress);
     setGoals(prev => prev.map(g => g.id === id ? updated : g));
   };
 
@@ -103,7 +99,7 @@ export default function App() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="app-wrapper">
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -113,7 +109,7 @@ export default function App() {
         toggleTheme={toggleTheme}
       />
 
-      <main style={{ flex: 1, paddingTop: '8px' }}>
+      <main className="app-main-content">
         {activeTab === 'dashboard' && (
           <Dashboard
             expenses={expenses}
@@ -167,26 +163,16 @@ export default function App() {
       />
 
       {/* Footer */}
-      <footer style={{
-        marginTop: 'auto',
-        borderTop: '1px solid var(--border-subtle)',
-        padding: '20px 32px',
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        fontSize: '0.8rem',
-        color: 'var(--text-muted)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <footer className="app-footer">
+        <div className="app-footer-brand-info">
           <ShieldCheck size={16} color="#10b981" />
           <span>Personal Tracker Architecture • Spring Boot 3.x (Java 25 Target) & React</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div className="app-footer-links-group">
+          <span className="app-footer-item">
             <GitBranch size={14} /> Git Ready: <code>main</code>
           </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span className="app-footer-item">
             <Terminal size={14} /> MongoDB Atlas Driver Configured
           </span>
         </div>

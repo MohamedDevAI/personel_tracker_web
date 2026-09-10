@@ -286,3 +286,7 @@ input:focus, select:focus, textarea:focus {
 .animate-pulse-glow {
   animation: pulseGlow 2.5s infinite ease-in-out;
 }
+
+.table-row-hover:hover {
+  background: rgba(255, 255, 255, 0.04) !important;
+}
