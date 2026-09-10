@@ -1,6 +1,13 @@
-// Core TypeScript Interfaces and Types for Personal Tracker
+// ─── Core TypeScript Interfaces and Types for Personal Tracker ────────────────
 
-export type TransactionType = 'CREDIT' | 'DEBIT' | 'Credit' | 'Debit';
+/**
+ * Transaction type — normalized to title-case for consistency.
+ * Backend may return CREDIT/DEBIT; normalizeTransaction() handles conversion.
+ */
+export type TransactionType = 'Credit' | 'Debit';
+
+/** Raw transaction type values the backend may return before normalization */
+export type RawTransactionType = 'Credit' | 'Debit' | 'CREDIT' | 'DEBIT' | 'INCOME' | 'EXPENSE';
 
 export interface Category {
   id?: string;
@@ -10,6 +17,14 @@ export interface Category {
   createdAt?: string;
 }
 
+/**
+ * A financial transaction from the MongoDB-backed ledger.
+ *
+ * Note: the backend returns some duplicate fields (_id/id, date/transactionDate,
+ * amount/amountSar, description/note, category/categoryName). We keep all fields
+ * here for API compatibility, but normalizeTransaction() in expenseApi.ts ensures
+ * the canonical fields are always populated.
+ */
 export interface Transaction {
   _id?: string;
   id?: string;
@@ -36,6 +51,8 @@ export interface DashboardSummary {
   expensesByCategory?: Record<string, number>;
 }
 
+// ─── Dashboard Mock Data Types ────────────────────────────────────────────────
+
 export type ExpenseType = 'INCOME' | 'EXPENSE';
 
 export interface Expense {
@@ -48,6 +65,8 @@ export interface Expense {
   notes?: string;
 }
 
+// ─── Habits ───────────────────────────────────────────────────────────────────
+
 export interface Habit {
   id: string;
   title: string;
@@ -57,6 +76,8 @@ export interface Habit {
   completedToday: boolean;
   history: number[];
 }
+
+// ─── Goals ────────────────────────────────────────────────────────────────────
 
 export interface Goal {
   id: string;
@@ -70,6 +91,8 @@ export interface Goal {
   status?: string;
 }
 
+// ─── Tasks ────────────────────────────────────────────────────────────────────
+
 export type TaskPriority = 'HIGH' | 'MEDIUM' | 'LOW';
 
 export interface TaskItem {
@@ -81,6 +104,8 @@ export interface TaskItem {
   dueDate?: string;
 }
 
+// ─── Backend Health ───────────────────────────────────────────────────────────
+
 export interface BackendHealth {
   connected: boolean;
   mode: 'local' | 'remote';
@@ -90,7 +115,8 @@ export interface BackendHealth {
   timestamp?: number;
 }
 
-// Borrow & Repay Types (INR)
+// ─── Borrow & Repay (INR) ─────────────────────────────────────────────────────
+
 export type BorrowRepayType = 'Borrow' | 'Repaid';
 
 export interface BorrowRepayRecord {
@@ -98,8 +124,9 @@ export interface BorrowRepayRecord {
   creditorName: string;
   date: string;
   type: BorrowRepayType;
-  amount: number; // Stored as positive number, displayed with sign based on type
-  currency?: string; // 'INR'
+  /** Stored as positive number; displayed with sign based on type */
+  amount: number;
+  currency?: string;
   notes?: string;
   createdAt?: string;
 }
@@ -108,12 +135,14 @@ export interface CreditorSummary {
   creditorName: string;
   totalBorrowed: number;
   totalRepaid: number;
-  netBalance: number; // positive = still owe creditor, 0 = settled
+  /** Positive = still owe creditor, 0 = settled */
+  netBalance: number;
   lastActivityDate: string;
   status: 'Outstanding' | 'Settled' | 'Overpaid';
 }
 
-// Planned Repayment Types (INR)
+// ─── Planned Repayments (INR) ─────────────────────────────────────────────────
+
 export type PlannedRepaymentStatus = 'Scheduled' | 'Paid' | 'Pending';
 
 export interface PlannedRepayment {
@@ -121,25 +150,31 @@ export interface PlannedRepayment {
   creditorName: string;
   targetDate: string;
   targetMonth?: string;
-  plannedAmount: number; // in INR
+  plannedAmount: number;
   status: PlannedRepaymentStatus;
   notes?: string;
   createdAt?: string;
 }
 
-// Planned Expenses Types (in SAR)
+// ─── Planned Expenses (SAR) ───────────────────────────────────────────────────
+
 export type PlannedExpenseStatus = 'Planned' | 'Fulfilled' | 'Pending' | 'Overdue' | 'Partial';
 
 export interface PlannedExpense {
   id: string;
   title: string;
   category?: string;
-  month: string; // e.g. "Jul"
-  year: number;  // e.g. 2026
-  plannedAmount: number; // in SAR
-  paidAmount?: number;   // Amount paid so far in SAR
-  isFulfilled?: boolean; // Whether fulfilled (paid in full) or not
-  currency?: string; // 'SAR'
+  /** Month abbreviation (e.g. "Jul") */
+  month: string;
+  /** Full year (e.g. 2026) */
+  year: number;
+  /** Planned amount in SAR */
+  plannedAmount: number;
+  /** Amount paid so far in SAR */
+  paidAmount?: number;
+  /** Whether fully paid */
+  isFulfilled?: boolean;
+  currency?: string;
   dueDate?: string;
   status: PlannedExpenseStatus;
   notes?: string;

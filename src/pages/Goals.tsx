@@ -1,15 +1,38 @@
+/**
+ * Goals page — self-contained with react-query data fetching and mutations.
+ */
+
 import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Calendar, Sparkles, CheckCircle } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { Goal } from '../types';
+import { api } from '../services/api';
+import { GOAL_CATEGORIES } from '../utils/constants';
+import type { Goal } from '../types';
 
-interface GoalsProps {
-  goals: Goal[];
-  onUpdateProgress: (id: string, val: number) => void;
-  onAddGoal: (goal: Omit<Goal, 'id'>) => void;
-}
+export default function Goals() {
+  const queryClient = useQueryClient();
 
-export default function Goals({ goals, onUpdateProgress, onAddGoal }: GoalsProps) {
+  // ── Data ────────────────────────────────────────────────────────────────
+
+  const { data: goals = [] } = useQuery<Goal[]>({
+    queryKey: ['goals'],
+    queryFn: api.getGoals,
+  });
+
+  const updateProgressMutation = useMutation({
+    mutationFn: ({ id, progress }: { id: string; progress: number }) =>
+      api.updateGoalProgress(id, progress),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['goals'] }),
+  });
+
+  const createMutation = useMutation({
+    mutationFn: api.createGoal,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['goals'] }),
+  });
+
+  // ── Modal State ─────────────────────────────────────────────────────────
+
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -18,14 +41,14 @@ export default function Goals({ goals, onUpdateProgress, onAddGoal }: GoalsProps
     progress: 0,
     targetValue: 100,
     currentValue: 0,
-    unit: '%'
+    unit: '%',
   });
 
-  const categories = ['Career', 'Finance', 'Fitness', 'Learning', 'Personal'];
+  // ── Handlers ──────────────────────────────────────────────────────────
 
   const handleIncrement = (id: string, currentProgress: number, step: number) => {
     const nextVal = Math.min(100, Math.max(0, currentProgress + step));
-    onUpdateProgress(id, nextVal);
+    updateProgressMutation.mutate({ id, progress: nextVal });
     if (nextVal === 100) {
       confetti({ particleCount: 70, spread: 80, origin: { y: 0.6 } });
     }
@@ -34,15 +57,10 @@ export default function Goals({ goals, onUpdateProgress, onAddGoal }: GoalsProps
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title) return;
-    onAddGoal(formData);
+    createMutation.mutate(formData);
     setFormData({
-      title: '',
-      category: 'Career',
-      targetDate: '',
-      progress: 0,
-      targetValue: 100,
-      currentValue: 0,
-      unit: '%'
+      title: '', category: 'Career', targetDate: '',
+      progress: 0, targetValue: 100, currentValue: 0, unit: '%',
     });
     setShowModal(false);
   };
@@ -64,7 +82,7 @@ export default function Goals({ goals, onUpdateProgress, onAddGoal }: GoalsProps
 
       {/* Goals Grid */}
       <div className="goals-page-grid">
-        {goals.map(goal => {
+        {goals.map((goal) => {
           const isDone = goal.progress >= 100;
 
           return (
@@ -86,42 +104,24 @@ export default function Goals({ goals, onUpdateProgress, onAddGoal }: GoalsProps
                   <span>Target Deadline: {goal.targetDate || 'Continuous'}</span>
                 </div>
 
-                {/* Progress Visual */}
                 <div className="goal-progress-section">
                   <div className="goal-progress-header">
                     <span>Overall Progress</span>
                     <span className={`goal-progress-pct ${isDone ? 'done' : ''}`}>{goal.progress}%</span>
                   </div>
                   <div className="goal-progress-track">
-                    <div 
+                    <div
                       className={`goal-progress-fill ${isDone ? 'done' : ''}`}
-                      style={{ width: `${goal.progress}%` }} 
+                      style={{ width: `${goal.progress}%` }}
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Action Buttons */}
               <div className="goal-action-buttons">
-                <button
-                  onClick={() => handleIncrement(goal.id, goal.progress, 10)}
-                  disabled={isDone}
-                  className="btn btn-secondary goal-step-btn"
-                >
-                  +10%
-                </button>
-                <button
-                  onClick={() => handleIncrement(goal.id, goal.progress, 25)}
-                  disabled={isDone}
-                  className="btn btn-secondary goal-step-btn"
-                >
-                  +25%
-                </button>
-                <button
-                  onClick={() => handleIncrement(goal.id, 0, 100)}
-                  disabled={isDone}
-                  className="btn btn-primary goal-step-btn goal-finish-btn"
-                >
+                <button onClick={() => handleIncrement(goal.id, goal.progress, 10)} disabled={isDone} className="btn btn-secondary goal-step-btn">+10%</button>
+                <button onClick={() => handleIncrement(goal.id, goal.progress, 25)} disabled={isDone} className="btn btn-secondary goal-step-btn">+25%</button>
+                <button onClick={() => handleIncrement(goal.id, 0, 100)} disabled={isDone} className="btn btn-primary goal-step-btn goal-finish-btn">
                   <Sparkles size={14} /> Finish
                 </button>
               </div>
@@ -138,56 +138,29 @@ export default function Goals({ goals, onUpdateProgress, onAddGoal }: GoalsProps
             <form onSubmit={handleSubmit} className="modal-form-vertical">
               <div>
                 <label className="modal-field-label">Milestone Title</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Build SaaS MVP"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  required
-                  className="modal-input-field"
-                />
+                <input type="text" placeholder="e.g. Build SaaS MVP" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} required className="modal-input-field" />
               </div>
 
               <div>
                 <label className="modal-field-label">Category</label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="modal-select-field"
-                >
-                  {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                <select value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} className="modal-select-field">
+                  {GOAL_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
 
               <div>
                 <label className="modal-field-label">Target Deadline</label>
-                <input
-                  type="date"
-                  value={formData.targetDate}
-                  onChange={(e) => setFormData({ ...formData, targetDate: e.target.value })}
-                  className="modal-input-field"
-                />
+                <input type="date" value={formData.targetDate} onChange={(e) => setFormData({ ...formData, targetDate: e.target.value })} className="modal-input-field" />
               </div>
 
               <div>
                 <label className="modal-field-label">Starting Progress (%)</label>
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={formData.progress}
-                  onChange={(e) => setFormData({ ...formData, progress: parseInt(e.target.value) || 0 })}
-                  className="modal-input-field"
-                />
+                <input type="number" min="0" max="100" value={formData.progress} onChange={(e) => setFormData({ ...formData, progress: parseInt(e.target.value) || 0 })} className="modal-input-field" />
               </div>
 
               <div className="modal-footer-actions">
-                <button type="button" onClick={() => setShowModal(false)} className="btn btn-secondary">
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  Create Milestone
-                </button>
+                <button type="button" onClick={() => setShowModal(false)} className="btn btn-secondary">Cancel</button>
+                <button type="submit" className="btn btn-primary">Create Milestone</button>
               </div>
             </form>
           </div>

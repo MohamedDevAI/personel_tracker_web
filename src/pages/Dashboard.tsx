@@ -1,62 +1,87 @@
-import React from 'react';
-import { ArrowUpRight, ArrowDownRight, Flame, CheckCircle2, Circle, TrendingUp, Calendar } from 'lucide-react';
+/**
+ * Dashboard page — self-contained with react-query data fetching.
+ * No props from parent; manages its own data lifecycle.
+ */
+
+import { useNavigate } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  ArrowUpRight, ArrowDownRight, Flame, CheckCircle2, Circle,
+  TrendingUp, Calendar,
+} from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { Expense, Habit, Goal, TaskItem } from '../types';
+import { api } from '../services/api';
+import { formatDateLong, formatUSD } from '../utils/formatters';
+import type { Expense, Habit, Goal, TaskItem } from '../types';
 
-interface DashboardProps {
-  expenses: Expense[];
-  habits: Habit[];
-  goals: Goal[];
-  tasks: TaskItem[];
-  onToggleHabit: (id: string) => void;
-  onToggleTask: (id: string) => void;
-  onNavigate: (tab: string) => void;
-}
+export default function Dashboard() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-export default function Dashboard({
-  expenses,
-  habits,
-  goals,
-  tasks,
-  onToggleHabit,
-  onToggleTask,
-  onNavigate
-}: DashboardProps) {
-  // Financial computations
+  // ── Data Fetching ─────────────────────────────────────────────────────────
+
+  const { data: expenses = [] } = useQuery<Expense[]>({
+    queryKey: ['expenses'],
+    queryFn: api.getExpenses,
+  });
+
+  const { data: habits = [] } = useQuery<Habit[]>({
+    queryKey: ['habits'],
+    queryFn: api.getHabits,
+  });
+
+  const { data: goals = [] } = useQuery<Goal[]>({
+    queryKey: ['goals'],
+    queryFn: api.getGoals,
+  });
+
+  const { data: tasks = [] } = useQuery<TaskItem[]>({
+    queryKey: ['tasks'],
+    queryFn: api.getTasks,
+  });
+
+  // ── Mutations ─────────────────────────────────────────────────────────────
+
+  const toggleHabitMutation = useMutation({
+    mutationFn: api.toggleHabit,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['habits'] }),
+  });
+
+  const toggleTaskMutation = useMutation({
+    mutationFn: api.toggleTask,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tasks'] }),
+  });
+
+  // ── Computed Metrics ──────────────────────────────────────────────────────
+
   const totalIncome = expenses
-    .filter(e => e.type === 'INCOME')
+    .filter((e) => e.type === 'INCOME')
     .reduce((sum, e) => sum + Number(e.amount), 0);
   const totalExpense = expenses
-    .filter(e => e.type === 'EXPENSE')
+    .filter((e) => e.type === 'EXPENSE')
     .reduce((sum, e) => sum + Number(e.amount), 0);
   const netSavings = totalIncome - totalExpense;
   const savingsRate = totalIncome > 0 ? ((netSavings / totalIncome) * 100).toFixed(1) : '0';
 
-  // Habit metrics
-  const maxStreak = habits.length > 0 ? Math.max(...habits.map(h => h.streak || 0)) : 0;
-  const habitsDoneToday = habits.filter(h => h.completedToday).length;
+  const maxStreak = habits.length > 0 ? Math.max(...habits.map((h) => h.streak || 0)) : 0;
+  const habitsDoneToday = habits.filter((h) => h.completedToday).length;
 
-  // Goal metrics
   const avgGoalProgress = goals.length > 0
     ? Math.round(goals.reduce((acc, g) => acc + (g.progress || 0), 0) / goals.length)
     : 0;
 
-  // Task metrics
-  const completedTasks = tasks.filter(t => t.completed).length;
+  const completedTasks = tasks.filter((t) => t.completed).length;
+
+  // ── Handlers ──────────────────────────────────────────────────────────────
 
   const handleHabitCheck = (id: string, currentlyDone: boolean) => {
-    onToggleHabit(id);
+    toggleHabitMutation.mutate(id);
     if (!currentlyDone) {
       confetti({ particleCount: 40, spread: 60, origin: { y: 0.75 } });
     }
   };
 
-  const todayDate = new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  });
+  const todayDate = formatDateLong(new Date());
 
   return (
     <div className="page-container">
@@ -76,10 +101,10 @@ export default function Dashboard({
         </div>
 
         <div className="page-header-actions">
-          <button onClick={() => onNavigate('habits')} className="btn btn-secondary">
+          <button onClick={() => navigate('/habits')} className="btn btn-secondary">
             <Flame size={14} color="#f59e0b" /> Daily Habits
           </button>
-          <button onClick={() => onNavigate('finances')} className="btn btn-secondary">
+          <button onClick={() => navigate('/finances')} className="btn btn-secondary">
             <TrendingUp size={14} color="#10b981" /> Financial Ledger
           </button>
         </div>
@@ -130,10 +155,7 @@ export default function Dashboard({
             {avgGoalProgress}% <span className="dashboard-kpi-unit">Achieved</span>
           </div>
           <div className="dashboard-progress-track">
-            <div 
-              className="dashboard-progress-bar"
-              style={{ width: `${avgGoalProgress}%` }} 
-            />
+            <div className="dashboard-progress-bar" style={{ width: `${avgGoalProgress}%` }} />
           </div>
         </div>
 
@@ -147,14 +169,13 @@ export default function Dashboard({
             {tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0}%
           </div>
           <div className="dashboard-kpi-subtext">
-            {tasks.filter(t => !t.completed && t.priority === 'HIGH').length} high-priority tasks pending
+            {tasks.filter((t) => !t.completed && t.priority === 'HIGH').length} high-priority tasks pending
           </div>
         </div>
       </div>
 
       {/* Main Grid: Habits & Cash Flow Breakdown */}
       <div className="dashboard-split-grid">
-        
         {/* Today's Habits Checklist */}
         <div className="glass-panel dashboard-card-section">
           <div className="dashboard-card-header">
@@ -162,13 +183,13 @@ export default function Dashboard({
               <h3 className="dashboard-card-title">Today's Habit Checklist</h3>
               <p className="dashboard-card-subtitle">Check off habits to compound your streak</p>
             </div>
-            <button onClick={() => onNavigate('habits')} className="btn btn-secondary dashboard-btn-action">
+            <button onClick={() => navigate('/habits')} className="btn btn-secondary dashboard-btn-action">
               View All
             </button>
           </div>
 
           <div className="habits-list-vertical">
-            {habits.slice(0, 4).map(habit => (
+            {habits.slice(0, 4).map((habit) => (
               <div
                 key={habit.id}
                 onClick={() => handleHabitCheck(habit.id, habit.completedToday)}
@@ -208,7 +229,7 @@ export default function Dashboard({
               <h3 className="dashboard-card-title">Financial Cash Flow</h3>
               <p className="dashboard-card-subtitle">Recent transactions and inflows</p>
             </div>
-            <button onClick={() => onNavigate('finances')} className="btn btn-secondary dashboard-btn-action">
+            <button onClick={() => navigate('/finances')} className="btn btn-secondary dashboard-btn-action">
               Ledger
             </button>
           </div>
@@ -220,24 +241,24 @@ export default function Dashboard({
               <span>${totalExpense.toFixed(0)} of ${totalIncome.toFixed(0)}</span>
             </div>
             <div className="dashboard-burn-rate-track">
-              <div 
+              <div
                 className="burn-rate-expense-bar"
                 style={{
-                  width: `${totalIncome > 0 ? Math.min(100, (totalExpense / totalIncome) * 100) : 0}%`
-                }} 
+                  width: `${totalIncome > 0 ? Math.min(100, (totalExpense / totalIncome) * 100) : 0}%`,
+                }}
               />
-              <div 
+              <div
                 className="burn-rate-savings-bar"
                 style={{
-                  width: `${totalIncome > 0 ? Math.max(0, 100 - (totalExpense / totalIncome) * 100) : 100}%`
-                }} 
+                  width: `${totalIncome > 0 ? Math.max(0, 100 - (totalExpense / totalIncome) * 100) : 100}%`,
+                }}
               />
             </div>
           </div>
 
           {/* Transaction items */}
           <div className="habits-list-vertical">
-            {expenses.slice(0, 4).map(item => (
+            {expenses.slice(0, 4).map((item) => (
               <div key={item.id} className="dashboard-tx-item">
                 <div>
                   <div className="dashboard-tx-title">{item.title}</div>
@@ -250,12 +271,10 @@ export default function Dashboard({
             ))}
           </div>
         </div>
-
       </div>
 
       {/* Strategic Goals & High Priority Tasks Row */}
       <div className="dashboard-split-grid">
-        
         {/* Goals Progress */}
         <div className="glass-panel dashboard-card-section">
           <div className="dashboard-card-header">
@@ -263,23 +282,20 @@ export default function Dashboard({
               <h3 className="dashboard-card-title">Strategic Milestones</h3>
               <p className="dashboard-card-subtitle">Quarterly and annual pursuits</p>
             </div>
-            <button onClick={() => onNavigate('goals')} className="btn btn-secondary dashboard-btn-action">
+            <button onClick={() => navigate('/goals')} className="btn btn-secondary dashboard-btn-action">
               Manage
             </button>
           </div>
 
           <div className="dashboard-goals-list">
-            {goals.slice(0, 3).map(goal => (
+            {goals.slice(0, 3).map((goal) => (
               <div key={goal.id}>
                 <div className="dashboard-goal-row">
                   <span className="dashboard-goal-title">{goal.title}</span>
                   <span className="dashboard-goal-pct">{goal.progress}%</span>
                 </div>
                 <div className="dashboard-goal-track">
-                  <div 
-                    className="dashboard-progress-bar"
-                    style={{ width: `${goal.progress}%` }} 
-                  />
+                  <div className="dashboard-progress-bar" style={{ width: `${goal.progress}%` }} />
                 </div>
               </div>
             ))}
@@ -293,16 +309,16 @@ export default function Dashboard({
               <h3 className="dashboard-card-title">High Priority Action Items</h3>
               <p className="dashboard-card-subtitle">Key deliverables for today</p>
             </div>
-            <button onClick={() => onNavigate('tasks')} className="btn btn-secondary dashboard-btn-action">
+            <button onClick={() => navigate('/tasks')} className="btn btn-secondary dashboard-btn-action">
               Task Board
             </button>
           </div>
 
           <div className="habits-list-vertical">
-            {tasks.filter(t => t.priority === 'HIGH').slice(0, 4).map(task => (
+            {tasks.filter((t) => t.priority === 'HIGH').slice(0, 4).map((task) => (
               <div
                 key={task.id}
-                onClick={() => onToggleTask(task.id)}
+                onClick={() => toggleTaskMutation.mutate(task.id)}
                 className={`dashboard-task-item ${task.completed ? 'completed' : 'pending'}`}
               >
                 <div className="dashboard-task-left">
@@ -316,7 +332,6 @@ export default function Dashboard({
             ))}
           </div>
         </div>
-
       </div>
     </div>
   );

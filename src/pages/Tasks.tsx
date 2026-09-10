@@ -1,47 +1,74 @@
-import React, { useState } from 'react';
-import { Plus, Trash2, CheckCircle2, Circle, Calendar } from 'lucide-react';
-import { TaskItem, TaskPriority } from '../types';
-import ConfirmDeleteModal from '../components/common/ConfirmDeleteModal';
+/**
+ * Tasks page — self-contained with react-query data fetching and mutations.
+ */
 
-interface TasksProps {
-  tasks: TaskItem[];
-  onToggleTask: (id: string) => void;
-  onAddTask: (task: Omit<TaskItem, 'id' | 'completed'>) => void;
-  onDeleteTask: (id: string) => void;
-}
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Plus, Trash2, CheckCircle2, Circle, Calendar } from 'lucide-react';
+import { api } from '../services/api';
+import { TASK_CATEGORIES } from '../utils/constants';
+import { useDeleteConfirmation } from '../hooks/useDeleteConfirmation';
+import ConfirmDeleteModal from '../components/common/ConfirmDeleteModal';
+import type { TaskItem, TaskPriority } from '../types';
 
 type TaskFilter = 'ALL' | 'PENDING' | 'COMPLETED' | 'HIGH';
 
-export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }: TasksProps) {
+export default function Tasks() {
+  const queryClient = useQueryClient();
+
+  // ── Data ────────────────────────────────────────────────────────────────
+
+  const { data: tasks = [] } = useQuery<TaskItem[]>({
+    queryKey: ['tasks'],
+    queryFn: api.getTasks,
+  });
+
+  const toggleMutation = useMutation({
+    mutationFn: api.toggleTask,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tasks'] }),
+  });
+
+  const createMutation = useMutation({
+    mutationFn: api.createTask,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tasks'] }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: api.deleteTask,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tasks'] }),
+  });
+
+  // ── UI State ──────────────────────────────────────────────────────────
+
   const [filter, setFilter] = useState<TaskFilter>('ALL');
   const [showModal, setShowModal] = useState(false);
-  const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
-  const [deleteTaskTitle, setDeleteTaskTitle] = useState<string>('');
+  const deleteConfirm = useDeleteConfirmation<string>();
+
   const [formData, setFormData] = useState({
     title: '',
     category: 'Development',
     priority: 'HIGH' as TaskPriority,
-    dueDate: new Date().toISOString().split('T')[0]
+    dueDate: new Date().toISOString().split('T')[0],
   });
 
-  const categories = ['Development', 'DevOps', 'Finance', 'Health', 'Personal', 'General'];
+  // ── Computed ──────────────────────────────────────────────────────────
 
-  const filteredTasks = tasks.filter(t => {
+  const filteredTasks = tasks.filter((t) => {
     if (filter === 'PENDING') return !t.completed;
     if (filter === 'COMPLETED') return t.completed;
     if (filter === 'HIGH') return t.priority === 'HIGH';
     return true;
   });
 
+  // ── Handlers ──────────────────────────────────────────────────────────
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title) return;
-    onAddTask(formData);
+    createMutation.mutate(formData);
     setFormData({
-      title: '',
-      category: 'Development',
-      priority: 'HIGH',
-      dueDate: new Date().toISOString().split('T')[0]
+      title: '', category: 'Development', priority: 'HIGH',
+      dueDate: new Date().toISOString().split('T')[0],
     });
     setShowModal(false);
   };
@@ -56,7 +83,7 @@ export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }: 
     { id: 'ALL', label: 'All Tasks' },
     { id: 'PENDING', label: 'Pending' },
     { id: 'COMPLETED', label: 'Completed' },
-    { id: 'HIGH', label: 'High Priority' }
+    { id: 'HIGH', label: 'High Priority' },
   ];
 
   return (
@@ -76,7 +103,7 @@ export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }: 
 
       {/* Filter Tabs */}
       <div className="tasks-filter-bar">
-        {filterOptions.map(item => (
+        {filterOptions.map((item) => (
           <button
             key={item.id}
             onClick={() => setFilter(item.id)}
@@ -95,15 +122,9 @@ export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }: 
               No tasks match this filter. Everything is up to date!
             </div>
           ) : (
-            filteredTasks.map(task => (
-              <div
-                key={task.id}
-                className={`task-row-card ${task.completed ? 'completed' : 'pending'}`}
-              >
-                <div
-                  onClick={() => onToggleTask(task.id)}
-                  className="task-row-left"
-                >
+            filteredTasks.map((task) => (
+              <div key={task.id} className={`task-row-card ${task.completed ? 'completed' : 'pending'}`}>
+                <div onClick={() => toggleMutation.mutate(task.id)} className="task-row-left">
                   {task.completed ? (
                     <CheckCircle2 size={20} color="#10b981" />
                   ) : (
@@ -127,10 +148,7 @@ export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }: 
                 <div className="task-row-right">
                   {getPriorityBadge(task.priority)}
                   <button
-                    onClick={() => {
-                      setDeleteTaskId(task.id);
-                      setDeleteTaskTitle(task.title);
-                    }}
+                    onClick={() => deleteConfirm.confirm(task.id, task.title)}
                     className="btn-icon task-delete-btn"
                     title="Delete task"
                   >
@@ -151,24 +169,13 @@ export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }: 
             <form onSubmit={handleSubmit} className="modal-form-vertical">
               <div>
                 <label className="modal-field-label">Task Title</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Implement Spring Security filter"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  required
-                  className="modal-input-field"
-                />
+                <input type="text" placeholder="e.g. Implement Spring Security filter" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} required className="modal-input-field" />
               </div>
 
               <div className="modal-grid-equal">
                 <div>
                   <label className="modal-field-label">Priority</label>
-                  <select
-                    value={formData.priority}
-                    onChange={(e) => setFormData({ ...formData, priority: e.target.value as TaskPriority })}
-                    className="modal-select-field"
-                  >
+                  <select value={formData.priority} onChange={(e) => setFormData({ ...formData, priority: e.target.value as TaskPriority })} className="modal-select-field">
                     <option value="HIGH">High Priority</option>
                     <option value="MEDIUM">Medium Priority</option>
                     <option value="LOW">Low Priority</option>
@@ -177,56 +184,37 @@ export default function Tasks({ tasks, onToggleTask, onAddTask, onDeleteTask }: 
 
                 <div>
                   <label className="modal-field-label">Category</label>
-                  <select
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="modal-select-field"
-                  >
-                    {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                  <select value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} className="modal-select-field">
+                    {TASK_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
               </div>
 
               <div>
                 <label className="modal-field-label">Due Date</label>
-                <input
-                  type="date"
-                  value={formData.dueDate}
-                  onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-                  className="modal-input-field"
-                />
+                <input type="date" value={formData.dueDate} onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })} className="modal-input-field" />
               </div>
 
               <div className="modal-footer-actions">
-                <button type="button" onClick={() => setShowModal(false)} className="btn btn-secondary">
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  Save Task
-                </button>
+                <button type="button" onClick={() => setShowModal(false)} className="btn btn-secondary">Cancel</button>
+                <button type="submit" className="btn btn-primary">Save Task</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* Confirm Task Deletion Modal (Yes / No Prompt) */}
+      {/* Confirm Task Deletion Modal */}
       <ConfirmDeleteModal
-        isOpen={Boolean(deleteTaskId)}
+        isOpen={deleteConfirm.isOpen}
         title="Delete Task"
         message="Are you sure you want to delete this task? Please choose Yes to delete or No to cancel."
-        itemName={deleteTaskTitle}
+        itemName={deleteConfirm.itemName}
         confirmText="Yes, Delete"
         cancelText="No, Cancel"
-        onConfirm={() => {
-          if (deleteTaskId) {
-            onDeleteTask(deleteTaskId);
-            setDeleteTaskId(null);
-          }
-        }}
-        onCancel={() => setDeleteTaskId(null)}
+        onConfirm={() => deleteConfirm.execute((id) => deleteMutation.mutate(id))}
+        onCancel={deleteConfirm.cancel}
       />
     </div>
-
   );
 }

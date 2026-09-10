@@ -1,64 +1,86 @@
-import { Transaction } from '../../types';
-import { MONTH_NAMES, expenseApi } from '../../services/expenseApi';
+/**
+ * Sync logic between Planned Expenses and the Expense Tracked (MongoDB transactions).
+ * Automatically creates/updates/removes linked transactions when planned expenses change.
+ */
 
-export const formatSAR = (val: number): string => {
-  return `SAR ${Number(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+import type { Transaction } from '../../types';
+import { MONTH_NAMES, isFromOctober2026Onwards, getMonthIndex } from '../../utils/dateHelpers';
+import { formatSAR } from '../../utils/formatters';
+import { expenseApi } from '../../services/expenseApi';
+
+// Re-export for consumers that import from this module
+export { formatSAR, isFromOctober2026Onwards };
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface SyncablePlan {
+  id: string;
+  title: string;
+  category?: string;
+  month: string;
+  year: number;
+  plannedAmount: number;
+  paidAmount?: number;
+  isFulfilled?: boolean;
+  dueDate?: string;
+  notes?: string;
+}
+
+interface SyncOverrides {
+  isFulfilled?: boolean;
+  paidAmount?: number;
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Find a transaction linked to a planned expense by ID or note tag */
+const findLinkedTransaction = (
+  planId: string,
+  transactions: Transaction[]
+): Transaction | undefined => {
+  return transactions.find(
+    (t) =>
+      t.plannedExpenseId === planId ||
+      (t.note && t.note.includes(`[PE-${planId}]`)) ||
+      (t.description && t.description.includes(`[PE-${planId}]`))
+  );
 };
 
-// Helper to verify if the plan belongs to future months starting from October 2026 onwards
-export const isFromOctober2026Onwards = (month: string, year: number): boolean => {
-  const mIdx = MONTH_NAMES.indexOf(month as any);
-  if (year > 2026) return true;
-  if (year === 2026 && mIdx >= 9) return true; // Oct = 9, Nov = 10, Dec = 11
-  return false;
-};
+// ─── Sync Functions ───────────────────────────────────────────────────────────
 
-// Automatically sync planned expenses to Expense Tracked transactions (MongoDB collection)
+/**
+ * Sync a planned expense to the Expense Tracked transactions collection.
+ * Only processes plans from October 2026 onwards to leave historical data untouched.
+ */
 export const syncPlanToTransactions = async (
-  plan: {
-    id: string;
-    title: string;
-    category?: string;
-    month: string;
-    year: number;
-    plannedAmount: number;
-    paidAmount?: number;
-    isFulfilled?: boolean;
-    dueDate?: string;
-    notes?: string;
-  },
+  plan: SyncablePlan,
   currentTransactions: Transaction[],
-  overrides?: { isFulfilled?: boolean; paidAmount?: number }
+  overrides?: SyncOverrides
 ): Promise<void> => {
-  const month = plan.month;
-  const year = plan.year;
+  // Leave data until September untouched
+  if (!isFromOctober2026Onwards(plan.month, plan.year)) return;
 
-  // Leave data until September untouched; only sync from October 2026 onwards
-  if (!isFromOctober2026Onwards(month, year)) {
-    return;
-  }
+  const effectiveFulfilled = overrides?.isFulfilled !== undefined
+    ? overrides.isFulfilled
+    : Boolean(plan.isFulfilled);
 
-  const effectiveFulfilled = overrides?.isFulfilled !== undefined ? overrides.isFulfilled : Boolean(plan.isFulfilled);
-  const effectivePaid = overrides?.paidAmount !== undefined 
-    ? overrides.paidAmount 
+  const effectivePaid = overrides?.paidAmount !== undefined
+    ? overrides.paidAmount
     : (plan.paidAmount !== undefined ? plan.paidAmount : (effectiveFulfilled ? plan.plannedAmount : 0));
 
-  // Find linked transaction if one exists
-  const linkedTx = currentTransactions.find(t => 
-    t.plannedExpenseId === plan.id ||
-    (t.note && t.note.includes(`[PE-${plan.id}]`)) ||
-    (t.description && t.description.includes(`[PE-${plan.id}]`))
-  );
+  const linkedTx = findLinkedTransaction(plan.id, currentTransactions);
 
-  const mIdx = MONTH_NAMES.indexOf(month as any);
+  const mIdx = getMonthIndex(plan.month);
   const mNum = String((mIdx >= 0 ? mIdx : 9) + 1).padStart(2, '0');
-  const dateStr = plan.dueDate ? plan.dueDate : `${year}-${mNum}-01`;
+  const dateStr = plan.dueDate || `${plan.year}-${mNum}-01`;
 
-  // If fulfilled or paid amount > 0: create or update transaction in Expense Tracked
   if (effectiveFulfilled || effectivePaid > 0) {
+    // Create or update the linked transaction
     const finalAmount = effectivePaid > 0 ? effectivePaid : plan.plannedAmount;
     const desc = plan.title;
-    const note = plan.notes ? `${plan.notes} [PE-${plan.id}]` : `${plan.title} [PE-${plan.id}]`;
+    const note = plan.notes
+      ? `${plan.notes} [PE-${plan.id}]`
+      : `${plan.title} [PE-${plan.id}]`;
     const cat = plan.category || 'General';
 
     if (linkedTx && (linkedTx.id || linkedTx._id)) {
@@ -72,14 +94,14 @@ export const syncPlanToTransactions = async (
         note: note,
         date: dateStr,
         transactionDate: dateStr,
-        month: month,
-        plannedExpenseId: plan.id
+        month: plan.month,
+        plannedExpenseId: plan.id,
       });
     } else {
       await expenseApi.createTransaction({
         date: dateStr,
         transactionDate: dateStr,
-        month: month,
+        month: plan.month,
         category: cat,
         categoryName: cat,
         description: desc,
@@ -88,17 +110,21 @@ export const syncPlanToTransactions = async (
         amountSar: finalAmount,
         type: 'Debit',
         paymentMethod: 'Account',
-        plannedExpenseId: plan.id
+        plannedExpenseId: plan.id,
       });
     }
   } else {
-    // If not fulfilled and paidAmount is 0, remove any existing linked transaction
+    // Not fulfilled and paidAmount is 0 — remove any existing linked transaction
     if (linkedTx && (linkedTx.id || linkedTx._id)) {
       await expenseApi.deleteTransaction(linkedTx.id || linkedTx._id!);
     }
   }
 };
 
+/**
+ * Remove a linked transaction when a planned expense is deleted.
+ * Only processes plans from October 2026 onwards.
+ */
 export const removeLinkedTransactionIfExists = async (
   planId: string,
   planMonth: string,
@@ -106,11 +132,8 @@ export const removeLinkedTransactionIfExists = async (
   currentTransactions: Transaction[]
 ): Promise<void> => {
   if (!isFromOctober2026Onwards(planMonth, planYear)) return;
-  const linkedTx = currentTransactions.find(t => 
-    t.plannedExpenseId === planId ||
-    (t.note && t.note.includes(`[PE-${planId}]`)) ||
-    (t.description && t.description.includes(`[PE-${planId}]`))
-  );
+
+  const linkedTx = findLinkedTransaction(planId, currentTransactions);
   if (linkedTx && (linkedTx.id || linkedTx._id)) {
     try {
       await expenseApi.deleteTransaction(linkedTx.id || linkedTx._id!);

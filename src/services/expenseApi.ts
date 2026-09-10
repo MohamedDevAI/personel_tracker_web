@@ -1,56 +1,68 @@
-import axios from 'axios';
-import { Category, Transaction, DashboardSummary, TransactionType } from '../types';
+/**
+ * Expense/Transaction API service.
+ * Handles CRUD operations for categories and transactions via Spring Boot + MongoDB Atlas.
+ */
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
+import apiClient from './apiClient';
+import { MONTH_NAMES } from '../utils/dateHelpers';
+import type { Category, Transaction, TransactionType, DashboardSummary } from '../types';
 
-export const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as const;
+// ─── Transaction Normalizer ───────────────────────────────────────────────────
 
-// Remove legacy mock storage if previously seeded in user browser
-try {
-  localStorage.removeItem('pt_db_transactions');
-  localStorage.removeItem('pt_db_categories');
-} catch (e) {}
-
+/**
+ * Normalize a raw API response object into a consistent Transaction shape.
+ * The backend returns some fields in multiple forms (_id/id, date/transactionDate, etc.).
+ * This function ensures canonical fields are always populated.
+ */
 export const normalizeTransaction = (item: any): Transaction => {
-  const id = item._id || item.id || (typeof item === 'object' && item !== null && item._id ? String(item._id) : String(Date.now()));
+  const id = item._id || item.id || String(Date.now());
+  const idStr = typeof id === 'object' ? String(id) : id;
   const dateVal = item.date || item.transactionDate || new Date().toISOString();
-  
-  // Parse date string
+
+  // Parse date
   let dateObj = new Date(dateVal);
-  if (isNaN(dateObj.getTime()) && typeof dateVal === 'string') {
+  if (isNaN(dateObj.getTime())) {
     dateObj = new Date();
   }
-  
-  const monthAbbr = item.month || (!isNaN(dateObj.getTime()) ? MONTH_NAMES[dateObj.getMonth()] : 'Mar');
-  const amount = Number(item.amount !== undefined ? item.amount : (item.amountSar !== undefined ? item.amountSar : 0));
-  
+
+  const monthAbbr = item.month || (
+    !isNaN(dateObj.getTime()) ? MONTH_NAMES[dateObj.getMonth()] : 'Mar'
+  );
+
+  const amount = Number(
+    item.amount !== undefined ? item.amount : (item.amountSar ?? 0)
+  );
+
+  // Normalize type to title-case
   const rawType = String(item.type || 'Debit').toUpperCase();
   const isCredit = rawType === 'CREDIT' || rawType === 'INCOME';
   const type: TransactionType = isCredit ? 'Credit' : 'Debit';
-  
+
   const category = item.category || item.categoryName || 'General';
   const description = item.description || item.note || item.title || 'Transaction';
   const paymentMethod = item.paymentMethod || 'Account';
 
-  // Format date display (e.g. 2026-03-01)
+  // Format date display
   let dateString = typeof dateVal === 'string' ? dateVal : dateObj.toISOString();
   if (dateString.includes('T')) {
     dateString = dateString.split('T')[0];
   }
 
+  // Extract planned expense ID from note tags like [PE-xxx]
   const noteText = item.note || description;
-  const peMatch = (typeof noteText === 'string' ? noteText.match(/\[PE-([^\]]+)\]/) : null) || 
-                  (typeof description === 'string' ? description.match(/\[PE-([^\]]+)\]/) : null);
+  const peMatch =
+    (typeof noteText === 'string' ? noteText.match(/\[PE-([^\]]+)\]/) : null) ||
+    (typeof description === 'string' ? description.match(/\[PE-([^\]]+)\]/) : null);
   const plannedExpenseId = item.plannedExpenseId || (peMatch ? peMatch[1] : undefined);
 
   return {
-    _id: typeof id === 'object' ? String(id) : id,
-    id: typeof id === 'object' ? String(id) : id,
+    _id: idStr,
+    id: idStr,
     date: dateVal,
     transactionDate: dateString,
     month: monthAbbr,
     category,
-    categoryId: item.categoryId || id,
+    categoryId: item.categoryId || idStr,
     categoryName: category,
     description,
     note: noteText,
@@ -59,19 +71,20 @@ export const normalizeTransaction = (item: any): Transaction => {
     amountSar: amount,
     type,
     createdAt: item.createdAt || dateVal,
-    plannedExpenseId
+    plannedExpenseId,
   };
 };
 
+// ─── API Methods ──────────────────────────────────────────────────────────────
+
 export const expenseApi = {
-  // Categories from MongoDB Collection
+  // ── Categories ────────────────────────────────────────────────────────────
+
   getCategories: async (type?: TransactionType): Promise<Category[]> => {
     try {
-      const url = type ? `${API_BASE}/categories?type=${type}` : `${API_BASE}/categories`;
-      const { data } = await axios.get<Category[]>(url, { timeout: 6000 });
-      if (Array.isArray(data)) {
-        return data;
-      }
+      const url = type ? `/categories?type=${type}` : '/categories';
+      const { data } = await apiClient.get<Category[]>(url);
+      if (Array.isArray(data)) return data;
     } catch (e) {
       console.warn('Unable to load categories from MongoDB:', e);
     }
@@ -79,18 +92,19 @@ export const expenseApi = {
   },
 
   createCategory: async (category: Omit<Category, 'id'>): Promise<Category> => {
-    const { data } = await axios.post<Category>(`${API_BASE}/categories`, category, { timeout: 4000 });
+    const { data } = await apiClient.post<Category>('/categories', category);
     return data;
   },
 
   deleteCategory: async (id: string): Promise<void> => {
-    await axios.delete(`${API_BASE}/categories/${id}`, { timeout: 4000 });
+    await apiClient.delete(`/categories/${id}`);
   },
 
-  // Transactions from MongoDB Collection
+  // ── Transactions ──────────────────────────────────────────────────────────
+
   getTransactions: async (): Promise<Transaction[]> => {
     try {
-      const { data } = await axios.get<any[]>(`${API_BASE}/transactions`, { timeout: 8000 });
+      const { data } = await apiClient.get<any[]>('/transactions', { timeout: 8000 });
       if (Array.isArray(data)) {
         return data.map(normalizeTransaction);
       }
@@ -102,29 +116,31 @@ export const expenseApi = {
 
   createTransaction: async (transaction: Omit<Transaction, 'id' | '_id'>): Promise<Transaction> => {
     const rawDate = transaction.date || transaction.transactionDate || new Date().toISOString();
-    
-    // Format date as ISO-8601 string: 2026-03-01T00:00:00.000Z for Spring Boot / MongoDB Jackson deserialization
+
+    // Format date as ISO-8601 for Spring Boot / MongoDB Jackson deserialization
     let isoDateStr: string;
     let dateOnlyStr: string;
-    
+
     if (typeof rawDate === 'string' && rawDate.includes('T')) {
       isoDateStr = rawDate;
       dateOnlyStr = rawDate.split('T')[0];
     } else {
       dateOnlyStr = String(rawDate);
       const parsed = new Date(rawDate);
-      if (!isNaN(parsed.getTime())) {
-        isoDateStr = parsed.toISOString();
-      } else {
-        isoDateStr = `${rawDate}T00:00:00.000Z`;
-      }
+      isoDateStr = !isNaN(parsed.getTime())
+        ? parsed.toISOString()
+        : `${rawDate}T00:00:00.000Z`;
     }
 
     const dateObj = new Date(isoDateStr);
-    const month = transaction.month || (!isNaN(dateObj.getTime()) ? MONTH_NAMES[dateObj.getMonth()] : 'Mar');
-    
+    const month = transaction.month || (
+      !isNaN(dateObj.getTime()) ? MONTH_NAMES[dateObj.getMonth()] : 'Mar'
+    );
+
     const isCredit = String(transaction.type).toUpperCase() === 'CREDIT';
-    const amountVal = Number(transaction.amount !== undefined ? transaction.amount : (transaction.amountSar || 0));
+    const amountVal = Number(
+      transaction.amount !== undefined ? transaction.amount : (transaction.amountSar || 0)
+    );
 
     const payload = {
       ...transaction,
@@ -137,39 +153,47 @@ export const expenseApi = {
       note: transaction.note || transaction.description || 'Transaction',
       paymentMethod: transaction.paymentMethod || 'Account',
       type: isCredit ? 'Credit' : 'Debit',
-      plannedExpenseId: transaction.plannedExpenseId
+      plannedExpenseId: transaction.plannedExpenseId,
     };
 
-    const { data } = await axios.post<any>(`${API_BASE}/transactions`, payload, { timeout: 6000 });
+    const { data } = await apiClient.post<any>('/transactions', payload);
     return normalizeTransaction(data);
   },
 
   updateTransaction: async (id: string, transaction: Partial<Transaction>): Promise<Transaction> => {
     const updatePayload: any = { ...transaction };
+
     if (updatePayload.date) {
       const rawDate = updatePayload.date;
       if (typeof rawDate === 'string' && !rawDate.includes('T')) {
         const parsed = new Date(rawDate);
-        updatePayload.date = !isNaN(parsed.getTime()) ? parsed.toISOString() : `${rawDate}T00:00:00.000Z`;
+        updatePayload.date = !isNaN(parsed.getTime())
+          ? parsed.toISOString()
+          : `${rawDate}T00:00:00.000Z`;
       }
     }
-    const { data } = await axios.put<any>(`${API_BASE}/transactions/${id}`, updatePayload, { timeout: 6000 });
+
+    const { data } = await apiClient.put<any>(`/transactions/${id}`, updatePayload);
     return normalizeTransaction(data);
   },
 
   deleteTransaction: async (id: string): Promise<void> => {
-    await axios.delete(`${API_BASE}/transactions/${id}`, { timeout: 6000 });
+    await apiClient.delete(`/transactions/${id}`);
   },
 
-  // Dashboard Summary
+  // ── Dashboard Summary ─────────────────────────────────────────────────────
+
   getDashboardSummary: async (): Promise<DashboardSummary> => {
     try {
-      const { data } = await axios.get<DashboardSummary>(`${API_BASE}/expense-dashboard/summary`, { timeout: 4000 });
+      const { data } = await apiClient.get<DashboardSummary>('/expense-dashboard/summary', {
+        timeout: 4000,
+      });
       if (data && (data.totalCredit > 0 || data.totalDebit > 0)) {
         return data;
       }
-    } catch (e) {}
+    } catch { /* compute from transactions */ }
 
+    // Fallback: compute from live transaction data
     const txs = await expenseApi.getTransactions();
     let totalCredit = 0;
     let totalDebit = 0;
@@ -191,7 +215,7 @@ export const expenseApi = {
       totalCredit,
       totalDebit,
       balance: totalCredit - totalDebit,
-      expensesByCategory
+      expensesByCategory,
     };
-  }
+  },
 };
