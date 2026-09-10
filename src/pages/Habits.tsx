@@ -1,40 +1,57 @@
+/**
+ * Habits page — self-contained with react-query data fetching and mutations.
+ */
+
 import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Flame, Plus, CheckCircle2, Circle, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { Habit } from '../types';
+import { api } from '../services/api';
+import { HABIT_CATEGORIES, DAY_NAMES } from '../utils/constants';
+import type { Habit } from '../types';
 
-interface HabitsProps {
-  habits: Habit[];
-  onToggleHabit: (id: string) => void;
-  onAddHabit: (habit: Pick<Habit, 'title' | 'category' | 'targetFrequency'>) => void;
-}
+export default function Habits() {
+  const queryClient = useQueryClient();
 
-export default function Habits({ habits, onToggleHabit, onAddHabit }: HabitsProps) {
+  // ── Data ────────────────────────────────────────────────────────────────
+
+  const { data: habits = [] } = useQuery<Habit[]>({
+    queryKey: ['habits'],
+    queryFn: api.getHabits,
+  });
+
+  const toggleMutation = useMutation({
+    mutationFn: api.toggleHabit,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['habits'] }),
+  });
+
+  const createMutation = useMutation({
+    mutationFn: api.createHabit,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['habits'] }),
+  });
+
+  // ── Modal State ─────────────────────────────────────────────────────────
+
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     category: 'Health',
-    targetFrequency: 'Daily'
+    targetFrequency: 'Daily',
   });
 
-  const categories = ['Health', 'Productivity', 'Mindset', 'Learning', 'Fitness', 'Finance'];
-  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  // ── Handlers ──────────────────────────────────────────────────────────
 
   const handleToggle = (id: string, isDone: boolean) => {
-    onToggleHabit(id);
+    toggleMutation.mutate(id);
     if (!isDone) {
-      confetti({
-        particleCount: 50,
-        spread: 70,
-        origin: { y: 0.7 }
-      });
+      confetti({ particleCount: 50, spread: 70, origin: { y: 0.7 } });
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title) return;
-    onAddHabit(formData);
+    createMutation.mutate(formData);
     setFormData({ title: '', category: 'Health', targetFrequency: 'Daily' });
     setShowModal(false);
   };
@@ -56,8 +73,8 @@ export default function Habits({ habits, onToggleHabit, onAddHabit }: HabitsProp
 
       {/* Habits Grid */}
       <div className="habits-page-grid">
-        {habits.map(habit => {
-          const completedCount = habit.history.filter(x => x === 1).length;
+        {habits.map((habit) => {
+          const completedCount = habit.history.filter((x) => x === 1).length;
           const consistency = Math.round((completedCount / (habit.history.length || 1)) * 100);
 
           return (
@@ -69,12 +86,9 @@ export default function Habits({ habits, onToggleHabit, onAddHabit }: HabitsProp
                   <div className="habit-target-freq">Target: {habit.targetFrequency}</div>
                 </div>
 
-                {/* Streak Badge */}
                 <div className="habit-streak-pill">
                   <Flame size={18} color="#f59e0b" fill="#f59e0b" />
-                  <span className="habit-streak-pill-val">
-                    {habit.streak}
-                  </span>
+                  <span className="habit-streak-pill-val">{habit.streak}</span>
                   <span className="habit-streak-unit">days</span>
                 </div>
               </div>
@@ -91,27 +105,21 @@ export default function Habits({ habits, onToggleHabit, onAddHabit }: HabitsProp
                       <div className={`habit-heatmap-box ${val === 1 ? 'completed' : 'missed'}`}>
                         {val === 1 && <Sparkles size={12} />}
                       </div>
-                      <span className="habit-heatmap-dayname">
-                        {dayNames[idx]}
-                      </span>
+                      <span className="habit-heatmap-dayname">{DAY_NAMES[idx]}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Action Toggle for Today */}
+              {/* Action Toggle */}
               <button
                 onClick={() => handleToggle(habit.id, habit.completedToday)}
                 className={`btn habit-toggle-btn ${habit.completedToday ? 'btn-secondary done' : 'btn-primary'}`}
               >
                 {habit.completedToday ? (
-                  <>
-                    <CheckCircle2 size={16} /> Completed for Today
-                  </>
+                  <><CheckCircle2 size={16} /> Completed for Today</>
                 ) : (
-                  <>
-                    <Circle size={16} /> Check In Today
-                  </>
+                  <><Circle size={16} /> Check In Today</>
                 )}
               </button>
             </div>
@@ -144,7 +152,7 @@ export default function Habits({ habits, onToggleHabit, onAddHabit }: HabitsProp
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   className="modal-select-field"
                 >
-                  {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                  {HABIT_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
 
@@ -163,12 +171,8 @@ export default function Habits({ habits, onToggleHabit, onAddHabit }: HabitsProp
               </div>
 
               <div className="modal-footer-actions">
-                <button type="button" onClick={() => setShowModal(false)} className="btn btn-secondary">
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  Save Habit
-                </button>
+                <button type="button" onClick={() => setShowModal(false)} className="btn btn-secondary">Cancel</button>
+                <button type="submit" className="btn btn-primary">Save Habit</button>
               </div>
             </form>
           </div>

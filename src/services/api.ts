@@ -1,270 +1,247 @@
-// API Service for Spring Boot Backend with Local Fallback Engine
-import { Expense, Habit, Goal, TaskItem, BackendHealth } from '../types';
+/**
+ * Core API service for Dashboard data (habits, goals, tasks, expenses).
+ * Uses localStorage as fallback when Spring Boot backend is unreachable.
+ */
 
-const API_BASE = '/api';
+import apiClient from './apiClient';
+import { STORAGE_KEYS } from '../utils/constants';
+import {
+  SEED_EXPENSES,
+  SEED_HABITS,
+  SEED_GOALS,
+  SEED_TASKS,
+  type DashboardSeed,
+  SEED_DASHBOARD,
+} from './seedData';
+import type { Expense, Habit, Goal, TaskItem, BackendHealth } from '../types';
 
-interface InitialStorage {
-  dashboard: {
-    streakDays: number;
-    monthlyIncome: number;
-    monthlyExpense: number;
-    savingsRate: number;
-    activeHabitsCount: number;
-    completedTasksToday: number;
-    totalTasksToday: number;
-    goalsCompletedCount: number;
-    activeGoalsCount: number;
-  };
+// ─── Local Storage Helpers ────────────────────────────────────────────────────
+
+type StorageMap = {
+  dashboard: DashboardSeed;
   expenses: Expense[];
   habits: Habit[];
   goals: Goal[];
   tasks: TaskItem[];
-}
-
-// Initial Mock Seed Data (Refined, Realistic, High-Value)
-const initialStorage: InitialStorage = {
-  dashboard: {
-    streakDays: 14,
-    monthlyIncome: 6450.00,
-    monthlyExpense: 2310.50,
-    savingsRate: 64.2,
-    activeHabitsCount: 6,
-    completedTasksToday: 7,
-    totalTasksToday: 9,
-    goalsCompletedCount: 3,
-    activeGoalsCount: 5,
-  },
-  expenses: [
-    { id: '1', title: 'MacBook Pro M4 Monitor Setup', amount: 849.00, type: 'EXPENSE', category: 'Tech & Work', date: '2026-09-02', notes: 'Tax-deductible office workstation' },
-    { id: '2', title: 'Consulting Retainer Client A', amount: 4200.00, type: 'INCOME', category: 'Consulting', date: '2026-09-01', notes: 'Monthly engineering deliverables' },
-    { id: '3', title: 'Whole Foods Organic Groceries', amount: 165.40, type: 'EXPENSE', category: 'Nutrition', date: '2026-09-05', notes: 'Weekly meal prep' },
-    { id: '4', title: 'SaaS Subscriptions (JetBrains, Cloud)', amount: 78.00, type: 'EXPENSE', category: 'Software', date: '2026-09-06', notes: 'Dev tools' },
-    { id: '5', title: 'Equity Dividend Payout', amount: 2250.00, type: 'INCOME', category: 'Investment', date: '2026-09-07', notes: 'Quarterly dividend distribution' },
-    { id: '6', title: 'Equinox Gym & Wellness Membership', amount: 260.00, type: 'EXPENSE', category: 'Fitness', date: '2026-09-04', notes: 'Monthly membership' }
-  ],
-  habits: [
-    { id: '1', title: '6:30 AM Morning Run & Mobility', category: 'Health', streak: 14, targetFrequency: 'Daily', completedToday: true, history: [1, 1, 1, 1, 1, 1, 1] },
-    { id: '2', title: 'Deep Work Block (90 Mins No Distraction)', category: 'Productivity', streak: 9, targetFrequency: 'Daily', completedToday: true, history: [1, 0, 1, 1, 1, 1, 1] },
-    { id: '3', title: 'Read 25 Pages (Architecture & Tech)', category: 'Learning', streak: 21, targetFrequency: 'Daily', completedToday: false, history: [1, 1, 1, 1, 1, 1, 0] },
-    { id: '4', title: 'Cold Shower & Wim Hof Breathing', category: 'Health', streak: 8, targetFrequency: 'Daily', completedToday: true, history: [0, 1, 1, 1, 1, 1, 1] },
-    { id: '5', title: 'Evening Portfolio & Budget Review', category: 'Finance', streak: 12, targetFrequency: 'Daily', completedToday: false, history: [1, 1, 1, 1, 1, 0, 0] },
-  ],
-  goals: [
-    { id: '1', title: 'Launch Production Micro-SaaS Product', category: 'Career', targetDate: '2026-11-30', progress: 75, targetValue: 100, currentValue: 75, unit: '%', status: 'IN_PROGRESS' },
-    { id: '2', title: 'Emergency Fund ($30,000 Liquid)', category: 'Finance', targetDate: '2026-12-31', progress: 85, targetValue: 30000, currentValue: 25500, unit: '$', status: 'IN_PROGRESS' },
-    { id: '3', title: 'Run Half-Marathon under 1h 45m', category: 'Fitness', targetDate: '2026-10-15', progress: 60, targetValue: 100, currentValue: 60, unit: '%', status: 'IN_PROGRESS' },
-    { id: '4', title: 'Master Distributed Systems with Java & Go', category: 'Learning', targetDate: '2026-10-01', progress: 90, targetValue: 100, currentValue: 90, unit: '%', status: 'NEAR_COMPLETION' }
-  ],
-  tasks: [
-    { id: '1', title: 'Connect Spring Boot to MongoDB Atlas Cluster', priority: 'HIGH', category: 'Development', completed: false, dueDate: '2026-09-09' },
-    { id: '2', title: 'Review Personal Tracker Github Repository remote sync', priority: 'HIGH', category: 'DevOps', completed: true, dueDate: '2026-09-08' },
-    { id: '3', title: 'Configure monthly recurring savings transfer', priority: 'MEDIUM', category: 'Finance', completed: false, dueDate: '2026-09-10' },
-    { id: '4', title: 'Write unit tests for Spring Boot Mongo controllers', priority: 'MEDIUM', category: 'Development', completed: false, dueDate: '2026-09-11' },
-    { id: '5', title: 'Order electrolyte supplements for marathon training', priority: 'LOW', category: 'Health', completed: true, dueDate: '2026-09-07' }
-  ]
 };
 
-// Initialize localStorage if empty
-const getLocal = <K extends keyof InitialStorage>(key: K): InitialStorage[K] => {
-  const data = localStorage.getItem(`pt_${key}`);
+const SEED_DATA: StorageMap = {
+  dashboard: SEED_DASHBOARD,
+  expenses: SEED_EXPENSES,
+  habits: SEED_HABITS,
+  goals: SEED_GOALS,
+  tasks: SEED_TASKS,
+};
+
+/** Read from localStorage with automatic seed initialization */
+const getLocal = <K extends keyof StorageMap>(key: K): StorageMap[K] => {
+  const storageKey = `pt_${key}`;
+  const data = localStorage.getItem(storageKey);
+
   if (!data) {
-    localStorage.setItem(`pt_${key}`, JSON.stringify(initialStorage[key]));
-    return initialStorage[key];
+    localStorage.setItem(storageKey, JSON.stringify(SEED_DATA[key]));
+    return SEED_DATA[key];
   }
+
   try {
     return JSON.parse(data);
-  } catch (e) {
-    return initialStorage[key];
+  } catch {
+    return SEED_DATA[key];
   }
 };
 
-const setLocal = <K extends keyof InitialStorage>(key: K, val: InitialStorage[K]): void => {
+/** Write to localStorage */
+const setLocal = <K extends keyof StorageMap>(key: K, val: StorageMap[K]): void => {
   localStorage.setItem(`pt_${key}`, JSON.stringify(val));
 };
 
-// Check backend connectivity
+// ─── Backend Health Check ─────────────────────────────────────────────────────
+
 export const checkBackendHealth = async (): Promise<BackendHealth> => {
   try {
-    const res = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(1500) });
+    const res = await fetch(`${apiClient.defaults.baseURL}/health`, {
+      signal: AbortSignal.timeout(1500),
+    });
     if (res.ok) {
       const data = await res.json();
       return { connected: true, mode: 'remote', ...data };
     }
     return { connected: false, mode: 'local' };
-  } catch (err) {
+  } catch {
     return { connected: false, mode: 'local' };
   }
 };
 
+// ─── API Methods ──────────────────────────────────────────────────────────────
+
 export const api = {
-  // Expenses API
+  // ── Expenses ──────────────────────────────────────────────────────────────
+
   getExpenses: async (): Promise<Expense[]> => {
     try {
-      const res = await fetch(`${API_BASE}/expenses`, { signal: AbortSignal.timeout(2000) });
-      if (res.ok) return await res.json();
-    } catch (e) {}
+      const { data } = await apiClient.get<Expense[]>('/expenses', { timeout: 2000 });
+      if (Array.isArray(data)) return data;
+    } catch { /* fallback below */ }
     return getLocal('expenses');
   },
 
   createExpense: async (expense: Omit<Expense, 'id'>): Promise<Expense> => {
     try {
-      const res = await fetch(`${API_BASE}/expenses`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(expense),
-      });
-      if (res.ok) return await res.json();
-    } catch (e) {}
+      const { data } = await apiClient.post<Expense>('/expenses', expense);
+      if (data) return data;
+    } catch { /* fallback below */ }
+
     const list = getLocal('expenses');
     const newItem: Expense = { ...expense, id: Date.now().toString() };
-    const updated = [newItem, ...list];
-    setLocal('expenses', updated);
+    setLocal('expenses', [newItem, ...list]);
     return newItem;
   },
 
   deleteExpense: async (id: string): Promise<boolean> => {
     try {
-      await fetch(`${API_BASE}/expenses/${id}`, { method: 'DELETE' });
-    } catch (e) {}
-    const list = getLocal('expenses').filter(x => x.id !== id);
+      await apiClient.delete(`/expenses/${id}`);
+    } catch { /* fallback below */ }
+
+    const list = getLocal('expenses').filter((x) => x.id !== id);
     setLocal('expenses', list);
     return true;
   },
 
-  // Habits API
+  // ── Habits ────────────────────────────────────────────────────────────────
+
   getHabits: async (): Promise<Habit[]> => {
     try {
-      const res = await fetch(`${API_BASE}/habits`, { signal: AbortSignal.timeout(2000) });
-      if (res.ok) return await res.json();
-    } catch (e) {}
+      const { data } = await apiClient.get<Habit[]>('/habits', { timeout: 2000 });
+      if (Array.isArray(data)) return data;
+    } catch { /* fallback below */ }
     return getLocal('habits');
   },
 
   toggleHabit: async (id: string): Promise<Habit> => {
     try {
-      const res = await fetch(`${API_BASE}/habits/${id}/toggle`, { method: 'POST' });
-      if (res.ok) return await res.json();
-    } catch (e) {}
+      const { data } = await apiClient.post<Habit>(`/habits/${id}/toggle`);
+      if (data) return data;
+    } catch { /* fallback below */ }
+
     const list = getLocal('habits');
-    const updated = list.map(h => {
-      if (h.id === id) {
-        const nextState = !h.completedToday;
-        const nextStreak = nextState ? h.streak + 1 : Math.max(0, h.streak - 1);
-        const nextHist = [...h.history.slice(1), nextState ? 1 : 0];
-        return { ...h, completedToday: nextState, streak: nextStreak, history: nextHist };
-      }
-      return h;
+    const updated = list.map((h) => {
+      if (h.id !== id) return h;
+      const nextState = !h.completedToday;
+      return {
+        ...h,
+        completedToday: nextState,
+        streak: nextState ? h.streak + 1 : Math.max(0, h.streak - 1),
+        history: [...h.history.slice(1), nextState ? 1 : 0],
+      };
     });
     setLocal('habits', updated);
-    const result = updated.find(h => h.id === id);
+
+    const result = updated.find((h) => h.id === id);
     if (!result) throw new Error('Habit not found');
     return result;
   },
 
   createHabit: async (habit: Pick<Habit, 'title' | 'category' | 'targetFrequency'>): Promise<Habit> => {
     try {
-      const res = await fetch(`${API_BASE}/habits`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(habit),
-      });
-      if (res.ok) return await res.json();
-    } catch (e) {}
+      const { data } = await apiClient.post<Habit>('/habits', habit);
+      if (data) return data;
+    } catch { /* fallback below */ }
+
     const list = getLocal('habits');
     const newItem: Habit = {
       ...habit,
       id: Date.now().toString(),
       streak: 1,
       completedToday: true,
-      history: [0, 0, 0, 0, 0, 0, 1]
+      history: [0, 0, 0, 0, 0, 0, 1],
     };
-    const updated = [...list, newItem];
-    setLocal('habits', updated);
+    setLocal('habits', [...list, newItem]);
     return newItem;
   },
 
-  // Goals API
+  // ── Goals ─────────────────────────────────────────────────────────────────
+
   getGoals: async (): Promise<Goal[]> => {
     try {
-      const res = await fetch(`${API_BASE}/goals`, { signal: AbortSignal.timeout(2000) });
-      if (res.ok) return await res.json();
-    } catch (e) {}
+      const { data } = await apiClient.get<Goal[]>('/goals', { timeout: 2000 });
+      if (Array.isArray(data)) return data;
+    } catch { /* fallback below */ }
     return getLocal('goals');
   },
 
   updateGoalProgress: async (id: string, newProgress: number): Promise<Goal> => {
     try {
-      const res = await fetch(`${API_BASE}/goals/${id}/progress?value=${newProgress}`, { method: 'PATCH' });
-      if (res.ok) return await res.json();
-    } catch (e) {}
+      const { data } = await apiClient.patch<Goal>(`/goals/${id}/progress?value=${newProgress}`);
+      if (data) return data;
+    } catch { /* fallback below */ }
+
     const list = getLocal('goals');
-    const updated = list.map(g => g.id === id ? { ...g, progress: Math.min(100, Math.max(0, newProgress)) } : g);
+    const updated = list.map((g) =>
+      g.id === id ? { ...g, progress: Math.min(100, Math.max(0, newProgress)) } : g
+    );
     setLocal('goals', updated);
-    const result = updated.find(g => g.id === id);
+
+    const result = updated.find((g) => g.id === id);
     if (!result) throw new Error('Goal not found');
     return result;
   },
 
   createGoal: async (goal: Omit<Goal, 'id'>): Promise<Goal> => {
     try {
-      const res = await fetch(`${API_BASE}/goals`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(goal),
-      });
-      if (res.ok) return await res.json();
-    } catch (e) {}
+      const { data } = await apiClient.post<Goal>('/goals', goal);
+      if (data) return data;
+    } catch { /* fallback below */ }
+
     const list = getLocal('goals');
     const newItem: Goal = { ...goal, id: Date.now().toString(), status: 'IN_PROGRESS' };
-    const updated = [...list, newItem];
-    setLocal('goals', updated);
+    setLocal('goals', [...list, newItem]);
     return newItem;
   },
 
-  // Tasks API
+  // ── Tasks ─────────────────────────────────────────────────────────────────
+
   getTasks: async (): Promise<TaskItem[]> => {
     try {
-      const res = await fetch(`${API_BASE}/tasks`, { signal: AbortSignal.timeout(2000) });
-      if (res.ok) return await res.json();
-    } catch (e) {}
+      const { data } = await apiClient.get<TaskItem[]>('/tasks', { timeout: 2000 });
+      if (Array.isArray(data)) return data;
+    } catch { /* fallback below */ }
     return getLocal('tasks');
   },
 
   toggleTask: async (id: string): Promise<TaskItem> => {
     try {
-      const res = await fetch(`${API_BASE}/tasks/${id}/toggle`, { method: 'POST' });
-      if (res.ok) return await res.json();
-    } catch (e) {}
+      const { data } = await apiClient.post<TaskItem>(`/tasks/${id}/toggle`);
+      if (data) return data;
+    } catch { /* fallback below */ }
+
     const list = getLocal('tasks');
-    const updated = list.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
+    const updated = list.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t));
     setLocal('tasks', updated);
-    const result = updated.find(t => t.id === id);
+
+    const result = updated.find((t) => t.id === id);
     if (!result) throw new Error('Task not found');
     return result;
   },
 
   createTask: async (task: Omit<TaskItem, 'id' | 'completed'>): Promise<TaskItem> => {
     try {
-      const res = await fetch(`${API_BASE}/tasks`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(task),
-      });
-      if (res.ok) return await res.json();
-    } catch (e) {}
+      const { data } = await apiClient.post<TaskItem>('/tasks', task);
+      if (data) return data;
+    } catch { /* fallback below */ }
+
     const list = getLocal('tasks');
     const newItem: TaskItem = { ...task, id: Date.now().toString(), completed: false };
-    const updated = [newItem, ...list];
-    setLocal('tasks', updated);
+    setLocal('tasks', [newItem, ...list]);
     return newItem;
   },
 
   deleteTask: async (id: string): Promise<boolean> => {
     try {
-      await fetch(`${API_BASE}/tasks/${id}`, { method: 'DELETE' });
-    } catch (e) {}
-    const list = getLocal('tasks').filter(t => t.id !== id);
+      await apiClient.delete(`/tasks/${id}`);
+    } catch { /* fallback below */ }
+
+    const list = getLocal('tasks').filter((t) => t.id !== id);
     setLocal('tasks', list);
     return true;
-  }
+  },
 };
