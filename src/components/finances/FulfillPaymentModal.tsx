@@ -33,16 +33,15 @@ export default function FulfillPaymentModal({
 
   const planned = Number(plan.plannedAmount) || 0;
   const currentPaidNum = Math.max(0, parseFloat(paidAmountStr) || 0);
+  const isOverpaid = currentPaidNum > planned;
+  const extraAmount = Math.max(0, currentPaidNum - planned);
   const remaining = Math.max(0, planned - currentPaidNum);
 
   const handleToggleFulfilled = (fulfilled: boolean) => {
     setIsFulfilled(fulfilled);
     if (fulfilled) {
-      setPaidAmountStr(String(planned));
-    } else {
-      // If was full, reset to 0 or keep partial
-      if (currentPaidNum >= planned) {
-        setPaidAmountStr('0');
+      if (!paidAmountStr || currentPaidNum === 0) {
+        setPaidAmountStr(String(planned));
       }
     }
   };
@@ -59,7 +58,7 @@ export default function FulfillPaymentModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const finalPaid = isFulfilled ? planned : Math.min(planned, currentPaidNum);
+    const finalPaid = Math.max(0, parseFloat(paidAmountStr) || 0);
     const finalFulfilled = isFulfilled || finalPaid >= planned;
     onSave(plan.id, finalFulfilled, finalPaid);
     onClose();
@@ -72,12 +71,12 @@ export default function FulfillPaymentModal({
         {/* Modal Header */}
         <div className="modal-header-row">
           <div className="modal-header-with-icon">
-            <div className={`modal-icon-badge ${isFulfilled ? 'fulfilled-badge' : 'pending-badge'}`}>
-              {isFulfilled ? <CheckCircle2 size={22} /> : <Clock size={22} />}
+            <div className={`modal-icon-badge ${isOverpaid ? 'overpaid-badge' : (isFulfilled ? 'fulfilled-badge' : 'pending-badge')}`}>
+              {isOverpaid ? <AlertCircle size={22} /> : (isFulfilled ? <CheckCircle2 size={22} /> : <Clock size={22} />)}
             </div>
             <div>
               <h3 className="modal-title-main">Fulfillment & Payment</h3>
-              <div className="modal-subtitle-schema">Track if fulfilled or how much you paid (in SAR)</div>
+              <div className="modal-subtitle-schema">Track actual amount paid and budget variance in SAR</div>
             </div>
           </div>
           <button onClick={onClose} className="btn-icon" aria-label="Close modal">
@@ -91,11 +90,11 @@ export default function FulfillPaymentModal({
           <div className="fulfill-summary-card">
             <div className="fulfill-summary-top">
               <div className="fulfill-item-title">{plan.title}</div>
-              <span className="badge badge-category-soft">{plan.category}</span>
+              {plan.category && <span className="badge badge-category-soft">{plan.category}</span>}
             </div>
             <div className="fulfill-summary-row">
               <span className="fulfill-summary-lbl">Planned Budget:</span>
-              <span className="fulfill-summary-val">SAR {planned.toFixed(2)}</span>
+              <span className="fulfill-summary-val font-semibold">SAR {planned.toFixed(2)}</span>
             </div>
             <div className="fulfill-summary-row">
               <span className="fulfill-summary-lbl">Target Period:</span>
@@ -113,7 +112,7 @@ export default function FulfillPaymentModal({
                 className={`fulfill-toggle-btn ${isFulfilled ? 'active-yes' : ''}`}
               >
                 <CheckCircle2 size={18} />
-                <span>Yes, Fulfilled</span>
+                <span>Yes, Complete / Fulfilled</span>
               </button>
               <button
                 type="button"
@@ -121,83 +120,96 @@ export default function FulfillPaymentModal({
                 className={`fulfill-toggle-btn ${!isFulfilled ? 'active-no' : ''}`}
               >
                 <Clock size={18} />
-                <span>No, Not Fulfilled</span>
+                <span>No, Not Yet Fulfilled</span>
               </button>
             </div>
           </div>
 
-          {/* Question 2: If not fulfilled, How much I paid? */}
-          {!isFulfilled && (
-            <div className="fulfill-unfulfilled-section">
-              <div className="form-group-custom">
-                <div className="fulfill-paid-label-row">
-                  <label className="form-label-custom">How much did you pay so far?</label>
+          {/* Question 2: How much was actually paid? */}
+          <div className="fulfill-unfulfilled-section">
+            <div className="form-group-custom">
+              <div className="fulfill-paid-label-row">
+                <label className="form-label-custom">
+                  Actual Amount Paid (SAR)
+                </label>
+                {isOverpaid ? (
+                  <span className="fulfill-extra-hint">
+                    +SAR {extraAmount.toFixed(2)} Extra (Over Budget)
+                  </span>
+                ) : remaining > 0 ? (
                   <span className="fulfill-remaining-hint">
                     Remaining: <strong>SAR {remaining.toFixed(2)}</strong>
                   </span>
-                </div>
-
-                <div className="input-prefix-container">
-                  <span className="input-prefix-tag">SAR</span>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    max={planned}
-                    value={paidAmountStr}
-                    onChange={e => setPaidAmountStr(e.target.value)}
-                    placeholder="0.00"
-                    className="form-input-custom input-with-prefix"
-                    autoFocus
-                  />
-                </div>
+                ) : (
+                  <span className="fulfill-remaining-hint text-emerald">
+                    ✓ Full Budget Paid
+                  </span>
+                )}
               </div>
 
-              {/* Quick Preset Buttons */}
-              <div className="fulfill-presets-row">
-                <button
-                  type="button"
-                  onClick={() => handlePresetPercentage(0)}
-                  className="btn-preset"
-                >
-                  Unpaid (0)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handlePresetPercentage(0.25)}
-                  className="btn-preset"
-                >
-                  25%
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handlePresetPercentage(0.5)}
-                  className="btn-preset"
-                >
-                  50% (Half)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handlePresetPercentage(0.75)}
-                  className="btn-preset"
-                >
-                  75%
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleToggleFulfilled(true)}
-                  className="btn-preset preset-full"
-                >
-                  100% (Full)
-                </button>
+              <div className="input-prefix-container">
+                <span className="input-prefix-tag">SAR</span>
+                <input
+                  type="number"
+                  step="any"
+                  min="0"
+                  value={paidAmountStr}
+                  onChange={e => setPaidAmountStr(e.target.value)}
+                  placeholder="0.00"
+                  className={`form-input-custom input-with-prefix ${isOverpaid ? 'input-overpaid' : ''}`}
+                  autoFocus
+                />
               </div>
+            </div>
 
-              {/* Live Status Preview */}
+            {/* Quick Preset Buttons */}
+            <div className="fulfill-presets-row">
+              <button
+                type="button"
+                onClick={() => handlePresetPercentage(0)}
+                className="btn-preset"
+              >
+                Unpaid (0)
+              </button>
+              <button
+                type="button"
+                onClick={() => handlePresetPercentage(0.5)}
+                className="btn-preset"
+              >
+                50% (SAR {(planned * 0.5).toFixed(2)})
+              </button>
+              <button
+                type="button"
+                onClick={() => handlePresetPercentage(1)}
+                className="btn-preset preset-full"
+              >
+                Planned (SAR {planned.toFixed(2)})
+              </button>
+            </div>
+
+            {/* Dynamic Status Preview Banner */}
+            {isOverpaid ? (
+              <div className="fulfill-extra-banner">
+                <AlertCircle size={20} className="banner-icon text-amber" />
+                <div>
+                  <strong>Over Planned Budget by +SAR {extraAmount.toFixed(2)} Extra!</strong>
+                  <p>You budgeted SAR {planned.toFixed(2)} but ended up paying SAR {currentPaidNum.toFixed(2)}. This extra payment will be tracked accurately.</p>
+                </div>
+              </div>
+            ) : isFulfilled && currentPaidNum === planned ? (
+              <div className="fulfill-complete-banner">
+                <CheckCircle2 size={20} className="banner-icon" />
+                <div>
+                  <strong>Marked as Complete!</strong>
+                  <p>All SAR {planned.toFixed(2)} has been recorded as paid in full.</p>
+                </div>
+              </div>
+            ) : currentPaidNum > 0 && currentPaidNum < planned ? (
               <div className="fulfill-status-preview-box">
                 <div className="preview-row">
-                  <span>Status:</span>
-                  <span className={`badge ${currentPaidNum > 0 ? 'badge-amber' : 'badge-subtle'}`}>
-                    {currentPaidNum > 0 ? `Partially Paid (${Math.round((currentPaidNum / planned) * 100)}%)` : 'Not Fulfilled (Unpaid)'}
+                  <span>Payment Progress:</span>
+                  <span className="badge badge-amber">
+                    Partially Paid ({Math.round((currentPaidNum / planned) * 100)}%)
                   </span>
                 </div>
                 <div className="preview-row">
@@ -209,18 +221,8 @@ export default function FulfillPaymentModal({
                   <span className="preview-val-remaining">SAR {remaining.toFixed(2)}</span>
                 </div>
               </div>
-            </div>
-          )}
-
-          {isFulfilled && (
-            <div className="fulfill-complete-banner">
-              <CheckCircle2 size={20} className="banner-icon" />
-              <div>
-                <strong>Marked as Complete!</strong>
-                <p>All SAR {planned.toFixed(2)} has been recorded as paid in full.</p>
-              </div>
-            </div>
-          )}
+            ) : null}
+          </div>
 
           {/* Action Footer */}
           <div className="modal-actions-footer">
@@ -228,7 +230,7 @@ export default function FulfillPaymentModal({
               Cancel
             </button>
             <button type="submit" className="btn btn-primary">
-              Save Fulfillment
+              Save Payment
             </button>
           </div>
 

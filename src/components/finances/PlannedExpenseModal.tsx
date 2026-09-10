@@ -22,9 +22,17 @@ export default function PlannedExpenseModal({
   initialYear = 2026,
   initialPlan = null
 }: PlannedExpenseModalProps) {
+  // Use categories from Expense Tracked (Debit / Expense categories)
+  const expenseCategories = React.useMemo(() => {
+    const debits = categories.filter(c => !c.type || String(c.type).toUpperCase() === 'DEBIT');
+    return debits.length > 0 ? debits : categories;
+  }, [categories]);
+
+  const defaultCategory = expenseCategories[0]?.name || 'Grocery';
+
   const [form, setForm] = useState({
     title: '',
-    category: categories[0]?.name || 'Grocery',
+    category: defaultCategory,
     month: initialMonth,
     year: initialYear,
     plannedAmount: '',
@@ -40,7 +48,7 @@ export default function PlannedExpenseModal({
         const fulfilled = initialPlan.isFulfilled ?? (initialPlan.status === 'Fulfilled');
         setForm({
           title: initialPlan.title,
-          category: initialPlan.category,
+          category: initialPlan.category || defaultCategory,
           month: initialPlan.month,
           year: initialPlan.year,
           plannedAmount: String(initialPlan.plannedAmount),
@@ -52,7 +60,7 @@ export default function PlannedExpenseModal({
       } else {
         setForm({
           title: '',
-          category: categories[0]?.name || 'Grocery',
+          category: defaultCategory,
           month: initialMonth,
           year: initialYear,
           plannedAmount: '',
@@ -63,7 +71,7 @@ export default function PlannedExpenseModal({
         });
       }
     }
-  }, [isOpen, initialPlan, initialMonth, initialYear, categories]);
+  }, [isOpen, initialPlan, initialMonth, initialYear, defaultCategory]);
 
   if (!isOpen) return null;
 
@@ -72,27 +80,33 @@ export default function PlannedExpenseModal({
   const remaining = Math.max(0, plannedNum - (form.isFulfilled ? plannedNum : paidNum));
 
   const handleToggleFulfilled = (fulfilled: boolean) => {
-    setForm(prev => ({
-      ...prev,
-      isFulfilled: fulfilled,
-      paidAmount: fulfilled ? prev.plannedAmount : (paidNum >= plannedNum ? '0' : prev.paidAmount)
-    }));
+    setForm(prev => {
+      let newPaid = prev.paidAmount;
+      if (fulfilled && (!newPaid || parseFloat(newPaid) === 0)) {
+        newPaid = prev.plannedAmount;
+      }
+      return {
+        ...prev,
+        isFulfilled: fulfilled,
+        paidAmount: newPaid
+      };
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.title.trim() || !form.category || !form.plannedAmount || Number(form.plannedAmount) <= 0) return;
+    if (!form.title.trim() || !form.plannedAmount || Number(form.plannedAmount) <= 0) return;
 
     const plannedAmt = Math.abs(parseFloat(form.plannedAmount));
-    const paidAmt = form.isFulfilled ? plannedAmt : Math.max(0, parseFloat(form.paidAmount) || 0);
+    const paidAmt = Math.max(0, parseFloat(form.paidAmount) || 0);
     const finalFulfilled = form.isFulfilled || paidAmt >= plannedAmt;
-    const finalStatus: PlannedExpenseStatus = finalFulfilled 
-      ? 'Fulfilled' 
+    const finalStatus: PlannedExpenseStatus = finalFulfilled
+      ? 'Fulfilled'
       : (paidAmt > 0 ? 'Partial' : 'Planned');
 
     onSubmit({
       title: form.title.trim(),
-      category: form.category,
+      category: form.category || undefined,
       month: form.month,
       year: Number(form.year),
       plannedAmount: plannedAmt,
@@ -109,7 +123,7 @@ export default function PlannedExpenseModal({
   return (
     <div className="modal-overlay-backdrop">
       <div className="glass-panel modal-content-card">
-        
+
         {/* Header */}
         <div className="modal-header-row">
           <div className="modal-header-with-icon">
@@ -120,7 +134,6 @@ export default function PlannedExpenseModal({
               <h3 className="modal-title-main">
                 {initialPlan ? 'Edit Planned Expense' : 'Add Planned Expense'}
               </h3>
-              <div className="modal-subtitle-schema">Budget Planning in Saudi Riyals (SAR)</div>
             </div>
           </div>
           <button onClick={onClose} className="btn-icon" aria-label="Close modal">
@@ -129,7 +142,7 @@ export default function PlannedExpenseModal({
         </div>
 
         <form onSubmit={handleSubmit} className="modal-form-vertical">
-          
+
           {/* Title */}
           <div className="form-group-custom">
             <label className="form-label-custom">Expense Title / Item</label>
@@ -152,8 +165,9 @@ export default function PlannedExpenseModal({
                 value={form.category}
                 onChange={e => setForm(prev => ({ ...prev, category: e.target.value }))}
                 className="form-input-custom select-custom"
+                required
               >
-                {categories.map(c => (
+                {expenseCategories.map(c => (
                   <option key={c.id || c._id || c.name} value={c.name}>
                     {c.name}
                   </option>
@@ -238,34 +252,39 @@ export default function PlannedExpenseModal({
               </button>
             </div>
 
-            {/* If Not Fulfilled: How much I paid */}
-            {!form.isFulfilled ? (
-              <div className="fulfill-partial-input-wrap">
-                <div className="fulfill-paid-label-row">
-                  <label className="form-label-custom">If not, how much did you pay? (SAR)</label>
+            {/* Amount Paid Section */}
+            <div className="fulfill-partial-input-wrap">
+              <div className="fulfill-paid-label-row">
+                <label className="form-label-custom">
+                  {form.isFulfilled ? 'Actual Amount Paid (SAR)' : 'Amount Paid So Far (SAR)'}
+                </label>
+                {paidNum > plannedNum ? (
+                  <span className="fulfill-extra-hint">
+                    +SAR {(paidNum - plannedNum).toFixed(2)} Extra (Over Budget)
+                  </span>
+                ) : remaining > 0 ? (
                   <span className="fulfill-remaining-hint">
                     Remaining: <strong>SAR {remaining.toFixed(2)}</strong>
                   </span>
-                </div>
-                <div className="currency-input-wrap">
-                  <span className="currency-symbol-prefix">SAR</span>
-                  <input
-                    type="number"
-                    step="any"
-                    min="0"
-                    max={plannedNum || undefined}
-                    value={form.paidAmount}
-                    onChange={e => setForm(prev => ({ ...prev, paidAmount: e.target.value }))}
-                    placeholder="0.00"
-                    className="form-input-custom input-with-prefix"
-                  />
-                </div>
+                ) : (
+                  <span className="fulfill-remaining-hint text-emerald">
+                    ✓ Full Budget Paid
+                  </span>
+                )}
               </div>
-            ) : (
-              <div className="fulfill-quick-note">
-                ✓ Recorded as 100% complete (Paid SAR {plannedNum.toFixed(2)})
+              <div className="currency-input-wrap">
+                <span className="currency-symbol-prefix">SAR</span>
+                <input
+                  type="number"
+                  step="any"
+                  min="0"
+                  value={form.paidAmount}
+                  onChange={e => setForm(prev => ({ ...prev, paidAmount: e.target.value }))}
+                  placeholder="0.00"
+                  className={`form-input-custom input-with-prefix ${paidNum > plannedNum ? 'input-overpaid' : ''}`}
+                />
               </div>
-            )}
+            </div>
           </div>
 
           {/* Due Date (Optional) */}

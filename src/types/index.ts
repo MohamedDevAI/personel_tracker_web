@@ -26,6 +26,7 @@ export interface Transaction {
   amountSar?: number;
   type: TransactionType;
   createdAt?: string;
+  plannedExpenseId?: string;
 }
 
 export interface DashboardSummary {
@@ -132,7 +133,7 @@ export type PlannedExpenseStatus = 'Planned' | 'Fulfilled' | 'Pending' | 'Overdu
 export interface PlannedExpense {
   id: string;
   title: string;
-  category: string;
+  category?: string;
   month: string; // e.g. "Jul"
   year: number;  // e.g. 2026
   plannedAmount: number; // in SAR

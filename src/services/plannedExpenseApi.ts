@@ -12,9 +12,13 @@ export const plannedExpenseApi = {
       if (month && month !== 'ALL') params.month = month;
       if (year) params.year = year;
       const res = await axios.get<PlannedExpense[]>(`${API_BASE}/finance_planned`, { params, timeout: 6000 });
-      if (Array.isArray(res.data) && res.data.length > 0) {
-        // Cache in localStorage for offline availability
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(res.data));
+      if (Array.isArray(res.data)) {
+        // Cache in localStorage for offline availability (merge by id so other months aren't lost)
+        const currentStored = plannedExpenseApi.getPlannedExpenses();
+        const map = new Map<string, PlannedExpense>();
+        currentStored.forEach(p => map.set(p.id, p));
+        res.data.forEach(p => map.set(p.id, p));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(map.values())));
         return res.data;
       }
     } catch (err) {
@@ -85,13 +89,20 @@ export const plannedExpenseApi = {
     return localPlan;
   },
 
-  // Update planned expense in MongoDB
-  updatePlannedExpense: async (id: string, updates: Partial<PlannedExpense>): Promise<PlannedExpense | null> => {
+  // Update planned expense in MongoDB with full payload preservation
+  updatePlannedExpense: async (id: string, updates: Partial<PlannedExpense>, fallbackBase?: PlannedExpense): Promise<PlannedExpense> => {
+    const all = plannedExpenseApi.getPlannedExpenses();
+    const existing = fallbackBase || all.find(p => p.id === id);
+    const merged = { ...(existing || {}), ...updates, id };
+
     try {
-      const res = await axios.put<PlannedExpense>(`${API_BASE}/finance_planned/${id}`, updates, { timeout: 6000 });
+      const res = await axios.put<PlannedExpense>(`${API_BASE}/finance_planned/${id}`, merged, { timeout: 6000 });
       if (res.data) {
-        const all = plannedExpenseApi.getPlannedExpenses().map(p => p.id === id ? res.data : p);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+        const updatedList = all.map(p => p.id === id ? res.data : p);
+        if (!all.some(p => p.id === id)) {
+          updatedList.push(res.data);
+        }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
         return res.data;
       }
     } catch (err) {
@@ -99,9 +110,12 @@ export const plannedExpenseApi = {
     }
 
     // Local fallback
-    const all = plannedExpenseApi.getPlannedExpenses();
     const index = all.findIndex(p => p.id === id);
-    if (index === -1) return null;
+    if (index === -1) {
+      const fullPlan = merged as PlannedExpense;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([...all, fullPlan]));
+      return fullPlan;
+    }
     const updated = { ...all[index], ...updates };
     all[index] = updated;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
@@ -120,12 +134,29 @@ export const plannedExpenseApi = {
   },
 
   // Set fulfillment and payment
-  setFulfillmentAndPayment: async (id: string, isFulfilled: boolean, paidAmount?: number): Promise<PlannedExpense | null> => {
-    return plannedExpenseApi.updatePlannedExpense(id, {
-      isFulfilled,
-      paidAmount,
-      status: isFulfilled ? 'Fulfilled' : ((paidAmount ?? 0) > 0 ? 'Partial' : 'Planned')
-    });
+  setFulfillmentAndPayment: async (
+    id: string, 
+    isFulfilled: boolean, 
+    paidAmount?: number,
+    existingPlan?: PlannedExpense
+  ): Promise<PlannedExpense> => {
+    const current = existingPlan || plannedExpenseApi.getPlannedExpenses().find(p => p.id === id);
+    const plannedAmt = current?.plannedAmount || 0;
+    const finalPaid = paidAmount !== undefined && paidAmount !== null
+      ? Math.max(0, Number(paidAmount))
+      : (isFulfilled ? plannedAmt : 0);
+    const finalFulfilled = isFulfilled || finalPaid >= plannedAmt;
+    const status = finalFulfilled 
+      ? 'Fulfilled' 
+      : (finalPaid > 0 ? 'Partial' : 'Planned');
+
+    const updates: Partial<PlannedExpense> = {
+      ...(current || {}),
+      isFulfilled: finalFulfilled,
+      paidAmount: finalPaid,
+      status
+    };
+    return plannedExpenseApi.updatePlannedExpense(id, updates, current);
   },
 
   // Calculate monthly summary
@@ -149,13 +180,28 @@ export const plannedExpenseApi = {
     const totalPlanned = plans.reduce((acc, p) => acc + Number(p.plannedAmount || 0), 0);
 
     const totalPaid = plans.reduce((acc, p) => {
-      if (p.isFulfilled || p.status === 'Fulfilled') {
-        return acc + Number(p.plannedAmount || 0);
-      }
-      return acc + Number(p.paidAmount || 0);
+      const paid = p.paidAmount !== undefined && p.paidAmount !== null 
+        ? Number(p.paidAmount) 
+        : (p.isFulfilled || p.status === 'Fulfilled' ? Number(p.plannedAmount || 0) : 0);
+      return acc + paid;
     }, 0);
 
-    const totalRemaining = Math.max(0, totalPlanned - totalPaid);
+    const totalRemaining = plans.reduce((acc, p) => {
+      const planned = Number(p.plannedAmount || 0);
+      const paid = p.paidAmount !== undefined && p.paidAmount !== null 
+        ? Number(p.paidAmount) 
+        : (p.isFulfilled || p.status === 'Fulfilled' ? planned : 0);
+      return acc + Math.max(0, planned - paid);
+    }, 0);
+
+    const totalOverpaid = plans.reduce((acc, p) => {
+      const planned = Number(p.plannedAmount || 0);
+      const paid = p.paidAmount !== undefined && p.paidAmount !== null 
+        ? Number(p.paidAmount) 
+        : (p.isFulfilled || p.status === 'Fulfilled' ? planned : 0);
+      return acc + Math.max(0, paid - planned);
+    }, 0);
+
     const fulfilledCount = plans.filter(p => p.isFulfilled || p.status === 'Fulfilled' || ((p.paidAmount ?? 0) >= p.plannedAmount)).length;
     const fulfillmentRate = totalPlanned > 0 ? Math.min(100, Math.round((totalPaid / totalPlanned) * 100)) : 0;
 
@@ -170,7 +216,9 @@ export const plannedExpenseApi = {
 
     const groupedPlans: Record<string, number> = {};
     for (const p of plans) {
-      groupedPlans[p.category] = (groupedPlans[p.category] || 0) + Number(p.plannedAmount || 0);
+      if (p.category && p.category.trim()) {
+        groupedPlans[p.category] = (groupedPlans[p.category] || 0) + Number(p.plannedAmount || 0);
+      }
     }
 
     for (const [cat, plannedAmt] of Object.entries(groupedPlans)) {
@@ -192,6 +240,7 @@ export const plannedExpenseApi = {
       totalPlanned,
       totalPaid,
       totalRemaining,
+      totalOverpaid,
       fulfilledCount,
       totalItems: plans.length,
       fulfillmentRate,

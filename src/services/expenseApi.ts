@@ -38,6 +38,11 @@ export const normalizeTransaction = (item: any): Transaction => {
     dateString = dateString.split('T')[0];
   }
 
+  const noteText = item.note || description;
+  const peMatch = (typeof noteText === 'string' ? noteText.match(/\[PE-([^\]]+)\]/) : null) || 
+                  (typeof description === 'string' ? description.match(/\[PE-([^\]]+)\]/) : null);
+  const plannedExpenseId = item.plannedExpenseId || (peMatch ? peMatch[1] : undefined);
+
   return {
     _id: typeof id === 'object' ? String(id) : id,
     id: typeof id === 'object' ? String(id) : id,
@@ -48,12 +53,13 @@ export const normalizeTransaction = (item: any): Transaction => {
     categoryId: item.categoryId || id,
     categoryName: category,
     description,
-    note: description,
+    note: noteText,
     paymentMethod,
     amount,
     amountSar: amount,
     type,
-    createdAt: item.createdAt || dateVal
+    createdAt: item.createdAt || dateVal,
+    plannedExpenseId
   };
 };
 
@@ -128,9 +134,10 @@ export const expenseApi = {
       amount: amountVal,
       amountSar: amountVal,
       description: transaction.description || transaction.note || 'Transaction',
-      note: transaction.description || transaction.note || 'Transaction',
+      note: transaction.note || transaction.description || 'Transaction',
       paymentMethod: transaction.paymentMethod || 'Account',
-      type: isCredit ? 'Credit' : 'Debit'
+      type: isCredit ? 'Credit' : 'Debit',
+      plannedExpenseId: transaction.plannedExpenseId
     };
 
     const { data } = await axios.post<any>(`${API_BASE}/transactions`, payload, { timeout: 6000 });

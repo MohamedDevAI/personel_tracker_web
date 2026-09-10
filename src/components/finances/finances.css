@@ -286,10 +286,21 @@
   border-left: 3px solid transparent;
 }
 
-.finance-kpi-credit { border-left-color: #10b981; }
-.finance-kpi-debit { border-left-color: #f43f5e; }
-.finance-kpi-savings { border-left-color: #06b6d4; }
-.finance-kpi-count { border-left-color: #6366f1; }
+.finance-kpi-credit {
+  border-left-color: #10b981;
+}
+
+.finance-kpi-debit {
+  border-left-color: #f43f5e;
+}
+
+.finance-kpi-savings {
+  border-left-color: #06b6d4;
+}
+
+.finance-kpi-count {
+  border-left-color: #6366f1;
+}
 
 .kpi-card-top {
   display: flex;
@@ -314,10 +325,25 @@
   justify-content: center;
 }
 
-.kpi-icon-credit { background: rgba(16, 185, 129, 0.15); color: #34d399; }
-.kpi-icon-debit { background: rgba(244, 63, 94, 0.15); color: #fb7185; }
-.kpi-icon-savings { background: rgba(6, 182, 212, 0.15); color: #22d3ee; }
-.kpi-icon-count { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; }
+.kpi-icon-credit {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+.kpi-icon-debit {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fb7185;
+}
+
+.kpi-icon-savings {
+  background: rgba(6, 182, 212, 0.15);
+  color: #22d3ee;
+}
+
+.kpi-icon-count {
+  background: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
+}
 
 .kpi-card-value {
   font-size: 1.55rem;
@@ -327,10 +353,21 @@
   letter-spacing: -0.01em;
 }
 
-.kpi-val-credit { color: #10b981; }
-.kpi-val-debit { color: #f43f5e; }
-.kpi-val-savings { color: #06b6d4; }
-.kpi-val-count { color: var(--text-primary); }
+.kpi-val-credit {
+  color: #10b981;
+}
+
+.kpi-val-debit {
+  color: #f43f5e;
+}
+
+.kpi-val-savings {
+  color: #06b6d4;
+}
+
+.kpi-val-count {
+  color: var(--text-primary);
+}
 
 .kpi-card-footer {
   font-size: 0.75rem;
@@ -598,8 +635,13 @@
   font-family: var(--font-display);
 }
 
-.tx-amount-credit { color: #10b981; }
-.tx-amount-debit { color: #f43f5e; }
+.tx-amount-credit {
+  color: #10b981;
+}
+
+.tx-amount-debit {
+  color: #f43f5e;
+}
 
 .tx-delete-action {
   text-align: center;
@@ -1736,6 +1778,7 @@
   border-radius: 10px;
   font-size: 0.88rem;
   cursor: pointer;
+  width: 10vw;
 }
 
 .month-year-select-bar {
@@ -2139,8 +2182,15 @@
 }
 
 @keyframes confirmPop {
-  0% { transform: scale(0.92); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0.92);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .confirm-modal-icon-wrap {
@@ -2567,11 +2617,128 @@
   color: #34d399 !important;
 }
 
+.text-amber {
+  color: #f59e0b !important;
+}
+
 .font-medium {
   font-weight: 500;
 }
 
+/* Overpaid / Extra Payment Tracking */
+.badge-overpaid {
+  background: rgba(245, 158, 11, 0.15) !important;
+  color: #fbbf24 !important;
+  border: 1px solid rgba(245, 158, 11, 0.35) !important;
+}
 
+.badge-overpaid:hover {
+  background: rgba(245, 158, 11, 0.25) !important;
+  border-color: #f59e0b !important;
+}
 
+.paid-amount-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
 
+.paid-over-val {
+  color: #fbbf24 !important;
+  font-weight: 700;
+}
 
+.badge-extra-pill {
+  font-size: 0.68rem;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(245, 158, 11, 0.16);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.remaining-over-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.over-indicator {
+  font-size: 0.68rem;
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+.card-overspent {
+  border-color: rgba(245, 158, 11, 0.35) !important;
+  background: rgba(245, 158, 11, 0.06) !important;
+}
+
+.kpi-meta-alert {
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+.fulfill-extra-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fbbf24;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  margin-top: 14px;
+}
+
+.fulfill-extra-banner strong {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 2px;
+  color: #fde68a;
+}
+
+.fulfill-extra-banner p {
+  margin: 0;
+  color: #fcd34d;
+}
+
+.fulfill-extra-hint {
+  font-size: 0.75rem;
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+.row-overpaid {
+  background: rgba(245, 158, 11, 0.03);
+}
+
+.input-overpaid {
+  border-color: rgba(245, 158, 11, 0.6) !important;
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.25) !important;
+}
+
+.overpaid-badge {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+}
+
+.badge-category-soft {
+  background: rgba(99, 102, 241, 0.12);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
