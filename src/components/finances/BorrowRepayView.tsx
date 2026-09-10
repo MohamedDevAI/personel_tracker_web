@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { BorrowRepayRecord, BorrowRepayType, PlannedRepayment, PlannedRepaymentStatus } from '../../types';
 import { borrowRepayApi } from '../../services/borrowRepayApi';
-import { MONTH_NAMES } from '../../services/expenseApi';
+import { MONTH_NAMES } from '../../utils/dateHelpers';
 import BorrowRepayModal from './BorrowRepayModal';
 import PlannedRepaymentModal from './PlannedRepaymentModal';
 import ConfirmDeleteModal from '../common/ConfirmDeleteModal';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
-import { MONTH_NAMES } from '../../services/expenseApi';
+import { MONTH_NAMES } from '../../utils/dateHelpers';
 
 interface MonthYearFilterProps {
   selectedYear: number;

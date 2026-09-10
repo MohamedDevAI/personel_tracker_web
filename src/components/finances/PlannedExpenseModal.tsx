@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Target, X, CheckCircle2, Clock } from 'lucide-react';
 import { Category, PlannedExpense, PlannedExpenseStatus } from '../../types';
-import { MONTH_NAMES } from '../../services/expenseApi';
+import { MONTH_NAMES } from '../../utils/dateHelpers';
 
 interface PlannedExpenseModalProps {
   isOpen: boolean;

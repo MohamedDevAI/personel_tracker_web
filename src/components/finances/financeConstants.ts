@@ -1,5 +1,5 @@
 import { Transaction } from '../../types';
-import { MONTH_NAMES } from '../../services/expenseApi';
+import { MONTH_NAMES } from '../../utils/dateHelpers';
 
 export const CATEGORY_PALETTE = [
   '#6366f1', // Indigo
