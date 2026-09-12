@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Target, X, CheckCircle2, Clock } from 'lucide-react';
 import { Category, PlannedExpense, PlannedExpenseStatus } from '../../types';
-import { MONTH_NAMES } from '../../utils/dateHelpers';
+import { MONTH_NAMES, getCurrentMonth, getCurrentYear } from '../../utils/dateHelpers';
 
 interface PlannedExpenseModalProps {
   isOpen: boolean;
@@ -18,8 +18,8 @@ export default function PlannedExpenseModal({
   onClose,
   onSubmit,
   categories = [],
-  initialMonth = 'Jul',
-  initialYear = 2026,
+  initialMonth = getCurrentMonth(),
+  initialYear = getCurrentYear(),
   initialPlan = null
 }: PlannedExpenseModalProps) {
   // Use categories from Expense Tracked (Debit / Expense categories)

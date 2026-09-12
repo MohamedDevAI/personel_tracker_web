@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { Category, TransactionType } from '../../types';
-import { MONTH_NAMES } from '../../utils/dateHelpers';
+import { MONTH_NAMES, getCurrentMonth } from '../../utils/dateHelpers';
 import { PAYMENT_METHODS } from './financeConstants';
 
 interface TransactionModalProps {
@@ -84,7 +84,7 @@ export default function TransactionModal({
 
   const handleDateChange = (dateVal: string) => {
     const d = new Date(dateVal);
-    const m = !isNaN(d.getTime()) ? MONTH_NAMES[d.getMonth()] : 'Mar';
+    const m = !isNaN(d.getTime()) ? MONTH_NAMES[d.getMonth()] : getCurrentMonth();
     setTxForm(prev => ({
       ...prev,
       date: dateVal,
@@ -113,7 +113,7 @@ export default function TransactionModal({
   return (
     <div className="modal-overlay-backdrop">
       <div className="glass-panel modal-content-card">
-        
+
         <div className="modal-header-row">
           <div>
             <h3 className="modal-title-main">Log Financial Transaction</h3>
@@ -123,7 +123,7 @@ export default function TransactionModal({
         </div>
 
         <form onSubmit={handleSubmit} className="modal-form-vertical">
-          
+
           {/* Type Switcher */}
           <div className="modal-type-buttons-grid">
             <button
@@ -147,21 +147,21 @@ export default function TransactionModal({
           <div className="modal-grid-2col">
             <div>
               <label className="modal-field-label">Date</label>
-              <input 
-                type="date" 
-                value={txForm.date} 
-                onChange={(e) => handleDateChange(e.target.value)} 
-                required 
-                className="modal-input-field" 
+              <input
+                type="date"
+                value={txForm.date}
+                onChange={(e) => handleDateChange(e.target.value)}
+                required
+                className="modal-input-field"
               />
             </div>
             <div>
               <label className="modal-field-label">Month (Auto)</label>
-              <input 
-                type="text" 
-                value={txForm.month} 
+              <input
+                type="text"
+                value={txForm.month}
                 readOnly
-                className="modal-readonly-input" 
+                className="modal-readonly-input"
               />
             </div>
           </div>
@@ -169,22 +169,22 @@ export default function TransactionModal({
           {/* Description */}
           <div>
             <label className="modal-field-label">Description / Title</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="e.g. Salary, Grocery run, Consulting invoice..."
-              value={txForm.description} 
-              onChange={(e) => setTxForm({...txForm, description: e.target.value})} 
-              required 
-              className="modal-input-field" 
+              value={txForm.description}
+              onChange={(e) => setTxForm({ ...txForm, description: e.target.value })}
+              required
+              className="modal-input-field"
             />
           </div>
 
           {/* Category from MongoDB collection */}
           <div>
             <label className="modal-field-label">Category (MongoDB Collection)</label>
-            <select 
-              value={txForm.category} 
-              onChange={(e) => setTxForm({...txForm, category: e.target.value})} 
+            <select
+              value={txForm.category}
+              onChange={(e) => setTxForm({ ...txForm, category: e.target.value })}
               className="modal-select-field"
             >
               {typeCategories.matching.length > 0 && (
@@ -209,7 +209,7 @@ export default function TransactionModal({
                 type="text"
                 placeholder="Enter new category name..."
                 value={txForm.customCategory}
-                onChange={(e) => setTxForm({...txForm, customCategory: e.target.value})}
+                onChange={(e) => setTxForm({ ...txForm, customCategory: e.target.value })}
                 required
                 className="modal-custom-input"
               />
@@ -220,9 +220,9 @@ export default function TransactionModal({
           <div className="modal-grid-equal">
             <div>
               <label className="modal-field-label">Payment Method</label>
-              <select 
-                value={txForm.paymentMethod} 
-                onChange={(e) => setTxForm({...txForm, paymentMethod: e.target.value})} 
+              <select
+                value={txForm.paymentMethod}
+                onChange={(e) => setTxForm({ ...txForm, paymentMethod: e.target.value })}
                 className="modal-select-field"
               >
                 {PAYMENT_METHODS.map(pm => (
@@ -233,14 +233,14 @@ export default function TransactionModal({
 
             <div>
               <label className="modal-field-label">Amount (SAR)</label>
-              <input 
-                type="number" 
-                step="0.01" 
+              <input
+                type="number"
+                step="0.01"
                 placeholder="e.g. 5000"
-                value={txForm.amount} 
-                onChange={(e) => setTxForm({...txForm, amount: e.target.value})} 
-                required 
-                className="modal-input-field" 
+                value={txForm.amount}
+                onChange={(e) => setTxForm({ ...txForm, amount: e.target.value })}
+                required
+                className="modal-input-field"
               />
             </div>
           </div>

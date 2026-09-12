@@ -5,7 +5,7 @@
 
 import { useState, useMemo, useCallback } from 'react';
 import { borrowRepayApi } from '../services/borrowRepayApi';
-import { parseDateMonthYear, MONTH_NAMES } from '../utils/dateHelpers';
+import { parseDateMonthYear, MONTH_NAMES, getCurrentMonth, getCurrentYear } from '../utils/dateHelpers';
 import { formatINR } from '../utils/formatters';
 import type {
   BorrowRepayRecord,
@@ -26,8 +26,8 @@ export function useBorrowRepay() {
 
   // ── Shared Filters ──────────────────────────────────────────────────────
 
-  const [selectedMonth, setSelectedMonth] = useState<string>('ALL');
-  const [selectedYear, setSelectedYear] = useState<string>('ALL');
+  const [selectedMonth, setSelectedMonth] = useState<string>(() => getCurrentMonth());
+  const [selectedYear, setSelectedYear] = useState<string>(() => String(getCurrentYear()));
   const [searchQuery, setSearchQuery] = useState('');
 
   // ── Credit Tracker State ────────────────────────────────────────────────
@@ -62,7 +62,7 @@ export function useBorrowRepay() {
       const { year } = parseDateMonthYear(p.targetDate);
       if (year) years.add(year);
     });
-    ['2024', '2025', '2026'].forEach((y) => years.add(y));
+    [String(getCurrentYear()), '2025', '2026'].forEach((y) => years.add(y));
     return Array.from(years).sort().reverse();
   }, [records, plannedRepayments]);
 
