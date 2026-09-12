@@ -1,6 +1,6 @@
 import React from 'react';
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
-import { MONTH_NAMES } from '../../services/expenseApi';
+import { MONTH_NAMES, getCurrentMonth, getCurrentYear } from '../../utils/dateHelpers';
 
 interface MonthYearFilterProps {
   selectedYear: number;
@@ -25,10 +25,14 @@ export default function MonthYearFilter({
   onPrevMonth,
   onNextMonth
 }: MonthYearFilterProps) {
+  const currentMonth = getCurrentMonth();
+  const currentYear = getCurrentYear();
+  const isCurrentActive = selectedYear === currentYear && selectedMonth === currentMonth;
+
   return (
     <div className="glass-panel month-filter-panel">
       <div className="month-filter-top-row">
-        
+
         {/* Year Controls */}
         <div className="month-filter-year-nav">
           <div className="year-indicator-chip">
@@ -37,16 +41,16 @@ export default function MonthYearFilter({
           </div>
 
           <div className="year-indicator-chip">
-            <button 
+            <button
               onClick={() => setSelectedYear(selectedYear - 1)}
-              className="btn-icon btn-nav-arrow" 
+              className="btn-icon btn-nav-arrow"
               title="Previous Year"
             >
               <ChevronLeft size={16} />
             </button>
-            
-            <select 
-              value={selectedYear} 
+
+            <select
+              value={selectedYear}
               onChange={(e) => setSelectedYear(Number(e.target.value))}
               className="year-select-dropdown"
             >
@@ -57,9 +61,9 @@ export default function MonthYearFilter({
               ))}
             </select>
 
-            <button 
+            <button
               onClick={() => setSelectedYear(selectedYear + 1)}
-              className="btn-icon btn-nav-arrow" 
+              className="btn-icon btn-nav-arrow"
               title="Next Year"
             >
               <ChevronRight size={16} />
@@ -67,11 +71,12 @@ export default function MonthYearFilter({
           </div>
 
           {/* Quick jump to Current Month */}
-          <button 
-            onClick={() => { setSelectedYear(2026); setSelectedMonth('Mar'); }}
-            className="btn btn-secondary btn-jump-current"
+          <button
+            onClick={() => { setSelectedYear(currentYear); setSelectedMonth(currentMonth); }}
+            className={`btn btn-secondary btn-jump-current ${isCurrentActive ? 'active' : ''}`}
+            title={`Jump to Current Month (${currentMonth} ${currentYear})`}
           >
-            Jump to Mar 2026
+            Current Month ({currentMonth} {currentYear})
           </button>
         </div>
 
@@ -81,16 +86,16 @@ export default function MonthYearFilter({
             Browsing: <strong className="month-browsing-strong">{selectedMonth === 'All' ? `Full Year ${selectedYear}` : `${selectedMonth} ${selectedYear}`}</strong>
           </div>
           <div className="month-nav-arrows">
-            <button 
-              onClick={onPrevMonth} 
-              className="btn-icon btn-nav-arrow" 
+            <button
+              onClick={onPrevMonth}
+              className="btn-icon btn-nav-arrow"
               title="Previous Month"
             >
               <ChevronLeft size={16} />
             </button>
-            <button 
-              onClick={onNextMonth} 
-              className="btn-icon btn-nav-arrow" 
+            <button
+              onClick={onNextMonth}
+              className="btn-icon btn-nav-arrow"
               title="Next Month"
             >
               <ChevronRight size={16} />

@@ -14,6 +14,12 @@ export const MONTH_NAMES = [
 
 export type MonthName = (typeof MONTH_NAMES)[number];
 
+/** Get current 4-digit year */
+export const getCurrentYear = (): number => new Date().getFullYear();
+
+/** Get current month 3-letter abbreviation (e.g. "Sep") */
+export const getCurrentMonth = (): MonthName => MONTH_NAMES[new Date().getMonth()];
+
 /** Get 0-based month index from abbreviation (e.g. "Mar" → 2). Returns -1 if invalid. */
 export const getMonthIndex = (monthName: string): number => {
   return MONTH_NAMES.findIndex(
@@ -33,8 +39,8 @@ export const getMonthName = (index: number): MonthName => {
  * Handles multiple backend date formats: "YYYY-MM-DD", ISO 8601, or pre-set `month` field.
  */
 export const parseTxDate = (tx: Transaction): { year: number; month: string } => {
-  let year = 2026;
-  let month = tx.month || 'Mar';
+  let year = getCurrentYear();
+  let month = tx.month || getCurrentMonth();
 
   const rawDate = tx.date || tx.transactionDate || '';
   if (typeof rawDate === 'string') {

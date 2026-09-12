@@ -6,19 +6,24 @@ import {
 } from 'lucide-react';
 import { BorrowRepayRecord, BorrowRepayType, PlannedRepayment, PlannedRepaymentStatus } from '../../types';
 import { borrowRepayApi } from '../../services/borrowRepayApi';
-import { MONTH_NAMES } from '../../services/expenseApi';
+import { MONTH_NAMES, getCurrentMonth, getCurrentYear } from '../../utils/dateHelpers';
 import BorrowRepayModal from './BorrowRepayModal';
 import PlannedRepaymentModal from './PlannedRepaymentModal';
 import ConfirmDeleteModal from '../common/ConfirmDeleteModal';
 
 type BorrowRepayStep = 'credit_tracker' | 'planned_repayment';
 
-export default function BorrowRepayView() {
+interface BorrowRepayViewProps {
+  initialMonth?: string;
+  initialYear?: string;
+}
+
+export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRepayViewProps = {}) {
   const [activeStep, setActiveStep] = useState<BorrowRepayStep>('credit_tracker');
 
-  // Month & Year Filter state (shared across both steps)
-  const [selectedMonth, setSelectedMonth] = useState<string>('ALL');
-  const [selectedYear, setSelectedYear] = useState<string>('ALL');
+  // Month & Year Filter state (shared across both steps) — defaults to Current Month
+  const [selectedMonth, setSelectedMonth] = useState<string>(() => initialMonth || getCurrentMonth());
+  const [selectedYear, setSelectedYear] = useState<string>(() => initialYear || String(getCurrentYear()));
 
   // Step 1 Data: Credit Tracker
   const [records, setRecords] = useState<BorrowRepayRecord[]>(() => borrowRepayApi.getRecords());
@@ -87,7 +92,7 @@ export default function BorrowRepayView() {
       if (year) years.add(year);
     });
     // Add default years if empty
-    ['2024', '2025', '2026'].forEach(y => years.add(y));
+    [String(getCurrentYear()), '2025', '2026'].forEach(y => years.add(y));
     return Array.from(years).sort().reverse();
   }, [records, plannedRepayments]);
 

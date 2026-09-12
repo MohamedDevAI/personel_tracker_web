@@ -1,6 +1,6 @@
 import React from 'react';
 import { Plus } from 'lucide-react';
-import { MONTH_NAMES } from '../../services/expenseApi';
+import { MONTH_NAMES } from '../../utils/dateHelpers';
 
 interface PlannedExpensesHeaderProps {
   selectedMonth: string;
@@ -17,6 +17,12 @@ export default function PlannedExpensesHeader({
   onYearChange,
   onAddPlan
 }: PlannedExpensesHeaderProps) {
+  const currentYear = new Date().getFullYear();
+  const yearOptions = React.useMemo(() => {
+    const set = new Set([currentYear - 2, currentYear - 1, currentYear, currentYear + 1, currentYear + 2, selectedYear]);
+    return Array.from(set).sort();
+  }, [currentYear, selectedYear]);
+
   return (
     <div className="planned-header-row">
       <div>
@@ -44,10 +50,9 @@ export default function PlannedExpensesHeader({
             className="select-custom-pill"
             title="Select Year"
           >
-            <option value={2024}>2024</option>
-            <option value={2025}>2025</option>
-            <option value={2026}>2026</option>
-            <option value={2027}>2027</option>
+            {yearOptions.map(y => (
+              <option key={y} value={y}>{y}</option>
+            ))}
           </select>
         </div>
 

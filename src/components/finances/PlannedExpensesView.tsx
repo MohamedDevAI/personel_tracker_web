@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Category, PlannedExpense, PlannedExpenseStatus, Transaction } from '../../types';
 import { plannedExpenseApi } from '../../services/plannedExpenseApi';
+import { getCurrentMonth, getCurrentYear } from '../../utils/dateHelpers';
 import PlannedExpenseModal from './PlannedExpenseModal';
 import FulfillPaymentModal from './FulfillPaymentModal';
 import ConfirmDeleteModal from '../common/ConfirmDeleteModal';
@@ -18,16 +19,20 @@ import {
 interface PlannedExpensesViewProps {
   categories?: Category[];
   transactions?: Transaction[];
+  initialMonth?: string;
+  initialYear?: number;
 }
 
 export default function PlannedExpensesView({
   categories = [],
-  transactions = []
+  transactions = [],
+  initialMonth,
+  initialYear
 }: PlannedExpensesViewProps) {
   const queryClient = useQueryClient();
 
-  const [selectedMonth, setSelectedMonth] = useState<string>('Jul');
-  const [selectedYear, setSelectedYear] = useState<number>(2026);
+  const [selectedMonth, setSelectedMonth] = useState<string>(() => initialMonth || getCurrentMonth());
+  const [selectedYear, setSelectedYear] = useState<number>(() => initialYear || getCurrentYear());
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | PlannedExpenseStatus>('ALL');
 

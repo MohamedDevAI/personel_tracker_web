@@ -6,26 +6,55 @@ import {
 import { Category, Transaction, DashboardSummary } from '../../types';
 import { borrowRepayApi } from '../../services/borrowRepayApi';
 import { plannedExpenseApi } from '../../services/plannedExpenseApi';
+import { MONTH_NAMES, getCurrentMonth, getCurrentYear, parseTxDate } from '../../utils/dateHelpers';
 
 interface FinanceAnalyticsReportViewProps {
   transactions?: Transaction[];
   categories?: Category[];
   summary?: DashboardSummary;
+  initialMonth?: string;
+  initialYear?: number;
 }
 
 export default function FinanceAnalyticsReportView({
   transactions = [],
   categories = [],
-  summary
+  summary,
+  initialMonth,
+  initialYear
 }: FinanceAnalyticsReportViewProps) {
-  
+  const currentMonth = getCurrentMonth();
+  const currentYear = getCurrentYear();
+  const [selectedMonth, setSelectedMonth] = useState<string>(() => initialMonth || currentMonth);
+  const [selectedYear, setSelectedYear] = useState<number>(() => initialYear || currentYear);
+
+  // Available years from transactions
+  const availableYears = useMemo(() => {
+    const years = new Set<number>([currentYear]);
+    transactions.forEach(t => {
+      const { year } = parseTxDate(t);
+      if (!isNaN(year) && year > 1900 && year < 2100) years.add(year);
+    });
+    return Array.from(years).sort((a, b) => b - a);
+  }, [transactions, currentYear]);
+
+  // Filtered transactions by selected month & year
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter(tx => {
+      const { year, month } = parseTxDate(tx);
+      if (selectedYear !== 0 && year !== selectedYear) return false;
+      if (selectedMonth !== 'ALL' && month.toLowerCase() !== selectedMonth.toLowerCase()) return false;
+      return true;
+    });
+  }, [transactions, selectedMonth, selectedYear]);
+
   // Tab 1: Tracked Expenses Data
   const trackedStats = useMemo(() => {
     let totalCredit = 0;
     let totalDebit = 0;
     const categoryExpenses: Record<string, number> = {};
 
-    for (const tx of transactions) {
+    for (const tx of filteredTransactions) {
       const amt = Math.abs(Number(tx.amount || tx.amountSar || 0));
       const isCredit = String(tx.type).toUpperCase() === 'CREDIT';
       if (isCredit) {
@@ -38,17 +67,21 @@ export default function FinanceAnalyticsReportView({
     }
 
     return {
-      totalCredit: summary?.totalCredit ?? totalCredit,
-      totalDebit: summary?.totalDebit ?? totalDebit,
-      netCashflow: (summary?.totalCredit ?? totalCredit) - (summary?.totalDebit ?? totalDebit),
+      totalCredit,
+      totalDebit,
+      netCashflow: totalCredit - totalDebit,
       categoryExpenses,
-      transactionCount: transactions.length
+      transactionCount: filteredTransactions.length
     };
-  }, [transactions, summary]);
+  }, [filteredTransactions]);
 
   // Tab 2: Planned Expenses Data
   const plannedStats = useMemo(() => {
-    const allPlans = plannedExpenseApi.getPlannedExpenses();
+    const allPlans = plannedExpenseApi.getPlannedExpenses().filter(p => {
+      if (selectedYear !== 0 && p.year !== selectedYear) return false;
+      if (selectedMonth !== 'ALL' && p.month.toLowerCase() !== selectedMonth.toLowerCase()) return false;
+      return true;
+    });
     const totalPlanned = allPlans.reduce((acc, p) => acc + Number(p.plannedAmount), 0);
     const fulfilledCount = allPlans.filter(p => p.status === 'Fulfilled').length;
     return {
@@ -57,7 +90,7 @@ export default function FinanceAnalyticsReportView({
       fulfilledCount,
       adherenceRate: allPlans.length > 0 ? Math.round((fulfilledCount / allPlans.length) * 100) : 100
     };
-  }, []);
+  }, [selectedMonth, selectedYear]);
 
   // Tab 3: Borrow and Repay Data (INR ₹)
   const borrowRepayStats = useMemo(() => {
@@ -109,9 +142,35 @@ export default function FinanceAnalyticsReportView({
           </p>
         </div>
 
-        <button onClick={handlePrint} className="btn btn-secondary btn-print-report">
-          <Printer size={16} /> Print / Export Report
-        </button>
+        <div className="report-header-controls" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <div className="month-year-select-bar">
+            <select
+              value={selectedMonth}
+              onChange={e => setSelectedMonth(e.target.value)}
+              className="select-custom-pill"
+              title="Filter by Month"
+            >
+              <option value="ALL">All Months</option>
+              {MONTH_NAMES.map(m => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
+            <select
+              value={selectedYear}
+              onChange={e => setSelectedYear(Number(e.target.value))}
+              className="select-custom-pill"
+              title="Filter by Year"
+            >
+              <option value={0}>All Years</option>
+              {availableYears.map(yr => (
+                <option key={yr} value={yr}>{yr}</option>
+              ))}
+            </select>
+          </div>
+          <button onClick={handlePrint} className="btn btn-secondary btn-print-report">
+            <Printer size={16} /> Print / Export Report
+          </button>
+        </div>
       </div>
 
       {/* Cross-Tab Executive Scorecards */}
@@ -228,8 +287,12 @@ export default function FinanceAnalyticsReportView({
             <tbody>
               {categories.slice(0, 8).map(cat => {
                 const actual = trackedStats.categoryExpenses[cat.name] || 0;
-                // find plan
-                const plans = plannedExpenseApi.getPlannedExpenses().filter(p => p.category === cat.name);
+                // find plan for active month/year
+                const plans = plannedExpenseApi.getPlannedExpenses().filter(p => {
+                  if (selectedYear !== 0 && p.year !== selectedYear) return false;
+                  if (selectedMonth !== 'ALL' && p.month.toLowerCase() !== selectedMonth.toLowerCase()) return false;
+                  return p.category === cat.name;
+                });
                 const planned = plans.reduce((acc, p) => acc + Number(p.plannedAmount), 0);
                 const hasPlan = planned > 0;
                 const isOver = hasPlan && actual > planned;

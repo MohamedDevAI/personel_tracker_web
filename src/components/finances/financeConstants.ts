@@ -1,5 +1,5 @@
 import { Transaction } from '../../types';
-import { MONTH_NAMES } from '../../services/expenseApi';
+import { MONTH_NAMES, getCurrentYear, getCurrentMonth } from '../../utils/dateHelpers';
 
 export const CATEGORY_PALETTE = [
   '#6366f1', // Indigo
@@ -27,8 +27,8 @@ export const getCategoryColor = (index: number): string => {
 };
 
 export const parseTxDate = (tx: Transaction): { year: number; month: string } => {
-  let year = 2026;
-  let month = tx.month || 'Mar';
+  let year = getCurrentYear();
+  let month = tx.month || getCurrentMonth();
 
   const rawDate = tx.date || tx.transactionDate || '';
   if (typeof rawDate === 'string') {
