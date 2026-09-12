@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { expenseApi, MONTH_NAMES } from '../services/expenseApi';
+import { expenseApi } from '../services/expenseApi';
+import { MONTH_NAMES } from '../utils/dateHelpers';
 import { Plus, Tag, ArrowDownRight, CheckCircle2, Search } from 'lucide-react';
 import { Category, Transaction, TransactionType } from '../types';
 import { parseTxDate } from '../components/finances/financeConstants';

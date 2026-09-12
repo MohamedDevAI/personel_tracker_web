@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { Category, TransactionType } from '../../types';
-import { MONTH_NAMES } from '../../services/expenseApi';
+import { MONTH_NAMES } from '../../utils/dateHelpers';
 import { PAYMENT_METHODS } from './financeConstants';
 
 interface TransactionModalProps {
