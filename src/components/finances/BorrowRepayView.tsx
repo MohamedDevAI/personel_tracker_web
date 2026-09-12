@@ -5,12 +5,14 @@ import {
   Trash2, CheckCircle2, Clock, CalendarClock, User, Calendar,
   CheckSquare, Table2, LayoutGrid, X, RotateCcw, Check
 } from 'lucide-react';
-import { BorrowRepayRecord, BorrowRepayType, PlannedRepayment, PlannedRepaymentStatus } from '../../types';
+import { BorrowRepayRecord, BorrowRepayType, PlannedRepayment, PlannedRepaymentStatus, PlannedRepayCreditItem } from '../../types';
 import { borrowRepayApi } from '../../services/borrowRepayApi';
+import { plannedRepayCreditApi } from '../../services/plannedRepayCreditApi';
 import { MONTH_NAMES, getCurrentMonth, getCurrentYear } from '../../utils/dateHelpers';
 import BorrowRepayModal from './BorrowRepayModal';
 import PlannedRepaymentModal from './PlannedRepaymentModal';
 import ConfirmDeleteModal from '../common/ConfirmDeleteModal';
+import PlannedRepayCreditGlanceView from './PlannedRepayCreditGlanceView';
 
 type BorrowRepayStep = 'credit_tracker' | 'aggregation' | 'planned_repayment';
 
@@ -42,6 +44,7 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
   const invalidateAll = () => {
     queryClient.invalidateQueries({ queryKey: ['borrowRepayRecords'] });
     queryClient.invalidateQueries({ queryKey: ['plannedRepayments'] });
+    queryClient.invalidateQueries({ queryKey: ['plannedRepayCreditMatrix'] });
   };
 
   const createRecordMutation = useMutation({
@@ -55,7 +58,30 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
   });
 
   const createPlannedMutation = useMutation({
-    mutationFn: (plan: Omit<PlannedRepayment, 'id' | 'createdAt'>) => borrowRepayApi.createPlannedRepayment(plan),
+    mutationFn: async (plan: Omit<PlannedRepayment, 'id' | 'createdAt'>) => {
+      // 1. Calculate targetMonth & monthIndex
+      const d = new Date(plan.targetDate);
+      const mIdx = !isNaN(d.getTime()) ? d.getMonth() + 1 : 10;
+      const mName = !isNaN(d.getTime()) ? `${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}` : 'October 2026';
+
+      const creditItem: Omit<PlannedRepayCreditItem, 'id' | '_id'> = {
+        targetDate: plan.targetDate,
+        targetMonth: mName,
+        monthIndex: mIdx,
+        creditorName: plan.creditorName,
+        plannedAmount: plan.plannedAmount,
+        status: (plan.status === 'Paid' ? 'Completed' : 'In-Completed') as 'Completed' | 'In-Completed',
+        notes: plan.notes || ''
+      };
+
+      try {
+        await plannedRepayCreditApi.create(creditItem);
+      } catch (e) {
+        console.warn('Error saving to plannedRepayCreditApi:', e);
+      }
+
+      return borrowRepayApi.createPlannedRepayment(plan);
+    },
     onSuccess: invalidateAll,
   });
 
@@ -372,10 +398,10 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
           className={`borrow-step-btn ${activeStep === 'planned_repayment' ? 'active' : ''}`}
         >
           <CalendarClock size={16} />
-          <span>Step 3: Planned Repayment (Schedule)</span>
-          {plannedStats.scheduledCount > 0 && (
-            <span className="step-counter alert">{plannedStats.scheduledCount}</span>
-          )}
+          <span>Step 3: 2026 Planned Schedule (Single Glance)</span>
+          <span className="step-counter" style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.4)' }}>
+            9 Mos
+          </span>
         </button>
       </div>
 
@@ -1053,185 +1079,13 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
           STEP 3: PLANNED REPAYMENT (SCHEDULE & TARGETS IN INR ₹)
           ========================================================= */}
       {activeStep === 'planned_repayment' && (
-        <>
-          {/* Planned Repayment KPI Cards */}
-          <div className="borrow-kpi-grid">
-            <div className="planned-kpi-card total-planned">
-              <div className="planned-kpi-label">TOTAL PLANNED REPAYMENTS</div>
-              <div className="planned-kpi-val">{formatINR(plannedStats.totalPlanned)}</div>
-              <div className="planned-kpi-meta">Scheduled debt repayments</div>
-            </div>
-
-            <div className="planned-kpi-card actual-spent">
-              <div className="planned-kpi-label">FULFILLED / COMPLETED</div>
-              <div className="planned-kpi-val repaid-text">{formatINR(plannedStats.totalPaid)}</div>
-              <div className="planned-kpi-meta">Paid and logged into ledger</div>
-            </div>
-
-            <div className="planned-kpi-card outstanding-card">
-              <div className="planned-kpi-label">PENDING REPAYMENTS</div>
-              <div className="planned-kpi-val outstanding-text">{formatINR(plannedStats.pendingScheduled)}</div>
-              <div className="planned-kpi-meta">Remaining planned payoff</div>
-            </div>
-          </div>
-
-          {/* Toolbar for Planned Repayments with Month & Year Filter */}
-          <div className="borrow-table-toolbar">
-            <div className="borrow-search-wrapper">
-              <Search size={15} className="search-icon" />
-              <input
-                type="text"
-                placeholder="Search planned repayments by creditor or notes..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="borrow-search-input"
-              />
-            </div>
-
-            <div className="borrow-filters-group">
-              {/* Month-wise Filter */}
-              <div className="filter-select-wrapper">
-                <Calendar size={14} className="filter-icon" />
-                <select
-                  value={selectedMonth}
-                  onChange={e => setSelectedMonth(e.target.value)}
-                  className="borrow-select-filter"
-                  title="Filter by Month"
-                >
-                  <option value="ALL">All Months</option>
-                  {MONTH_NAMES.map(m => (
-                    <option key={m} value={m}>{m}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Year Filter */}
-              <div className="filter-select-wrapper">
-                <Clock size={14} className="filter-icon" />
-                <select
-                  value={selectedYear}
-                  onChange={e => setSelectedYear(e.target.value)}
-                  className="borrow-select-filter"
-                  title="Filter by Year"
-                >
-                  <option value="ALL">All Years</option>
-                  {availableYears.map(y => (
-                    <option key={y} value={y}>{y}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Status Filter */}
-              <div className="filter-select-wrapper">
-                <Filter size={14} className="filter-icon" />
-                <select
-                  value={plannedStatusFilter}
-                  onChange={e => setPlannedStatusFilter(e.target.value as any)}
-                  className="borrow-select-filter"
-                >
-                  <option value="ALL">All Statuses</option>
-                  <option value="Scheduled">Scheduled</option>
-                  <option value="Pending">Pending</option>
-                  <option value="Paid">Paid</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Planned Repayments Table */}
-          <div className="borrow-table-container glass-panel">
-            <table className="borrow-data-table">
-              <thead>
-                <tr>
-                  <th>Creditor Name</th>
-                  <th>Target Date</th>
-                  <th className="th-amount">Planned Amount (INR)</th>
-                  <th>Status</th>
-                  <th>Installment Notes</th>
-                  <th className="th-action">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredPlannedRepayments.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="empty-table-cell">
-                      <div className="empty-table-placeholder">
-                        <CalendarClock size={28} />
-                        <p>No planned repayments found for the selected month/year filter.</p>
-                        <button
-                          onClick={() => setIsPlannedModalOpen(true)}
-                          className="btn btn-secondary btn-sm"
-                        >
-                          + Schedule A Repayment
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredPlannedRepayments.map(plan => {
-                    const isPaid = plan.status === 'Paid';
-                    return (
-                      <tr key={plan.id} className="borrow-row">
-                        <td className="td-creditor">
-                          <div className="creditor-avatar-cell">
-                            <div className="creditor-avatar-circle">
-                              {plan.creditorName.charAt(0).toUpperCase()}
-                            </div>
-                            <span className="creditor-fullname">{plan.creditorName}</span>
-                          </div>
-                        </td>
-
-                        <td className="td-date">
-                          <div className="date-cell-flex">
-                            <Calendar size={13} className="date-icon" />
-                            <span>{plan.targetDate}</span>
-                          </div>
-                        </td>
-
-                        <td className="td-amount repaid-amt">
-                          ₹ {Number(plan.plannedAmount).toLocaleString('en-IN')}
-                        </td>
-
-                        <td>
-                          <span className={`badge ${isPaid ? 'badge-emerald' : 'badge-amber'}`}>
-                            {isPaid ? <CheckCircle2 size={12} /> : <Clock size={12} />}
-                            {plan.status}
-                          </span>
-                        </td>
-
-                        <td className="td-notes">
-                          <span className="notes-text">{plan.notes || '—'}</span>
-                        </td>
-
-                        <td className="td-action">
-                          <div className="actions-inline-group">
-                            {!isPaid && (
-                              <button
-                                onClick={() => handleMarkAsPaid(plan.id)}
-                                className="btn-table-action-pay"
-                                title="Mark as Paid and Log into Credit Tracker"
-                              >
-                                <CheckSquare size={14} /> Pay
-                              </button>
-                            )}
-                            <button
-                              onClick={() => triggerDeletePlannedRepayment(plan)}
-                              className="btn-icon-delete"
-                              title="Delete Plan"
-                            >
-                              <Trash2 size={15} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-        </>
+        <PlannedRepayCreditGlanceView
+          onOpenScheduleModal={() => setIsPlannedModalOpen(true)}
+          actualRecords={records}
+        />
       )}
+
+
 
       {/* Entry Modals */}
       <BorrowRepayModal
