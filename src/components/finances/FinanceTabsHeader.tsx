@@ -49,13 +49,6 @@ export default function FinanceTabsHeader({
           )}
         </button>
 
-        <button
-          onClick={() => onSelectTab('analytics')}
-          className={`finance-main-nav-tab ${activeTab === 'analytics' ? 'active' : ''}`}
-        >
-          <BarChart3 size={17} />
-          <span>Analytics & Report</span>
-        </button>
       </div>
     </div>
   );

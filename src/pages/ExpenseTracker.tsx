@@ -14,8 +14,7 @@ import TransactionModal from '../components/finances/TransactionModal';
 import CategoryModal from '../components/finances/CategoryModal';
 import FinanceTabsHeader, { FinanceTabKey } from '../components/finances/FinanceTabsHeader';
 import BorrowRepayView from '../components/finances/BorrowRepayView';
-import PlannedExpensesView from '../components/finances/PlannedExpensesView';
-import FinanceAnalyticsReportView from '../components/finances/FinanceAnalyticsReportView';
+import PlannedExpensesView from '../components/finances/planned-expenses/PlannedExpensesView';
 import { borrowRepayApi } from '../services/borrowRepayApi';
 import { plannedExpenseApi } from '../services/plannedExpenseApi';
 import ConfirmDeleteModal from '../components/common/ConfirmDeleteModal';
@@ -499,15 +498,6 @@ export default function ExpenseTracker() {
         <BorrowRepayView />
       )}
 
-      {/* View 4: Analytics and Report (Unified Combination) */}
-      {financeMainTab === 'analytics' && (
-        <FinanceAnalyticsReportView
-          transactions={transactions}
-          categories={categories}
-          initialMonth={selectedMonth !== 'All' ? selectedMonth : getCurrentMonth()}
-          initialYear={selectedYear}
-        />
-      )}
 
       {/* Add Transaction Dialog */}
       <TransactionModal
