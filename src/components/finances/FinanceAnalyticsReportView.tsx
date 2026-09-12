@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   BarChart3, Wallet, Target, HandCoins, ArrowDownRight, ArrowUpRight, 
   TrendingUp, TrendingDown, ShieldCheck, Printer, CheckCircle2, AlertCircle

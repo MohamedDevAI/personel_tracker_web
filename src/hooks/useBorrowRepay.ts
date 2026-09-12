@@ -32,22 +32,32 @@ export function useBorrowRepay() {
 
   // ── Credit Tracker State ────────────────────────────────────────────────
 
-  const [records, setRecords] = useState<BorrowRepayRecord[]>(() => borrowRepayApi.getRecords());
+  const [records, setRecords] = useState<BorrowRepayRecord[]>(() => borrowRepayApi.getRecordsSync());
   const [typeFilter, setTypeFilter] = useState<'ALL' | BorrowRepayType>('ALL');
   const [selectedCreditorFilter, setSelectedCreditorFilter] = useState<string>('ALL');
 
   // ── Planned Repayments State ────────────────────────────────────────────
 
   const [plannedRepayments, setPlannedRepayments] = useState<PlannedRepayment[]>(
-    () => borrowRepayApi.getPlannedRepayments()
+    () => borrowRepayApi.getPlannedRepaymentsSync()
   );
   const [plannedStatusFilter, setPlannedStatusFilter] = useState<'ALL' | PlannedRepaymentStatus>('ALL');
 
   // ── Data Refresh ────────────────────────────────────────────────────────
 
-  const refreshAllData = useCallback(() => {
-    setRecords(borrowRepayApi.getRecords());
-    setPlannedRepayments(borrowRepayApi.getPlannedRepayments());
+  const refreshAllData = useCallback(async () => {
+    try {
+      const [rec, plans] = await Promise.all([
+        borrowRepayApi.getRecords(),
+        borrowRepayApi.getPlannedRepayments()
+      ]);
+      setRecords(rec);
+      setPlannedRepayments(plans);
+    } catch (e) {
+      console.warn('refreshAllData error:', e);
+      setRecords(borrowRepayApi.getRecordsSync());
+      setPlannedRepayments(borrowRepayApi.getPlannedRepaymentsSync());
+    }
   }, []);
 
   // ── Available Years ─────────────────────────────────────────────────────
@@ -69,12 +79,12 @@ export function useBorrowRepay() {
   // ── Creditor Data ───────────────────────────────────────────────────────
 
   const creditorSummaries = useMemo(
-    () => borrowRepayApi.getCreditorSummaries(),
+    () => borrowRepayApi.getCreditorSummaries(records),
     [records]
   );
 
   const stats = useMemo(
-    () => borrowRepayApi.getOverallStats(),
+    () => borrowRepayApi.getOverallStats(records),
     [records]
   );
 
@@ -138,40 +148,40 @@ export function useBorrowRepay() {
   // ── Actions ─────────────────────────────────────────────────────────────
 
   const handleAddCreditRecord = useCallback(
-    (newRecord: Omit<BorrowRepayRecord, 'id' | 'createdAt'>) => {
-      borrowRepayApi.createRecord(newRecord);
+    async (newRecord: Omit<BorrowRepayRecord, 'id' | 'createdAt'>) => {
+      await borrowRepayApi.createRecord(newRecord);
       refreshAllData();
     },
     [refreshAllData]
   );
 
   const handleDeleteCreditRecord = useCallback(
-    (id: string) => {
-      borrowRepayApi.deleteRecord(id);
+    async (id: string) => {
+      await borrowRepayApi.deleteRecord(id);
       refreshAllData();
     },
     [refreshAllData]
   );
 
   const handleAddPlannedRepayment = useCallback(
-    (newPlan: Omit<PlannedRepayment, 'id' | 'createdAt'>) => {
-      borrowRepayApi.createPlannedRepayment(newPlan);
+    async (newPlan: Omit<PlannedRepayment, 'id' | 'createdAt'>) => {
+      await borrowRepayApi.createPlannedRepayment(newPlan);
       refreshAllData();
     },
     [refreshAllData]
   );
 
   const handleDeletePlannedRepayment = useCallback(
-    (id: string) => {
-      borrowRepayApi.deletePlannedRepayment(id);
+    async (id: string) => {
+      await borrowRepayApi.deletePlannedRepayment(id);
       refreshAllData();
     },
     [refreshAllData]
   );
 
   const handleMarkAsPaid = useCallback(
-    (id: string) => {
-      const res = borrowRepayApi.markPlannedRepaymentAsPaid(id);
+    async (id: string) => {
+      const res = await borrowRepayApi.markPlannedRepaymentAsPaid(id);
       if (res) refreshAllData();
     },
     [refreshAllData]

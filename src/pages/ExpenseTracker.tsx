@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { expenseApi } from '../services/expenseApi';
 import { MONTH_NAMES, getCurrentYear, getCurrentMonth } from '../utils/dateHelpers';
 import { Plus, Tag, ArrowDownRight, CheckCircle2, Search } from 'lucide-react';
-import { Category, Transaction, TransactionType } from '../types';
+import { Category, Transaction, TransactionType, BorrowRepayRecord } from '../types';
 import { parseTxDate } from '../components/finances/financeConstants';
 import MonthYearFilter from '../components/finances/MonthYearFilter';
 import FinanceSummaryCards from '../components/finances/FinanceSummaryCards';
@@ -38,10 +38,15 @@ export default function ExpenseTracker() {
     queryFn: () => expenseApi.getCategories()
   });
 
+  const { data: borrowRecords = [] } = useQuery<BorrowRepayRecord[]>({
+    queryKey: ['borrowRepayRecords'],
+    queryFn: borrowRepayApi.getRecords
+  });
+
   // Dynamic pill counters for sub-tabs
   const outstandingDebtCount = useMemo(() => {
-    return borrowRepayApi.getCreditorSummaries().filter(s => s.netBalance > 0).length;
-  }, [financeMainTab]);
+    return borrowRepayApi.getCreditorSummaries(borrowRecords).filter(s => s.netBalance > 0).length;
+  }, [borrowRecords, financeMainTab]);
 
   const activePlansCount = useMemo(() => {
     return plannedExpenseApi.getPlannedExpenses().filter(p => p.status === 'Planned').length;

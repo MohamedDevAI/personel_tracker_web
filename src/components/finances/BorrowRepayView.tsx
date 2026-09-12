@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   HandCoins, Plus, Search, Filter, ArrowDownLeft, ArrowUpRight,
   Trash2, CheckCircle2, Clock, CalendarClock, User, Calendar,
@@ -19,14 +20,56 @@ interface BorrowRepayViewProps {
 }
 
 export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRepayViewProps = {}) {
+  const queryClient = useQueryClient();
   const [activeStep, setActiveStep] = useState<BorrowRepayStep>('credit_tracker');
 
   // Month & Year Filter state (shared across both steps) — defaults to Current Month
   const [selectedMonth, setSelectedMonth] = useState<string>(() => initialMonth || getCurrentMonth());
   const [selectedYear, setSelectedYear] = useState<string>(() => initialYear || String(getCurrentYear()));
 
-  // Step 1 Data: Credit Tracker
-  const [records, setRecords] = useState<BorrowRepayRecord[]>(() => borrowRepayApi.getRecords());
+  // ── Data Fetching via react-query ─────────────────────────────────────────
+  const { data: records = [] } = useQuery<BorrowRepayRecord[]>({
+    queryKey: ['borrowRepayRecords'],
+    queryFn: borrowRepayApi.getRecords,
+  });
+
+  const { data: plannedRepayments = [] } = useQuery<PlannedRepayment[]>({
+    queryKey: ['plannedRepayments'],
+    queryFn: borrowRepayApi.getPlannedRepayments,
+  });
+
+  // ── Mutations ─────────────────────────────────────────────────────────────
+  const invalidateAll = () => {
+    queryClient.invalidateQueries({ queryKey: ['borrowRepayRecords'] });
+    queryClient.invalidateQueries({ queryKey: ['plannedRepayments'] });
+  };
+
+  const createRecordMutation = useMutation({
+    mutationFn: (record: Omit<BorrowRepayRecord, 'id' | 'createdAt'>) => borrowRepayApi.createRecord(record),
+    onSuccess: invalidateAll,
+  });
+
+  const deleteRecordMutation = useMutation({
+    mutationFn: (id: string) => borrowRepayApi.deleteRecord(id),
+    onSuccess: invalidateAll,
+  });
+
+  const createPlannedMutation = useMutation({
+    mutationFn: (plan: Omit<PlannedRepayment, 'id' | 'createdAt'>) => borrowRepayApi.createPlannedRepayment(plan),
+    onSuccess: invalidateAll,
+  });
+
+  const deletePlannedMutation = useMutation({
+    mutationFn: (id: string) => borrowRepayApi.deletePlannedRepayment(id),
+    onSuccess: invalidateAll,
+  });
+
+  const markAsPaidMutation = useMutation({
+    mutationFn: (id: string) => borrowRepayApi.markPlannedRepaymentAsPaid(id),
+    onSuccess: invalidateAll,
+  });
+
+  // UI-only states
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<'ALL' | BorrowRepayType>('ALL');
   const [selectedCreditorFilter, setSelectedCreditorFilter] = useState<string>('ALL');
@@ -34,8 +77,6 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
   const [modalInitialType, setModalInitialType] = useState<BorrowRepayType>('Borrow');
   const [modalInitialCreditor, setModalInitialCreditor] = useState<string>('');
 
-  // Step 2 Data: Planned Repayments
-  const [plannedRepayments, setPlannedRepayments] = useState<PlannedRepayment[]>(() => borrowRepayApi.getPlannedRepayments());
   const [isPlannedModalOpen, setIsPlannedModalOpen] = useState(false);
   const [plannedStatusFilter, setPlannedStatusFilter] = useState<'ALL' | PlannedRepaymentStatus>('ALL');
 
@@ -52,11 +93,6 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
     itemName: ''
   });
 
-  // Reload data
-  const refreshAllData = () => {
-    setRecords(borrowRepayApi.getRecords());
-    setPlannedRepayments(borrowRepayApi.getPlannedRepayments());
-  };
 
   // Helper to extract month name and year from date string (supports YYYY-MM-DD, M/D/YYYY, ISO)
   const parseDateMonthYear = (dateStr: string) => {
@@ -98,11 +134,11 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
 
   // Creditor summaries & stats (INR)
   const creditorSummaries = useMemo(() => {
-    return borrowRepayApi.getCreditorSummaries();
+    return borrowRepayApi.getCreditorSummaries(records);
   }, [records]);
 
   const stats = useMemo(() => {
-    return borrowRepayApi.getOverallStats();
+    return borrowRepayApi.getOverallStats(records);
   }, [records]);
 
   // Unique creditor list for filters & suggestions
@@ -158,8 +194,7 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
 
   // Actions for Credit Tracker
   const handleAddCreditRecord = (newRecord: Omit<BorrowRepayRecord, 'id' | 'createdAt'>) => {
-    borrowRepayApi.createRecord(newRecord);
-    refreshAllData();
+    createRecordMutation.mutate(newRecord);
   };
 
   const triggerDeleteCreditRecord = (item: BorrowRepayRecord) => {
@@ -179,8 +214,7 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
 
   // Actions for Planned Repayments
   const handleAddPlannedRepayment = (newPlan: Omit<PlannedRepayment, 'id' | 'createdAt'>) => {
-    borrowRepayApi.createPlannedRepayment(newPlan);
-    refreshAllData();
+    createPlannedMutation.mutate(newPlan);
   };
 
   const triggerDeletePlannedRepayment = (plan: PlannedRepayment) => {
@@ -194,19 +228,15 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
 
   const handleConfirmDelete = () => {
     if (deleteConfirm.type === 'credit_record') {
-      borrowRepayApi.deleteRecord(deleteConfirm.id);
+      deleteRecordMutation.mutate(deleteConfirm.id);
     } else {
-      borrowRepayApi.deletePlannedRepayment(deleteConfirm.id);
+      deletePlannedMutation.mutate(deleteConfirm.id);
     }
     setDeleteConfirm({ isOpen: false, type: 'credit_record', id: '', itemName: '' });
-    refreshAllData();
   };
 
   const handleMarkAsPaid = (id: string) => {
-    const res = borrowRepayApi.markPlannedRepaymentAsPaid(id);
-    if (res) {
-      refreshAllData();
-    }
+    markAsPaidMutation.mutate(id);
   };
 
   const formatINR = (val: number) => {
@@ -352,6 +382,10 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
                     <div className="creditor-chip-balance">
                       {c.netBalance > 0 ? (
                         <span className="balance-due">Due: {formatINR(c.netBalance)}</span>
+                      ) : c.netBalance < 0 ? (
+                        <span className="balance-overpaid" style={{ color: '#10b981', fontWeight: 600 }}>
+                          Credit Given: {formatINR(Math.abs(c.netBalance))}
+                        </span>
                       ) : (
                         <span className="balance-cleared">Fully Cleared (₹0)</span>
                       )}
@@ -511,8 +545,12 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
                           </span>
                         </td>
 
-                        <td className={`td-amount ${isBorrow ? 'borrow-amt' : 'repaid-amt'}`}>
-                          {isBorrow ? `+₹ ${Number(item.amount).toLocaleString('en-IN')}` : `-₹ ${Number(item.amount).toLocaleString('en-IN')}`}
+                        <td className={`td-amount ${isBorrow ? (Number(item.amount) < 0 ? 'repaid-amt' : 'borrow-amt') : 'repaid-amt'}`}>
+                          {isBorrow
+                            ? Number(item.amount) < 0
+                              ? `-₹ ${Math.abs(Number(item.amount)).toLocaleString('en-IN')} (Credit Given)`
+                              : `+₹ ${Number(item.amount).toLocaleString('en-IN')}`
+                            : `-₹ ${Number(item.amount).toLocaleString('en-IN')}`}
                         </td>
 
                         <td className="td-notes">
