@@ -496,10 +496,7 @@ export default function ExpenseTracker() {
 
       {/* View 3: Borrow and Repay (Dedicated Creditor Tracker in INR ₹) */}
       {financeMainTab === 'borrow_repay' && (
-        <BorrowRepayView
-          initialMonth={selectedMonth !== 'All' ? selectedMonth : getCurrentMonth()}
-          initialYear={String(selectedYear)}
-        />
+        <BorrowRepayView />
       )}
 
       {/* View 4: Analytics and Report (Unified Combination) */}

@@ -135,7 +135,9 @@ export interface CreditorSummary {
   creditorName: string;
   totalBorrowed: number;
   totalRepaid: number;
-  /** Positive = still owe creditor, 0 = settled */
+  creditGiven?: number;
+  txCount?: number;
+  /** Positive = still owe creditor, 0 = settled, negative = credit given to them */
   netBalance: number;
   lastActivityDate: string;
   status: 'Outstanding' | 'Settled' | 'Overpaid';

@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   HandCoins, Plus, Search, Filter, ArrowDownLeft, ArrowUpRight,
   Trash2, CheckCircle2, Clock, CalendarClock, User, Calendar,
-  CheckSquare
+  CheckSquare, Table2, LayoutGrid, X, RotateCcw, Check
 } from 'lucide-react';
 import { BorrowRepayRecord, BorrowRepayType, PlannedRepayment, PlannedRepaymentStatus } from '../../types';
 import { borrowRepayApi } from '../../services/borrowRepayApi';
@@ -12,7 +12,7 @@ import BorrowRepayModal from './BorrowRepayModal';
 import PlannedRepaymentModal from './PlannedRepaymentModal';
 import ConfirmDeleteModal from '../common/ConfirmDeleteModal';
 
-type BorrowRepayStep = 'credit_tracker' | 'planned_repayment';
+type BorrowRepayStep = 'credit_tracker' | 'aggregation' | 'planned_repayment';
 
 interface BorrowRepayViewProps {
   initialMonth?: string;
@@ -23,9 +23,9 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
   const queryClient = useQueryClient();
   const [activeStep, setActiveStep] = useState<BorrowRepayStep>('credit_tracker');
 
-  // Month & Year Filter state (shared across both steps) — defaults to Current Month
-  const [selectedMonth, setSelectedMonth] = useState<string>(() => initialMonth || getCurrentMonth());
-  const [selectedYear, setSelectedYear] = useState<string>(() => initialYear || String(getCurrentYear()));
+  // Month & Year Filter state (shared across both steps) — defaults to 'ALL'
+  const [selectedMonth, setSelectedMonth] = useState<string>(() => initialMonth || 'ALL');
+  const [selectedYear, setSelectedYear] = useState<string>(() => initialYear || 'ALL');
 
   // ── Data Fetching via react-query ─────────────────────────────────────────
   const { data: records = [] } = useQuery<BorrowRepayRecord[]>({
@@ -73,6 +73,7 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<'ALL' | BorrowRepayType>('ALL');
   const [selectedCreditorFilter, setSelectedCreditorFilter] = useState<string>('ALL');
+  const [aggSearchQuery, setAggSearchQuery] = useState('');
   const [isCreditModalOpen, setIsCreditModalOpen] = useState(false);
   const [modalInitialType, setModalInitialType] = useState<BorrowRepayType>('Borrow');
   const [modalInitialCreditor, setModalInitialCreditor] = useState<string>('');
@@ -141,11 +142,13 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
     return borrowRepayApi.getOverallStats(records);
   }, [records]);
 
-  // Unique creditor list for filters & suggestions
+  // Unique creditor list for filters & suggestions (sorted alphabetically)
   const existingCreditors = useMemo(() => {
     const fromRecords = records.map(r => r.creditorName.trim());
     const fromPlans = plannedRepayments.map(p => p.creditorName.trim());
-    return Array.from(new Set([...fromRecords, ...fromPlans])).filter(Boolean);
+    return Array.from(new Set([...fromRecords, ...fromPlans]))
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b));
   }, [records, plannedRepayments]);
 
   // Filtered Credit Tracker records (with Month-wise & Year-wise filtering)
@@ -163,6 +166,64 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
       return matchesSearch && matchesType && matchesCreditor && matchesMonth && matchesYear;
     });
   }, [records, searchQuery, typeFilter, selectedCreditorFilter, selectedMonth, selectedYear]);
+
+  // Subtotals for currently filtered transactions
+  const activeFilterTotals = useMemo(() => {
+    let borrowed = 0;
+    let repaid = 0;
+    let creditGiven = 0;
+    filteredRecords.forEach(r => {
+      const amt = Number(r.amount) || 0;
+      if (r.type === 'Borrow') {
+        if (amt < 0) creditGiven += Math.abs(amt);
+        else borrowed += amt;
+      } else {
+        repaid += Math.abs(amt);
+      }
+    });
+    return {
+      borrowed,
+      repaid,
+      creditGiven,
+      net: borrowed - repaid - creditGiven
+    };
+  }, [filteredRecords]);
+
+  // Filtered Creditor Summaries for the Aggregation Tab
+  const filteredCreditorSummaries = useMemo(() => {
+    if (!aggSearchQuery.trim()) return creditorSummaries;
+    const q = aggSearchQuery.toLowerCase();
+    return creditorSummaries.filter(c => c.creditorName.toLowerCase().includes(q));
+  }, [creditorSummaries, aggSearchQuery]);
+
+  // Yearly Aggregations for the Aggregation Tab
+  const yearlySummaries = useMemo(() => {
+    const yearMap: Record<string, {
+      year: string;
+      totalBorrowed: number;
+      totalRepaid: number;
+      creditGiven: number;
+      txCount: number;
+    }> = {};
+
+    records.forEach(r => {
+      const { year } = parseDateMonthYear(r.date);
+      if (!year) return;
+      if (!yearMap[year]) {
+        yearMap[year] = { year, totalBorrowed: 0, totalRepaid: 0, creditGiven: 0, txCount: 0 };
+      }
+      yearMap[year].txCount += 1;
+      const amt = Number(r.amount) || 0;
+      if (r.type === 'Borrow') {
+        if (amt < 0) yearMap[year].creditGiven += Math.abs(amt);
+        else yearMap[year].totalBorrowed += amt;
+      } else {
+        yearMap[year].totalRepaid += Math.abs(amt);
+      }
+    });
+
+    return Object.values(yearMap).sort((a, b) => b.year.localeCompare(a.year));
+  }, [records]);
 
   // Filtered Planned Repayments (with Month-wise & Year-wise filtering)
   const filteredPlannedRepayments = useMemo(() => {
@@ -260,7 +321,7 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
 
         {/* Action Buttons depending on Step */}
         <div className="borrow-header-buttons">
-          {activeStep === 'credit_tracker' ? (
+          {activeStep !== 'planned_repayment' ? (
             <>
               <button
                 onClick={() => handleOpenCreditModal('Borrow')}
@@ -286,15 +347,24 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
         </div>
       </div>
 
-      {/* Two-Step Switcher */}
+      {/* Three-Step / Tab Switcher */}
       <div className="borrow-two-step-tabs">
         <button
           onClick={() => setActiveStep('credit_tracker')}
           className={`borrow-step-btn ${activeStep === 'credit_tracker' ? 'active' : ''}`}
         >
           <HandCoins size={16} />
-          <span>Step 1: Credit Tracker (Actual Ledger)</span>
+          <span>Step 1: Credit Tracker (Ledger & Grid)</span>
           <span className="step-counter">{records.length}</span>
+        </button>
+
+        <button
+          onClick={() => setActiveStep('aggregation')}
+          className={`borrow-step-btn ${activeStep === 'aggregation' ? 'active' : ''}`}
+        >
+          <Table2 size={16} />
+          <span>Step 2: Creditor Aggregations (Table)</span>
+          <span className="step-counter">{creditorSummaries.length}</span>
         </button>
 
         <button
@@ -302,7 +372,7 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
           className={`borrow-step-btn ${activeStep === 'planned_repayment' ? 'active' : ''}`}
         >
           <CalendarClock size={16} />
-          <span>Step 2: Planned Repayment (Schedule)</span>
+          <span>Step 3: Planned Repayment (Schedule)</span>
           {plannedStats.scheduledCount > 0 && (
             <span className="step-counter alert">{plannedStats.scheduledCount}</span>
           )}
@@ -360,54 +430,148 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
             </div>
           </div>
 
-          {/* Creditors Balance Breakdown Cards */}
+          {/* Creditors Summary (Previous Grid Type) */}
           {creditorSummaries.length > 0 && (
             <div className="creditors-section">
-              <h3 className="creditors-section-title">
-                <User size={16} /> Creditors Summary
-              </h3>
-              <div className="creditors-chip-grid">
-                {creditorSummaries.map(c => (
-                  <div
-                    key={c.creditorName}
-                    onClick={() => setSelectedCreditorFilter(prev => prev === c.creditorName ? 'ALL' : c.creditorName)}
-                    className={`creditor-chip-card ${selectedCreditorFilter === c.creditorName ? 'active-filter' : ''} ${c.status === 'Settled' ? 'settled' : 'pending'}`}
-                  >
-                    <div className="creditor-chip-top">
-                      <span className="creditor-chip-name">{c.creditorName}</span>
-                      <span className={`badge ${c.status === 'Settled' ? 'badge-emerald' : 'badge-amber'}`}>
-                        {c.status}
-                      </span>
-                    </div>
-                    <div className="creditor-chip-balance">
-                      {c.netBalance > 0 ? (
-                        <span className="balance-due">Due: {formatINR(c.netBalance)}</span>
-                      ) : c.netBalance < 0 ? (
-                        <span className="balance-overpaid" style={{ color: '#10b981', fontWeight: 600 }}>
-                          Credit Given: {formatINR(Math.abs(c.netBalance))}
-                        </span>
-                      ) : (
-                        <span className="balance-cleared">Fully Cleared (₹0)</span>
-                      )}
-                    </div>
-                    <div className="creditor-chip-actions">
-                      {c.netBalance > 0 && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleOpenCreditModal('Repaid', c.creditorName);
-                          }}
-                          className="btn-link-settle"
-                        >
-                          Settle Balance →
-                        </button>
-                      )}
-                    </div>
+              <div className="creditors-header-bar">
+                <div className="creditors-header-title">
+                  <User size={16} />
+                  <span>Creditors Summary</span>
+                  <span className="creditors-count-badge">
+                    {creditorSummaries.length}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveStep('aggregation')}
+                  className="btn-table-filter-inspect"
+                  style={{ fontSize: '0.8rem', padding: '5px 12px' }}
+                >
+                  <Table2 size={14} /> View Aggregation Table →
+                </button>
+              </div>
+
+              {/* Active Creditor Filter Indicator Banner */}
+              {selectedCreditorFilter !== 'ALL' && (
+                <div className="creditor-active-banner">
+                  <div className="banner-left">
+                    <Filter size={15} />
+                    <span>Filtering transactions for:</span>
+                    <span className="banner-creditor-name">{selectedCreditorFilter}</span>
+                    <span className="banner-count-badge">
+                      ({filteredRecords.length} records matching)
+                    </span>
                   </div>
-                ))}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCreditorFilter('ALL')}
+                    className="banner-clear-btn"
+                    title="Show all creditors"
+                  >
+                    <X size={14} />
+                    <span>Show All Creditors</span>
+                  </button>
+                </div>
+              )}
+
+              {/* Previous Grid Type Cards */}
+              <div className="creditors-chip-grid">
+                {creditorSummaries.map(c => {
+                  const isSelected = selectedCreditorFilter === c.creditorName;
+                  return (
+                    <div
+                      key={c.creditorName}
+                      onClick={() => setSelectedCreditorFilter(prev => prev === c.creditorName ? 'ALL' : c.creditorName)}
+                      className={`creditor-chip-card ${isSelected ? 'active-filter' : ''} ${c.status === 'Settled' ? 'settled' : 'pending'}`}
+                      title={isSelected ? 'Active filter - click to show all' : `Click to filter transactions for ${c.creditorName}`}
+                    >
+                      <div className="creditor-chip-top">
+                        <span className="creditor-chip-name">{c.creditorName}</span>
+                        <span className={`badge ${c.status === 'Settled' ? 'badge-emerald' : 'badge-amber'}`}>
+                          {c.status}
+                        </span>
+                      </div>
+                      <div className="creditor-chip-balance">
+                        {c.netBalance > 0 ? (
+                          <span className="balance-due">Due: {formatINR(c.netBalance)}</span>
+                        ) : c.netBalance < 0 ? (
+                          <span className="balance-overpaid" style={{ color: '#38bdf8', fontWeight: 600 }}>
+                            Credit Given: {formatINR(Math.abs(c.netBalance))}
+                          </span>
+                        ) : (
+                          <span className="balance-cleared">Fully Cleared (₹0)</span>
+                        )}
+                      </div>
+                      <div className="creditor-chip-actions">
+                        {c.netBalance > 0 && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenCreditModal('Repaid', c.creditorName);
+                            }}
+                            className="btn-link-settle"
+                          >
+                            Settle Balance →
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
+
+          {/* Detailed Transactions Section Header / Summary Strip */}
+          <div className="table-summary-strip">
+            <div className="summary-strip-left">
+              <HandCoins size={16} />
+              <span>
+                Showing <strong>{filteredRecords.length}</strong> of <strong>{records.length}</strong> transactions
+                {selectedCreditorFilter !== 'ALL' && (
+                  <> for <strong>{selectedCreditorFilter}</strong></>
+                )}
+              </span>
+            </div>
+
+            <div className="summary-strip-right">
+              <div className="summary-stat-item">
+                <span style={{ color: 'var(--text-muted)' }}>Borrowed:</span>
+                <span style={{ color: '#fbbf24', fontWeight: 700 }}>
+                  ₹ {activeFilterTotals.borrowed.toLocaleString('en-IN')}
+                </span>
+              </div>
+              <div className="summary-stat-item">
+                <span style={{ color: 'var(--text-muted)' }}>Repaid:</span>
+                <span style={{ color: '#34d399', fontWeight: 700 }}>
+                  ₹ {activeFilterTotals.repaid.toLocaleString('en-IN')}
+                </span>
+              </div>
+              <div className="summary-stat-item">
+                <span style={{ color: 'var(--text-muted)' }}>Net:</span>
+                <span style={{ color: activeFilterTotals.net > 0 ? '#fb7185' : '#34d399', fontWeight: 700 }}>
+                  ₹ {activeFilterTotals.net.toLocaleString('en-IN')}
+                </span>
+              </div>
+              {(selectedMonth !== 'ALL' || selectedYear !== 'ALL' || typeFilter !== 'ALL' || selectedCreditorFilter !== 'ALL' || searchQuery) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedMonth('ALL');
+                    setSelectedYear('ALL');
+                    setTypeFilter('ALL');
+                    setSelectedCreditorFilter('ALL');
+                    setSearchQuery('');
+                  }}
+                  className="btn-clear-all-filters"
+                  title="Reset all filters to show all transactions"
+                >
+                  <RotateCcw size={12} style={{ display: 'inline', marginRight: 4 }} />
+                  Reset All Filters
+                </button>
+              )}
+            </div>
+          </div>
 
           {/* Toolbar with Month-wise Filter, Year Filter, Type & Creditor Filters */}
           <div className="borrow-table-toolbar">
@@ -462,6 +626,7 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
                   value={typeFilter}
                   onChange={e => setTypeFilter(e.target.value as any)}
                   className="borrow-select-filter"
+                  title="Filter by Type"
                 >
                   <option value="ALL">All Types</option>
                   <option value="Borrow">Borrow (+INR)</option>
@@ -477,8 +642,9 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
                     value={selectedCreditorFilter}
                     onChange={e => setSelectedCreditorFilter(e.target.value)}
                     className="borrow-select-filter"
+                    title="Filter by Creditor"
                   >
-                    <option value="ALL">All Creditors</option>
+                    <option value="ALL">All Creditors ({existingCreditors.length})</option>
                     {existingCreditors.map(name => (
                       <option key={name} value={name}>{name}</option>
                     ))}
@@ -577,7 +743,314 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
       )}
 
       {/* =========================================================
-          STEP 2: PLANNED REPAYMENT (SCHEDULE & TARGETS IN INR ₹)
+          STEP 2: CREDITOR & YEARLY AGGREGATIONS (DEDICATED TABLE TAB)
+          ========================================================= */}
+      {activeStep === 'aggregation' && (
+        <>
+          {/* Top Aggregation KPI Cards */}
+          <div className="borrow-kpi-grid">
+            <div className="borrow-kpi-card borrow-card">
+              <div className="borrow-kpi-header">
+                <span className="borrow-kpi-label">TOTAL BORROWED</span>
+                <div className="borrow-kpi-icon borrow-icon">
+                  <ArrowDownLeft size={16} />
+                </div>
+              </div>
+              <div className="borrow-kpi-val borrow-text">
+                {formatINR(stats.totalBorrowed)}
+              </div>
+              <div className="borrow-kpi-meta">Across {stats.totalCreditorsCount} creditors</div>
+            </div>
+
+            <div className="borrow-kpi-card repaid-card">
+              <div className="borrow-kpi-header">
+                <span className="borrow-kpi-label">TOTAL REPAID</span>
+                <div className="borrow-kpi-icon repaid-icon">
+                  <ArrowUpRight size={16} />
+                </div>
+              </div>
+              <div className="borrow-kpi-val repaid-text">
+                {formatINR(stats.totalRepaid)}
+              </div>
+              <div className="borrow-kpi-meta">Total debt returned to creditors</div>
+            </div>
+
+            <div className="borrow-kpi-card" style={{ borderColor: 'rgba(56, 189, 248, 0.3)' }}>
+              <div className="borrow-kpi-header">
+                <span className="borrow-kpi-label">CREDIT GIVEN</span>
+                <div className="borrow-kpi-icon" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8' }}>
+                  <HandCoins size={16} />
+                </div>
+              </div>
+              <div className="borrow-kpi-val" style={{ color: '#38bdf8' }}>
+                {formatINR(stats.totalCreditGiven || 0)}
+              </div>
+              <div className="borrow-kpi-meta">{stats.creditGivenCreditorsCount} creditor(s) received credit</div>
+            </div>
+
+            <div className={`borrow-kpi-card ${stats.netOutstanding > 0 ? 'outstanding-card' : 'settled-card'}`}>
+              <div className="borrow-kpi-header">
+                <span className="borrow-kpi-label">NET OUTSTANDING</span>
+                <div className="borrow-kpi-icon outstanding-icon">
+                  <HandCoins size={16} />
+                </div>
+              </div>
+              <div className={`borrow-kpi-val ${stats.netOutstanding > 0 ? 'outstanding-text' : 'settled-text'}`}>
+                {formatINR(stats.netOutstanding)}
+              </div>
+              <div className="borrow-kpi-meta">
+                {stats.activeCreditorsCount} pending / {stats.settledCreditorsCount} settled
+              </div>
+            </div>
+          </div>
+
+          {/* Aggregation Table Search Toolbar */}
+          <div className="borrow-table-toolbar">
+            <div className="borrow-search-wrapper">
+              <Search size={15} className="search-icon" />
+              <input
+                type="text"
+                placeholder="Search creditor in aggregations..."
+                value={aggSearchQuery}
+                onChange={e => setAggSearchQuery(e.target.value)}
+                className="borrow-search-input"
+              />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                Showing <strong>{filteredCreditorSummaries.length}</strong> of <strong>{creditorSummaries.length}</strong> creditors
+              </span>
+              <button
+                type="button"
+                onClick={() => setActiveStep('credit_tracker')}
+                className="btn-table-filter-inspect"
+              >
+                ← Back to Ledger & Grid
+              </button>
+            </div>
+          </div>
+
+          {/* Comprehensive Aggregation Table */}
+          <div className="creditors-aggregation-table-wrap">
+            <table className="creditor-agg-table">
+              <thead>
+                <tr>
+                  <th>Creditor Name</th>
+                  <th className="text-align-right">Total Borrowed</th>
+                  <th className="text-align-right">Total Repaid</th>
+                  <th className="text-align-right">Credit Given</th>
+                  <th className="text-align-right">Net Balance</th>
+                  <th className="text-align-center">Tx Count</th>
+                  <th className="text-align-center">Status</th>
+                  <th>Last Activity</th>
+                  <th className="text-align-center">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredCreditorSummaries.length === 0 ? (
+                  <tr>
+                    <td colSpan={9} style={{ textAlign: 'center', padding: '32px', color: 'var(--text-muted)' }}>
+                      No creditors match the search "{aggSearchQuery}".
+                    </td>
+                  </tr>
+                ) : (
+                  filteredCreditorSummaries.map(c => {
+                    const isDue = c.netBalance > 0;
+                    const isSettled = c.netBalance === 0;
+                    const isCreditGiven = c.netBalance < 0;
+
+                    return (
+                      <tr
+                        key={c.creditorName}
+                        onClick={() => {
+                          setSelectedCreditorFilter(c.creditorName);
+                          setActiveStep('credit_tracker');
+                        }}
+                        title={`Click to view transactions for ${c.creditorName}`}
+                      >
+                        <td>
+                          <div className="creditor-name-cell">
+                            <div className="creditor-mini-avatar">
+                              {c.creditorName.charAt(0).toUpperCase()}
+                            </div>
+                            <span className="creditor-display-name">{c.creditorName}</span>
+                          </div>
+                        </td>
+
+                        <td className="amount-borrowed-col">
+                          {c.totalBorrowed > 0 ? `₹ ${c.totalBorrowed.toLocaleString('en-IN')}` : '—'}
+                        </td>
+
+                        <td className="amount-repaid-col">
+                          {c.totalRepaid > 0 ? `₹ ${c.totalRepaid.toLocaleString('en-IN')}` : '—'}
+                        </td>
+
+                        <td className="amount-credit-given-col">
+                          {c.creditGiven && c.creditGiven > 0 ? `₹ ${c.creditGiven.toLocaleString('en-IN')}` : '—'}
+                        </td>
+
+                        <td className={`net-balance-col ${isDue ? 'due' : isSettled ? 'settled' : 'credit-given'}`}>
+                          {isDue
+                            ? `Due: ₹ ${c.netBalance.toLocaleString('en-IN')}`
+                            : isSettled
+                            ? 'Cleared (₹0)'
+                            : `Given: ₹ ${Math.abs(c.netBalance).toLocaleString('en-IN')}`}
+                        </td>
+
+                        <td className="tx-count-col">
+                          {c.txCount || '—'}
+                        </td>
+
+                        <td className="text-align-center">
+                          <span className={`badge ${isSettled ? 'badge-emerald' : isCreditGiven ? 'badge-sky' : 'badge-amber'}`}>
+                            {c.status}
+                          </span>
+                        </td>
+
+                        <td className="last-activity-col">
+                          {c.lastActivityDate || '—'}
+                        </td>
+
+                        <td className="text-align-center" onClick={e => e.stopPropagation()}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedCreditorFilter(c.creditorName);
+                              setActiveStep('credit_tracker');
+                            }}
+                            className="btn-table-filter-inspect"
+                            title={`Inspect transactions for ${c.creditorName}`}
+                          >
+                            Inspect ({c.txCount || 0}) →
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+              <tfoot>
+                <tr className="aggregation-footer-row">
+                  <td>
+                    <div className="footer-label">
+                      <span>Grand Total</span>
+                      <span className="footer-reset-hint">({creditorSummaries.length} Creditors)</span>
+                    </div>
+                  </td>
+                  <td className="amount-borrowed-col">
+                    ₹ {stats.totalBorrowed.toLocaleString('en-IN')}
+                  </td>
+                  <td className="amount-repaid-col">
+                    ₹ {stats.totalRepaid.toLocaleString('en-IN')}
+                  </td>
+                  <td className="amount-credit-given-col">
+                    ₹ {(stats.totalCreditGiven || 0).toLocaleString('en-IN')}
+                  </td>
+                  <td className="net-balance-col due">
+                    ₹ {stats.netOutstanding.toLocaleString('en-IN')}
+                  </td>
+                  <td className="tx-count-col">
+                    {stats.totalTransactions}
+                  </td>
+                  <td colSpan={3} className="text-align-center">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedCreditorFilter('ALL');
+                        setActiveStep('credit_tracker');
+                      }}
+                      className="btn-clear-all-filters"
+                    >
+                      View All in Ledger →
+                    </button>
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          {/* Yearly Aggregations Historical Table */}
+          {yearlySummaries.length > 0 && (
+            <div style={{ marginTop: 28 }}>
+              <div className="creditors-header-bar" style={{ marginBottom: 12 }}>
+                <div className="creditors-header-title">
+                  <Calendar size={16} />
+                  <span>Yearly Aggregations (Historical Ledger)</span>
+                  <span className="creditors-count-badge">
+                    {yearlySummaries.length} Years
+                  </span>
+                </div>
+              </div>
+              <div className="creditors-aggregation-table-wrap">
+                <table className="creditor-agg-table">
+                  <thead>
+                    <tr>
+                      <th>Year</th>
+                      <th className="text-align-center">Transactions</th>
+                      <th className="text-align-right">Total Borrowed</th>
+                      <th className="text-align-right">Total Repaid</th>
+                      <th className="text-align-right">Credit Given</th>
+                      <th className="text-align-right">Net Position</th>
+                      <th className="text-align-center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {yearlySummaries.map(y => {
+                      const net = y.totalBorrowed - y.totalRepaid - y.creditGiven;
+                      return (
+                        <tr
+                          key={y.year}
+                          onClick={() => {
+                            setSelectedYear(y.year);
+                            setSelectedMonth('ALL');
+                            setSelectedCreditorFilter('ALL');
+                            setActiveStep('credit_tracker');
+                          }}
+                          title={`Click to view all transactions for ${y.year}`}
+                        >
+                          <td>
+                            <strong style={{ color: '#ffffff', fontSize: '0.95rem' }}>{y.year}</strong>
+                          </td>
+                          <td className="tx-count-col">{y.txCount}</td>
+                          <td className="amount-borrowed-col">
+                            {y.totalBorrowed > 0 ? `₹ ${y.totalBorrowed.toLocaleString('en-IN')}` : '—'}
+                          </td>
+                          <td className="amount-repaid-col">
+                            {y.totalRepaid > 0 ? `₹ ${y.totalRepaid.toLocaleString('en-IN')}` : '—'}
+                          </td>
+                          <td className="amount-credit-given-col">
+                            {y.creditGiven > 0 ? `₹ ${y.creditGiven.toLocaleString('en-IN')}` : '—'}
+                          </td>
+                          <td className={`net-balance-col ${net > 0 ? 'due' : 'settled'}`}>
+                            {net > 0 ? `+₹ ${net.toLocaleString('en-IN')}` : `₹ ${net.toLocaleString('en-IN')}`}
+                          </td>
+                          <td className="text-align-center" onClick={e => e.stopPropagation()}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedYear(y.year);
+                                setSelectedMonth('ALL');
+                                setSelectedCreditorFilter('ALL');
+                                setActiveStep('credit_tracker');
+                              }}
+                              className="btn-table-filter-inspect"
+                            >
+                              View {y.year} Records ({y.txCount}) →
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* =========================================================
+          STEP 3: PLANNED REPAYMENT (SCHEDULE & TARGETS IN INR ₹)
           ========================================================= */}
       {activeStep === 'planned_repayment' && (
         <>
