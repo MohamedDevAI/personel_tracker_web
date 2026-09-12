@@ -184,20 +184,30 @@ export const borrowRepayApi = {
         totalBorrowed: 0,
         totalRepaid: 0,
         netOutstanding: 0,
+        totalCreditGiven: 0,
         activeCreditorsCount: 0,
+        creditGivenCreditorsCount: 0,
         totalCreditorsCount: 0,
+        totalTransactionsCount: 0,
       };
     }
 
     let totalBorrowed = 0;
     let totalRepaid = 0;
+    let totalCreditGiven = 0;
 
     for (const r of list) {
       if (!r || typeof r !== 'object') continue;
+      const amt = Number(r.amount) || 0;
       if (r.type === 'Borrow') {
-        totalBorrowed += Number(r.amount) || 0;
+        if (amt < 0) {
+          totalCreditGiven += Math.abs(amt);
+          totalBorrowed += amt;
+        } else {
+          totalBorrowed += amt;
+        }
       } else {
-        totalRepaid += Number(r.amount) || 0;
+        totalRepaid += Math.abs(amt);
       }
     }
 
@@ -207,8 +217,11 @@ export const borrowRepayApi = {
       totalBorrowed,
       totalRepaid,
       netOutstanding: Math.max(0, totalBorrowed - totalRepaid),
+      totalCreditGiven,
       activeCreditorsCount: summaries.filter(s => s.netBalance > 0).length,
+      creditGivenCreditorsCount: summaries.filter(s => s.netBalance < 0).length,
       totalCreditorsCount: summaries.length,
+      totalTransactionsCount: list.length,
     };
   },
 
