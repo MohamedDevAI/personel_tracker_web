@@ -6,9 +6,9 @@ import CreditorsGrid from './borrow-repay/CreditorsGrid';
 import CreditLedgerTable from './borrow-repay/CreditLedgerTable';
 import AggregationTable from './borrow-repay/AggregationTable';
 import BorrowRepayModal from './BorrowRepayModal';
-import PlannedRepaymentModal from './PlannedRepaymentModal';
 import ConfirmDeleteModal from '../common/ConfirmDeleteModal';
-import PlannedRepayCreditGlanceView from './PlannedRepayCreditGlanceView';
+import PlannedRepayCreditGlanceView from './planned-repay/PlannedRepayCreditGlanceView';
+import PlannedRepaymentModal from './PlannedRepaymentModal';
 
 
 interface BorrowRepayViewProps {

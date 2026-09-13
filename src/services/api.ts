@@ -159,6 +159,16 @@ export const api = {
     return newItem;
   },
 
+  deleteHabit: async (id: string): Promise<boolean> => {
+    try {
+      await apiClient.delete(`/habits/${id}`);
+    } catch { /* fallback below */ }
+
+    const list = getLocal('habits').filter((x) => x.id !== id);
+    setLocal('habits', list);
+    return true;
+  },
+
   // ── Goals ─────────────────────────────────────────────────────────────────
 
   getGoals: async (): Promise<Goal[]> => {
