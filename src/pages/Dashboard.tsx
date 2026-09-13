@@ -101,7 +101,7 @@ export default function Dashboard() {
         </div>
 
         <div className="page-header-actions">
-          <button onClick={() => navigate('/habits')} className="btn btn-secondary">
+          <button onClick={() => navigate('/productivity/habits')} className="btn btn-secondary">
             <Flame size={14} color="#f59e0b" /> Daily Habits
           </button>
           <button onClick={() => navigate('/finances')} className="btn btn-secondary">
@@ -183,7 +183,7 @@ export default function Dashboard() {
               <h3 className="dashboard-card-title">Today's Habit Checklist</h3>
               <p className="dashboard-card-subtitle">Check off habits to compound your streak</p>
             </div>
-            <button onClick={() => navigate('/habits')} className="btn btn-secondary dashboard-btn-action">
+            <button onClick={() => navigate('/productivity/habits')} className="btn btn-secondary dashboard-btn-action">
               View All
             </button>
           </div>
@@ -282,7 +282,7 @@ export default function Dashboard() {
               <h3 className="dashboard-card-title">Strategic Milestones</h3>
               <p className="dashboard-card-subtitle">Quarterly and annual pursuits</p>
             </div>
-            <button onClick={() => navigate('/goals')} className="btn btn-secondary dashboard-btn-action">
+            <button onClick={() => navigate('/productivity/goals')} className="btn btn-secondary dashboard-btn-action">
               Manage
             </button>
           </div>
@@ -309,7 +309,7 @@ export default function Dashboard() {
               <h3 className="dashboard-card-title">High Priority Action Items</h3>
               <p className="dashboard-card-subtitle">Key deliverables for today</p>
             </div>
-            <button onClick={() => navigate('/tasks')} className="btn btn-secondary dashboard-btn-action">
+            <button onClick={() => navigate('/productivity/tasks')} className="btn btn-secondary dashboard-btn-action">
               Task Board
             </button>
           </div>

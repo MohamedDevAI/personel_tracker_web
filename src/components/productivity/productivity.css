@@ -1,0 +1,80 @@
+/* =========================================================
+   PRODUCTIVITY HUB STYLES (productivity.css)
+   ========================================================= */
+
+.productivity-hub-container {
+  padding: 0 24px 48px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.productivity-hub-header {
+  margin-bottom: 24px;
+}
+
+.productivity-nav-tabs-wrapper {
+  margin: 16px 0 24px 0;
+}
+
+.productivity-nav-tabs-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(16, 21, 34, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  padding: 6px;
+  border-radius: 14px;
+  width: fit-content;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.productivity-main-nav-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.productivity-main-nav-tab:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.productivity-main-nav-tab.active {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(168, 85, 247, 0.2));
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(129, 140, 248, 0.35);
+}
+
+.productivity-nav-pill-counter {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.productivity-nav-pill-counter.alert {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.productivity-subtab-content .page-container {
+  padding: 0;
+  max-width: 100%;
+}

@@ -8,7 +8,8 @@ import AggregationTable from './borrow-repay/AggregationTable';
 import BorrowRepayModal from './BorrowRepayModal';
 import PlannedRepaymentModal from './PlannedRepaymentModal';
 import ConfirmDeleteModal from '../common/ConfirmDeleteModal';
-import PlannedRepayCreditGlanceView from './planned-repay/PlannedRepayCreditGlanceView';
+import PlannedRepayCreditGlanceView from './PlannedRepayCreditGlanceView';
+
 
 interface BorrowRepayViewProps {
   initialMonth?: string;
@@ -33,11 +34,9 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
           {d.activeStep !== 'planned_repayment' ? (
             <>
               <button onClick={() => d.handleOpenCreditModal('Borrow')} className="btn btn-secondary btn-borrow-action">
-                <ArrowDownLeft size={16} /> + Log Borrow
-              </button>
+                <ArrowDownLeft size={16} />Log Borrow</button>
               <button onClick={() => d.handleOpenCreditModal('Repaid')} className="btn btn-primary">
-                <ArrowUpRight size={16} /> + Log Repayment
-              </button>
+                <ArrowUpRight size={16} /> Log Repayment</button>
             </>
           ) : (
             <button onClick={() => d.setIsPlannedModalOpen(true)} className="btn btn-primary">

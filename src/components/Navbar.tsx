@@ -26,9 +26,7 @@ interface NavbarProps {
 const navItems: NavItem[] = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/finances', label: 'Finances', icon: Wallet },
-  { path: '/habits', label: 'Habits', icon: Flame },
-  { path: '/goals', label: 'Goals', icon: Target },
-  { path: '/tasks', label: 'Tasks', icon: CheckSquare },
+  { path: '/productivity', label: 'Productivity', icon: CheckSquare },
 ];
 
 export default function Navbar({ backendStatus, theme, toggleTheme }: NavbarProps) {

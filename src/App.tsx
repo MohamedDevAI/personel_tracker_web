@@ -7,9 +7,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Dashboard from './pages/Dashboard';
 import ExpenseTracker from './pages/ExpenseTracker';
-import Habits from './pages/Habits';
-import Goals from './pages/Goals';
-import Tasks from './pages/Tasks';
+import ProductivityHub from './pages/ProductivityHub';
 import { useTheme } from './hooks/useTheme';
 import { useBackendHealth } from './hooks/useBackendHealth';
 import { ShieldCheck, GitBranch, Terminal } from 'lucide-react';
@@ -31,9 +29,10 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/finances" element={<ExpenseTracker />} />
-          <Route path="/habits" element={<Habits />} />
-          <Route path="/goals" element={<Goals />} />
-          <Route path="/tasks" element={<Tasks />} />
+          <Route path="/productivity/*" element={<ProductivityHub />} />
+          <Route path="/habits" element={<Navigate to="/productivity/habits" replace />} />
+          <Route path="/goals" element={<Navigate to="/productivity/goals" replace />} />
+          <Route path="/tasks" element={<Navigate to="/productivity/tasks" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
