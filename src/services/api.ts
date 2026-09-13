@@ -208,6 +208,16 @@ export const api = {
     return newItem;
   },
 
+  deleteGoal: async (id: string): Promise<boolean> => {
+    try {
+      await apiClient.delete(`/goals/${id}`);
+    } catch { /* fallback below */ }
+
+    const list = getLocal('goals').filter((g) => g.id !== id);
+    setLocal('goals', list);
+    return true;
+  },
+
   // ── Tasks ─────────────────────────────────────────────────────────────────
 
   getTasks: async (): Promise<TaskItem[]> => {
