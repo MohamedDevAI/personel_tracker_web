@@ -3,11 +3,11 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../services/api';
 import type { TaskItem, Goal, Habit } from '../types';
-import ProductivityTabsHeader, { ProductivityTabKey } from '../components/productivity/ProductivityTabsHeader';
+import ProductivityTabsHeader, { ProductivityTabKey } from '../components/life_os/productivity/ProductivityTabsHeader';
 import Tasks from './Tasks';
 import Goals from './Goals';
 import Habits from './Habits';
-import '../components/productivity/productivity.css';
+import '../components/life_os/productivity/productivity.css';
 
 export default function ProductivityHub() {
   const location = useLocation();

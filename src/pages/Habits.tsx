@@ -1,5 +1,5 @@
 import React from 'react';
-import HabitsView from '../components/habits/HabitsView';
+import HabitsView from '../components/life_os/habits/HabitsView';
 
 export default function Habits() {
   return (
