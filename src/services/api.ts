@@ -159,6 +159,16 @@ export const api = {
     return newItem;
   },
 
+  deleteHabit: async (id: string): Promise<boolean> => {
+    try {
+      await apiClient.delete(`/habits/${id}`);
+    } catch { /* fallback below */ }
+
+    const list = getLocal('habits').filter((x) => x.id !== id);
+    setLocal('habits', list);
+    return true;
+  },
+
   // ── Goals ─────────────────────────────────────────────────────────────────
 
   getGoals: async (): Promise<Goal[]> => {
@@ -196,6 +206,16 @@ export const api = {
     const newItem: Goal = { ...goal, id: Date.now().toString(), status: 'IN_PROGRESS' };
     setLocal('goals', [...list, newItem]);
     return newItem;
+  },
+
+  deleteGoal: async (id: string): Promise<boolean> => {
+    try {
+      await apiClient.delete(`/goals/${id}`);
+    } catch { /* fallback below */ }
+
+    const list = getLocal('goals').filter((g) => g.id !== id);
+    setLocal('goals', list);
+    return true;
   },
 
   // ── Tasks ─────────────────────────────────────────────────────────────────

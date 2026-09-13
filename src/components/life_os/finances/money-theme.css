@@ -1,0 +1,130 @@
+/* =========================================================
+   MONEY SCREEN DISTINCT DESIGN SYSTEM (money-theme.css)
+   ========================================================= */
+
+.money-screen-root {
+  --money-emerald: #10b981;
+  --money-emerald-glow: rgba(16, 185, 129, 0.25);
+  --money-gold: #fbbf24;
+  --money-gold-glow: rgba(251, 191, 36, 0.25);
+  --money-bg-surface: #0a1210;
+  --money-card-bg: rgba(12, 24, 20, 0.75);
+  --money-border: rgba(16, 185, 129, 0.18);
+  --money-border-hover: rgba(52, 211, 153, 0.4);
+
+  min-height: calc(100vh - 120px);
+  background: radial-gradient(circle at 50% -10%, rgba(16, 185, 129, 0.12) 0%, rgba(245, 158, 11, 0.04) 45%, transparent 75%);
+  padding: 0 24px 48px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.money-header-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--money-border);
+}
+
+.money-title-text {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.money-gold-gradient {
+  background: linear-gradient(135deg, #34d399 0%, #fbbf24 50%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.money-sub-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Distinct Nav Tabs Bar for Money */
+.money-nav-tabs-wrapper {
+  margin: 8px 0 28px 0;
+}
+
+.money-nav-tabs-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(8, 18, 14, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--money-border);
+  padding: 6px;
+  border-radius: 16px;
+  width: fit-content;
+  max-width: 100%;
+  overflow-x: auto;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+}
+
+.money-nav-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  white-space: nowrap;
+}
+
+.money-nav-tab-btn:hover {
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.money-nav-tab-btn.active {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(245, 158, 11, 0.18) 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+}
+
+.money-tab-counter {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: rgba(16, 185, 129, 0.25);
+  color: #a7f3d0;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.money-tab-counter.alert {
+  background: rgba(245, 158, 11, 0.25);
+  color: #fde047;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+/* Glass Panels inside Money Screen */
+.money-screen-root .glass-panel {
+  background: var(--money-card-bg);
+  border-color: var(--money-border);
+}
+
+.money-screen-root .glass-panel:hover {
+  border-color: var(--money-border-hover);
+}

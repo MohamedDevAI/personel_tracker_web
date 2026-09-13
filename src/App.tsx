@@ -1,15 +1,7 @@
-/**
- * App Shell — Layout, routing, and app-level concerns only.
- * Individual pages manage their own data fetching and state.
- */
-
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import Dashboard from './pages/Dashboard';
-import ExpenseTracker from './pages/ExpenseTracker';
-import Habits from './pages/Habits';
-import Goals from './pages/Goals';
-import Tasks from './pages/Tasks';
+import LifeOSHub from './pages/LifeOSHub';
+import MoneyHub from './pages/MoneyHub';
 import { useTheme } from './hooks/useTheme';
 import { useBackendHealth } from './hooks/useBackendHealth';
 import { ShieldCheck, GitBranch, Terminal } from 'lucide-react';
@@ -29,12 +21,17 @@ export default function App() {
 
       <main className="app-main-content">
         <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/finances" element={<ExpenseTracker />} />
-          <Route path="/habits" element={<Habits />} />
-          <Route path="/goals" element={<Goals />} />
-          <Route path="/tasks" element={<Tasks />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/" element={<Navigate to="/life-os/overview" replace />} />
+          <Route path="/life-os/*" element={<LifeOSHub />} />
+          <Route path="/money/*" element={<MoneyHub />} />
+
+          {/* Backwards compatibility redirects */}
+          <Route path="/finances/*" element={<Navigate to="/money" replace />} />
+          <Route path="/productivity/*" element={<Navigate to="/life-os/tasks" replace />} />
+          <Route path="/habits" element={<Navigate to="/life-os/habits" replace />} />
+          <Route path="/goals" element={<Navigate to="/life-os/goals" replace />} />
+          <Route path="/tasks" element={<Navigate to="/life-os/tasks" replace />} />
+          <Route path="*" element={<Navigate to="/life-os/overview" replace />} />
         </Routes>
       </main>
 
@@ -42,7 +39,7 @@ export default function App() {
       <footer className="app-footer">
         <div className="app-footer-brand-info">
           <ShieldCheck size={16} color="#10b981" />
-          <span>Personal Tracker Architecture • Spring Boot 3.x (Java 25 Target) & React</span>
+          <span>Personal Tracker Architecture • Life OS & Money Engine • Spring Boot 3.x & React</span>
         </div>
         <div className="app-footer-links-group">
           <span className="app-footer-item">

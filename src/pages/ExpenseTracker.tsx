@@ -3,23 +3,22 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { expenseApi } from '../services/expenseApi';
 import { MONTH_NAMES, getCurrentYear, getCurrentMonth } from '../utils/dateHelpers';
 import { Plus, Tag, ArrowDownRight, CheckCircle2, Search } from 'lucide-react';
-import { Category, Transaction, TransactionType } from '../types';
-import { parseTxDate } from '../components/finances/financeConstants';
-import MonthYearFilter from '../components/finances/MonthYearFilter';
-import FinanceSummaryCards from '../components/finances/FinanceSummaryCards';
-import TransactionTable from '../components/finances/TransactionTable';
-import OutflowBreakdownCard from '../components/finances/OutflowBreakdownCard';
-import CategoryTable from '../components/finances/CategoryTable';
-import TransactionModal from '../components/finances/TransactionModal';
-import CategoryModal from '../components/finances/CategoryModal';
-import FinanceTabsHeader, { FinanceTabKey } from '../components/finances/FinanceTabsHeader';
-import BorrowRepayView from '../components/finances/BorrowRepayView';
-import PlannedExpensesView from '../components/finances/PlannedExpensesView';
-import FinanceAnalyticsReportView from '../components/finances/FinanceAnalyticsReportView';
+import { Category, Transaction, TransactionType, BorrowRepayRecord } from '../types';
+import { parseTxDate } from '../components/life_os/finances/financeConstants';
+import MonthYearFilter from '../components/life_os/finances/MonthYearFilter';
+import FinanceSummaryCards from '../components/life_os/finances/FinanceSummaryCards';
+import TransactionTable from '../components/life_os/finances/TransactionTable';
+import OutflowBreakdownCard from '../components/life_os/finances/OutflowBreakdownCard';
+import CategoryTable from '../components/life_os/finances/CategoryTable';
+import TransactionModal from '../components/life_os/finances/TransactionModal';
+import CategoryModal from '../components/life_os/finances/CategoryModal';
+import FinanceTabsHeader, { FinanceTabKey } from '../components/life_os/finances/FinanceTabsHeader';
+import BorrowRepayView from '../components/life_os/finances/BorrowRepayView';
+import PlannedExpensesView from '../components/life_os/finances/planned-expenses/PlannedExpensesView';
 import { borrowRepayApi } from '../services/borrowRepayApi';
 import { plannedExpenseApi } from '../services/plannedExpenseApi';
 import ConfirmDeleteModal from '../components/common/ConfirmDeleteModal';
-import '../components/finances/finances.css';
+import '../components/life_os/finances/finances.css';
 
 export default function ExpenseTracker() {
   const queryClient = useQueryClient();
@@ -38,10 +37,15 @@ export default function ExpenseTracker() {
     queryFn: () => expenseApi.getCategories()
   });
 
+  const { data: borrowRecords = [] } = useQuery<BorrowRepayRecord[]>({
+    queryKey: ['borrowRepayRecords'],
+    queryFn: borrowRepayApi.getRecords
+  });
+
   // Dynamic pill counters for sub-tabs
   const outstandingDebtCount = useMemo(() => {
-    return borrowRepayApi.getCreditorSummaries().filter(s => s.netBalance > 0).length;
-  }, [financeMainTab]);
+    return borrowRepayApi.getCreditorSummaries(borrowRecords).filter(s => s.netBalance > 0).length;
+  }, [borrowRecords, financeMainTab]);
 
   const activePlansCount = useMemo(() => {
     return plannedExpenseApi.getPlannedExpenses().filter(p => p.status === 'Planned').length;
@@ -491,21 +495,9 @@ export default function ExpenseTracker() {
 
       {/* View 3: Borrow and Repay (Dedicated Creditor Tracker in INR ₹) */}
       {financeMainTab === 'borrow_repay' && (
-        <BorrowRepayView
-          initialMonth={selectedMonth !== 'All' ? selectedMonth : getCurrentMonth()}
-          initialYear={String(selectedYear)}
-        />
+        <BorrowRepayView />
       )}
 
-      {/* View 4: Analytics and Report (Unified Combination) */}
-      {financeMainTab === 'analytics' && (
-        <FinanceAnalyticsReportView
-          transactions={transactions}
-          categories={categories}
-          initialMonth={selectedMonth !== 'All' ? selectedMonth : getCurrentMonth()}
-          initialYear={selectedYear}
-        />
-      )}
 
       {/* Add Transaction Dialog */}
       <TransactionModal

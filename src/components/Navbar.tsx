@@ -1,21 +1,8 @@
-/**
- * Navigation bar with react-router-dom NavLink integration.
- * Uses URL-based navigation instead of manual state callbacks.
- */
-
-import { NavLink, useNavigate } from 'react-router-dom';
-import {
-  LayoutDashboard, Wallet, Flame, Target, CheckSquare,
-  Plus, Database, Sparkles, Moon, Sun, LucideIcon,
-} from 'lucide-react';
+import React from 'react';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { Sparkles, Coins, Database, Moon, Sun, Layers, CircleDollarSign } from 'lucide-react';
 import type { BackendHealth } from '../types';
 import './Navbar.css';
-
-interface NavItem {
-  path: string;
-  label: string;
-  icon: LucideIcon;
-}
 
 interface NavbarProps {
   backendStatus: BackendHealth;
@@ -23,60 +10,84 @@ interface NavbarProps {
   toggleTheme: () => void;
 }
 
-const navItems: NavItem[] = [
-  { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/finances', label: 'Finances', icon: Wallet },
-  { path: '/habits', label: 'Habits', icon: Flame },
-  { path: '/goals', label: 'Goals', icon: Target },
-  { path: '/tasks', label: 'Tasks', icon: CheckSquare },
-];
-
 export default function Navbar({ backendStatus, theme, toggleTheme }: NavbarProps) {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isMoneyApp = location.pathname.startsWith('/money');
 
   return (
-    <header className="glass-panel navbar-header">
-      {/* Brand */}
-      <div className="navbar-brand" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-        <div className="navbar-brand-icon">
-          <Sparkles size={22} />
+    <header className={`glass-panel navbar-header ${isMoneyApp ? 'is-money-app' : ''}`}>
+      {/* Dynamic App Brand */}
+      <div
+        className="navbar-brand"
+        onClick={() => navigate(isMoneyApp ? '/money' : '/life-os')}
+        style={{ cursor: 'pointer' }}
+      >
+        <div className={`navbar-brand-icon ${isMoneyApp ? 'money-brand-icon' : ''}`}>
+          {isMoneyApp ? <Coins size={22} color="#fbbf24" /> : <Sparkles size={22} color="#ffffff" />}
         </div>
         <div>
           <div className="navbar-brand-title-wrap">
             <span className="navbar-brand-title">
-              Personal<span className="gradient-text">Tracker</span>
+              {isMoneyApp ? (
+                <>
+                  Money <span className="money-gold-gradient">OS</span>
+                </>
+              ) : (
+                <>
+                  Life <span className="gradient-text">OS</span>
+                </>
+              )}
             </span>
-            <span className="badge badge-indigo navbar-pro-badge">PRO</span>
+            <span className={`badge ${isMoneyApp ? 'badge-amber' : 'badge-indigo'} navbar-pro-badge`}>
+              {isMoneyApp ? 'MONEY APP' : 'LIFE OS APP'}
+            </span>
           </div>
-          <div className="navbar-brand-subtitle">Life, Finances & Habits Engine</div>
+          <div className="navbar-brand-subtitle">
+            {isMoneyApp ? 'Wealth Management & Financial Suite' : 'Executive Tasks, Goals & Habit Engine'}
+          </div>
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <nav className="navbar-nav">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.path === '/'}
-              className={({ isActive }) => `navbar-tab-btn ${isActive ? 'active' : ''}`}
-            >
-              <Icon size={16} />
-              <span>{item.label}</span>
-            </NavLink>
-          );
-        })}
-      </nav>
+      {/* Dual Application Switcher Bar */}
+      <div className="app-switcher-container">
+        <span className="app-switcher-label">APPLICATIONS:</span>
+        <div className="app-switcher-tabs">
+          <NavLink
+            to="/life-os"
+            className={({ isActive }) =>
+              `app-switcher-btn ${
+                isActive || location.pathname === '/' || location.pathname.startsWith('/productivity')
+                  ? 'active-life-os'
+                  : ''
+              }`
+            }
+          >
+            <Sparkles size={15} />
+            <span>Life OS</span>
+          </NavLink>
 
-      {/* Actions & Status */}
+          <NavLink
+            to="/money"
+            className={({ isActive }) =>
+              `app-switcher-btn ${isActive || location.pathname.startsWith('/finances') ? 'active-money-os' : ''}`
+            }
+          >
+            <Coins size={15} />
+            <span>Money</span>
+          </NavLink>
+        </div>
+      </div>
+
+      {/* System Status & Controls */}
       <div className="navbar-actions">
-        {/* Backend / Mongo Atlas Indicator */}
         <div
-          title={backendStatus.connected
-            ? 'Spring Boot & MongoDB Atlas connected'
-            : 'Spring Boot offline / running local storage cache'}
+          title={
+            backendStatus.connected
+              ? 'Spring Boot & MongoDB Atlas connected'
+              : 'Spring Boot offline / running local storage cache'
+          }
           className={`navbar-status-badge ${
             backendStatus.connected ? 'navbar-status-connected' : 'navbar-status-local'
           }`}
@@ -85,12 +96,13 @@ export default function Navbar({ backendStatus, theme, toggleTheme }: NavbarProp
           <span className="navbar-status-label">
             {backendStatus.connected ? 'Server: Live' : 'Atlas Ready (Local)'}
           </span>
-          <span className={`navbar-status-dot ${
-            backendStatus.connected ? 'navbar-status-dot-connected' : 'navbar-status-dot-local'
-          }`} />
+          <span
+            className={`navbar-status-dot ${
+              backendStatus.connected ? 'navbar-status-dot-connected' : 'navbar-status-dot-local'
+            }`}
+          />
         </div>
 
-        {/* Theme Toggle */}
         <button onClick={toggleTheme} className="btn-icon" title="Toggle Theme">
           {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
         </button>
