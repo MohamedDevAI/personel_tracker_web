@@ -48,6 +48,36 @@ export const formatPercent = (value: number, decimals = 1): string => {
   return `${Number(value).toFixed(decimals)}%`;
 };
 
+/**
+ * Compact INR display for large amounts:
+ *   1,20,000  → ₹1.2L
+ *   1,20,00,000 → ₹1.2Cr
+ *   500 → ₹500
+ */
+export const formatINRCompact = (amount: number): string => {
+  const abs = Math.abs(amount);
+  const sign = amount < 0 ? '-' : '';
+  if (abs >= 1_00_00_000) {
+    return `${sign}₹${(abs / 1_00_00_000).toFixed(2)}Cr`;
+  }
+  if (abs >= 1_00_000) {
+    return `${sign}₹${(abs / 1_00_000).toFixed(2)}L`;
+  }
+  if (abs >= 1_000) {
+    return `${sign}₹${(abs / 1_000).toFixed(1)}K`;
+  }
+  return `${sign}₹${abs.toFixed(0)}`;
+};
+
+/**
+ * Format a percentage change with explicit sign and optional color hint string.
+ * e.g. 4.25 → "+4.25%" | -2.1 → "-2.10%"
+ */
+export const formatPctChange = (value: number, decimals = 2): string => {
+  const sign = value >= 0 ? '+' : '';
+  return `${sign}${Number(value).toFixed(decimals)}%`;
+};
+
 // ─── Date Formatters ──────────────────────────────────────────────────────────
 
 /** Format a date string for display (e.g. "Wednesday, Sep 10, 2026") */
