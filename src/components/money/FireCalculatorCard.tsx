@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import type { FireCalculationResult, FireSettings } from '../../services/financialHealthService';
 import { formatINR, formatINRCompact, formatPercent } from '../../utils/formatters';
+import { useMoneyPrivacy } from '../../context/MoneyPrivacyContext';
 
 interface FireCalculatorCardProps {
   fireResult: FireCalculationResult;
@@ -21,6 +22,7 @@ export default function FireCalculatorCard({
   fireResult,
   onUpdateSettings
 }: FireCalculatorCardProps) {
+  const { mask } = useMoneyPrivacy();
   const [showSettings, setShowSettings] = useState(false);
   const [tempExpense, setTempExpense] = useState(String(fireResult.monthlyExpenses));
   const [multiplier, setMultiplier] = useState(25);
@@ -126,9 +128,9 @@ export default function FireCalculatorCard({
           Target Freedom Corpus ({multiplier}x Annual Expense)
         </div>
         <div className="fire-big-number">
-          <span>{formatINR(currentTarget)}</span>
+          <span>{mask(formatINR(currentTarget))}</span>
           <span style={{ fontSize: '1.15rem', color: '#fbbf24', fontWeight: 700 }}>
-            ({formatINRCompact(currentTarget)})
+            ({mask(formatINRCompact(currentTarget))})
           </span>
         </div>
       </div>
@@ -137,7 +139,7 @@ export default function FireCalculatorCard({
       <div className="fire-progress-container">
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', marginBottom: 6 }}>
           <span style={{ color: 'var(--text-secondary)' }}>
-            Current Net Worth: <strong style={{ color: '#fff' }}>{formatINRCompact(currentNetWorth)}</strong>
+            Current Net Worth: <strong style={{ color: '#fff' }}>{mask(formatINRCompact(currentNetWorth))}</strong>
           </span>
           <span style={{ color: '#34d399', fontWeight: 800 }}>
             {formatPercent(currentProgress, 1)} Reached
@@ -152,7 +154,7 @@ export default function FireCalculatorCard({
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 4 }}>
-          <span>Shortfall: {formatINR(Math.max(0, currentTarget - currentNetWorth))}</span>
+          <span>Shortfall: {mask(formatINR(Math.max(0, currentTarget - currentNetWorth)))}</span>
           <span>
             {yearsToFire > 0
               ? `Est. Freedom: ~${yearsToFire} Years (Year ${targetYear})`
@@ -171,7 +173,7 @@ export default function FireCalculatorCard({
           }}
         >
           <div className="fire-milestone-label">Lean FIRE (20x)</div>
-          <div className="fire-milestone-val">{formatINRCompact(leanFireTarget)}</div>
+          <div className="fire-milestone-val">{mask(formatINRCompact(leanFireTarget))}</div>
           <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Essential only</div>
         </div>
 
@@ -184,7 +186,7 @@ export default function FireCalculatorCard({
         >
           <div className="fire-milestone-label">Standard (25x)</div>
           <div className="fire-milestone-val" style={{ color: '#34d399' }}>
-            {formatINRCompact(standardFireTarget)}
+            {mask(formatINRCompact(standardFireTarget))}
           </div>
           <div style={{ fontSize: '0.68rem', color: '#34d399' }}>4% Rule Standard</div>
         </div>
@@ -197,7 +199,7 @@ export default function FireCalculatorCard({
           }}
         >
           <div className="fire-milestone-label">Fat FIRE (33x)</div>
-          <div className="fire-milestone-val">{formatINRCompact(fatFireTarget)}</div>
+          <div className="fire-milestone-val">{mask(formatINRCompact(fatFireTarget))}</div>
           <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Luxury & Travel</div>
         </div>
       </div>

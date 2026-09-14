@@ -1,20 +1,18 @@
 import React, { useState } from 'react';
 import {
-  Coins,
   ShieldCheck,
   CircleDollarSign,
-  Plus,
-  Compass,
-  PieChart as PieIcon,
   TrendingUp,
-  Layers,
-  Flame,
-  Award
+  LayoutDashboard,
+  Activity,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { investmentApi } from '../services/investmentApi';
 import { borrowRepayApi } from '../services/borrowRepayApi';
 import { api } from '../services/api';
+import { tradingService } from '../services/tradingService';
 import {
   computeFinancialHealth,
   calculateFireNumbers,
@@ -23,7 +21,10 @@ import {
   saveHealthAnswer,
   FireSettings
 } from '../services/financialHealthService';
-import type { InvestmentHolding, InvestmentCategory, Expense } from '../types';
+import type { InvestmentHolding, InvestmentCategory, Expense, Trade } from '../types';
+import { MoneyPrivacyProvider, useMoneyPrivacy } from '../context/MoneyPrivacyContext';
+
+// Investment Components
 import NetWorthHeroCard from '../components/money/NetWorthHeroCard';
 import CategoryBreakdownCards from '../components/money/CategoryBreakdownCards';
 import InvestmentAssetAllocationChart from '../components/money/InvestmentAssetAllocationChart';
@@ -33,10 +34,23 @@ import InvestmentModal from '../components/money/InvestmentModal';
 import FinancialHealthCard from '../components/money/FinancialHealthCard';
 import FinancialHealthModal from '../components/money/FinancialHealthModal';
 import FireCalculatorCard from '../components/money/FireCalculatorCard';
+
+// Trading Components
+import TradingKPIHeader from '../components/money/trading/TradingKPIHeader';
+import TradingPerformanceChart from '../components/money/trading/TradingPerformanceChart';
+import TradingPositionsTable from '../components/money/trading/TradingPositionsTable';
+import TradeModal from '../components/money/trading/TradeModal';
+
 import '../components/money/money-theme.css';
 
-export default function MoneyHub() {
+type MainTab = 'dashboard' | 'investment' | 'trading';
+
+function MoneyHubInner() {
   const queryClient = useQueryClient();
+  const { isMoneyHidden, toggleHideMoney } = useMoneyPrivacy();
+
+  // Active top navigation tab: 'dashboard' | 'investment' | 'trading'
+  const [activeTab, setActiveTab] = useState<MainTab>('dashboard');
 
   // Selected category filter: 'All' | 'Stocks' | 'Mutual Funds' | 'Bonds' | 'FDs'
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -51,6 +65,10 @@ export default function MoneyHub() {
   const [isDiagnosticOpen, setIsDiagnosticOpen] = useState(false);
   const [, setHealthStateNonce] = useState(0);
   const [, setFireSettingsNonce] = useState(0);
+
+  // Modal State for Trading
+  const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
+  const [editingTrade, setEditingTrade] = useState<Trade | null>(null);
 
   // Fetch Investment Holdings
   const {
@@ -72,6 +90,15 @@ export default function MoneyHub() {
   const { data: borrowRecords = [] } = useQuery({
     queryKey: ['borrowRepayRecords'],
     queryFn: borrowRepayApi.getRecords,
+  });
+
+  // Fetch Trading Positions & Trades
+  const {
+    data: trades = [],
+    refetch: refetchTrades,
+  } = useQuery<Trade[]>({
+    queryKey: ['tradingTrades'],
+    queryFn: tradingService.getTrades,
   });
 
   // Compute Liquid Cash Balance
@@ -118,6 +145,10 @@ export default function MoneyHub() {
     portfolioStats.monthlySipTotal || 0,
     fireSettings
   );
+
+  // Trading Stats
+  const tradingStats = tradingService.computeTradingStats(trades);
+  const openTradesCount = trades.filter((t) => t.status === 'OPEN').length;
 
   const handleTogglePillar = (pillarId: string, newState: boolean) => {
     saveHealthAnswer(pillarId, newState);
@@ -171,7 +202,38 @@ export default function MoneyHub() {
   };
 
   const handleRefresh = async () => {
-    await refetchHoldings();
+    await Promise.all([refetchHoldings(), refetchTrades()]);
+  };
+
+  // Handlers for Trading Actions
+  const handleOpenAddTrade = () => {
+    setEditingTrade(null);
+    setIsTradeModalOpen(true);
+  };
+
+  const handleEditTrade = (trade: Trade) => {
+    setEditingTrade(trade);
+    setIsTradeModalOpen(true);
+  };
+
+  const handleSaveTrade = async (tradeData: Partial<Trade>) => {
+    if (editingTrade) {
+      await tradingService.updateTrade(editingTrade.id, tradeData);
+    } else {
+      await tradingService.createTrade(tradeData as Omit<Trade, 'id'>);
+    }
+    queryClient.invalidateQueries({ queryKey: ['tradingTrades'] });
+    setIsTradeModalOpen(false);
+  };
+
+  const handleCloseTrade = async (id: string, exitPrice: number) => {
+    await tradingService.closeTrade(id, exitPrice);
+    queryClient.invalidateQueries({ queryKey: ['tradingTrades'] });
+  };
+
+  const handleDeleteTrade = async (id: string) => {
+    await tradingService.deleteTrade(id);
+    queryClient.invalidateQueries({ queryKey: ['tradingTrades'] });
   };
 
   return (
@@ -182,33 +244,33 @@ export default function MoneyHub() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
             <span className="money-sub-badge">
               <CircleDollarSign size={13} style={{ display: 'inline', marginRight: 4 }} />
-              Investment & Wealth Engine
-            </span>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              Comprehensive Portfolio Center
+              Personal Wealth & Capital Engine
             </span>
           </div>
           <h1 className="money-title-text">
-            Net Worth & <span className="money-gold-gradient">Investment Command Center</span>
+            Net Worth & <span className="money-gold-gradient">Financial Command Center</span>
           </h1>
           <p className="page-header-subtitle">
-            Centralized visualization centre for tracking your Fixed Deposits, Bonds, Stocks, and SIPs in INR (₹).
+            Centralized visualization centre for tracking your Fixed Deposits, Bonds, Stocks, SIPs & Trading in INR (₹).
           </p>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          {/* Eye Hide/Unhide Money Button */}
+          <button
+            onClick={toggleHideMoney}
+            className={`money-eye-toggle-btn ${isMoneyHidden ? 'active-hidden' : ''}`}
+            title={isMoneyHidden ? 'Click to unhide monetary balances' : 'Click to hide monetary balances'}
+          >
+            {isMoneyHidden ? <EyeOff size={16} /> : <Eye size={16} />}
+            <span>{isMoneyHidden ? 'Show Balances' : 'Hide Balances'}</span>
+          </button>
+
+          {/* Health Score Pill */}
           <span
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              fontSize: '0.8rem',
-              color: 'var(--text-secondary)',
-              background: 'rgba(255, 255, 255, 0.04)',
-              padding: '6px 14px',
-              borderRadius: 20,
-              border: '1px solid rgba(255, 255, 255, 0.08)'
-            }}
+            className="money-header-health-badge"
+            onClick={() => setIsDiagnosticOpen(true)}
+            title="Click to view Financial Health Diagnostic"
           >
             <ShieldCheck size={14} color="#10b981" />
             <span>Health Score: {healthResult.totalScore}/100</span>
@@ -216,66 +278,153 @@ export default function MoneyHub() {
         </div>
       </div>
 
-      {/* 1. Net Worth Hero Card */}
-      <NetWorthHeroCard
-        netWorth={totalNetWorth}
-        portfolioValue={portfolioStats.currentValue}
-        totalInvested={portfolioStats.totalInvested}
-        totalReturn={portfolioStats.totalReturn}
-        totalReturnPct={portfolioStats.totalReturnPct}
-        todayChange={portfolioStats.todayChange}
-        todayChangePct={portfolioStats.todayChangePct}
-        cashLiquidity={cashLiquidity}
-        debtLiabilities={debtLiabilities}
-        activeSipMonthly={portfolioStats.monthlySipTotal || 0}
-        includeCashAndDebt={includeCashAndDebt}
-        onToggleNetWorthMode={() => setIncludeCashAndDebt((prev) => !prev)}
-        onOpenAddModal={() => handleOpenAdd()}
-        onRefresh={handleRefresh}
-        isRefreshing={isFetchingHoldings}
-      />
+      {/* 3 Main Tabs: Dashboard | Investment | Trading */}
+      <div className="money-main-tabs-bar">
+        <button
+          className={`money-main-tab-btn ${activeTab === 'dashboard' ? 'active' : ''}`}
+          onClick={() => setActiveTab('dashboard')}
+        >
+          <LayoutDashboard size={17} />
+          <span>Dashboard</span>
+        </button>
 
-      {/* 2. Financial Health Score & FIRE Freedom Hub */}
-      <div className="financial-intelligence-grid">
-        <FinancialHealthCard
-          healthResult={healthResult}
-          onOpenDiagnostic={() => setIsDiagnosticOpen(true)}
-        />
-        <FireCalculatorCard
-          fireResult={fireResult}
-          onUpdateSettings={handleUpdateFireSettings}
-        />
+        <button
+          className={`money-main-tab-btn ${activeTab === 'investment' ? 'active' : ''}`}
+          onClick={() => setActiveTab('investment')}
+        >
+          <TrendingUp size={17} />
+          <span>Investment</span>
+          <span className="money-tab-count-pill">{holdings.length}</span>
+        </button>
+
+        <button
+          className={`money-main-tab-btn tab-trading ${activeTab === 'trading' ? 'active' : ''}`}
+          onClick={() => setActiveTab('trading')}
+        >
+          <Activity size={17} />
+          <span>Trading</span>
+          <span className="money-tab-count-pill">{openTradesCount} Open</span>
+        </button>
       </div>
 
-      {/* 3. Four Asset Class KPI Cards (FD, Bonds, Stocks, SIPs) */}
-      <CategoryBreakdownCards
-        holdings={holdings}
-        selectedCategory={selectedCategory}
-        onSelectCategory={(cat) => setSelectedCategory(cat)}
-      />
+      {/* ========================================================
+          TAB 1: DASHBOARD
+          ======================================================== */}
+      {activeTab === 'dashboard' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          {/* 1. Net Worth Hero Card */}
+          <NetWorthHeroCard
+            netWorth={totalNetWorth}
+            portfolioValue={portfolioStats.currentValue}
+            totalInvested={portfolioStats.totalInvested}
+            totalReturn={portfolioStats.totalReturn}
+            totalReturnPct={portfolioStats.totalReturnPct}
+            todayChange={portfolioStats.todayChange}
+            todayChangePct={portfolioStats.todayChangePct}
+            cashLiquidity={cashLiquidity}
+            debtLiabilities={debtLiabilities}
+            activeSipMonthly={portfolioStats.monthlySipTotal || 0}
+            includeCashAndDebt={includeCashAndDebt}
+            onToggleNetWorthMode={() => setIncludeCashAndDebt((prev) => !prev)}
+            onOpenAddModal={() => handleOpenAdd()}
+            onRefresh={handleRefresh}
+            isRefreshing={isFetchingHoldings}
+          />
 
-      {/* 4. Visualization Centre (Asset Allocation Donut + Growth Trajectory / Comparison Chart) */}
-      <div className="visualization-centre-grid">
-        <InvestmentAssetAllocationChart
-          holdings={holdings}
-          cashLiquidity={cashLiquidity}
-          includeCash={includeCashAndDebt}
-        />
+          {/* 2. Financial Health Score & FIRE Freedom Hub */}
+          <div className="financial-intelligence-grid">
+            <FinancialHealthCard
+              healthResult={healthResult}
+              onOpenDiagnostic={() => setIsDiagnosticOpen(true)}
+            />
+            <FireCalculatorCard
+              fireResult={fireResult}
+              onUpdateSettings={handleUpdateFireSettings}
+            />
+          </div>
 
-        <InvestmentPerformanceChart holdings={holdings} />
-      </div>
+          {/* 3. Four Asset Class KPI Cards (FD, Bonds, Stocks, SIPs) */}
+          <CategoryBreakdownCards
+            holdings={holdings}
+            selectedCategory={selectedCategory}
+            onSelectCategory={(cat) => setSelectedCategory(cat)}
+          />
 
-      {/* 5. Filterable Holdings Management Table */}
-      <HoldingsTable
-        holdings={holdings}
-        selectedCategory={selectedCategory}
-        onSelectCategory={(cat) => setSelectedCategory(cat)}
-        onOpenAddModal={(cat) => handleOpenAdd(cat)}
-        onEditHolding={handleEditHolding}
-        onDeleteHolding={handleDeleteHolding}
-      />
+          {/* 4. Visualization Centre (Asset Allocation Donut + Growth Comparison Chart) */}
+          <div className="visualization-centre-grid">
+            <InvestmentAssetAllocationChart
+              holdings={holdings}
+              cashLiquidity={cashLiquidity}
+              includeCash={includeCashAndDebt}
+            />
+            <InvestmentPerformanceChart holdings={holdings} />
+          </div>
+        </div>
+      )}
 
-      {/* 6. Add / Edit Investment Modal */}
+      {/* ========================================================
+          TAB 2: INVESTMENT
+          ======================================================== */}
+      {activeTab === 'investment' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          {/* Category Breakdown Cards */}
+          <CategoryBreakdownCards
+            holdings={holdings}
+            selectedCategory={selectedCategory}
+            onSelectCategory={(cat) => setSelectedCategory(cat)}
+          />
+
+          {/* Visualization Centre (Donut + Performance Chart) */}
+          <div className="visualization-centre-grid">
+            <InvestmentAssetAllocationChart
+              holdings={holdings}
+              cashLiquidity={cashLiquidity}
+              includeCash={includeCashAndDebt}
+            />
+            <InvestmentPerformanceChart holdings={holdings} />
+          </div>
+
+          {/* Filterable Holdings Management Table */}
+          <HoldingsTable
+            holdings={holdings}
+            selectedCategory={selectedCategory}
+            onSelectCategory={(cat) => setSelectedCategory(cat)}
+            onOpenAddModal={(cat) => handleOpenAdd(cat)}
+            onEditHolding={handleEditHolding}
+            onDeleteHolding={handleDeleteHolding}
+          />
+        </div>
+      )}
+
+      {/* ========================================================
+          TAB 3: TRADING
+          ======================================================== */}
+      {activeTab === 'trading' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          {/* Trading KPI Header */}
+          <TradingKPIHeader
+            stats={tradingStats}
+            onOpenAddModal={handleOpenAddTrade}
+          />
+
+          {/* Trading Performance & Equity Curve Chart */}
+          <TradingPerformanceChart trades={trades} />
+
+          {/* Positions & Journal Table */}
+          <TradingPositionsTable
+            trades={trades}
+            onOpenAddModal={handleOpenAddTrade}
+            onEditTrade={handleEditTrade}
+            onCloseTrade={handleCloseTrade}
+            onDeleteTrade={handleDeleteTrade}
+          />
+        </div>
+      )}
+
+      {/* ========================================================
+          MODALS
+          ======================================================== */}
+      {/* 1. Add / Edit Investment Modal */}
       <InvestmentModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -284,7 +433,15 @@ export default function MoneyHub() {
         defaultCategory={modalCategory}
       />
 
-      {/* 7. Financial Health Diagnostic & Gap-Filling Modal */}
+      {/* 2. Add / Edit Trade Modal */}
+      <TradeModal
+        isOpen={isTradeModalOpen}
+        onClose={() => setIsTradeModalOpen(false)}
+        onSave={handleSaveTrade}
+        initialTrade={editingTrade}
+      />
+
+      {/* 3. Financial Health Diagnostic & Gap-Filling Modal */}
       <FinancialHealthModal
         isOpen={isDiagnosticOpen}
         onClose={() => setIsDiagnosticOpen(false)}
@@ -292,5 +449,13 @@ export default function MoneyHub() {
         onTogglePillar={handleTogglePillar}
       />
     </div>
+  );
+}
+
+export default function MoneyHub() {
+  return (
+    <MoneyPrivacyProvider>
+      <MoneyHubInner />
+    </MoneyPrivacyProvider>
   );
 }

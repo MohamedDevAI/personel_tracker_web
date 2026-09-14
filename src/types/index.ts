@@ -372,3 +372,46 @@ export interface CategoryStats {
   allocationPct: number;
 }
 
+// ─── Trading Engine & Positions (Money Hub Trading Workspace) ────────────────
+
+export type TradeStatus = 'OPEN' | 'CLOSED';
+export type TradeDirection = 'LONG' | 'SHORT';
+export type InstrumentType = 'EQUITY' | 'F&O' | 'CRYPTO' | 'COMMODITY';
+export type TradeType = 'INTRADAY' | 'SWING' | 'POSITIONAL';
+
+export interface Trade {
+  id: string;
+  symbol: string;               // e.g. "NIFTY 24500 CE", "TATASTEEL", "RELIANCE"
+  instrument: InstrumentType;   // "EQUITY" | "F&O" | "CRYPTO" | "COMMODITY"
+  direction: TradeDirection;    // "LONG" | "SHORT"
+  tradeType: TradeType;         // "INTRADAY" | "SWING" | "POSITIONAL"
+  entryPrice: number;           // in INR
+  currentPrice: number;         // latest or exit price
+  exitPrice?: number;           // if closed
+  stopLoss: number;             // in INR
+  targetPrice: number;          // in INR
+  quantity: number;             // units / lots
+  entryDate: string;            // ISO date
+  exitDate?: string;            // ISO date
+  status: TradeStatus;          // "OPEN" | "CLOSED"
+  strategy?: string;            // e.g. "Breakout", "EMA Crossover", "Supply-Demand"
+  notes?: string;
+  realizedPnl?: number;         // in INR
+  unrealizedPnl?: number;       // in INR
+  pnlPercent?: number;          // %
+  riskRewardRatio?: number;     // e.g. 2.5
+}
+
+export interface TradingStats {
+  capitalDeployed: number;
+  totalRealizedPnl: number;
+  totalUnrealizedPnl: number;
+  winRate: number;              // 0 - 100
+  winCount: number;
+  lossCount: number;
+  totalTrades: number;
+  openTradesCount: number;
+  avgRiskReward: number;
+}
+
+

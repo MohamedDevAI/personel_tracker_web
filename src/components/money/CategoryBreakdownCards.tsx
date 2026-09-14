@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import type { InvestmentHolding, InvestmentCategory } from '../../types';
 import { formatINR, formatINRCompact, formatPercent, formatPctChange } from '../../utils/formatters';
+import { useMoneyPrivacy } from '../../context/MoneyPrivacyContext';
 
 interface CategoryBreakdownCardsProps {
   holdings: InvestmentHolding[];
@@ -22,6 +23,8 @@ export default function CategoryBreakdownCards({
   selectedCategory,
   onSelectCategory
 }: CategoryBreakdownCardsProps) {
+  const { mask } = useMoneyPrivacy();
+
   // Aggregate stats per category
   const getCatStats = (categories: InvestmentCategory[]) => {
     const matching = holdings.filter((h) => categories.includes(h.category));
@@ -29,7 +32,14 @@ export default function CategoryBreakdownCards({
     const currentValue = matching.reduce((s, h) => s + h.currentPrice * h.quantity, 0);
     const returnVal = currentValue - invested;
     const returnPct = invested > 0 ? (returnVal / invested) * 100 : 0;
-    return { matching, invested, currentValue, returnVal, returnPct, count: matching.length };
+    return {
+      count: matching.length,
+      invested,
+      currentValue,
+      returnVal,
+      returnPct,
+      matching
+    };
   };
 
   const stocksStats = getCatStats(['Stocks']);
@@ -37,26 +47,24 @@ export default function CategoryBreakdownCards({
   const bondsStats = getCatStats(['Bonds']);
   const fdsStats = getCatStats(['FDs']);
 
-  const totalPortfolioValue = holdings.reduce(
-    (sum, h) => sum + h.currentPrice * h.quantity,
-    0
-  );
+  const grandTotal =
+    stocksStats.currentValue +
+    sipsStats.currentValue +
+    bondsStats.currentValue +
+    fdsStats.currentValue;
 
-  const getWeight = (val: number) =>
-    totalPortfolioValue > 0 ? (val / totalPortfolioValue) * 100 : 0;
+  const getWeight = (val: number) => (grandTotal > 0 ? (val / grandTotal) * 100 : 0);
 
-  // Compute specific metrics:
-  // Active SIP monthly total:
-  const monthlySip = sipsStats.matching.reduce(
-    (sum, h) => sum + (h.mutualFundMetrics?.sipAmount || 0),
-    0
-  );
+  // Active Monthly SIP amount total:
+  const monthlySip = sipsStats.matching.reduce((sum, h) => {
+    return sum + (h.mutualFundMetrics?.sipActive ? h.mutualFundMetrics.sipAmount || 0 : 0);
+  }, 0);
 
-  // Average Bond Coupon / YTM:
+  // Average Bond YTM:
   const avgBondYtm =
     bondsStats.matching.length > 0
       ? bondsStats.matching.reduce(
-          (sum, h) => sum + (h.bondMetrics?.yieldToMaturity || h.bondMetrics?.couponRate || 7.2),
+          (sum, h) => sum + (h.bondMetrics?.yieldToMaturity || 7.2),
           0
         ) / bondsStats.matching.length
       : 7.2;
@@ -95,10 +103,10 @@ export default function CategoryBreakdownCards({
           {stocksStats.count} holding{stocksStats.count === 1 ? '' : 's'} • Direct Equities
         </div>
 
-        <div className="asset-cat-val">{formatINR(stocksStats.currentValue)}</div>
+        <div className="asset-cat-val">{mask(formatINR(stocksStats.currentValue))}</div>
 
         <div className="asset-cat-meta-row">
-          <span>Invested: {formatINRCompact(stocksStats.invested)}</span>
+          <span>Invested: {mask(formatINRCompact(stocksStats.invested))}</span>
           <span
             style={{
               color: stocksStats.returnPct >= 0 ? '#34d399' : '#fb7185',
@@ -109,7 +117,7 @@ export default function CategoryBreakdownCards({
             }}
           >
             <ArrowUpRight size={13} />
-            {formatPctChange(stocksStats.returnPct)}
+            {mask(formatPctChange(stocksStats.returnPct))}
           </span>
         </div>
       </div>
@@ -141,10 +149,10 @@ export default function CategoryBreakdownCards({
           {sipsStats.count} active fund{sipsStats.count === 1 ? '' : 's'} • Monthly auto-invest
         </div>
 
-        <div className="asset-cat-val">{formatINR(sipsStats.currentValue)}</div>
+        <div className="asset-cat-val">{mask(formatINR(sipsStats.currentValue))}</div>
 
         <div className="asset-cat-meta-row">
-          <span>Monthly SIP: <strong style={{ color: '#34d399' }}>{formatINR(monthlySip)}</strong></span>
+          <span>Monthly SIP: <strong style={{ color: '#34d399' }}>{mask(formatINR(monthlySip))}</strong></span>
           <span
             style={{
               color: sipsStats.returnPct >= 0 ? '#34d399' : '#fb7185',
@@ -155,7 +163,7 @@ export default function CategoryBreakdownCards({
             }}
           >
             <ArrowUpRight size={13} />
-            {formatPctChange(sipsStats.returnPct)}
+            {mask(formatPctChange(sipsStats.returnPct))}
           </span>
         </div>
       </div>
@@ -183,7 +191,7 @@ export default function CategoryBreakdownCards({
           {bondsStats.count} instrument{bondsStats.count === 1 ? '' : 's'} • Fixed yield
         </div>
 
-        <div className="asset-cat-val">{formatINR(bondsStats.currentValue)}</div>
+        <div className="asset-cat-val">{mask(formatINR(bondsStats.currentValue))}</div>
 
         <div className="asset-cat-meta-row">
           <span>Avg Yield (YTM): <strong style={{ color: '#22d3ee' }}>{avgBondYtm.toFixed(2)}%</strong></span>
@@ -193,7 +201,7 @@ export default function CategoryBreakdownCards({
               fontWeight: 700
             }}
           >
-            {formatPctChange(bondsStats.returnPct)}
+            {mask(formatPctChange(bondsStats.returnPct))}
           </span>
         </div>
       </div>
@@ -221,12 +229,12 @@ export default function CategoryBreakdownCards({
           {fdsStats.count} deposit{fdsStats.count === 1 ? '' : 's'} • Guaranteed capital
         </div>
 
-        <div className="asset-cat-val">{formatINR(fdsStats.currentValue)}</div>
+        <div className="asset-cat-val">{mask(formatINR(fdsStats.currentValue))}</div>
 
         <div className="asset-cat-meta-row">
           <span>Avg Interest: <strong style={{ color: '#fbbf24' }}>{avgFdRate.toFixed(1)}% p.a.</strong></span>
           <span style={{ color: '#34d399', fontWeight: 700 }}>
-            {formatPctChange(fdsStats.returnPct)}
+            {mask(formatPctChange(fdsStats.returnPct))}
           </span>
         </div>
       </div>
