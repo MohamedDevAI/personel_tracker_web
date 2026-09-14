@@ -90,7 +90,8 @@
 }
 
 /* Toolbar & Filters */
-.tasks-toolbar-container {
+.tasks-toolbar-container,
+.tasks-toolbar-wrapper {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -111,7 +112,8 @@
   flex: 1;
 }
 
-.tasks-search-box {
+.tasks-search-box,
+.tasks-search-input-box {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -120,11 +122,20 @@
   padding: 8px 14px;
   border-radius: 10px;
   min-width: 220px;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.tasks-search-box:focus-within {
+.tasks-search-box:focus-within,
+.tasks-search-input-box:focus-within {
   border-color: var(--border-focus);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+}
+
+.tasks-search-icon {
+  width: 15px;
+  height: 15px;
+  color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 .tasks-search-input {
@@ -136,17 +147,23 @@
   width: 100%;
 }
 
-.tasks-status-filters {
-  display: flex;
+.tasks-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.tasks-status-filters,
+.tasks-filter-pills {
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(0, 0, 0, 0.2);
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.25);
   padding: 4px;
   border-radius: 10px;
   border: 1px solid var(--border-subtle);
 }
 
-.tasks-filter-btn {
+.tasks-filter-btn,
+.tasks-filter-pill {
   padding: 6px 14px;
   font-size: 0.8rem;
   font-weight: 600;
@@ -156,20 +173,38 @@
   border-radius: 7px;
   cursor: pointer;
   transition: all 0.2s ease;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
+  outline: none;
 }
 
-.tasks-filter-btn:hover {
+.tasks-filter-btn:hover,
+.tasks-filter-pill:hover {
   color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
 }
 
-.tasks-filter-btn.active {
+.tasks-filter-btn.active,
+.tasks-filter-pill.active {
   background: rgba(99, 102, 241, 0.25);
   color: #ffffff;
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
   border: 1px solid rgba(129, 140, 248, 0.3);
+}
+
+.tasks-filter-btn.high-prio.active,
+.tasks-filter-pill.high-prio.active {
+  background: rgba(244, 63, 94, 0.2);
+  color: #fda4af;
+  box-shadow: 0 2px 8px rgba(244, 63, 94, 0.2);
+  border: 1px solid rgba(251, 113, 133, 0.35);
+}
+
+.tasks-filter-btn.high-prio:not(.active):hover,
+.tasks-filter-pill.high-prio:not(.active):hover {
+  color: #fda4af;
+  background: rgba(244, 63, 94, 0.08);
 }
 
 .tasks-category-select {
@@ -181,6 +216,7 @@
   font-size: 0.85rem;
   outline: none;
   cursor: pointer;
+  transition: border-color 0.2s ease;
 }
 
 .tasks-category-select:focus {
