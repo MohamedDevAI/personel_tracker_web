@@ -15,6 +15,7 @@ interface TransactionModalProps {
     paymentMethod: string;
     amount: number;
     type: TransactionType;
+    currency?: string;
   }) => void;
   categories?: Category[];
   initialDate: string;
@@ -47,6 +48,7 @@ export default function TransactionModal({
     description: '',
     paymentMethod: 'Account',
     amount: '',
+    currency: 'SAR',
     type: initialType
   });
 
@@ -60,6 +62,7 @@ export default function TransactionModal({
         description: '',
         paymentMethod: 'Account',
         amount: '',
+        currency: 'SAR',
         type: initialType
       });
     }
@@ -104,7 +107,8 @@ export default function TransactionModal({
       description: txForm.description.trim(),
       paymentMethod: txForm.paymentMethod,
       amount: parseFloat(txForm.amount),
-      type: txForm.type
+      type: txForm.type,
+      currency: txForm.currency,
     });
 
     onClose();
@@ -216,8 +220,8 @@ export default function TransactionModal({
             )}
           </div>
 
-          {/* Payment Method & Amount */}
-          <div className="modal-grid-equal">
+          {/* Payment Method, Currency & Amount */}
+          <div className="modal-grid-equal" style={{ gridTemplateColumns: '1.2fr 1.1fr 1.4fr' }}>
             <div>
               <label className="modal-field-label">Payment Method</label>
               <select
@@ -232,11 +236,23 @@ export default function TransactionModal({
             </div>
 
             <div>
-              <label className="modal-field-label">Amount (SAR)</label>
+              <label className="modal-field-label">Currency</label>
+              <select
+                value={txForm.currency}
+                onChange={(e) => setTxForm({ ...txForm, currency: e.target.value })}
+                className="modal-select-field"
+              >
+                <option value="SAR">SAR (Saudi Riyal)</option>
+                <option value="INR">₹ INR (Indian Rupee)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="modal-field-label">Amount ({txForm.currency === 'INR' ? '₹ INR' : 'SAR'})</label>
               <input
                 type="number"
                 step="0.01"
-                placeholder="e.g. 5000"
+                placeholder={txForm.currency === 'INR' ? 'e.g. 50000' : 'e.g. 5000'}
                 value={txForm.amount}
                 onChange={(e) => setTxForm({ ...txForm, amount: e.target.value })}
                 required

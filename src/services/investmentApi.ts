@@ -1,4 +1,4 @@
-﻿
+
 /**
  * Investment Holdings API Service
  *
@@ -214,8 +214,20 @@ export const investmentApi = {
       todayChangePct = (todayChange / (currentValue - todayChange)) * 100;
     }
 
+    let monthlySipTotal = 0;
+    for (const h of holdings) {
+      if ((h.category === 'Mutual Funds' || h.category === 'SIPs') && h.mutualFundMetrics?.sipAmount) {
+        monthlySipTotal += Number(h.mutualFundMetrics.sipAmount);
+      }
+    }
+
     const byCategory: CategoryStats[] = CATEGORIES.map((cat) => {
-      const catHoldings = holdings.filter((h) => h.category === cat);
+      const catHoldings = holdings.filter((h) => {
+        if (cat === 'Mutual Funds') {
+          return h.category === 'Mutual Funds' || h.category === 'SIPs';
+        }
+        return h.category === cat;
+      });
       const catInvested = catHoldings.reduce((s, h) => s + h.buyPrice * h.quantity, 0);
       const catCurrent = catHoldings.reduce((s, h) => s + h.currentPrice * h.quantity, 0);
       const returnPct = catInvested > 0 ? ((catCurrent - catInvested) / catInvested) * 100 : 0;
@@ -238,6 +250,7 @@ export const investmentApi = {
       totalReturnPct,
       todayChange,
       todayChangePct,
+      monthlySipTotal,
       byCategory,
     };
   },

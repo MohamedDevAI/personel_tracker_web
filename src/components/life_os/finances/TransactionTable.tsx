@@ -151,9 +151,9 @@ export default function TransactionTable({
                       </div>
                     </td>
 
-                    {/* Amount SAR (Fixed double negative with Math.abs) */}
+                    {/* Amount (SAR or INR) */}
                     <td className={`tx-amount-cell ${isCredit ? 'tx-amount-credit' : 'tx-amount-debit'}`}>
-                      {isCredit ? '+' : '-'}SAR {formatCurrency(Math.abs(amountVal))}
+                      {isCredit ? '+' : '-'}{item.currency === 'INR' ? '₹' : 'SAR '}{formatCurrency(Math.abs(amountVal))}
                     </td>
 
                     {/* Action */}

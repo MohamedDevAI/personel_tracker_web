@@ -56,7 +56,7 @@ export const SEED_HABITS: Habit[] = [
 
 export const SEED_GOALS: Goal[] = [
   { id: '1', title: 'Launch Production Micro-SaaS Product', category: 'Career', targetDate: '2026-11-30', progress: 75, targetValue: 100, currentValue: 75, unit: '%', status: 'IN_PROGRESS' },
-  { id: '2', title: 'Emergency Fund ($30,000 Liquid)', category: 'Finance', targetDate: '2026-12-31', progress: 85, targetValue: 30000, currentValue: 25500, unit: '$', status: 'IN_PROGRESS' },
+  { id: '2', title: 'Emergency Fund (SAR 30,000 Liquid)', category: 'Finance', targetDate: '2026-12-31', progress: 85, targetValue: 30000, currentValue: 25500, unit: 'SAR', status: 'IN_PROGRESS' },
   { id: '3', title: 'Run Half-Marathon under 1h 45m', category: 'Fitness', targetDate: '2026-10-15', progress: 60, targetValue: 100, currentValue: 60, unit: '%', status: 'IN_PROGRESS' },
   { id: '4', title: 'Master Distributed Systems with Java & Go', category: 'Learning', targetDate: '2026-10-01', progress: 90, targetValue: 100, currentValue: 90, unit: '%', status: 'NEAR_COMPLETION' },
 ];
