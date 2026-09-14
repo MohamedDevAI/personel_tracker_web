@@ -231,7 +231,8 @@
   overflow: hidden;
 }
 
-.asset-cat-card:hover, .asset-cat-card.active {
+.asset-cat-card:hover,
+.asset-cat-card.active {
   transform: translateY(-4px);
   box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.6);
 }
@@ -239,7 +240,9 @@
 .asset-cat-card.cat-stocks {
   border-color: rgba(99, 102, 241, 0.35);
 }
-.asset-cat-card.cat-stocks:hover, .asset-cat-card.cat-stocks.active {
+
+.asset-cat-card.cat-stocks:hover,
+.asset-cat-card.cat-stocks.active {
   border-color: #818cf8;
   box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.3);
 }
@@ -247,7 +250,9 @@
 .asset-cat-card.cat-sips {
   border-color: rgba(16, 185, 129, 0.35);
 }
-.asset-cat-card.cat-sips:hover, .asset-cat-card.cat-sips.active {
+
+.asset-cat-card.cat-sips:hover,
+.asset-cat-card.cat-sips.active {
   border-color: #34d399;
   box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.3);
 }
@@ -255,7 +260,9 @@
 .asset-cat-card.cat-bonds {
   border-color: rgba(6, 182, 212, 0.35);
 }
-.asset-cat-card.cat-bonds:hover, .asset-cat-card.cat-bonds.active {
+
+.asset-cat-card.cat-bonds:hover,
+.asset-cat-card.cat-bonds.active {
   border-color: #22d3ee;
   box-shadow: 0 10px 30px -10px rgba(6, 182, 212, 0.3);
 }
@@ -263,7 +270,9 @@
 .asset-cat-card.cat-fds {
   border-color: rgba(251, 191, 36, 0.35);
 }
-.asset-cat-card.cat-fds:hover, .asset-cat-card.cat-fds.active {
+
+.asset-cat-card.cat-fds:hover,
+.asset-cat-card.cat-fds.active {
   border-color: #fbbf24;
   box-shadow: 0 10px 30px -10px rgba(251, 191, 36, 0.3);
 }
@@ -915,7 +924,8 @@
   cursor: pointer;
 }
 
-.fire-milestone-box:hover, .fire-milestone-box.active {
+.fire-milestone-box:hover,
+.fire-milestone-box.active {
   background: rgba(99, 102, 241, 0.15);
   border-color: #818cf8;
 }
@@ -985,4 +995,3 @@
   border-color: #34d399;
   color: #34d399;
 }
-

@@ -10,7 +10,8 @@ interface GoalModalProps {
 }
 
 const PRESETS = [
-  { title: 'Save $10,000 Emergency Fund', category: 'Financial', targetValue: 10000, currentValue: 2500, unit: '$', progress: 25 },
+  { title: 'Save SAR 10,000 Emergency Fund', category: 'Financial', targetValue: 10000, currentValue: 2500, unit: 'SAR', progress: 25 },
+  { title: 'Invest ₹5,00,000 Wealth Portfolio', category: 'Financial', targetValue: 500000, currentValue: 125000, unit: 'INR', progress: 25 },
   { title: 'Read 24 Leadership Books', category: 'Learning', targetValue: 24, currentValue: 6, unit: 'books', progress: 25 },
   { title: 'Run 100km Total Distance', category: 'Fitness', targetValue: 100, currentValue: 40, unit: 'km', progress: 40 },
   { title: 'Promote to Tech Lead', category: 'Career', targetValue: 100, currentValue: 60, unit: '%', progress: 60 },
@@ -116,7 +117,7 @@ export default function GoalModal({ isOpen, onClose, onSubmit }: GoalModalProps)
             <label className="modal-field-label">Milestone / Goal Title</label>
             <input
               type="text"
-              placeholder="e.g. Save $10,000 Emergency Fund, Master System Architecture..."
+              placeholder="e.g. Save SAR 10,000 Emergency Fund, ₹5,00,000 Portfolio, Master System Architecture..."
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               required
@@ -178,7 +179,8 @@ export default function GoalModal({ isOpen, onClose, onSubmit }: GoalModalProps)
                 className="modal-select-field"
               >
                 <option value="%">% Percentage</option>
-                <option value="$">$ USD / SAR</option>
+                <option value="SAR">SAR (Saudi Riyal)</option>
+                <option value="INR">₹ INR (Indian Rupee)</option>
                 <option value="books">Books / Lessons</option>
                 <option value="km">km Distance</option>
                 <option value="hrs">Hours</option>

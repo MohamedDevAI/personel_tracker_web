@@ -84,7 +84,7 @@ export default function GoalCard({ goal, onUpdateProgress, onDelete }: GoalCardP
           </div>
         </div>
 
-        <h3 className="goal-card-title">{goal.title}</h3>
+        <h3 className="goal-card-title">{goal.title.replace(/\(\$([0-9,]+)/g, '(SAR $1')}</h3>
       </div>
 
       {/* Progress Track Section */}
@@ -92,14 +92,20 @@ export default function GoalCard({ goal, onUpdateProgress, onDelete }: GoalCardP
         <div className="goal-progress-meta">
           <span className="goal-progress-values">
             {goal.targetValue && goal.targetValue > 0 ? (
-              <>
-                Progress:{' '}
-                <strong>
-                  {goal.currentValue || Math.round((goal.progress / 100) * goal.targetValue)}{' '}
-                  {goal.unit || '%'}
-                </strong>{' '}
-                / {goal.targetValue} {goal.unit || '%'}
-              </>
+              (() => {
+                const rawUnit = goal.unit?.trim();
+                const displayUnit = (!rawUnit || rawUnit === '$' || rawUnit === 'USD') ? 'SAR' : (rawUnit === 'INR' ? '₹ INR' : rawUnit);
+                return (
+                  <>
+                    Progress:{' '}
+                    <strong>
+                      {goal.currentValue || Math.round((goal.progress / 100) * goal.targetValue)}{' '}
+                      {displayUnit}
+                    </strong>{' '}
+                    / {goal.targetValue} {displayUnit}
+                  </>
+                );
+              })()
             ) : (
               <>Strategic Target Metric</>
             )}

@@ -39,6 +39,7 @@ export interface Transaction {
   paymentMethod?: string;
   amount: number;
   amountSar?: number;
+  currency?: string;
   type: TransactionType;
   createdAt?: string;
   plannedExpenseId?: string;

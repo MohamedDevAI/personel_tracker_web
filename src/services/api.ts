@@ -172,11 +172,20 @@ export const api = {
   // ── Goals ─────────────────────────────────────────────────────────────────
 
   getGoals: async (): Promise<Goal[]> => {
+    const sanitizeGoal = (g: Goal): Goal => {
+      const rawUnit = g.unit?.trim();
+      const unit = (!rawUnit || rawUnit === '$' || rawUnit === 'USD')
+        ? 'SAR'
+        : (rawUnit === 'INR' ? 'INR' : rawUnit);
+      const title = g.title ? g.title.replace(/\(\$([0-9,]+)/g, '(SAR $1') : g.title;
+      return { ...g, unit, title };
+    };
+
     try {
       const { data } = await apiClient.get<Goal[]>('/goals', { timeout: 2000 });
-      if (Array.isArray(data)) return data;
+      if (Array.isArray(data)) return data.map(sanitizeGoal);
     } catch { /* fallback below */ }
-    return getLocal('goals');
+    return getLocal('goals').map(sanitizeGoal);
   },
 
   updateGoalProgress: async (id: string, newProgress: number): Promise<Goal> => {

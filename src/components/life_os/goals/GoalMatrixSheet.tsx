@@ -56,7 +56,7 @@ export default function GoalMatrixSheet({
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <span className="goal-matrix-title-text" style={{ fontWeight: 700 }}>
-                        {goal.title}
+                        {goal.title.replace(/\(\$([0-9,]+)/g, '(SAR $1')}
                       </span>
                       <span className={`goal-cat-badge ${getCategoryBadgeClass(goal.category)}`}>
                         {goal.category || 'General'}
@@ -92,7 +92,15 @@ export default function GoalMatrixSheet({
                       >
                         <span style={{ color: 'var(--text-muted)' }}>
                           {goal.currentValue || Math.round((goal.progress / 100) * (goal.targetValue || 100))}{' '}
-                          / {goal.targetValue || 100} {goal.unit || '%'}
+                          / {goal.targetValue || 100}{' '}
+                          {(() => {
+                            const rawUnit = goal.unit?.trim();
+                            return (!rawUnit || rawUnit === '$' || rawUnit === 'USD')
+                              ? 'SAR'
+                              : rawUnit === 'INR'
+                              ? '₹ INR'
+                              : rawUnit;
+                          })()}
                         </span>
                         <span
                           style={{

@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { api } from '../services/api';
-import { formatDateLong, formatUSD } from '../utils/formatters';
+import { formatDateLong, formatSAR } from '../utils/formatters';
 import type { Expense, Habit, Goal, TaskItem } from '../types';
 
 export default function Dashboard() {
@@ -119,14 +119,14 @@ export default function Dashboard() {
             <span className="badge badge-emerald">+{savingsRate}% Saved</span>
           </div>
           <div className="dashboard-kpi-value">
-            ${netSavings.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            SAR {netSavings.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </div>
           <div className="dashboard-cashflow-row">
             <span className="dashboard-cashflow-in">
-              <ArrowUpRight size={14} /> In: ${totalIncome.toLocaleString()}
+              <ArrowUpRight size={14} /> In: SAR {totalIncome.toLocaleString()}
             </span>
             <span className="dashboard-cashflow-out">
-              <ArrowDownRight size={14} /> Out: ${totalExpense.toLocaleString()}
+              <ArrowDownRight size={14} /> Out: SAR {totalExpense.toLocaleString()}
             </span>
           </div>
         </div>
@@ -238,7 +238,7 @@ export default function Dashboard() {
           <div className="dashboard-cashflow-container">
             <div className="dashboard-burn-rate-header">
               <span>Monthly Burn Rate</span>
-              <span>${totalExpense.toFixed(0)} of ${totalIncome.toFixed(0)}</span>
+              <span>SAR {totalExpense.toFixed(0)} of SAR {totalIncome.toFixed(0)}</span>
             </div>
             <div className="dashboard-burn-rate-track">
               <div
@@ -265,7 +265,7 @@ export default function Dashboard() {
                   <div className="dashboard-tx-meta">{item.category} • {item.date}</div>
                 </div>
                 <div className={`dashboard-tx-amount ${item.type === 'INCOME' ? 'dashboard-tx-income' : 'dashboard-tx-expense'}`}>
-                  {item.type === 'INCOME' ? '+' : '-'}${Number(item.amount).toFixed(2)}
+                  {item.type === 'INCOME' ? '+' : '-'}SAR {Number(item.amount).toFixed(2)}
                 </div>
               </div>
             ))}
