@@ -29,11 +29,11 @@ export default function TasksToolbar({
   onOpenAddModal,
 }: TasksToolbarProps) {
   return (
-    <div className="tasks-toolbar-wrapper">
+    <div className="tasks-toolbar-container tasks-toolbar-wrapper">
       <div className="tasks-toolbar-left">
         {/* Search */}
-        <div className="tasks-search-input-box">
-          <Search className="tasks-search-icon" />
+        <div className="tasks-search-box tasks-search-input-box">
+          <Search size={15} color="var(--text-muted)" className="tasks-search-icon" />
           <input
             type="text"
             placeholder="Search daily tasks..."
@@ -44,34 +44,34 @@ export default function TasksToolbar({
         </div>
 
         {/* Status Filter Pills */}
-        <div className="tasks-filter-pills">
+        <div className="tasks-status-filters tasks-filter-pills">
           <button
             type="button"
-            className={`tasks-filter-pill ${statusFilter === 'ALL' ? 'active' : ''}`}
+            className={`tasks-filter-btn tasks-filter-pill ${statusFilter === 'ALL' ? 'active' : ''}`}
             onClick={() => onStatusFilterChange('ALL')}
           >
             All
           </button>
           <button
             type="button"
-            className={`tasks-filter-pill ${statusFilter === 'PENDING' ? 'active' : ''}`}
+            className={`tasks-filter-btn tasks-filter-pill ${statusFilter === 'PENDING' ? 'active' : ''}`}
             onClick={() => onStatusFilterChange('PENDING')}
           >
             Pending
           </button>
           <button
             type="button"
-            className={`tasks-filter-pill ${statusFilter === 'COMPLETED' ? 'active' : ''}`}
+            className={`tasks-filter-btn tasks-filter-pill ${statusFilter === 'COMPLETED' ? 'active' : ''}`}
             onClick={() => onStatusFilterChange('COMPLETED')}
           >
             Completed
           </button>
           <button
             type="button"
-            className={`tasks-filter-pill high-prio ${statusFilter === 'HIGH_PRIORITY' ? 'active' : ''}`}
+            className={`tasks-filter-btn tasks-filter-pill high-prio ${statusFilter === 'HIGH_PRIORITY' ? 'active' : ''}`}
             onClick={() => onStatusFilterChange('HIGH_PRIORITY')}
           >
-            <Zap className="w-3.5 h-3.5 mr-1" />
+            <Zap size={13} style={{ marginRight: 4 }} />
             High Prio
           </button>
         </div>

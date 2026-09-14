@@ -1,0 +1,66 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
+interface MoneyPrivacyContextType {
+  isMoneyHidden: boolean;
+  toggleHideMoney: () => void;
+  mask: (formattedValue: string) => string;
+}
+
+const STORAGE_KEY = 'pt_hide_money_balances';
+
+const MoneyPrivacyContext = createContext<MoneyPrivacyContextType>({
+  isMoneyHidden: false,
+  toggleHideMoney: () => {},
+  mask: (v) => v,
+});
+
+export const MoneyPrivacyProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isMoneyHidden, setIsMoneyHidden] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, String(isMoneyHidden));
+    } catch (e) {
+      console.warn('Unable to persist money privacy setting', e);
+    }
+  }, [isMoneyHidden]);
+
+  const toggleHideMoney = () => {
+    setIsMoneyHidden((prev) => !prev);
+  };
+
+  const mask = (formattedValue: string): string => {
+    if (!isMoneyHidden) return formattedValue;
+    if (!formattedValue) return '••••••';
+
+    // Retain sign and currency prefix
+    const isNegative = formattedValue.trim().startsWith('-');
+    const isPositive = formattedValue.trim().startsWith('+');
+    const sign = isNegative ? '-' : isPositive ? '+' : '';
+
+    if (formattedValue.includes('₹')) {
+      return `${sign}₹ ••••••`;
+    }
+    if (formattedValue.includes('SAR')) {
+      return `${sign}SAR ••••••`;
+    }
+    if (formattedValue.includes('%')) {
+      return `•••%`;
+    }
+    return `${sign}••••••`;
+  };
+
+  return (
+    <MoneyPrivacyContext.Provider value={{ isMoneyHidden, toggleHideMoney, mask }}>
+      {children}
+    </MoneyPrivacyContext.Provider>
+  );
+};
+
+export const useMoneyPrivacy = () => useContext(MoneyPrivacyContext);

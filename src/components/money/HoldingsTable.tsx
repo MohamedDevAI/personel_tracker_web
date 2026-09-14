@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import type { InvestmentHolding, InvestmentCategory } from '../../types';
 import { formatINR, formatINRCompact, formatPercent, formatPctChange } from '../../utils/formatters';
+import { useMoneyPrivacy } from '../../context/MoneyPrivacyContext';
 
 interface HoldingsTableProps {
   holdings: InvestmentHolding[];
@@ -38,6 +39,7 @@ export default function HoldingsTable({
   onEditHolding,
   onDeleteHolding
 }: HoldingsTableProps) {
+  const { mask } = useMoneyPrivacy();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortField, setSortField] = useState<SortField>('currentValue');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
@@ -337,7 +339,7 @@ export default function HoldingsTable({
                         <div style={{ fontSize: '0.78rem' }}>
                           {holding.mutualFundMetrics?.sipAmount ? (
                             <span style={{ color: '#34d399', fontWeight: 600 }}>
-                              SIP: {formatINR(holding.mutualFundMetrics.sipAmount)}/mo
+                              SIP: {mask(formatINR(holding.mutualFundMetrics.sipAmount))}/mo
                             </span>
                           ) : (
                             <span style={{ color: 'var(--text-muted)' }}>Lump sum</span>
@@ -388,11 +390,11 @@ export default function HoldingsTable({
                     <td>
                       <div style={{ fontSize: '0.82rem' }}>
                         <span style={{ color: 'var(--text-muted)' }}>
-                          {formatINR(holding.buyPrice)}
+                          {mask(formatINR(holding.buyPrice))}
                         </span>
                         <span style={{ margin: '0 4px', color: 'var(--text-muted)' }}>→</span>
                         <span style={{ fontWeight: 700, color: '#ffffff' }}>
-                          {formatINR(holding.currentPrice)}
+                          {mask(formatINR(holding.currentPrice))}
                         </span>
                       </div>
                     </td>
@@ -400,14 +402,14 @@ export default function HoldingsTable({
                     {/* Invested */}
                     <td>
                       <div style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>
-                        {formatINR(invested)}
+                        {mask(formatINR(invested))}
                       </div>
                     </td>
 
                     {/* Current Value */}
                     <td>
                       <div style={{ fontWeight: 700, color: '#ffffff' }}>
-                        {formatINR(current)}
+                        {mask(formatINR(current))}
                       </div>
                     </td>
 
@@ -427,8 +429,8 @@ export default function HoldingsTable({
                         }}
                       >
                         {isGain ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
-                        <span>{formatPctChange(returnPct)}</span>
-                        <span style={{ opacity: 0.8 }}>({formatINRCompact(returnVal)})</span>
+                        <span>{mask(formatPctChange(returnPct))}</span>
+                        <span style={{ opacity: 0.8 }}>({mask(formatINRCompact(returnVal))})</span>
                       </div>
                     </td>
 

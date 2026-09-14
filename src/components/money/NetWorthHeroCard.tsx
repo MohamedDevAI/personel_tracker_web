@@ -13,6 +13,7 @@ import {
   EyeOff
 } from 'lucide-react';
 import { formatINR, formatINRCompact, formatPctChange } from '../../utils/formatters';
+import { useMoneyPrivacy } from '../../context/MoneyPrivacyContext';
 
 interface NetWorthHeroCardProps {
   netWorth: number;
@@ -49,6 +50,7 @@ export default function NetWorthHeroCard({
   onRefresh,
   isRefreshing = false
 }: NetWorthHeroCardProps) {
+  const { mask } = useMoneyPrivacy();
   const isGain = totalReturn >= 0;
   const displayedNetWorth = includeCashAndDebt ? netWorth : portfolioValue;
 
@@ -87,7 +89,7 @@ export default function NetWorthHeroCard({
           </div>
 
           <div className="networth-main-val">
-            <span>{formatINR(displayedNetWorth)}</span>
+            <span>{mask(formatINR(displayedNetWorth))}</span>
             <span
               style={{
                 fontSize: '1.25rem',
@@ -95,14 +97,14 @@ export default function NetWorthHeroCard({
                 fontWeight: 600
               }}
             >
-              ({formatINRCompact(displayedNetWorth)})
+              ({mask(formatINRCompact(displayedNetWorth))})
             </span>
 
             <span className={`networth-pill-gain ${isGain ? 'positive' : 'negative'}`}>
               {isGain ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-              <span>{formatPctChange(totalReturnPct)}</span>
+              <span>{mask(formatPctChange(totalReturnPct))}</span>
               <span style={{ fontSize: '0.8rem', opacity: 0.85 }}>
-                ({formatINRCompact(totalReturn)})
+                ({mask(formatINRCompact(totalReturn))})
               </span>
             </span>
           </div>
@@ -158,7 +160,7 @@ export default function NetWorthHeroCard({
             <Layers size={13} color="#60a5fa" />
             Total Invested Capital
           </div>
-          <div className="hero-sub-value">{formatINR(totalInvested)}</div>
+          <div className="hero-sub-value">{mask(formatINR(totalInvested))}</div>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>
             Purchase cost basis
           </div>
@@ -173,8 +175,7 @@ export default function NetWorthHeroCard({
             className="hero-sub-value"
             style={{ color: isGain ? '#34d399' : '#fb7185' }}
           >
-            {isGain ? '+' : ''}
-            {formatINR(totalReturn)}
+            {mask(`${isGain ? '+' : ''}${formatINR(totalReturn)}`)}
           </div>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>
             All-time net gain/loss
@@ -187,7 +188,7 @@ export default function NetWorthHeroCard({
             Active Monthly SIPs
           </div>
           <div className="hero-sub-value" style={{ color: '#34d399' }}>
-            {formatINR(activeSipMonthly)}/mo
+            {mask(formatINR(activeSipMonthly))}/mo
           </div>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>
             Recurring monthly investment
@@ -200,7 +201,7 @@ export default function NetWorthHeroCard({
             Liquid Cash
           </div>
           <div className="hero-sub-value" style={{ color: '#38bdf8' }}>
-            {formatINR(cashLiquidity)}
+            {mask(formatINR(cashLiquidity))}
           </div>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>
             Ledger cash on hand
@@ -213,7 +214,7 @@ export default function NetWorthHeroCard({
             Liabilities (Debt)
           </div>
           <div className="hero-sub-value" style={{ color: '#fb7185' }}>
-            {formatINR(debtLiabilities)}
+            {mask(formatINR(debtLiabilities))}
           </div>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>
             Borrowings payable
