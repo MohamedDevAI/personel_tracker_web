@@ -69,4 +69,6 @@ export const STORAGE_KEYS = {
   PLANNED_EXPENSES: 'pt_planned_expenses',
   // ── Money DB (investment-holdings collection) ────────────────────────────
   INVESTMENT_HOLDINGS: 'money_investment_holdings',
+  FINANCIAL_HEALTH_ANSWERS: 'money_financial_health_answers',
+  FIRE_SETTINGS: 'money_fire_settings',
 } as const;

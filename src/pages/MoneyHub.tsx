@@ -7,12 +7,22 @@ import {
   Compass,
   PieChart as PieIcon,
   TrendingUp,
-  Layers
+  Layers,
+  Flame,
+  Award
 } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { investmentApi } from '../services/investmentApi';
 import { borrowRepayApi } from '../services/borrowRepayApi';
 import { api } from '../services/api';
+import {
+  computeFinancialHealth,
+  calculateFireNumbers,
+  getStoredFireSettings,
+  saveFireSettings,
+  saveHealthAnswer,
+  FireSettings
+} from '../services/financialHealthService';
 import type { InvestmentHolding, InvestmentCategory, Expense } from '../types';
 import NetWorthHeroCard from '../components/money/NetWorthHeroCard';
 import CategoryBreakdownCards from '../components/money/CategoryBreakdownCards';
@@ -20,6 +30,9 @@ import InvestmentAssetAllocationChart from '../components/money/InvestmentAssetA
 import InvestmentPerformanceChart from '../components/money/InvestmentPerformanceChart';
 import HoldingsTable from '../components/money/HoldingsTable';
 import InvestmentModal from '../components/money/InvestmentModal';
+import FinancialHealthCard from '../components/money/FinancialHealthCard';
+import FinancialHealthModal from '../components/money/FinancialHealthModal';
+import FireCalculatorCard from '../components/money/FireCalculatorCard';
 import '../components/money/money-theme.css';
 
 export default function MoneyHub() {
@@ -29,10 +42,15 @@ export default function MoneyHub() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [includeCashAndDebt, setIncludeCashAndDebt] = useState<boolean>(true);
 
-  // Modal State
+  // Modal State for Investment
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingHolding, setEditingHolding] = useState<InvestmentHolding | null>(null);
   const [modalCategory, setModalCategory] = useState<InvestmentCategory>('Stocks');
+
+  // Modal State for Diagnostic Health Questions
+  const [isDiagnosticOpen, setIsDiagnosticOpen] = useState(false);
+  const [, setHealthStateNonce] = useState(0);
+  const [, setFireSettingsNonce] = useState(0);
 
   // Fetch Investment Holdings
   const {
@@ -84,6 +102,32 @@ export default function MoneyHub() {
   // Total Comprehensive Net Worth: Portfolio + Cash - Liabilities
   const totalNetWorth =
     portfolioStats.currentValue + cashLiquidity - debtLiabilities;
+
+  // Financial Health & FIRE Computations
+  const fireSettings = getStoredFireSettings();
+  const healthResult = computeFinancialHealth(
+    holdings,
+    cashLiquidity,
+    debtLiabilities,
+    portfolioStats.monthlySipTotal || 0,
+    fireSettings.monthlyExpenses
+  );
+
+  const fireResult = calculateFireNumbers(
+    totalNetWorth,
+    portfolioStats.monthlySipTotal || 0,
+    fireSettings
+  );
+
+  const handleTogglePillar = (pillarId: string, newState: boolean) => {
+    saveHealthAnswer(pillarId, newState);
+    setHealthStateNonce((n) => n + 1);
+  };
+
+  const handleUpdateFireSettings = (newSettings: Partial<FireSettings>) => {
+    saveFireSettings(newSettings);
+    setFireSettingsNonce((n) => n + 1);
+  };
 
   // Handlers for Holding Actions
   const handleOpenAdd = (categoryToSelect?: InvestmentCategory) => {
@@ -148,7 +192,7 @@ export default function MoneyHub() {
             Net Worth & <span className="money-gold-gradient">Investment Command Center</span>
           </h1>
           <p className="page-header-subtitle">
-            Centralized visualization centre for tracking your Fixed Deposits, Bonds, Stocks, and SIPs.
+            Centralized visualization centre for tracking your Fixed Deposits, Bonds, Stocks, and SIPs in INR (₹).
           </p>
         </div>
 
@@ -167,7 +211,7 @@ export default function MoneyHub() {
             }}
           >
             <ShieldCheck size={14} color="#10b981" />
-            <span>4 Asset Classes Tracked</span>
+            <span>Health Score: {healthResult.totalScore}/100</span>
           </span>
         </div>
       </div>
@@ -191,14 +235,26 @@ export default function MoneyHub() {
         isRefreshing={isFetchingHoldings}
       />
 
-      {/* 2. Four Asset Class KPI Cards (FD, Bonds, Stocks, SIPs) */}
+      {/* 2. Financial Health Score & FIRE Freedom Hub */}
+      <div className="financial-intelligence-grid">
+        <FinancialHealthCard
+          healthResult={healthResult}
+          onOpenDiagnostic={() => setIsDiagnosticOpen(true)}
+        />
+        <FireCalculatorCard
+          fireResult={fireResult}
+          onUpdateSettings={handleUpdateFireSettings}
+        />
+      </div>
+
+      {/* 3. Four Asset Class KPI Cards (FD, Bonds, Stocks, SIPs) */}
       <CategoryBreakdownCards
         holdings={holdings}
         selectedCategory={selectedCategory}
         onSelectCategory={(cat) => setSelectedCategory(cat)}
       />
 
-      {/* 3. Visualization Centre (Asset Allocation Donut + Growth Trajectory / Comparison Chart) */}
+      {/* 4. Visualization Centre (Asset Allocation Donut + Growth Trajectory / Comparison Chart) */}
       <div className="visualization-centre-grid">
         <InvestmentAssetAllocationChart
           holdings={holdings}
@@ -209,7 +265,7 @@ export default function MoneyHub() {
         <InvestmentPerformanceChart holdings={holdings} />
       </div>
 
-      {/* 4. Filterable Holdings Management Table */}
+      {/* 5. Filterable Holdings Management Table */}
       <HoldingsTable
         holdings={holdings}
         selectedCategory={selectedCategory}
@@ -219,13 +275,21 @@ export default function MoneyHub() {
         onDeleteHolding={handleDeleteHolding}
       />
 
-      {/* 5. Add / Edit Investment Modal */}
+      {/* 6. Add / Edit Investment Modal */}
       <InvestmentModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveHolding}
         initialHolding={editingHolding}
         defaultCategory={modalCategory}
+      />
+
+      {/* 7. Financial Health Diagnostic & Gap-Filling Modal */}
+      <FinancialHealthModal
+        isOpen={isDiagnosticOpen}
+        onClose={() => setIsDiagnosticOpen(false)}
+        healthResult={healthResult}
+        onTogglePillar={handleTogglePillar}
       />
     </div>
   );
