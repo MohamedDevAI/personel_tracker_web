@@ -222,7 +222,7 @@ export interface PlannedRepayCreditMatrix {
 
 // ─── Investment Holdings (Money DB) ───────────────────────────────────────────
 
-export type InvestmentCategory = 'Mutual Funds' | 'Bonds' | 'FDs' | 'Stocks';
+export type InvestmentCategory = 'Mutual Funds' | 'Bonds' | 'FDs' | 'Stocks' | 'SIPs';
 export type Verdict = 'Buy' | 'Hold' | 'Sell';
 
 export interface InvestmentHolding {
@@ -246,7 +246,7 @@ export interface InvestmentHolding {
 
   // Category-specific metrics — only the relevant block is populated
   fundamentals?: FundamentalMetrics;       // Stocks
-  mutualFundMetrics?: MutualFundMetrics;   // Mutual Funds
+  mutualFundMetrics?: MutualFundMetrics;   // Mutual Funds & SIPs
   bondMetrics?: BondMetrics;               // Bonds
   fdMetrics?: FDMetrics;                   // FDs
   technicals?: TechnicalIndicators;        // Stocks + MFs
@@ -258,59 +258,61 @@ export interface InvestmentHolding {
 
 /** Fundamental financial metrics — Stocks only */
 export interface FundamentalMetrics {
-  roe: number;                // Return on Equity %
-  roce: number;               // Return on Capital Employed %
-  debtToEquity: number;       // D/E ratio
-  freeCashFlow: number;       // ₹ Crores
-  peRatio: number;
-  pbRatio: number;
-  marketCap: number;          // ₹ Crores
-  promoterHolding: number;    // current %
-  promoterHoldingChange: number;  // QoQ change in %
-  moatRating: 'Wide' | 'Narrow' | 'None';
-  governanceScore: number;    // 1–10
+  roe?: number;                // Return on Equity %
+  roce?: number;               // Return on Capital Employed %
+  debtToEquity?: number;       // D/E ratio
+  freeCashFlow?: number;       // ₹ Crores
+  peRatio?: number;
+  pbRatio?: number;
+  marketCap?: number;          // ₹ Crores
+  promoterHolding?: number;    // current %
+  promoterHoldingChange?: number;  // QoQ change in %
+  moatRating?: 'Wide' | 'Narrow' | 'None';
+  governanceScore?: number;    // 1–10
   sector?: string;
 }
 
-/** Mutual Fund specific metrics */
+/** Mutual Fund & SIP specific metrics */
 export interface MutualFundMetrics {
-  cagr3yr: number;
-  cagr5yr: number;
+  cagr3yr?: number;
+  cagr5yr?: number;
   cagr10yr?: number;
-  sharpeRatio: number;
-  sortinoRatio: number;
-  expenseRatio: number;       // %
-  alphaVsBenchmark: number;   // % over benchmark
-  beta: number;
-  fundManagerTenure: number;  // years
+  sharpeRatio?: number;
+  sortinoRatio?: number;
+  expenseRatio?: number;       // %
+  alphaVsBenchmark?: number;   // % over benchmark
+  beta?: number;
+  fundManagerTenure?: number;  // years
   exitLoadPeriod?: number;    // months
   exitLoadPercent?: number;
   sipAmount?: number;         // monthly SIP amount in ₹
+  sipDay?: number;            // day of month (e.g. 5, 10, 15)
+  sipActive?: boolean;
   fundHouse?: string;
   benchmark?: string;
 }
 
 /** Bond-specific metrics */
 export interface BondMetrics {
-  creditRating: string;       // "AAA", "AA+", etc.
-  yieldToMaturity: number;    // %
-  duration: number;           // Modified duration in years
-  bondType: 'Government' | 'Corporate' | 'Tax-Free';
-  couponRate: number;         // %
-  maturityDate: string;       // ISO date
-  faceValue: number;          // ₹ per bond
+  creditRating?: string;       // "AAA", "AA+", etc.
+  yieldToMaturity?: number;    // %
+  duration?: number;           // Modified duration in years
+  bondType?: 'Government' | 'Corporate' | 'Tax-Free';
+  couponRate?: number;         // %
+  maturityDate?: string;       // ISO date
+  faceValue?: number;          // ₹ per bond
   issuer?: string;
 }
 
 /** Fixed Deposit specific metrics */
 export interface FDMetrics {
   interestRate: number;       // % p.a.
-  fdType: 'Cumulative' | 'Non-Cumulative';
-  tenure: number;             // months
-  maturityDate: string;       // ISO date
-  maturityAmount: number;     // ₹
-  bankName: string;
-  taxTreatment: 'Taxable' | 'Tax-Saver (80C)';
+  fdType?: 'Cumulative' | 'Non-Cumulative';
+  tenure?: number;             // months
+  maturityDate?: string;       // ISO date
+  maturityAmount?: number;     // ₹
+  bankName?: string;
+  taxTreatment?: 'Taxable' | 'Tax-Saver (80C)';
   payoutFrequency?: 'Monthly' | 'Quarterly' | 'Annual' | 'Maturity';
 }
 
@@ -356,6 +358,7 @@ export interface PortfolioStats {
   totalReturnPct: number;
   todayChange: number;
   todayChangePct: number;
+  monthlySipTotal?: number;
   byCategory: CategoryStats[];
 }
 
