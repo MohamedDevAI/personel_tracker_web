@@ -6,7 +6,6 @@
 
 import apiClient from './apiClient';
 import { STORAGE_KEYS } from '../utils/constants';
-import { SEED_BORROW_REPAY_RECORDS, SEED_PLANNED_REPAYMENTS } from './seedData';
 import type {
   BorrowRepayRecord,
   CreditorSummary,
@@ -15,19 +14,17 @@ import type {
 
 // ─── Local Storage Cache Helpers ──────────────────────────────────────────────
 
-const readCache = <T>(key: string, seed: T[] = []): T[] => {
+const readCache = <T>(key: string): T[] => {
   try {
     const stored = localStorage.getItem(key);
-    if (stored) {
+    if (stored !== null) {
       const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed)) return parsed;
     }
   } catch (e) {
     console.warn(`Failed to load ${key}:`, e);
   }
-  // Return seed as initial default
-  localStorage.setItem(key, JSON.stringify(seed));
-  return seed;
+  return [];
 };
 
 const writeCache = <T>(key: string, data: T[]): void => {
@@ -35,10 +32,10 @@ const writeCache = <T>(key: string, data: T[]): void => {
 };
 
 const getCachedRecords = (): BorrowRepayRecord[] =>
-  readCache<BorrowRepayRecord>(STORAGE_KEYS.BORROW_REPAY, SEED_BORROW_REPAY_RECORDS);
+  readCache<BorrowRepayRecord>(STORAGE_KEYS.BORROW_REPAY);
 
 const getCachedPlans = (): PlannedRepayment[] =>
-  readCache<PlannedRepayment>(STORAGE_KEYS.PLANNED_REPAYMENTS, SEED_PLANNED_REPAYMENTS);
+  readCache<PlannedRepayment>(STORAGE_KEYS.PLANNED_REPAYMENTS);
 
 // ─── API Methods ──────────────────────────────────────────────────────────────
 

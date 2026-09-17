@@ -4,49 +4,31 @@
  */
 
 import apiClient from './apiClient';
-import { STORAGE_KEYS } from '../utils/constants';
-import {
-  SEED_EXPENSES,
-  SEED_HABITS,
-  SEED_GOALS,
-  SEED_TASKS,
-  type DashboardSeed,
-  SEED_DASHBOARD,
-} from './seedData';
 import type { Expense, Habit, Goal, TaskItem, BackendHealth } from '../types';
 
 // ─── Local Storage Helpers ────────────────────────────────────────────────────
 
 type StorageMap = {
-  dashboard: DashboardSeed;
   expenses: Expense[];
   habits: Habit[];
   goals: Goal[];
   tasks: TaskItem[];
 };
 
-const SEED_DATA: StorageMap = {
-  dashboard: SEED_DASHBOARD,
-  expenses: SEED_EXPENSES,
-  habits: SEED_HABITS,
-  goals: SEED_GOALS,
-  tasks: SEED_TASKS,
-};
-
-/** Read from localStorage with automatic seed initialization */
+/** Read from localStorage with fallback to empty array */
 const getLocal = <K extends keyof StorageMap>(key: K): StorageMap[K] => {
   const storageKey = `pt_${key}`;
   const data = localStorage.getItem(storageKey);
 
   if (!data) {
-    localStorage.setItem(storageKey, JSON.stringify(SEED_DATA[key]));
-    return SEED_DATA[key];
+    return [] as unknown as StorageMap[K];
   }
 
   try {
-    return JSON.parse(data);
+    const parsed = JSON.parse(data);
+    return Array.isArray(parsed) ? (parsed as StorageMap[K]) : ([] as unknown as StorageMap[K]);
   } catch {
-    return SEED_DATA[key];
+    return [] as unknown as StorageMap[K];
   }
 };
 

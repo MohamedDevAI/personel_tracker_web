@@ -15,7 +15,6 @@
 
 import apiClient from './apiClient';
 import { STORAGE_KEYS } from '../utils/constants';
-import { SEED_INVESTMENT_HOLDINGS } from './investmentSeedData';
 import type {
   InvestmentHolding,
   InvestmentCategory,
@@ -33,16 +32,14 @@ const ENDPOINT = '/investment-holdings';
 const readCache = (): InvestmentHolding[] => {
   try {
     const stored = localStorage.getItem(STORAGE_KEYS.INVESTMENT_HOLDINGS);
-    if (stored) {
+    if (stored !== null) {
       const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed)) return parsed;
     }
   } catch (e) {
     console.warn('[investmentApi] Failed to read localStorage cache:', e);
   }
-  // Seed the cache on first use
-  localStorage.setItem(STORAGE_KEYS.INVESTMENT_HOLDINGS, JSON.stringify(SEED_INVESTMENT_HOLDINGS));
-  return SEED_INVESTMENT_HOLDINGS;
+  return [];
 };
 
 const writeCache = (data: InvestmentHolding[]): void => {
@@ -72,7 +69,7 @@ export const investmentApi = {
   /**
    * GET /api/investment-holdings
    * Fetches all holdings from the money MongoDB database.
-   * Falls back to localStorage seed data when Spring Boot is offline.
+   * Falls back to localStorage cache when Spring Boot is offline.
    */
   getHoldings: async (): Promise<InvestmentHolding[]> => {
     try {

@@ -52,7 +52,7 @@ export interface DashboardSummary {
   expensesByCategory?: Record<string, number>;
 }
 
-// ─── Dashboard Mock Data Types ────────────────────────────────────────────────
+// ─── Dashboard Core Types ────────────────────────────────────────────────
 
 export type ExpenseType = 'INCOME' | 'EXPENSE';
 

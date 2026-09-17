@@ -7,140 +7,16 @@ import type { Trade, TradingStats } from '../types';
 
 const TRADES_STORAGE_KEY = 'money_trading_positions';
 
-const SEED_TRADES: Trade[] = [
-  {
-    id: 'tr-1',
-    symbol: 'NIFTY 24800 CE',
-    instrument: 'F&O',
-    direction: 'LONG',
-    tradeType: 'INTRADAY',
-    entryPrice: 125,
-    currentPrice: 168,
-    stopLoss: 95,
-    targetPrice: 190,
-    quantity: 150, // 3 lots
-    entryDate: '2026-09-14T09:20:00.000Z',
-    status: 'OPEN',
-    strategy: 'Morning ORB Breakout',
-    notes: 'Strong index momentum above PDH with heavy banking call buying.',
-    unrealizedPnl: (168 - 125) * 150, // +6,450
-    pnlPercent: ((168 - 125) / 125) * 100, // +34.4%
-    riskRewardRatio: (190 - 125) / (125 - 95), // 2.16
-  },
-  {
-    id: 'tr-2',
-    symbol: 'TATAMOTORS',
-    instrument: 'EQUITY',
-    direction: 'LONG',
-    tradeType: 'SWING',
-    entryPrice: 980,
-    currentPrice: 1045,
-    stopLoss: 940,
-    targetPrice: 1080,
-    quantity: 200,
-    entryDate: '2026-09-08T10:15:00.000Z',
-    status: 'OPEN',
-    strategy: 'Cup & Handle Breakout',
-    notes: 'Strong volume expansion on weekly breakout with EV sales catalyst.',
-    unrealizedPnl: (1045 - 980) * 200, // +13,000
-    pnlPercent: ((1045 - 980) / 980) * 100, // +6.63%
-    riskRewardRatio: (1080 - 980) / (980 - 940), // 2.5
-  },
-  {
-    id: 'tr-3',
-    symbol: 'BANKNIFTY 51500 PE',
-    instrument: 'F&O',
-    direction: 'LONG',
-    tradeType: 'INTRADAY',
-    entryPrice: 280,
-    currentPrice: 245,
-    stopLoss: 220,
-    targetPrice: 380,
-    quantity: 60, // 4 lots
-    entryDate: '2026-09-14T10:05:00.000Z',
-    status: 'OPEN',
-    strategy: 'Resistance Rejection',
-    notes: 'Scalp hedge against long bias at major supply zone.',
-    unrealizedPnl: (245 - 280) * 60, // -2,100
-    pnlPercent: ((245 - 280) / 280) * 100, // -12.5%
-    riskRewardRatio: (380 - 280) / (280 - 220), // 1.66
-  },
-  {
-    id: 'tr-4',
-    symbol: 'RELIANCE',
-    instrument: 'EQUITY',
-    direction: 'LONG',
-    tradeType: 'SWING',
-    entryPrice: 2950,
-    currentPrice: 3120,
-    exitPrice: 3120,
-    stopLoss: 2880,
-    targetPrice: 3100,
-    quantity: 100,
-    entryDate: '2026-08-25T09:30:00.000Z',
-    exitDate: '2026-09-05T14:45:00.000Z',
-    status: 'CLOSED',
-    strategy: '20 EMA Pullback',
-    notes: 'Hit final target with trailing stop for disciplined exit.',
-    realizedPnl: (3120 - 2950) * 100, // +17,000
-    pnlPercent: ((3120 - 2950) / 2950) * 100, // +5.76%
-    riskRewardRatio: (3100 - 2950) / (2950 - 2880), // 2.14
-  },
-  {
-    id: 'tr-5',
-    symbol: 'INFY 1900 CE',
-    instrument: 'F&O',
-    direction: 'LONG',
-    tradeType: 'INTRADAY',
-    entryPrice: 42,
-    currentPrice: 28,
-    exitPrice: 28,
-    stopLoss: 28,
-    targetPrice: 65,
-    quantity: 400, // 1 lot
-    entryDate: '2026-09-02T11:00:00.000Z',
-    exitDate: '2026-09-02T13:30:00.000Z',
-    status: 'CLOSED',
-    strategy: 'Gap Fill Momentum',
-    notes: 'Stopped out at defined SL. Managed risk tightly.',
-    realizedPnl: (28 - 42) * 400, // -5,600
-    pnlPercent: ((28 - 42) / 42) * 100, // -33.3%
-    riskRewardRatio: (65 - 42) / (42 - 28), // 1.64
-  },
-  {
-    id: 'tr-6',
-    symbol: 'HDFCBANK',
-    instrument: 'EQUITY',
-    direction: 'LONG',
-    tradeType: 'SWING',
-    entryPrice: 1620,
-    currentPrice: 1715,
-    exitPrice: 1715,
-    stopLoss: 1580,
-    targetPrice: 1720,
-    quantity: 150,
-    entryDate: '2026-08-15T09:45:00.000Z',
-    exitDate: '2026-08-28T15:00:00.000Z',
-    status: 'CLOSED',
-    strategy: 'Base Breakout',
-    notes: 'Solid trend continuation after institutional accumulation.',
-    realizedPnl: (1715 - 1620) * 150, // +14,250
-    pnlPercent: ((1715 - 1620) / 1620) * 100, // +5.86%
-    riskRewardRatio: (1720 - 1620) / (1620 - 1580), // 2.5
-  }
-];
-
 const loadTradesFromStorage = (): Trade[] => {
   try {
     const raw = localStorage.getItem(TRADES_STORAGE_KEY);
     if (!raw) {
-      localStorage.setItem(TRADES_STORAGE_KEY, JSON.stringify(SEED_TRADES));
-      return SEED_TRADES;
+      return [];
     }
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : SEED_TRADES;
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
-    return SEED_TRADES;
+    return [];
   }
 };
 
