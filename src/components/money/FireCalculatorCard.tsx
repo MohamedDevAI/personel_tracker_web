@@ -1,13 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Flame,
-  Calendar,
-  Sparkles,
-  Sliders,
-  TrendingUp,
-  Target,
-  ArrowRight,
-  ShieldCheck
+  Sliders
 } from 'lucide-react';
 import type { FireCalculationResult, FireSettings } from '../../services/financialHealthService';
 import { formatINR, formatINRCompact, formatPercent } from '../../utils/formatters';
@@ -32,11 +26,11 @@ export default function FireCalculatorCard({
     standardFireTarget,
     fatFireTarget,
     currentNetWorth,
-    progressPct,
-    shortfall,
+    progressPct: _progressPct,
+    shortfall: _shortfall,
     yearsToFire,
     targetYear,
-    monthlyInvestment
+    monthlyInvestment: _monthlyInvestment
   } = fireResult;
 
   const currentTarget =

@@ -1,4 +1,3 @@
-import React from 'react';
 import { CheckCircle2, Zap, Clock } from 'lucide-react';
 import TaskCard from './TaskCard';
 import type { TaskItem } from '../../../types';

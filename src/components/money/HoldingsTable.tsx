@@ -1,12 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Search,
-  Filter,
   Plus,
   ArrowUpDown,
   Edit2,
   Trash2,
-  Calendar,
   Layers,
   Repeat,
   ShieldAlert,
@@ -16,7 +14,7 @@ import {
   ArrowDownRight
 } from 'lucide-react';
 import type { InvestmentHolding, InvestmentCategory } from '../../types';
-import { formatINR, formatINRCompact, formatPercent, formatPctChange } from '../../utils/formatters';
+import { formatINR, formatINRCompact, formatPctChange } from '../../utils/formatters';
 import { useMoneyPrivacy } from '../../context/MoneyPrivacyContext';
 
 interface HoldingsTableProps {

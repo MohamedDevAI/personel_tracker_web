@@ -1,4 +1,3 @@
-import React from 'react';
 import { CheckCircle2, Clock, Trash2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import type { Goal } from '../../../types';

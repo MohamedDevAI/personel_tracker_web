@@ -1,4 +1,3 @@
-import React from 'react';
 import { Trash2, RefreshCw, X } from 'lucide-react';
 
 interface GlanceDeleteModalProps {

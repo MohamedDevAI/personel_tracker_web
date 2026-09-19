@@ -4,7 +4,7 @@
  */
 
 import type { Transaction } from '../../../../types';
-import { MONTH_NAMES, isFromOctober2026Onwards, getMonthIndex } from '../../../../utils/dateHelpers';
+import { isFromOctober2026Onwards, getMonthIndex } from '../../../../utils/dateHelpers';
 import { formatSAR } from '../../../../utils/formatters';
 import { expenseApi } from '../../../../services/expenseApi';
 

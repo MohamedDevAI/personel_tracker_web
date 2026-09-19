@@ -1,8 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { expenseApi } from '../services/expenseApi';
 import { MONTH_NAMES, getCurrentYear, getCurrentMonth } from '../utils/dateHelpers';
-import { Plus, Tag, ArrowDownRight, CheckCircle2, Search } from 'lucide-react';
+import { Plus, Tag, ArrowDownRight, Search } from 'lucide-react';
 import { Category, Transaction, TransactionType, BorrowRepayRecord } from '../types';
 import { parseTxDate } from '../components/life_os/finances/financeConstants';
 import MonthYearFilter from '../components/life_os/finances/MonthYearFilter';

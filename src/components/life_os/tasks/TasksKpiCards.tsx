@@ -1,5 +1,4 @@
-import React from 'react';
-import { CheckSquare, CheckCircle2, AlertCircle, Clock, Zap } from 'lucide-react';
+import { CheckCircle2, Clock, Zap } from 'lucide-react';
 import type { TaskItem } from '../../../types';
 
 interface TasksKpiCardsProps {

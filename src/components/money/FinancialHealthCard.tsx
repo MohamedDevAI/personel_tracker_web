@@ -1,11 +1,9 @@
-import React from 'react';
 import {
   ShieldCheck,
   AlertTriangle,
   Award,
   ChevronRight,
   Sparkles,
-  ArrowUpRight,
   HelpCircle
 } from 'lucide-react';
 import type { FinancialHealthResult } from '../../services/financialHealthService';

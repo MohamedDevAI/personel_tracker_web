@@ -1,6 +1,4 @@
-import React from 'react';
 import { Filter, Table2, User, X } from 'lucide-react';
-import { BorrowRepayType } from '../../../../types';
 
 interface CreditorSummary {
   creditorName: string;

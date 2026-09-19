@@ -1,4 +1,3 @@
-import React from 'react';
 import TasksView from '../components/life_os/tasks/TasksView';
 
 export default function Tasks() {

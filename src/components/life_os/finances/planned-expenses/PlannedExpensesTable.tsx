@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Target, Trash2, CheckCircle2, Clock, AlertTriangle,
   CheckSquare, Pencil, XCircle, Database

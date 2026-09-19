@@ -5,7 +5,7 @@
 
 import { useState, useMemo, useCallback } from 'react';
 import { borrowRepayApi } from '../services/borrowRepayApi';
-import { parseDateMonthYear, MONTH_NAMES, getCurrentMonth, getCurrentYear } from '../utils/dateHelpers';
+import { parseDateMonthYear, getCurrentMonth, getCurrentYear } from '../utils/dateHelpers';
 import { formatINR } from '../utils/formatters';
 import type {
   BorrowRepayRecord,

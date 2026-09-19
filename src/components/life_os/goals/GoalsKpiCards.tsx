@@ -1,5 +1,4 @@
-import React from 'react';
-import { Target, Trophy, Clock, TrendingUp } from 'lucide-react';
+import { Trophy, Clock, TrendingUp } from 'lucide-react';
 import type { Goal } from '../../../types';
 
 interface GoalsKpiCardsProps {

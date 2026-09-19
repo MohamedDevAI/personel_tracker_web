@@ -1,4 +1,3 @@
-import React from 'react';
 import { ArrowDownLeft, ArrowUpRight, HandCoins } from 'lucide-react';
 
 interface BorrowKpiCardsProps {

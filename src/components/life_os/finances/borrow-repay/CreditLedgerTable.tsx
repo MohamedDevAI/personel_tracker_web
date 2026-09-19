@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   HandCoins, Search, Filter, ArrowDownLeft, ArrowUpRight,
   Trash2, Calendar, Clock, User, RotateCcw
@@ -33,7 +32,7 @@ export default function CreditLedgerTable({
   searchQuery, typeFilter, selectedMonth, selectedYear, selectedCreditorFilter,
   availableYears, existingCreditors,
   onSearchChange, onTypeFilterChange, onMonthChange, onYearChange, onCreditorFilterChange,
-  onDeleteRecord, onAddRecord, onResetFilters, formatINR
+  onDeleteRecord, onAddRecord, onResetFilters, formatINR: _formatINR
 }: CreditLedgerTableProps) {
   const hasFilter = selectedMonth !== 'ALL' || selectedYear !== 'ALL' || typeFilter !== 'ALL' ||
     selectedCreditorFilter !== 'ALL' || !!searchQuery;

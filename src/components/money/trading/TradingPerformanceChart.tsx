@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -171,7 +171,7 @@ export default function TradingPerformanceChart({ trades }: TradingPerformanceCh
                 radius={[4, 4, 0, 0]}
                 fill="#10b981"
                 shape={(props: any) => {
-                  const { fill, x, y, width, height } = props;
+                  const { fill: _fill, x, y, width, height } = props;
                   const isPositive = props.payload.pnl >= 0;
                   const barColor = isPositive ? '#10b981' : '#f43f5e';
                   return <rect x={x} y={y} width={width} height={height} fill={barColor} rx={3} />;

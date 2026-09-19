@@ -7,13 +7,6 @@ import { useState, useMemo, useCallback } from 'react';
 import { MONTH_NAMES, getCurrentMonth, getCurrentYear, parseTxDate } from '../utils/dateHelpers';
 import type { Transaction } from '../types';
 
-interface TransactionFilterState {
-  selectedYear: number;
-  selectedMonth: string;
-  searchQuery: string;
-  typeFilter: 'ALL' | 'Credit' | 'Debit';
-  categoryFilter: string;
-}
 
 interface MonthlyStats {
   totalCredit: number;

@@ -1,4 +1,3 @@
-import React from 'react';
 import { HandCoins, Table2, CalendarClock, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 import { useBorrowRepayData } from './borrow-repay/useBorrowRepayData';
 import BorrowKpiCards from './borrow-repay/BorrowKpiCards';
@@ -53,25 +52,25 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
           className={`borrow-step-btn ${d.activeStep === 'credit_tracker' ? 'active' : ''}`}
         >
           <HandCoins size={16} />
-          <span>Step 1: Credit Tracker (Ledger &amp; Grid)</span>
+          <span>Credit Tracker</span>
           <span className="step-counter">{d.records.length}</span>
         </button>
 
-        <button
+        {/* <button
           onClick={() => d.setActiveStep('aggregation')}
           className={`borrow-step-btn ${d.activeStep === 'aggregation' ? 'active' : ''}`}
         >
           <Table2 size={16} />
           <span>Step 2: Creditor Aggregations (Table)</span>
           <span className="step-counter">{d.creditorSummaries.length}</span>
-        </button>
+        </button> */}
 
         <button
           onClick={() => d.setActiveStep('planned_repayment')}
           className={`borrow-step-btn ${d.activeStep === 'planned_repayment' ? 'active' : ''}`}
         >
           <CalendarClock size={16} />
-          <span>Step 3: 2026 Planned Schedule (Single Glance)</span>
+          <span>Planned Payback</span>
           <span className="step-counter" style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.4)' }}>
             9 Mos
           </span>

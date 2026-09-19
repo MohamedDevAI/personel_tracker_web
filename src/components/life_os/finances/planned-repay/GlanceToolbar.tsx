@@ -1,4 +1,3 @@
-import React from 'react';
 import { Search, Filter, CheckCircle2, Clock, LayoutGrid, Table2, RefreshCw, Plus, Link2 } from 'lucide-react';
 import { GlanceViewMode, GlanceStatusFilter } from './useGlanceData';
 

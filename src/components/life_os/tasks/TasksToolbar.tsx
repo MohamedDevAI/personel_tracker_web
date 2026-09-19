@@ -1,4 +1,3 @@
-import React from 'react';
 import { Search, Plus, Kanban, Table, List, Zap } from 'lucide-react';
 import { TASK_CATEGORIES } from '../../../utils/constants';
 

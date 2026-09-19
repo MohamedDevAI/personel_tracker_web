@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { api } from '../services/api';
-import { formatDateLong, formatSAR } from '../utils/formatters';
+import { formatDateLong } from '../utils/formatters';
 import type { Expense, Habit, Goal, TaskItem } from '../types';
 
 export default function Dashboard() {

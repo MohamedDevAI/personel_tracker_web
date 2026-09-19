@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   ShieldCheck,
   CircleDollarSign,
@@ -29,11 +29,17 @@ import NetWorthHeroCard from '../components/money/NetWorthHeroCard';
 import CategoryBreakdownCards from '../components/money/CategoryBreakdownCards';
 import InvestmentAssetAllocationChart from '../components/money/InvestmentAssetAllocationChart';
 import InvestmentPerformanceChart from '../components/money/InvestmentPerformanceChart';
-import HoldingsTable from '../components/money/HoldingsTable';
 import InvestmentModal from '../components/money/InvestmentModal';
 import FinancialHealthCard from '../components/money/FinancialHealthCard';
 import FinancialHealthModal from '../components/money/FinancialHealthModal';
 import FireCalculatorCard from '../components/money/FireCalculatorCard';
+
+// Investment Screens (Redesigned 5-Screen Workflow)
+import InvestmentLandingScreen from '../components/money/investment/InvestmentLandingScreen';
+import MutualFundListScreen from '../components/money/investment/MutualFundListScreen';
+import MutualFundDetailScreen from '../components/money/investment/MutualFundDetailScreen';
+import StockListScreen from '../components/money/investment/StockListScreen';
+import StockDetailScreen from '../components/money/investment/StockDetailScreen';
 
 // Trading Components
 import TradingKPIHeader from '../components/money/trading/TradingKPIHeader';
@@ -44,6 +50,7 @@ import TradeModal from '../components/money/trading/TradeModal';
 import '../components/money/money-theme.css';
 
 type MainTab = 'dashboard' | 'investment' | 'trading';
+type InvestmentScreen = 'landing' | 'mf_list' | 'mf_detail' | 'stock_list' | 'stock_detail';
 
 function MoneyHubInner() {
   const queryClient = useQueryClient();
@@ -51,6 +58,10 @@ function MoneyHubInner() {
 
   // Active top navigation tab: 'dashboard' | 'investment' | 'trading'
   const [activeTab, setActiveTab] = useState<MainTab>('dashboard');
+
+  // Active Investment Screen within Investment Tab
+  const [invScreen, setInvScreen] = useState<InvestmentScreen>('landing');
+  const [selectedHoldingId, setSelectedHoldingId] = useState<string | null>(null);
 
   // Selected category filter: 'All' | 'Stocks' | 'Mutual Funds' | 'Bonds' | 'FDs'
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -183,13 +194,6 @@ function MoneyHubInner() {
     setIsModalOpen(true);
   };
 
-  const handleDeleteHolding = async (id: string, name: string) => {
-    if (window.confirm(`Are you sure you want to remove "${name}" from your portfolio?`)) {
-      await investmentApi.deleteHolding(id);
-      queryClient.invalidateQueries({ queryKey: ['investmentHoldings'] });
-    }
-  };
-
   const handleSaveHolding = async (holdingData: Partial<InvestmentHolding>) => {
     if (editingHolding) {
       await investmentApi.updateHolding(editingHolding.id, holdingData);
@@ -290,7 +294,12 @@ function MoneyHubInner() {
 
         <button
           className={`money-main-tab-btn ${activeTab === 'investment' ? 'active' : ''}`}
-          onClick={() => setActiveTab('investment')}
+          onClick={() => {
+            if (activeTab === 'investment') {
+              setInvScreen('landing');
+            }
+            setActiveTab('investment');
+          }}
         >
           <TrendingUp size={17} />
           <span>Investment</span>
@@ -363,36 +372,75 @@ function MoneyHubInner() {
       )}
 
       {/* ========================================================
-          TAB 2: INVESTMENT
+          TAB 2: INVESTMENT (5-Screen Drill-Down Architecture)
           ======================================================== */}
       {activeTab === 'investment' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-          {/* Category Breakdown Cards */}
-          <CategoryBreakdownCards
-            holdings={holdings}
-            selectedCategory={selectedCategory}
-            onSelectCategory={(cat) => setSelectedCategory(cat)}
-          />
-
-          {/* Visualization Centre (Donut + Performance Chart) */}
-          <div className="visualization-centre-grid">
-            <InvestmentAssetAllocationChart
+          {/* Screen 1: Investment Landing */}
+          {invScreen === 'landing' && (
+            <InvestmentLandingScreen
               holdings={holdings}
-              cashLiquidity={cashLiquidity}
-              includeCash={includeCashAndDebt}
+              onNavigateToMutualFunds={() => setInvScreen('mf_list')}
+              onNavigateToStocks={() => setInvScreen('stock_list')}
+              onSelectHolding={(id, category) => {
+                setSelectedHoldingId(id);
+                setInvScreen(category === 'Stocks' ? 'stock_detail' : 'mf_detail');
+              }}
+              onOpenAddModal={(category) => handleOpenAdd(category)}
             />
-            <InvestmentPerformanceChart holdings={holdings} />
-          </div>
+          )}
 
-          {/* Filterable Holdings Management Table */}
-          <HoldingsTable
-            holdings={holdings}
-            selectedCategory={selectedCategory}
-            onSelectCategory={(cat) => setSelectedCategory(cat)}
-            onOpenAddModal={(cat) => handleOpenAdd(cat)}
-            onEditHolding={handleEditHolding}
-            onDeleteHolding={handleDeleteHolding}
-          />
+          {/* Screen 2: Mutual Fund List */}
+          {invScreen === 'mf_list' && (
+            <MutualFundListScreen
+              holdings={holdings}
+              onBackToLanding={() => setInvScreen('landing')}
+              onSelectFund={(id) => {
+                setSelectedHoldingId(id);
+                setInvScreen('mf_detail');
+              }}
+              onOpenAddModal={() => handleOpenAdd('Mutual Funds')}
+            />
+          )}
+
+          {/* Screen 3: Mutual Fund Detail */}
+          {invScreen === 'mf_detail' && (
+            <MutualFundDetailScreen
+              fund={
+                holdings.find((h) => h.id === selectedHoldingId) ||
+                holdings.find((h) => h.category === 'Mutual Funds' || h.category === 'SIPs') ||
+                holdings[0]
+              }
+              onBackToList={() => setInvScreen('mf_list')}
+              onEditFund={handleEditHolding}
+            />
+          )}
+
+          {/* Screen 4: Stock List */}
+          {invScreen === 'stock_list' && (
+            <StockListScreen
+              holdings={holdings}
+              onBackToLanding={() => setInvScreen('landing')}
+              onSelectStock={(id) => {
+                setSelectedHoldingId(id);
+                setInvScreen('stock_detail');
+              }}
+              onOpenAddModal={() => handleOpenAdd('Stocks')}
+            />
+          )}
+
+          {/* Screen 5: Stock Detail */}
+          {invScreen === 'stock_detail' && (
+            <StockDetailScreen
+              stock={
+                holdings.find((h) => h.id === selectedHoldingId) ||
+                holdings.find((h) => h.category === 'Stocks') ||
+                holdings[0]
+              }
+              onBackToList={() => setInvScreen('stock_list')}
+              onEditStock={handleEditHolding}
+            />
+          )}
         </div>
       )}
 

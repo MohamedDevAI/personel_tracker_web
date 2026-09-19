@@ -1,4 +1,3 @@
-import React from 'react';
 import { CheckSquare, Target, Flame } from 'lucide-react';
 import './productivity.css';
 

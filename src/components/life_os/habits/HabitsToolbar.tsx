@@ -1,4 +1,3 @@
-import React from 'react';
 import { Search, Plus, LayoutGrid, Table } from 'lucide-react';
 import { HABIT_CATEGORIES } from '../../../utils/constants';
 
