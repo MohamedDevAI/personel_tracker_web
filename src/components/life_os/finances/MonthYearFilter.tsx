@@ -11,6 +11,7 @@ interface MonthYearFilterProps {
   totalTransactionsForYear: number;
   onPrevMonth: () => void;
   onNextMonth: () => void;
+  countLabel?: string;
 }
 
 export default function MonthYearFilter({
@@ -22,11 +23,15 @@ export default function MonthYearFilter({
   monthlyTransactionCounts,
   totalTransactionsForYear,
   onPrevMonth,
-  onNextMonth
+  onNextMonth,
+  countLabel = 'txs'
 }: MonthYearFilterProps) {
   const currentMonth = getCurrentMonth();
   const currentYear = getCurrentYear();
-  const isCurrentActive = selectedYear === currentYear && selectedMonth === currentMonth;
+  const isCurrentActive =
+    selectedYear === currentYear &&
+    selectedMonth.toLowerCase() === currentMonth.toLowerCase();
+  const isAllSelected = selectedMonth.toLowerCase() === 'all';
 
   return (
     <div className="glass-panel month-filter-panel">
@@ -108,17 +113,17 @@ export default function MonthYearFilter({
         {/* ALL Months Button */}
         <button
           onClick={() => setSelectedMonth('All')}
-          className={`month-btn month-btn-all ${selectedMonth === 'All' ? 'active' : ''}`}
+          className={`month-btn month-btn-all ${isAllSelected ? 'active' : ''}`}
         >
           <span>All Year</span>
           <span className="month-btn-count">
-            {totalTransactionsForYear} txs
+            {totalTransactionsForYear} {countLabel}
           </span>
         </button>
 
         {/* Individual Month Buttons */}
         {MONTH_NAMES.map(month => {
-          const isSelected = selectedMonth === month;
+          const isSelected = selectedMonth.toLowerCase() === month.toLowerCase();
           const count = monthlyTransactionCounts[month] || 0;
           const hasData = count > 0;
 
@@ -130,7 +135,7 @@ export default function MonthYearFilter({
             >
               <span>{month}</span>
               <span className="month-btn-count">
-                {count} txs
+                {count} {countLabel}
               </span>
 
               {hasData && !isSelected && (

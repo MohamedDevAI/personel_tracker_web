@@ -1,4 +1,4 @@
-import { HandCoins, Table2, CalendarClock, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
+import { HandCoins, CalendarClock, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 import { useBorrowRepayData } from './borrow-repay/useBorrowRepayData';
 import BorrowKpiCards from './borrow-repay/BorrowKpiCards';
 import CreditorsGrid from './borrow-repay/CreditorsGrid';

@@ -1,6 +1,6 @@
 import {
-  Target, Trash2, CheckCircle2, Clock, AlertTriangle,
-  CheckSquare, Pencil, XCircle, Database
+  Target, Trash2,
+  CheckSquare, Pencil, Database
 } from 'lucide-react';
 import { PlannedExpense } from '../../../../types';
 import { formatSAR } from './plannedExpenseSync';
@@ -32,19 +32,16 @@ export default function PlannedExpensesTable({
         <thead>
           <tr>
             <th>Expense Objective</th>
-            <th>Category</th>
-            <th>Period</th>
             <th className="th-amount">Planned Budget</th>
             <th className="th-amount">Amount Paid</th>
             <th className="th-amount">Remaining</th>
-            <th>Fulfillment Status</th>
             <th className="th-action">Actions</th>
           </tr>
         </thead>
         <tbody>
           {isLoading ? (
             <tr>
-              <td colSpan={8} className="empty-table-cell">
+              <td colSpan={5} className="empty-table-cell">
                 <div className="empty-table-placeholder">
                   <Database size={28} className="animate-spin text-primary" />
                   <p>Loading planned expenses from MongoDB...</p>
@@ -53,7 +50,7 @@ export default function PlannedExpensesTable({
             </tr>
           ) : plans.length === 0 ? (
             <tr>
-              <td colSpan={8} className="empty-table-cell">
+              <td colSpan={5} className="empty-table-cell">
                 <div className="empty-table-placeholder">
                   <Target size={28} />
                   <p>No planned expenses recorded in database for {selectedMonth} {selectedYear}.</p>
@@ -75,8 +72,6 @@ export default function PlannedExpensesTable({
               const isOverpaid = paidVal > plannedVal;
               const extraAmt = Math.max(0, paidVal - plannedVal);
               const remainingVal = Math.max(0, plannedVal - paidVal);
-              const isFulfilled = plan.isFulfilled || plan.status === 'Fulfilled' || paidVal >= plannedVal;
-              const isPartial = !isFulfilled && paidVal > 0;
 
               return (
                 <tr key={plan.id || plan.title} className={`borrow-row ${isOverpaid ? 'row-overpaid' : ''}`}>
@@ -86,20 +81,6 @@ export default function PlannedExpensesTable({
                       <span className="plan-title-main">{plan.title}</span>
                       {plan.notes && <span className="plan-notes-sub">{plan.notes}</span>}
                     </div>
-                  </td>
-
-                  {/* Category */}
-                  <td>
-                    <span className="badge badge-category-soft">
-                      {plan.category || 'General'}
-                    </span>
-                  </td>
-
-                  {/* Month / Year */}
-                  <td>
-                    <span className="text-secondary font-medium">
-                      {plan.month} {plan.year}
-                    </span>
                   </td>
 
                   {/* Planned Amount */}
@@ -135,38 +116,7 @@ export default function PlannedExpensesTable({
                     )}
                   </td>
 
-                  {/* Status Badge (Click to open fulfillment modal) */}
-                  <td>
-                    <button
-                      onClick={() => onFulfillPlan(plan)}
-                      className={`badge badge-interactive ${
-                        isOverpaid ? 'badge-overpaid' : (isFulfilled ? 'badge-fulfilled' : (isPartial ? 'badge-partial' : 'badge-unfulfilled'))
-                      }`}
-                      title="Click to update fulfillment or paid amount"
-                    >
-                      {isOverpaid ? (
-                        <>
-                          <AlertTriangle size={13} />
-                          <span>Fulfilled (+{formatSAR(extraAmt)} Over)</span>
-                        </>
-                      ) : isFulfilled ? (
-                        <>
-                          <CheckCircle2 size={13} />
-                          <span>Fulfilled (100%)</span>
-                        </>
-                      ) : isPartial ? (
-                        <>
-                          <Clock size={13} />
-                          <span>Partial ({Math.round((paidVal / plannedVal) * 100)}%)</span>
-                        </>
-                      ) : (
-                        <>
-                          <XCircle size={13} />
-                          <span>Not Fulfilled</span>
-                        </>
-                      )}
-                    </button>
-                  </td>
+
 
                   {/* Actions */}
                   <td className="td-action">
