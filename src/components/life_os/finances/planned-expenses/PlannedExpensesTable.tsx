@@ -19,8 +19,6 @@ interface PlannedExpensesTableProps {
 export default function PlannedExpensesTable({
   plans,
   isLoading,
-  selectedMonth,
-  selectedYear,
   onPlanExpense,
   onFulfillPlan,
   onEditPlan,
@@ -53,7 +51,7 @@ export default function PlannedExpensesTable({
               <td colSpan={5} className="empty-table-cell">
                 <div className="empty-table-placeholder">
                   <Target size={28} />
-                  <p>No planned expenses recorded in database for {selectedMonth} {selectedYear}.</p>
+                  <p>No planned expenses recorded</p>
                   <button
                     onClick={onPlanExpense}
                     className="btn btn-secondary btn-sm"

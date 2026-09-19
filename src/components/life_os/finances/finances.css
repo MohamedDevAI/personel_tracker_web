@@ -5,9 +5,10 @@
 
 /* Main Container & Page Layout */
 .finances-container {
-  padding: 0 24px 48px;
-  max-width: 1440px;
-  margin: 0 auto;
+  padding: 0 16px 40px;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
 }
 
 .finances-header {
@@ -3490,7 +3491,27 @@
 .glance-matrix-container {
   width: 100%;
   overflow-x: auto;
-  padding-bottom: 12px;
+  padding-bottom: 14px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(16, 185, 129, 0.3) rgba(0, 0, 0, 0.2);
+}
+
+.glance-matrix-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.glance-matrix-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 6px;
+}
+
+.glance-matrix-container::-webkit-scrollbar-thumb {
+  background: rgba(16, 185, 129, 0.35);
+  border-radius: 6px;
+}
+
+.glance-matrix-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.55);
 }
 
 .glance-columns-track {
@@ -3501,7 +3522,8 @@
 }
 
 .glance-month-card {
-  width: 280px;
+  width: 300px;
+  flex-shrink: 0;
   border-radius: 14px;
   display: flex;
   flex-direction: column;
@@ -3629,6 +3651,28 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  max-height: 65vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.glance-card-body::-webkit-scrollbar {
+  width: 5px;
+}
+
+.glance-card-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.glance-card-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+}
+
+.glance-card-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
 }
 
 .glance-items-heading {
@@ -3679,8 +3723,17 @@
 .glance-item-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   min-width: 0;
+  flex: 1;
+}
+
+.glance-item-creditor-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
 }
 
 .glance-creditor-name {
@@ -3690,7 +3743,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 140px;
+  max-width: 165px;
 }
 
 .glance-item-amount {

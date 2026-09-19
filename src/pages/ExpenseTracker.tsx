@@ -483,12 +483,12 @@ export default function ExpenseTracker() {
         </>
       )}
 
-      {/* View 2: Planned Expenses */}
+      {/* View 2: Planned Expenses (Glance Matrix on All, Detailed on specific month) */}
       {financeMainTab === 'planned' && (
         <PlannedExpensesView
           categories={categories}
           transactions={transactions}
-          initialMonth={selectedMonth !== 'All' ? selectedMonth : getCurrentMonth()}
+          initialMonth="All"
           initialYear={selectedYear}
         />
       )}
