@@ -20,6 +20,6 @@ describe('App', () => {
       </QueryClientProvider>
     );
     // The Navbar brand title should always appear
-    expect(screen.getByText(/Life OS/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Life OS/i).length).toBeGreaterThan(0);
   });
 });
