@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, X, Target, Zap, ShieldCheck } from 'lucide-react';
+import { Activity, X } from 'lucide-react';
 import type { Trade, TradeDirection, InstrumentType, TradeType } from '../../../types';
 
 interface TradeModalProps {

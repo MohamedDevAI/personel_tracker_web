@@ -1,4 +1,3 @@
-import React from 'react';
 import { Search, Calendar, Filter } from 'lucide-react';
 
 interface CreditorSummary {
@@ -44,7 +43,7 @@ interface AggregationTableProps {
 export default function AggregationTable({
   filteredCreditorSummaries, creditorSummaries, yearlySummaries,
   stats, aggSearchQuery, aggStatusFilter,
-  onAggSearchChange, onAggStatusFilterChange, onInspectCreditor, onInspectYear, onGoToLedger, formatINR
+  onAggSearchChange, onAggStatusFilterChange, onInspectCreditor, onInspectYear, onGoToLedger, formatINR: _formatINR
 }: AggregationTableProps) {
   const STATUS_PILLS: { label: 'ALL' | 'Due' | 'Settled' | 'Credit Given'; color: string }[] = [
     { label: 'ALL',          color: 'pill-all' },

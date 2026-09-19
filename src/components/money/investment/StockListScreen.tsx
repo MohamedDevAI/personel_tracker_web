@@ -1,20 +1,14 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import {
   ArrowLeft,
   Search,
   Plus,
   ArrowUpDown,
   LineChart,
-  TrendingUp,
-  TrendingDown,
   Award,
-  ChevronRight,
-  ShieldCheck,
-  Building,
-  Layers,
-  Sparkles
+  ChevronRight
 } from 'lucide-react';
-import { formatINR, formatINRCompact, formatPercent, formatPctChange } from '../../../utils/formatters';
+import { formatINR, formatINRCompact, formatPctChange } from '../../../utils/formatters';
 import { useMoneyPrivacy } from '../../../context/MoneyPrivacyContext';
 import type { InvestmentHolding } from '../../../types';
 

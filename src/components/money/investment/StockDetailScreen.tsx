@@ -3,20 +3,13 @@ import {
   ArrowLeft,
   Award,
   TrendingUp,
-  TrendingDown,
-  LineChart,
   ShieldCheck,
-  Zap,
   Activity,
   Layers,
-  BarChart2,
   PieChart,
   Building,
-  Target,
-  Sparkles,
   CheckCircle2,
-  AlertTriangle,
-  Info
+  AlertTriangle
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -28,7 +21,7 @@ import {
   CartesianGrid,
   ReferenceLine
 } from 'recharts';
-import { formatINR, formatINRCompact, formatPercent, formatPctChange } from '../../../utils/formatters';
+import { formatINR, formatPctChange } from '../../../utils/formatters';
 import { useMoneyPrivacy } from '../../../context/MoneyPrivacyContext';
 import type { InvestmentHolding } from '../../../types';
 

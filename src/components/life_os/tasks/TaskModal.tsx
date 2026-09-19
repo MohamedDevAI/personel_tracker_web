@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { CheckSquare, X, Sparkles } from 'lucide-react';
 import { TASK_CATEGORIES } from '../../../utils/constants';
-import type { TaskItem, TaskPriority } from '../../../types';
+import type { TaskPriority } from '../../../types';
 
 interface TaskModalProps {
   isOpen: boolean;

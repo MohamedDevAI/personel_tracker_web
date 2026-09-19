@@ -1,12 +1,9 @@
-import React from 'react';
 import {
   TrendingUp,
   TrendingDown,
   Activity,
   Plus,
-  Target,
-  BarChart2,
-  PieChart
+  Target
 } from 'lucide-react';
 import { formatINR, formatINRCompact } from '../../../utils/formatters';
 import { useMoneyPrivacy } from '../../../context/MoneyPrivacyContext';

@@ -1,5 +1,4 @@
-import React from 'react';
-import { Flame, CheckCircle2, Trophy, TrendingUp } from 'lucide-react';
+import { Flame, CheckCircle2 } from 'lucide-react';
 import type { Habit } from '../../../types';
 
 interface HabitsKpiCardsProps {

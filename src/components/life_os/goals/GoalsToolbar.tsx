@@ -1,5 +1,4 @@
-import React from 'react';
-import { Search, Plus, LayoutGrid, Table, Target } from 'lucide-react';
+import { Search, Plus, LayoutGrid, Table } from 'lucide-react';
 import { GOAL_CATEGORIES } from '../../../utils/constants';
 
 export type GoalStatusFilter = 'ALL' | 'IN_PROGRESS' | 'ACHIEVED' | 'UPCOMING';

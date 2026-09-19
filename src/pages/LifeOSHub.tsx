@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Wallet, CheckSquare, Target, Flame, Sparkles } from 'lucide-react';
 import Dashboard from './Dashboard';

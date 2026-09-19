@@ -1,4 +1,3 @@
-import React from 'react';
 import { Calendar, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { MONTH_NAMES, getCurrentMonth, getCurrentYear } from '../../../utils/dateHelpers';
 

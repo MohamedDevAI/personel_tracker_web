@@ -1,4 +1,3 @@
-import React from 'react';
 import { CalendarClock, CheckCircle2, Clock, Trash2, Sparkles, Plus } from 'lucide-react';
 import { NextMonthCheckInfo } from './useGlanceData';
 import type { PlannedRepayCreditItem } from '../../../../types';

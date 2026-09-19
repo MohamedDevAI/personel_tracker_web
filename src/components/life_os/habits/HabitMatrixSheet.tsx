@@ -1,4 +1,3 @@
-import React from 'react';
 import { Flame, CheckCircle2, Circle, Sparkles, Trash2, CheckCheck } from 'lucide-react';
 import { DAY_NAMES } from '../../../utils/constants';
 import type { Habit } from '../../../types';

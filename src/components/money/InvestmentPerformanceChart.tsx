@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   AreaChart,
   Area,
@@ -13,7 +13,7 @@ import {
 } from 'recharts';
 import { TrendingUp, BarChart3, LineChart } from 'lucide-react';
 import type { InvestmentHolding } from '../../types';
-import { formatINR, formatINRCompact, formatPercent } from '../../utils/formatters';
+import { formatINR, formatINRCompact } from '../../utils/formatters';
 
 interface InvestmentPerformanceChartProps {
   holdings: InvestmentHolding[];

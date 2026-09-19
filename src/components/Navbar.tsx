@@ -1,6 +1,5 @@
-import React from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { Sparkles, Coins, Database, Moon, Sun, Layers, CircleDollarSign } from 'lucide-react';
+import { Sparkles, Coins, Database, Moon, Sun } from 'lucide-react';
 import type { BackendHealth } from '../types';
 import './Navbar.css';
 

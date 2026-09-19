@@ -1,4 +1,3 @@
-import React from 'react';
 import GoalsView from '../components/life_os/goals/GoalsView';
 
 export default function Goals() {

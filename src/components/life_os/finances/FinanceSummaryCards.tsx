@@ -1,103 +1,79 @@
-import React from 'react';
-import { ArrowUpRight, ArrowDownRight, Wallet, Filter } from 'lucide-react';
-import { formatCurrency } from './financeConstants';
+import {
+  CreditCard,
+  DebitCard,
+  NetSavingsCard,
+  TransactionsCountCard,
+} from './FinanceSummaryCardsParts';
 
-interface FinanceSummaryCardsProps {
+/**
+ * Props for the FinanceSummaryCards component.
+ */
+export interface FinanceSummaryCardsProps {
+  /** Selected month for the summary, e.g., "Jan" or "All" */
   selectedMonth: string;
+  /** Selected year for the summary */
   selectedYear: number;
+  /** Total credit amount for the period */
   totalCredit: number;
+  /** Total debit amount for the period */
   totalDebit: number;
+  /** Net balance (credit minus debit) for the period */
   netBalance: number;
+  /** Number of transactions in the period */
   transactionCount: number;
 }
 
+/**
+ * FinanceSummaryCards composes four focused KPI sub-cards:
+ * - CreditCard: total income/inflows
+ * - DebitCard: total expenses/outflows
+ * - NetSavingsCard: net savings and savings rate
+ * - TransactionsCountCard: number of entries
+ *
+ * Each sub-card lives in ./FinanceSummaryCardsParts/ and can be
+ * reused independently elsewhere in the app.
+ */
 export default function FinanceSummaryCards({
   selectedMonth,
   selectedYear,
   totalCredit,
   totalDebit,
   netBalance,
-  transactionCount
+  transactionCount,
 }: FinanceSummaryCardsProps) {
   const isAll = selectedMonth === 'All';
-  const periodLabel = isAll ? `${selectedYear}` : `${selectedMonth.toUpperCase()} ${selectedYear}`;
-  const savingsRate = totalCredit > 0 ? ((netBalance / totalCredit) * 100).toFixed(1) : '0';
+  const periodLabel = isAll
+    ? `${selectedYear}`
+    : `${selectedMonth.toUpperCase()} ${selectedYear}`;
 
   return (
     <div className="finance-summary-grid">
-      
-      {/* Total Credit */}
-      <div className="glass-panel finance-kpi-card finance-kpi-credit">
-        <div className="kpi-card-top">
-          <div className="kpi-card-label">
-            {isAll ? `${selectedYear} TOTAL CREDIT` : `${periodLabel} CREDIT`}
-          </div>
-          <div className="kpi-card-icon kpi-icon-credit">
-            <ArrowUpRight size={16} />
-          </div>
-        </div>
-        <div className="kpi-card-value kpi-val-credit">
-          +SAR {formatCurrency(totalCredit)}
-        </div>
-        <div className="kpi-card-footer">
-          Inflows & Salary deposits
-        </div>
-      </div>
-
-      {/* Total Debit */}
-      <div className="glass-panel finance-kpi-card finance-kpi-debit">
-        <div className="kpi-card-top">
-          <div className="kpi-card-label">
-            {isAll ? `${selectedYear} TOTAL DEBIT` : `${periodLabel} DEBIT`}
-          </div>
-          <div className="kpi-card-icon kpi-icon-debit">
-            <ArrowDownRight size={16} />
-          </div>
-        </div>
-        <div className="kpi-card-value kpi-val-debit">
-          -SAR {formatCurrency(Math.abs(totalDebit))}
-        </div>
-        <div className="kpi-card-footer">
-          Expenses & Outgoing payments
-        </div>
-      </div>
-
-      {/* Net Monthly Balance */}
-      <div className={`glass-panel finance-kpi-card ${netBalance >= 0 ? 'finance-kpi-savings' : 'finance-kpi-debit'}`}>
-        <div className="kpi-card-top">
-          <div className="kpi-card-label">
-            {isAll ? `${selectedYear} NET SAVINGS` : `${periodLabel} NET SAVINGS`}
-          </div>
-          <div className={`kpi-card-icon ${netBalance >= 0 ? 'kpi-icon-savings' : 'kpi-icon-debit'}`}>
-            <Wallet size={16} />
-          </div>
-        </div>
-        <div className={`kpi-card-value ${netBalance >= 0 ? 'kpi-val-savings' : 'kpi-val-debit'}`}>
-          SAR {formatCurrency(netBalance)}
-        </div>
-        <div className="kpi-card-footer">
-          {totalCredit > 0 ? `${savingsRate}% savings rate` : 'Cash balance for period'}
-        </div>
-      </div>
-
-      {/* Monthly Activity */}
-      <div className="glass-panel finance-kpi-card finance-kpi-count">
-        <div className="kpi-card-top">
-          <div className="kpi-card-label">
-            TRANSACTIONS COUNT
-          </div>
-          <div className="kpi-card-icon kpi-icon-count">
-            <Filter size={16} />
-          </div>
-        </div>
-        <div className="kpi-card-value kpi-val-count">
-          {transactionCount} <span className="kpi-unit-text">Entries</span>
-        </div>
-        <div className="kpi-card-footer">
-          In {isAll ? `${selectedYear}` : `${selectedMonth} ${selectedYear}`}
-        </div>
-      </div>
-
+      <CreditCard
+        isAll={isAll}
+        periodLabel={periodLabel}
+        selectedYear={selectedYear}
+        totalCredit={totalCredit}
+      />
+      <DebitCard
+        isAll={isAll}
+        periodLabel={periodLabel}
+        selectedYear={selectedYear}
+        totalDebit={totalDebit}
+      />
+      <NetSavingsCard
+        isAll={isAll}
+        periodLabel={periodLabel}
+        selectedYear={selectedYear}
+        netBalance={netBalance}
+        totalCredit={totalCredit}
+      />
+      <TransactionsCountCard
+        isAll={isAll}
+        periodLabel={periodLabel}
+        transactionCount={transactionCount}
+        selectedMonth={selectedMonth}
+        selectedYear={selectedYear}
+      />
     </div>
   );
 }

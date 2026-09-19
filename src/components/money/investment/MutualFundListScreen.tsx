@@ -1,22 +1,17 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import {
   ArrowLeft,
   Search,
   Plus,
   ArrowUpDown,
   Repeat,
-  TrendingUp,
-  TrendingDown,
   Award,
   ChevronRight,
-  ShieldCheck,
-  Calendar,
-  Layers,
   Sparkles
 } from 'lucide-react';
-import { formatINR, formatINRCompact, formatPercent, formatPctChange } from '../../../utils/formatters';
+import { formatINR, formatINRCompact, formatPctChange } from '../../../utils/formatters';
 import { useMoneyPrivacy } from '../../../context/MoneyPrivacyContext';
-import type { InvestmentHolding, Verdict } from '../../../types';
+import type { InvestmentHolding } from '../../../types';
 
 interface MutualFundListScreenProps {
   holdings: InvestmentHolding[];

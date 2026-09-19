@@ -1,5 +1,4 @@
-import React from 'react';
-import { AlertTriangle, Trash2, X } from 'lucide-react';
+import { AlertTriangle, Trash2 } from 'lucide-react';
 
 interface ConfirmDeleteModalProps {
   isOpen: boolean;

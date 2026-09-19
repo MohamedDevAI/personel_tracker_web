@@ -1,12 +1,8 @@
-import React from 'react';
 import {
   X,
   ShieldCheck,
   CheckCircle2,
   Circle,
-  HelpCircle,
-  Sparkles,
-  Award,
   AlertCircle
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -27,7 +23,7 @@ export default function FinancialHealthModal({
 }: FinancialHealthModalProps) {
   if (!isOpen) return null;
 
-  const { totalScore, maxScore, tier, pillars } = healthResult;
+  const { totalScore, maxScore, tier: _tier, pillars } = healthResult;
 
   const handleToggle = (pillar: HealthPillar) => {
     const newState = !pillar.isFulfilled;

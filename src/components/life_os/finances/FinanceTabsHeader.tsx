@@ -1,5 +1,4 @@
-import React from 'react';
-import { Wallet, Target, HandCoins, BarChart3 } from 'lucide-react';
+import { Wallet, Target, HandCoins } from 'lucide-react';
 
 export type FinanceTabKey = 'ledger' | 'planned' | 'borrow_repay' | 'analytics';
 

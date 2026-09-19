@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   TrendingUp,
   TrendingDown,
@@ -21,7 +20,9 @@ interface NetWorthHeroCardProps {
   totalInvested: number;
   totalReturn: number;
   totalReturnPct: number;
+  /** Currently unused — reserved for future today-change display. */
   todayChange: number;
+  /** Currently unused — reserved for future today-change display. */
   todayChangePct: number;
   cashLiquidity: number;
   debtLiabilities: number;
@@ -39,8 +40,8 @@ export default function NetWorthHeroCard({
   totalInvested,
   totalReturn,
   totalReturnPct,
-  todayChange,
-  todayChangePct,
+  todayChange: _todayChange,
+  todayChangePct: _todayChangePct,
   cashLiquidity,
   debtLiabilities,
   activeSipMonthly,

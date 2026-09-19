@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   ShieldCheck,
   CircleDollarSign,
@@ -29,7 +29,6 @@ import NetWorthHeroCard from '../components/money/NetWorthHeroCard';
 import CategoryBreakdownCards from '../components/money/CategoryBreakdownCards';
 import InvestmentAssetAllocationChart from '../components/money/InvestmentAssetAllocationChart';
 import InvestmentPerformanceChart from '../components/money/InvestmentPerformanceChart';
-import HoldingsTable from '../components/money/HoldingsTable';
 import InvestmentModal from '../components/money/InvestmentModal';
 import FinancialHealthCard from '../components/money/FinancialHealthCard';
 import FinancialHealthModal from '../components/money/FinancialHealthModal';
@@ -193,13 +192,6 @@ function MoneyHubInner() {
     setEditingHolding(holding);
     setModalCategory(holding.category);
     setIsModalOpen(true);
-  };
-
-  const handleDeleteHolding = async (id: string, name: string) => {
-    if (window.confirm(`Are you sure you want to remove "${name}" from your portfolio?`)) {
-      await investmentApi.deleteHolding(id);
-      queryClient.invalidateQueries({ queryKey: ['investmentHoldings'] });
-    }
   };
 
   const handleSaveHolding = async (holdingData: Partial<InvestmentHolding>) => {

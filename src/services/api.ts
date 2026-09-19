@@ -3,8 +3,8 @@
  * Uses localStorage as fallback when Spring Boot backend is unreachable.
  */
 
+import { BackendHealth, Expense, Goal, Habit, TaskItem } from '../types';
 import apiClient from './apiClient';
-import type { Expense, Habit, Goal, TaskItem, BackendHealth } from '../types';
 
 // ─── Local Storage Helpers ────────────────────────────────────────────────────
 

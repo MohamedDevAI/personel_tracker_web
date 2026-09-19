@@ -1,20 +1,12 @@
-import React from 'react';
 import {
   ArrowLeft,
   Award,
   TrendingUp,
-  TrendingDown,
   Repeat,
   ShieldCheck,
-  Zap,
-  Calendar,
   Layers,
   UserCheck,
-  CheckCircle2,
-  AlertCircle,
-  HelpCircle,
-  Sparkles,
-  DollarSign
+  CheckCircle2
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -25,7 +17,7 @@ import {
   Tooltip,
   CartesianGrid
 } from 'recharts';
-import { formatINR, formatINRCompact, formatPercent, formatPctChange } from '../../../utils/formatters';
+import { formatINR, formatPctChange } from '../../../utils/formatters';
 import { useMoneyPrivacy } from '../../../context/MoneyPrivacyContext';
 import type { InvestmentHolding } from '../../../types';
 

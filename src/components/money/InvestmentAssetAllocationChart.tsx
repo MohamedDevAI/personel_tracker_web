@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { PieChart as PieIcon, Info } from 'lucide-react';
+import { PieChart as PieIcon } from 'lucide-react';
 import type { InvestmentHolding } from '../../types';
 import { formatINR, formatINRCompact, formatPercent } from '../../utils/formatters';
 
@@ -9,15 +9,6 @@ interface InvestmentAssetAllocationChartProps {
   cashLiquidity?: number;
   includeCash?: boolean;
 }
-
-const CATEGORY_CONFIG: Record<string, { label: string; color: string }> = {
-  Stocks: { label: 'Stocks (Equities)', color: '#6366f1' },
-  'Mutual Funds': { label: 'SIPs & Mutual Funds', color: '#10b981' },
-  SIPs: { label: 'SIPs & Mutual Funds', color: '#10b981' },
-  Bonds: { label: 'Bonds & G-Secs', color: '#06b6d4' },
-  FDs: { label: 'Fixed Deposits (FD)', color: '#fbbf24' },
-  Cash: { label: 'Liquid Cash', color: '#38bdf8' },
-};
 
 export default function InvestmentAssetAllocationChart({
   holdings,

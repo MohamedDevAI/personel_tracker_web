@@ -1,4 +1,3 @@
-import React from 'react';
 import { CheckCircle2, Circle, Calendar, Trash2, Zap } from 'lucide-react';
 import type { TaskItem, TaskPriority } from '../../../types';
 

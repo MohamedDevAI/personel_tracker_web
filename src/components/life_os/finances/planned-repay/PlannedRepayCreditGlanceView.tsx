@@ -1,4 +1,3 @@
-import React from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import type { BorrowRepayRecord } from '../../../../types';
 import { useGlanceData } from './useGlanceData';
@@ -15,7 +14,7 @@ interface PlannedRepayCreditGlanceViewProps {
 }
 
 export default function PlannedRepayCreditGlanceView({
-  onOpenScheduleModal,
+  onOpenScheduleModal: _onOpenScheduleModal,
   actualRecords = []
 }: PlannedRepayCreditGlanceViewProps) {
   const g = useGlanceData(actualRecords);

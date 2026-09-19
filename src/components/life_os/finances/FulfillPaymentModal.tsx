@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle2, Clock, X, DollarSign, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
+import { CheckCircle2, Clock, X, AlertCircle } from 'lucide-react';
 import { PlannedExpense } from '../../../types';
 
 interface FulfillPaymentModalProps {

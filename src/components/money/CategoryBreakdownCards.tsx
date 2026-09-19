@@ -1,12 +1,9 @@
-import React from 'react';
 import {
-  TrendingUp,
   LineChart,
   Repeat,
   ShieldAlert,
   Building2,
-  ArrowUpRight,
-  Sparkles
+  ArrowUpRight
 } from 'lucide-react';
 import type { InvestmentHolding, InvestmentCategory } from '../../types';
 import { formatINR, formatINRCompact, formatPercent, formatPctChange } from '../../utils/formatters';

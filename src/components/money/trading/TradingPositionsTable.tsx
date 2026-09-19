@@ -1,10 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import {
-  TrendingUp,
-  TrendingDown,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
   Trash2,
   Edit2,
   Search,
@@ -14,7 +9,7 @@ import {
 } from 'lucide-react';
 import { formatINR } from '../../../utils/formatters';
 import { useMoneyPrivacy } from '../../../context/MoneyPrivacyContext';
-import type { Trade, TradeStatus, InstrumentType } from '../../../types';
+import type { Trade } from '../../../types';
 
 interface TradingPositionsTableProps {
   trades: Trade[];

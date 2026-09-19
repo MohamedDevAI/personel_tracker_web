@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   TrendingUp,
   TrendingDown,
@@ -8,13 +7,10 @@ import {
   AlertTriangle,
   ArrowRight,
   Plus,
-  ShieldCheck,
   ChevronRight,
-  Layers,
-  Sparkles,
-  Zap
+  Layers
 } from 'lucide-react';
-import { formatINR, formatINRCompact, formatPercent, formatPctChange } from '../../../utils/formatters';
+import { formatINR, formatINRCompact, formatPctChange } from '../../../utils/formatters';
 import { useMoneyPrivacy } from '../../../context/MoneyPrivacyContext';
 import { investmentApi } from '../../../services/investmentApi';
 import type { InvestmentHolding } from '../../../types';
