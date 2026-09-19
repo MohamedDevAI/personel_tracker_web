@@ -21,13 +21,12 @@ export default function PlannedExpensesHeader({
         </h2>
       </div>
 
-      <div className="planned-header-actions" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div className="planned-header-actions">
         {!isAll && onSelectAllMonths && (
           <button
             type="button"
             onClick={onSelectAllMonths}
-            className="btn btn-secondary"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 600 }}
+            className="btn btn-secondary planned-header-switch-btn"
             title="Switch back to the All-Months Glance Matrix"
           >
             <LayoutGrid size={15} /> All Months (Glance Matrix)
@@ -35,20 +34,7 @@ export default function PlannedExpensesHeader({
         )}
 
         {isAll && (
-          <span
-            className="badge"
-            style={{
-              background: 'rgba(16, 185, 129, 0.15)',
-              color: '#34d399',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
-              padding: '6px 12px',
-              fontSize: '0.8rem',
-              fontWeight: 600,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6
-            }}
-          >
+          <span className="badge planned-header-glance-badge">
             <LayoutGrid size={14} /> Glance Matrix Mode (All Months)
           </span>
         )}

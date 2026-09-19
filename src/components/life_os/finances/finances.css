@@ -1270,15 +1270,13 @@
   color: #ffffff;
 }
 
-.borrow-kpi-grid,
-.planned-kpi-grid {
+.borrow-kpi-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
 }
 
-.borrow-kpi-card,
-.planned-kpi-card {
+.borrow-kpi-card {
   background: rgba(16, 21, 34, 0.6);
   border: 1px solid var(--border-subtle);
   border-radius: 16px;
@@ -1290,8 +1288,7 @@
   transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
-.borrow-kpi-card:hover,
-.planned-kpi-card:hover {
+.borrow-kpi-card:hover {
   transform: translateY(-2px);
   border-color: rgba(99, 102, 241, 0.35);
 }
@@ -1302,8 +1299,7 @@
   align-items: center;
 }
 
-.borrow-kpi-label,
-.planned-kpi-label {
+.borrow-kpi-label {
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -1334,8 +1330,7 @@
   color: #fb7185;
 }
 
-.borrow-kpi-val,
-.planned-kpi-val {
+.borrow-kpi-val {
   font-size: 1.7rem;
   font-weight: 800;
   font-family: var(--font-display);
@@ -1357,8 +1352,7 @@
   color: #34d399;
 }
 
-.borrow-kpi-meta,
-.planned-kpi-meta {
+.borrow-kpi-meta {
   font-size: 0.78rem;
   color: var(--text-secondary);
 }
@@ -1869,137 +1863,7 @@
   background: #059669;
 }
 
-/* =========================================================
-   PLANNED EXPENSES VIEW STYLES
-   ========================================================= */
-.select-custom-pill {
-  background: rgba(16, 21, 34, 0.7);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-primary);
-  padding: 8px 14px;
-  border-radius: 10px;
-  font-size: 0.88rem;
-  cursor: pointer;
-  width: 10vw;
-}
 
-.month-year-select-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.category-variance-card {
-  border-radius: 16px;
-  padding: 20px;
-}
-
-.variance-title {
-  font-size: 1.05rem;
-  font-weight: 700;
-  margin-bottom: 16px;
-  color: var(--text-primary);
-}
-
-.variance-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 16px;
-}
-
-.variance-item {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background: rgba(0, 0, 0, 0.25);
-  padding: 14px;
-  border-radius: 10px;
-  border: 1px solid var(--border-subtle);
-}
-
-.variance-item-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.variance-cat-name {
-  font-weight: 700;
-  font-size: 0.92rem;
-  color: var(--text-primary);
-}
-
-.variance-numbers {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.variance-badge {
-  font-size: 0.72rem;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-weight: 600;
-}
-
-.badge-good {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-}
-
-.badge-alert {
-  background: rgba(244, 63, 94, 0.15);
-  color: #fb7185;
-}
-
-.variance-meter-track {
-  width: 100%;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.variance-meter-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.3s ease;
-}
-
-.fill-success {
-  background: linear-gradient(90deg, #10b981, #34d399);
-}
-
-.fill-danger {
-  background: linear-gradient(90deg, #f43f5e, #fb7185);
-}
-
-.plan-title-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.plan-title-main {
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.plan-notes-sub {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-}
-
-.badge-interactive {
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-}
-
-.badge-interactive:hover {
-  opacity: 0.8;
-}
 
 /* =========================================================
    ANALYTICS & REPORT VIEW STYLES

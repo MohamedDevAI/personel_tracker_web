@@ -1,0 +1,1284 @@
+/* ==========================================================================
+   PLANNED EXPENSES MODULE STYLES (planned-expenses.css)
+   Dedicated CSS for Planned Expenses View, Month Drill-Down, and Glance Matrix
+   ========================================================================== */
+
+/* ── 1. Planned Expenses Header & Navigation ──────────────────────────────── */
+.planned-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.planned-header-title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  margin: 0;
+}
+
+.planned-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.planned-header-switch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.planned-header-glance-badge {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 9999px;
+}
+
+/* Detailed Month Breadcrumb / Back Bar */
+.planned-month-breadcrumb {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 0 16px 0;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.planned-breadcrumb-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.planned-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.planned-breadcrumb-text {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.planned-month-highlight {
+  color: #ffffff;
+}
+
+.planned-breadcrumb-badge {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  cursor: pointer;
+  padding: 5px 12px;
+  font-weight: 600;
+  border-radius: 9999px;
+  transition: all 0.2s ease;
+}
+
+.planned-breadcrumb-badge:hover {
+  background: rgba(16, 185, 129, 0.22);
+}
+
+/* ── 2. Planned Expenses KPI Summary Cards ────────────────────────────────── */
+.planned-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.planned-kpi-card {
+  background: rgba(16, 21, 34, 0.6);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.planned-kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(99, 102, 241, 0.35);
+}
+
+.planned-kpi-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.planned-kpi-val {
+  font-size: 1.7rem;
+  font-weight: 800;
+  font-family: var(--font-display);
+  color: #ffffff;
+}
+
+.planned-kpi-meta {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.planned-kpi-card.total-planned {
+  border-color: rgba(99, 102, 241, 0.3);
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.08) 0%, rgba(16, 21, 34, 0.7) 100%);
+}
+
+.planned-kpi-card.actual-spent {
+  border-color: rgba(16, 185, 129, 0.3);
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 21, 34, 0.7) 100%);
+}
+
+.planned-kpi-card.remaining-budget {
+  border-color: rgba(16, 185, 129, 0.35);
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.06) 0%, rgba(16, 21, 34, 0.7) 100%);
+}
+
+.planned-kpi-card.over-budget {
+  border-color: rgba(245, 158, 11, 0.35);
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.08) 0%, rgba(16, 21, 34, 0.7) 100%);
+}
+
+.planned-kpi-card.card-overspent {
+  border-color: rgba(244, 63, 94, 0.35);
+  background: linear-gradient(180deg, rgba(244, 63, 94, 0.08) 0%, rgba(16, 21, 34, 0.7) 100%);
+}
+
+.planned-kpi-card.burn-rate {
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.kpi-meta-alert {
+  color: #fb7185;
+  font-weight: 600;
+}
+
+.remaining-text {
+  color: #34d399;
+}
+
+.over-text {
+  color: #fbbf24;
+}
+
+.mini-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+
+.mini-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #34d399);
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+/* ── 3. Detailed Ledger Table Styles ──────────────────────────────────────── */
+.plan-title-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.plan-title-main {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.plan-notes-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.plan-amt {
+  font-weight: 700;
+  color: #34d399;
+}
+
+.paid-amount-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.paid-over-val {
+  font-weight: 700;
+}
+
+.badge-extra-pill {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.zero-due {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.remaining-over-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.over-indicator {
+  font-size: 0.7rem;
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+.row-overpaid {
+  background: rgba(245, 158, 11, 0.03);
+}
+
+.btn-icon-fulfill {
+  background: transparent;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34d399;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-icon-fulfill:hover {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #10b981;
+}
+
+/* ── 4. Planned Expense Modal & Fulfill Elements ──────────────────────────── */
+.modal-icon-badge.planned {
+  background: rgba(99, 102, 241, 0.2);
+  color: #818cf8;
+}
+
+.fulfill-section-box {
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fulfill-toggle-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.fulfill-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fulfill-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.fulfill-toggle-btn.active-no {
+  border-color: rgba(245, 158, 11, 0.5);
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+}
+
+.fulfill-toggle-btn.active-yes {
+  border-color: rgba(16, 185, 129, 0.5);
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+.fulfill-partial-input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fulfill-paid-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fulfill-extra-hint {
+  font-size: 0.72rem;
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+.fulfill-remaining-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.fulfill-remaining-hint.text-emerald {
+  color: #34d399;
+  font-weight: 600;
+}
+
+.input-overpaid {
+  border-color: rgba(245, 158, 11, 0.5) !important;
+  color: #fbbf24 !important;
+}
+
+/* ── 5. Single Glance Matrix Board Component ──────────────────────────────── */
+.glance-schedule-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Hero Top Banner */
+.glance-hero-banner {
+  padding: 20px 24px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0.7) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.glance-hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.glance-hero-info {
+  flex: 1;
+  min-width: 280px;
+}
+
+.glance-tag-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.glance-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glance-badge-pill.emerald {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.glance-badge-pill.sync {
+  background: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.glance-hero-title {
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.02em;
+}
+
+.glance-hero-desc {
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.45;
+}
+
+.glance-hero-actions-cluster {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.glance-hero-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-color: #10b981;
+  font-weight: 700;
+}
+
+/* Toolbar */
+.glance-toolbar {
+  padding: 12px 18px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.glance-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.glance-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.glance-view-toggle {
+  display: flex;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.glance-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.glance-toggle-btn.active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.glance-jump-current-btn {
+  background: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.glance-jump-current-btn:hover {
+  background: rgba(16, 185, 129, 0.28);
+}
+
+.glance-status-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.glance-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.glance-pill:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.glance-pill.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.glance-pill.completed.active {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.glance-pill.incompleted.active {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+/* ── 6. Horizontal Matrix Board Track ─────────────────────────────────────── */
+.glance-matrix-container {
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 14px;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(16, 185, 129, 0.3) rgba(0, 0, 0, 0.2);
+}
+
+.glance-matrix-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.glance-matrix-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 6px;
+}
+
+.glance-matrix-container::-webkit-scrollbar-thumb {
+  background: rgba(16, 185, 129, 0.35);
+  border-radius: 6px;
+}
+
+.glance-matrix-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.55);
+}
+
+.glance-columns-track {
+  display: flex;
+  gap: 16px;
+  min-width: 100%;
+  width: max-content;
+}
+
+.glance-columns-track-full {
+  width: 100% !important;
+}
+
+.glance-month-card {
+  width: 300px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  overflow: hidden;
+}
+
+.glance-month-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.glance-month-card.completed-card {
+  border-color: rgba(16, 185, 129, 0.3);
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.06) 0%, rgba(15, 23, 42, 0.8) 100%);
+}
+
+.glance-month-card.incompleted-card {
+  border-color: rgba(245, 158, 11, 0.4);
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.08) 0%, rgba(15, 23, 42, 0.8) 100%);
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.08);
+}
+
+.glance-month-card.is-current-month {
+  border-color: rgba(52, 211, 153, 0.7) !important;
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.14) 0%, rgba(15, 23, 42, 0.9) 100%) !important;
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.22) !important;
+}
+
+.glance-month-card.is-next-year-month {
+  border-color: rgba(99, 102, 241, 0.35);
+}
+
+/* Month Card Header */
+.glance-card-header {
+  padding: 16px 16px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.glance-month-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.glance-month-index {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.glance-badge-current {
+  background: rgba(16, 185, 129, 0.28);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  font-size: 0.64rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  letter-spacing: 0.04em;
+  border-radius: 9999px;
+}
+
+.glance-badge-next-year {
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  font-size: 0.64rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 9999px;
+}
+
+.glance-target-date {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-family: monospace;
+}
+
+.glance-month-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+
+.glance-month-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.glance-month-title.clickable {
+  cursor: pointer;
+}
+
+.glance-month-details-btn {
+  font-size: 0.68rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.glance-month-details-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.glance-month-total-box {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-top: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.glance-total-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.glance-total-amount {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.glance-col-status-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  margin-top: 4px;
+}
+
+.glance-col-status-pill.completed {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.glance-col-status-pill.completed:hover {
+  background: rgba(16, 185, 129, 0.3);
+}
+
+.glance-col-status-pill.incompleted {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.glance-col-status-pill.incompleted:hover {
+  background: rgba(245, 158, 11, 0.3);
+}
+
+/* Card Body / Items */
+.glance-card-body {
+  padding: 12px 14px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 65vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.glance-card-body::-webkit-scrollbar {
+  width: 5px;
+}
+
+.glance-card-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.glance-card-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+}
+
+.glance-card-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.glance-items-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.glance-hint-text {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.glance-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.glance-empty-month-placeholder {
+  padding: 24px 12px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-style: italic;
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+}
+
+/* Individual Item Row */
+.glance-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.2s ease, border-color 0.2s ease;
+  gap: 8px;
+}
+
+.glance-item-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.glance-item-row.item-done {
+  border-left: 3px solid #10b981;
+}
+
+.glance-item-row.item-pending {
+  border-left: 3px solid #f59e0b;
+}
+
+.glance-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+
+.glance-item-creditor-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.glance-creditor-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 165px;
+  flex: 1;
+  min-width: 0;
+}
+
+.glance-item-amount {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #34d399;
+  flex-shrink: 0;
+  margin-left: 6px;
+}
+
+.glance-item-notes {
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  max-width: 100%;
+}
+
+.glance-item-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.glance-item-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.glance-item-toggle-btn.done {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+.glance-item-toggle-btn.done:hover {
+  background: rgba(16, 185, 129, 0.25);
+}
+
+.glance-item-toggle-btn.pending {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+
+.glance-item-toggle-btn.pending:hover {
+  background: rgba(245, 158, 11, 0.25);
+}
+
+.glance-item-del-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 3px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.glance-item-del-btn:hover {
+  color: #fb7185;
+  background: rgba(244, 63, 94, 0.1);
+}
+
+/* Card Footer */
+.glance-card-footer {
+  padding: 10px 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+.glance-search-wrapper {
+  min-width: 200px;
+}
+
+.glance-unfulfilled-icon {
+  color: #ef4444;
+}
+
+.glance-footer-badge {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.glance-expand-details-btn {
+  background: transparent;
+  border: none;
+  color: #34d399;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 2px 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: opacity 0.2s ease;
+}
+
+.glance-expand-details-btn:hover {
+  opacity: 0.8;
+}
+
+/* Empty State */
+.glance-empty-filter-state {
+  padding: 48px 24px;
+  text-align: center;
+  width: 100%;
+  color: var(--text-muted);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.glance-empty-filter-icon {
+  margin: 0 auto 12px;
+  color: #f59e0b;
+}
+
+.glance-empty-filter-title {
+  color: #ffffff;
+  margin-bottom: 6px;
+  font-size: 1.05rem;
+}
+
+.glance-empty-filter-desc {
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* ── 7. Modals inside Glance Table (Add & Delete) ─────────────────────────── */
+.glance-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+}
+
+.glance-modal-card {
+  width: 100%;
+  max-width: 440px;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(15, 23, 42, 0.95);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+}
+
+.glance-modal-header {
+  margin: 0 0 16px 0;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.15rem;
+}
+
+.glance-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.glance-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.glance-modal-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.glance-modal-input,
+.glance-modal-select {
+  width: 100%;
+  padding: 8px 12px;
+}
+
+.glance-modal-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.glance-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.glance-modal-delete-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(15, 23, 42, 0.95);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+}
+
+.glance-modal-delete-title {
+  margin: 0 0 10px 0;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.15rem;
+}
+
+.glance-modal-delete-text {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  margin: 0 0 16px 0;
+  line-height: 1.45;
+}
+
+.glance-modal-delete-btn {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+/* ── 8. Category Variance & Filter Pill Styles ────────────────────────────── */
+.select-custom-pill {
+  background: rgba(16, 21, 34, 0.7);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  cursor: pointer;
+  width: 10vw;
+}
+
+.month-year-select-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.category-variance-card {
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.variance-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}
+
+.variance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.variance-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+}
+
+.variance-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.variance-cat-name {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--text-primary);
+}
+
+.variance-numbers {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.variance-badge {
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.badge-good {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+.badge-alert {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fb7185;
+}
+
+.variance-meter-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.variance-meter-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.fill-success {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.fill-danger {
+  background: linear-gradient(90deg, #f43f5e, #fb7185);
+}
+
+.badge-interactive {
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.badge-interactive:hover {
+  opacity: 0.8;
+}
+

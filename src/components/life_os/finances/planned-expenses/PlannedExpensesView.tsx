@@ -18,6 +18,7 @@ import {
   removeLinkedTransactionIfExists,
   formatSAR
 } from './plannedExpenseSync';
+import './planned-expenses.css';
 
 interface PlannedExpensesViewProps {
   categories?: Category[];
@@ -344,45 +345,25 @@ export default function PlannedExpensesView({
         /* ── Condition 2: When a specific month is clicked, bring the detailed existing one ── */
         <>
           {/* Detailed Month Breadcrumb / Back Bar */}
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              margin: '8px 0 16px 0',
-              padding: '10px 16px',
-              borderRadius: '10px',
-              background: 'rgba(15, 23, 42, 0.6)',
-              border: '1px solid rgba(255, 255, 255, 0.08)'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div className="planned-month-breadcrumb">
+            <div className="planned-breadcrumb-left">
               <button
                 type="button"
                 onClick={() => setSelectedMonth('All')}
-                className="btn btn-secondary btn-sm"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 600 }}
+                className="btn btn-secondary btn-sm planned-back-btn"
                 title="Return to the 12-Month Single Glance Board"
               >
                 <ArrowLeft size={14} /> Back to All Months (Glance Matrix)
               </button>
-              <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                Viewing detailed budget & fulfillment for <strong style={{ color: '#ffffff' }}>{selectedMonth} {selectedYear}</strong>
+              <span className="planned-breadcrumb-text">
+                Viewing detailed budget &amp; fulfillment for <strong className="planned-month-highlight">{selectedMonth} {selectedYear}</strong>
               </span>
             </div>
 
             <button
               type="button"
               onClick={() => setSelectedMonth('All')}
-              className="badge"
-              style={{
-                background: 'rgba(16, 185, 129, 0.12)',
-                color: '#34d399',
-                border: '1px solid rgba(16, 185, 129, 0.25)',
-                cursor: 'pointer',
-                padding: '5px 12px',
-                fontWeight: 600
-              }}
+              className="badge planned-breadcrumb-badge"
             >
               ← Glance Matrix (All Months)
             </button>
