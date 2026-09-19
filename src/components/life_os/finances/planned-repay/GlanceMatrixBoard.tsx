@@ -115,7 +115,7 @@ export default function GlanceMatrixBoard({
                             <div className={`glance-next-month-chip ${nextCheck.badgeType}`} title={nextCheck.detailMessage}>
                               {nextCheck.badgeType === 'fulfilled' ? <CheckCircle2 size={11} className="chip-icon" />
                                 : nextCheck.badgeType === 'partial' ? <AlertTriangle size={11} className="chip-icon" />
-                                : <Clock size={11} className="chip-icon" />}
+                                  : <Clock size={11} className="chip-icon" />}
                               <span>{nextCheck.badgeText}</span>
                             </div>
                           )}

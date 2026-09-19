@@ -56,10 +56,9 @@ export default function Navbar({ backendStatus, theme, toggleTheme }: NavbarProp
           <NavLink
             to="/life-os"
             className={({ isActive }) =>
-              `app-switcher-btn ${
-                isActive || location.pathname === '/' || location.pathname.startsWith('/productivity')
-                  ? 'active-life-os'
-                  : ''
+              `app-switcher-btn ${isActive || location.pathname === '/' || location.pathname.startsWith('/productivity')
+                ? 'active-life-os'
+                : ''
               }`
             }
           >
@@ -87,18 +86,16 @@ export default function Navbar({ backendStatus, theme, toggleTheme }: NavbarProp
               ? 'Spring Boot & MongoDB Atlas connected'
               : 'Spring Boot offline / running local storage cache'
           }
-          className={`navbar-status-badge ${
-            backendStatus.connected ? 'navbar-status-connected' : 'navbar-status-local'
-          }`}
+          className={`navbar-status-badge ${backendStatus.connected ? 'navbar-status-connected' : 'navbar-status-local'
+            }`}
         >
           <Database size={13} />
           <span className="navbar-status-label">
             {backendStatus.connected ? 'Server: Live' : 'Atlas Ready (Local)'}
           </span>
           <span
-            className={`navbar-status-dot ${
-              backendStatus.connected ? 'navbar-status-dot-connected' : 'navbar-status-dot-local'
-            }`}
+            className={`navbar-status-dot ${backendStatus.connected ? 'navbar-status-dot-connected' : 'navbar-status-dot-local'
+              }`}
           />
         </div>
 

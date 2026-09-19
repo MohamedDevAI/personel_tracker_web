@@ -1,8 +1,10 @@
 import { useState, useMemo } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Category, PlannedExpense, PlannedExpenseStatus, Transaction } from '../../../../types';
 import { plannedExpenseApi } from '../../../../services/plannedExpenseApi';
-import { getCurrentMonth, getCurrentYear } from '../../../../utils/dateHelpers';
+import { MONTH_NAMES, getCurrentMonth, getCurrentYear } from '../../../../utils/dateHelpers';
+import MonthYearFilter from '../MonthYearFilter';
 import PlannedExpenseModal from './PlannedExpenseModal';
 import FulfillPaymentModal from '../FulfillPaymentModal';
 import ConfirmDeleteModal from '../../../common/ConfirmDeleteModal';
@@ -10,11 +12,13 @@ import PlannedExpensesHeader from './PlannedExpensesHeader';
 import PlannedExpensesKpiCards from './PlannedExpensesKpiCards';
 import PlannedExpensesToolbar from './PlannedExpensesToolbar';
 import PlannedExpensesTable from './PlannedExpensesTable';
+import PlannedExpensesGlanceTable from './PlannedExpensesGlanceTable';
 import {
   syncPlanToTransactions,
   removeLinkedTransactionIfExists,
   formatSAR
 } from './plannedExpenseSync';
+import './planned-expenses.css';
 
 interface PlannedExpensesViewProps {
   categories?: Category[];
@@ -31,7 +35,7 @@ export default function PlannedExpensesView({
 }: PlannedExpensesViewProps) {
   const queryClient = useQueryClient();
 
-  const [selectedMonth, setSelectedMonth] = useState<string>(() => initialMonth || getCurrentMonth());
+  const [selectedMonth, setSelectedMonth] = useState<string>(() => initialMonth || 'All');
   const [selectedYear, setSelectedYear] = useState<number>(() => initialYear || getCurrentYear());
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | PlannedExpenseStatus>('ALL');
@@ -43,10 +47,80 @@ export default function PlannedExpensesView({
   const [deletePlan, setDeletePlan] = useState<PlannedExpense | null>(null);
 
   // Live Query from MongoDB via Spring Boot API: /api/finance_planned
+  // Fetches all plans across years (current year + next year)
   const { data: plans = [], isLoading } = useQuery<PlannedExpense[]>({
-    queryKey: ['plannedExpenses', selectedMonth, selectedYear],
-    queryFn: () => plannedExpenseApi.fetchFromDb(selectedMonth, selectedYear)
+    queryKey: ['plannedExpenses'],
+    queryFn: () => plannedExpenseApi.fetchFromDb('ALL')
   });
+
+  // Available Years for the MonthYearFilter
+  const currentCalendarYear = getCurrentYear();
+  const availableYears = useMemo(() => {
+    const yearsSet = new Set<number>([
+      currentCalendarYear - 2,
+      currentCalendarYear - 1,
+      currentCalendarYear,
+      currentCalendarYear + 1,
+      currentCalendarYear + 2,
+      selectedYear
+    ]);
+    plans.forEach(p => {
+      if (p.year) yearsSet.add(p.year);
+    });
+    return Array.from(yearsSet).sort((a, b) => a - b);
+  }, [plans, currentCalendarYear, selectedYear]);
+
+  // Transaction / Item Counts per Month for the 12-Month Strip
+  const monthlyPlanCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    MONTH_NAMES.forEach(m => {
+      counts[m] = 0;
+    });
+    plans.forEach(p => {
+      if (p.year === selectedYear && p.month) {
+        const m = MONTH_NAMES.find(
+          name => name.toLowerCase() === p.month.toLowerCase().slice(0, 3)
+        );
+        if (m) {
+          counts[m] = (counts[m] || 0) + 1;
+        }
+      }
+    });
+    return counts;
+  }, [plans, selectedYear]);
+
+  const totalTransactionsForYear = useMemo(() => {
+    return Object.values(monthlyPlanCounts).reduce((a, b) => a + b, 0);
+  }, [monthlyPlanCounts]);
+
+  // Month Navigation Handlers for MonthYearFilter
+  const handlePrevMonth = () => {
+    if (selectedMonth === 'All') {
+      setSelectedMonth('Dec');
+    } else {
+      const idx = MONTH_NAMES.indexOf(selectedMonth as any);
+      if (idx > 0) {
+        setSelectedMonth(MONTH_NAMES[idx - 1]);
+      } else {
+        setSelectedMonth(MONTH_NAMES[11]);
+        setSelectedYear(prev => prev - 1);
+      }
+    }
+  };
+
+  const handleNextMonth = () => {
+    if (selectedMonth === 'All') {
+      setSelectedMonth('Jan');
+    } else {
+      const idx = MONTH_NAMES.indexOf(selectedMonth as any);
+      if (idx < 11) {
+        setSelectedMonth(MONTH_NAMES[idx + 1]);
+      } else {
+        setSelectedMonth(MONTH_NAMES[0]);
+        setSelectedYear(prev => prev + 1);
+      }
+    }
+  };
 
   // Mutations
   const savePlanMutation = useMutation({
@@ -77,7 +151,17 @@ export default function PlannedExpensesView({
   });
 
   const fulfillMutation = useMutation({
-    mutationFn: async ({ id, isFulfilled, paidAmount, plan }: { id: string; isFulfilled: boolean; paidAmount: number; plan?: PlannedExpense }) => {
+    mutationFn: async ({
+      id,
+      isFulfilled,
+      paidAmount,
+      plan
+    }: {
+      id: string;
+      isFulfilled: boolean;
+      paidAmount: number;
+      plan?: PlannedExpense;
+    }) => {
       const updatedPlan = await plannedExpenseApi.setFulfillmentAndPayment(id, isFulfilled, paidAmount, plan);
       const targetPlan = plan || plans.find(p => p.id === id) || updatedPlan;
       if (targetPlan) {
@@ -118,12 +202,12 @@ export default function PlannedExpensesView({
     }
   });
 
-  // Compute actual spending by category for the selected month and year from live MongoDB transactions
+  // Compute actual spending by category for the selected month/year from live MongoDB transactions
   const actualCategoryExpenses = useMemo(() => {
     const expenses: Record<string, number> = {};
     for (const tx of transactions) {
       if (String(tx.type).toUpperCase() !== 'CREDIT') {
-        const matchesMonth = tx.month === selectedMonth;
+        const matchesMonth = selectedMonth === 'All' || tx.month === selectedMonth;
         let matchesYear = true;
         if (tx.date) {
           const d = new Date(tx.date);
@@ -144,14 +228,15 @@ export default function PlannedExpensesView({
   // Filtered plans
   const filteredPlans = useMemo(() => {
     return plans.filter(p => {
-      const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      const matchesSearch =
+        p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (p.category ? p.category.toLowerCase().includes(searchQuery.toLowerCase()) : false) ||
         (p.notes && p.notes.toLowerCase().includes(searchQuery.toLowerCase()));
 
       let matchesStatus = true;
       if (statusFilter !== 'ALL') {
         if (statusFilter === 'Fulfilled') {
-          matchesStatus = p.isFulfilled || p.status === 'Fulfilled' || ((p.paidAmount ?? 0) >= p.plannedAmount);
+          matchesStatus = p.isFulfilled || p.status === 'Fulfilled' || (p.paidAmount ?? 0) >= p.plannedAmount;
         } else if (statusFilter === 'Partial') {
           matchesStatus = (p.paidAmount ?? 0) > 0 && (p.paidAmount ?? 0) < p.plannedAmount && !p.isFulfilled;
         } else {
@@ -159,9 +244,13 @@ export default function PlannedExpensesView({
         }
       }
 
-      return matchesSearch && matchesStatus;
+      const matchesMonth =
+        selectedMonth === 'All' ||
+        (p.month || '').toLowerCase().slice(0, 3) === selectedMonth.toLowerCase().slice(0, 3);
+
+      return matchesSearch && matchesStatus && matchesMonth;
     });
-  }, [plans, searchQuery, statusFilter]);
+  }, [plans, searchQuery, statusFilter, selectedMonth]);
 
   // Budget summary with variance
   const budgetSummary = useMemo(() => {
@@ -193,44 +282,122 @@ export default function PlannedExpensesView({
     setIsAddModalOpen(true);
   };
 
+  const isAllMonths = (selectedMonth || '').toLowerCase() === 'all';
+
   return (
     <div className="planned-expenses-container">
-      {/* Header & Controls */}
+      {/* Header with Title & All-Months Glance Indicator */}
       <PlannedExpensesHeader
-        selectedMonth={selectedMonth}
-        onMonthChange={setSelectedMonth}
-        selectedYear={selectedYear}
-        onYearChange={setSelectedYear}
         onAddPlan={handleOpenAddModal}
-      />
-
-      {/* KPI Cards */}
-      <PlannedExpensesKpiCards
-        budgetSummary={budgetSummary}
         selectedMonth={selectedMonth}
+        onSelectAllMonths={() => setSelectedMonth('All')}
+      />
+
+      {/* Month & Year Filter Strip (always available for navigation) */}
+      <MonthYearFilter
         selectedYear={selectedYear}
-        overspentItemsCount={filteredPlans.filter(p => (p.paidAmount ?? 0) > p.plannedAmount).length}
-      />
-
-      {/* Search & Filter Bar */}
-      <PlannedExpensesToolbar
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        statusFilter={statusFilter}
-        onStatusFilterChange={setStatusFilter}
-      />
-
-      {/* Planned Expenses Table */}
-      <PlannedExpensesTable
-        plans={filteredPlans}
-        isLoading={isLoading}
+        setSelectedYear={setSelectedYear}
         selectedMonth={selectedMonth}
-        selectedYear={selectedYear}
-        onPlanExpense={handleOpenAddModal}
-        onFulfillPlan={setActiveFulfillPlan}
-        onEditPlan={handleOpenEditModal}
-        onDeletePlan={setDeletePlan}
+        setSelectedMonth={setSelectedMonth}
+        availableYears={availableYears}
+        monthlyTransactionCounts={monthlyPlanCounts}
+        totalTransactionsForYear={totalTransactionsForYear}
+        onPrevMonth={handlePrevMonth}
+        onNextMonth={handleNextMonth}
+        countLabel="txs"
       />
+
+      {/* ── Condition 1: When 'All' is selected, show the Planned Payback style Glance Matrix ── */}
+      {isAllMonths ? (
+        <PlannedExpensesGlanceTable
+          plans={plans}
+          isLoading={isLoading}
+          selectedYear={selectedYear}
+          onSelectMonth={(mShort, colYear) => {
+            setSelectedMonth(mShort);
+            if (colYear) setSelectedYear(colYear);
+          }}
+          onTogglePlanStatus={plan => {
+            const isDone = plan.isFulfilled || plan.status === 'Fulfilled';
+            fulfillMutation.mutate({
+              id: plan.id,
+              isFulfilled: isDone,
+              paidAmount: isDone ? plan.plannedAmount : 0,
+              plan
+            });
+          }}
+          onDeletePlan={plan => deleteMutation.mutate(plan)}
+          onAddPlan={newPlan => {
+            savePlanMutation.mutate({
+              title: newPlan.title || 'Untitled',
+              month: newPlan.month || 'Sep',
+              year: newPlan.year || selectedYear,
+              plannedAmount: newPlan.plannedAmount || 0,
+              paidAmount: 0,
+              isFulfilled: false,
+              status: 'Planned',
+              notes: newPlan.notes
+            });
+          }}
+          onRefresh={() => queryClient.invalidateQueries({ queryKey: ['plannedExpenses'] })}
+        />
+      ) : (
+        /* ── Condition 2: When a specific month is clicked, bring the detailed existing one ── */
+        <>
+          {/* Detailed Month Breadcrumb / Back Bar */}
+          <div className="planned-month-breadcrumb">
+            <div className="planned-breadcrumb-left">
+              <button
+                type="button"
+                onClick={() => setSelectedMonth('All')}
+                className="btn btn-secondary btn-sm planned-back-btn"
+                title="Return to the 12-Month Single Glance Board"
+              >
+                <ArrowLeft size={14} /> Back to All Months (Glance Matrix)
+              </button>
+              <span className="planned-breadcrumb-text">
+                Viewing detailed budget &amp; fulfillment for <strong className="planned-month-highlight">{selectedMonth} {selectedYear}</strong>
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setSelectedMonth('All')}
+              className="badge planned-breadcrumb-badge"
+            >
+              ← Glance Matrix (All Months)
+            </button>
+          </div>
+
+          {/* Detailed KPI Cards for this month */}
+          <PlannedExpensesKpiCards
+            budgetSummary={budgetSummary}
+            selectedMonth={selectedMonth}
+            selectedYear={selectedYear}
+            overspentItemsCount={filteredPlans.filter(p => (p.paidAmount ?? 0) > p.plannedAmount).length}
+          />
+
+          {/* Search & Filter Bar */}
+          <PlannedExpensesToolbar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+          />
+
+          {/* Detailed Planned Expenses Table */}
+          <PlannedExpensesTable
+            plans={filteredPlans}
+            isLoading={isLoading}
+            selectedMonth={selectedMonth}
+            selectedYear={selectedYear}
+            onPlanExpense={handleOpenAddModal}
+            onFulfillPlan={setActiveFulfillPlan}
+            onEditPlan={handleOpenEditModal}
+            onDeletePlan={setDeletePlan}
+          />
+        </>
+      )}
 
       {/* Add / Edit Plan Modal */}
       <PlannedExpenseModal
@@ -241,7 +408,7 @@ export default function PlannedExpensesView({
         }}
         onSubmit={handleCreateOrUpdatePlan}
         categories={categories}
-        initialMonth={selectedMonth}
+        initialMonth={selectedMonth !== 'All' ? selectedMonth : getCurrentMonth()}
         initialYear={selectedYear}
         initialPlan={editingPlan}
       />
@@ -259,7 +426,13 @@ export default function PlannedExpensesView({
         isOpen={Boolean(deletePlan)}
         title="Delete Planned Expense"
         message="Are you sure you want to delete this planned expense? Please choose Yes to delete or No to cancel."
-        itemName={deletePlan ? `${deletePlan.title}${deletePlan.category ? ` (${deletePlan.category})` : ''} - ${formatSAR(deletePlan.plannedAmount)}` : ''}
+        itemName={
+          deletePlan
+            ? `${deletePlan.title}${deletePlan.category ? ` (${deletePlan.category})` : ''} - ${formatSAR(
+                deletePlan.plannedAmount
+              )}`
+            : ''
+        }
         confirmText="Yes, Delete"
         cancelText="No, Keep"
         onConfirm={handleConfirmDeletePlan}

@@ -33,6 +33,7 @@ export default function App() {
           {/* Default: redirect to Life OS overview */}
           <Route path="/" element={<Navigate to="/life-os/overview" replace />} />
 
+
           {/* Main application hubs */}
           <Route path="/life-os/*" element={<LifeOSHub />} />
           <Route path="/money/*" element={<MoneyHub />} />

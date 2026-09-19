@@ -6,11 +6,17 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
 }
 
 .app-main-content {
   flex: 1;
   padding-top: 8px;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
 }
 
 .app-footer {
