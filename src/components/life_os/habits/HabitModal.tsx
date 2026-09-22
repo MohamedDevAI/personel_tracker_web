@@ -8,13 +8,7 @@ interface HabitModalProps {
   onSubmit: (data: { title: string; category: string; targetFrequency: string }) => void;
 }
 
-const PRESETS = [
-  { title: 'Read 20 Pages', category: 'Mindset', targetFrequency: 'Daily' },
-  { title: 'Morning Workout', category: 'Fitness', targetFrequency: 'Weekdays' },
-  { title: 'Drink 2.5L Water', category: 'Health', targetFrequency: 'Daily' },
-  { title: '30-min Coding Sprint', category: 'Productivity', targetFrequency: 'Daily' },
-  { title: '10-min Mindfulness', category: 'Mindset', targetFrequency: 'Daily' },
-];
+
 
 export default function HabitModal({ isOpen, onClose, onSubmit }: HabitModalProps) {
   const [formData, setFormData] = useState({
@@ -33,13 +27,6 @@ export default function HabitModal({ isOpen, onClose, onSubmit }: HabitModalProp
     onClose();
   };
 
-  const handleApplyPreset = (preset: typeof PRESETS[0]) => {
-    setFormData({
-      title: preset.title,
-      category: preset.category,
-      targetFrequency: preset.targetFrequency,
-    });
-  };
 
   return (
     <div className="modal-overlay-backdrop">
@@ -59,24 +46,7 @@ export default function HabitModal({ isOpen, onClose, onSubmit }: HabitModalProp
           </button>
         </div>
 
-        {/* Quick Presets */}
-        <div style={{ marginBottom: 16 }}>
-          <label className="modal-field-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Sparkles size={13} color="#f59e0b" /> Quick Presets
-          </label>
-          <div className="habit-presets-grid">
-            {PRESETS.map((p) => (
-              <button
-                key={p.title}
-                type="button"
-                onClick={() => handleApplyPreset(p)}
-                className="habit-preset-chip"
-              >
-                + {p.title}
-              </button>
-            ))}
-          </div>
-        </div>
+
 
         <form onSubmit={handleSubmit} className="modal-form-vertical">
           <div className="form-group-custom">

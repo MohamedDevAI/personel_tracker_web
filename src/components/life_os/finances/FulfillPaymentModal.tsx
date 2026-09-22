@@ -22,8 +22,8 @@ export default function FulfillPaymentModal({
     if (plan) {
       const fulfilled = plan.isFulfilled ?? (plan.status === 'Fulfilled');
       setIsFulfilled(fulfilled);
-      const currentPaid = plan.paidAmount !== undefined 
-        ? plan.paidAmount 
+      const currentPaid = plan.paidAmount !== undefined
+        ? plan.paidAmount
         : (fulfilled ? plan.plannedAmount : 0);
       setPaidAmountStr(String(currentPaid));
     }
@@ -67,7 +67,7 @@ export default function FulfillPaymentModal({
   return (
     <div className="modal-overlay-backdrop">
       <div className="glass-panel modal-content-card modal-content-card-fulfill">
-        
+
         {/* Modal Header */}
         <div className="modal-header-row">
           <div className="modal-header-with-icon">
@@ -85,7 +85,7 @@ export default function FulfillPaymentModal({
         </div>
 
         <form onSubmit={handleSubmit} className="modal-form-vertical">
-          
+
           {/* Plan Summary Card */}
           <div className="fulfill-summary-card">
             <div className="fulfill-summary-top">
@@ -162,30 +162,6 @@ export default function FulfillPaymentModal({
               </div>
             </div>
 
-            {/* Quick Preset Buttons */}
-            <div className="fulfill-presets-row">
-              <button
-                type="button"
-                onClick={() => handlePresetPercentage(0)}
-                className="btn-preset"
-              >
-                Unpaid (0)
-              </button>
-              <button
-                type="button"
-                onClick={() => handlePresetPercentage(0.5)}
-                className="btn-preset"
-              >
-                50% (SAR {(planned * 0.5).toFixed(2)})
-              </button>
-              <button
-                type="button"
-                onClick={() => handlePresetPercentage(1)}
-                className="btn-preset preset-full"
-              >
-                Planned (SAR {planned.toFixed(2)})
-              </button>
-            </div>
 
             {/* Dynamic Status Preview Banner */}
             {isOverpaid ? (

@@ -500,13 +500,6 @@
   color: var(--accent-primary);
 }
 
-/* Preset Chips */
-.task-presets-grid {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 6px;
-}
 
 .task-preset-chip {
   padding: 5px 12px;
