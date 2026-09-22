@@ -1,4 +1,4 @@
-import { CheckCircle2, Clock, Trash2 } from 'lucide-react';
+import { CheckCircle2, Clock, Trash2, Pencil } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import type { Goal } from '../../../types';
 
@@ -6,12 +6,14 @@ interface GoalMatrixSheetProps {
   goals: Goal[];
   onUpdateProgress: (id: string, newProgress: number) => void;
   onDelete: (id: string) => void;
+  onEdit?: (goal: Goal) => void;
 }
 
 export default function GoalMatrixSheet({
   goals,
   onUpdateProgress,
   onDelete,
+  onEdit,
 }: GoalMatrixSheetProps) {
   const getCategoryBadgeClass = (category?: string) => {
     const cat = (category || '').toLowerCase();
@@ -157,15 +159,28 @@ export default function GoalMatrixSheet({
                     </div>
                   </td>
 
-                  {/* Delete */}
+                  {/* Actions */}
                   <td style={{ textAlign: 'right' }}>
-                    <button
-                      onClick={() => onDelete(goal.id)}
-                      className="goal-delete-btn"
-                      title="Delete Goal"
-                    >
-                      <Trash2 size={15} />
-                    </button>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end' }}>
+                      {onEdit && (
+                        <button
+                          onClick={() => onEdit(goal)}
+                          className="goal-edit-btn"
+                          title="Edit Goal Milestone"
+                          aria-label="Edit Goal"
+                        >
+                          <Pencil size={14} />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => onDelete(goal.id)}
+                        className="goal-delete-btn"
+                        title="Delete Goal"
+                        aria-label="Delete Goal"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );

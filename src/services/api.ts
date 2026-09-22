@@ -199,6 +199,33 @@ export const api = {
     return newItem;
   },
 
+  updateGoal: async (goal: Goal): Promise<Goal> => {
+    // 1. Try POST /goals (Spring Data Mongo repository.save(goal) updates existing document when ID is present)
+    try {
+      const { data } = await apiClient.post<Goal>('/goals', goal);
+      if (data) return data;
+    } catch {
+      // 2. Try PUT /goals/{id}
+      try {
+        const { data } = await apiClient.put<Goal>(`/goals/${goal.id}`, goal);
+        if (data) return data;
+      } catch {
+        // 3. Try PATCH /goals/{id}
+        try {
+          const { data } = await apiClient.patch<Goal>(`/goals/${goal.id}`, goal);
+          if (data) return data;
+        } catch { /* fallback to local below */ }
+      }
+    }
+
+    const list = getLocal('goals');
+    const updated = list.map((g) => (g.id === goal.id ? { ...g, ...goal } : g));
+    setLocal('goals', updated);
+
+    const result = updated.find((g) => g.id === goal.id);
+    return result || goal;
+  },
+
   deleteGoal: async (id: string): Promise<boolean> => {
     try {
       await apiClient.delete(`/goals/${id}`);

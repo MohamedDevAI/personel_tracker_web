@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Flame, X, Sparkles } from 'lucide-react';
+import { Flame, X } from 'lucide-react';
 import { HABIT_CATEGORIES } from '../../../utils/constants';
 
 interface HabitModalProps {
