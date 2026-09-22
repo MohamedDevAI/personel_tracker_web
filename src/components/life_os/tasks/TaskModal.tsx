@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckSquare, X, Sparkles } from 'lucide-react';
+import { CheckSquare, X } from 'lucide-react';
 import { TASK_CATEGORIES } from '../../../utils/constants';
 import type { TaskPriority } from '../../../types';
 

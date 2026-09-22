@@ -33,6 +33,30 @@ export default function GoalsView() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['goals'] }),
   });
 
+  const updateMutation = useMutation({
+    mutationFn: api.updateGoal,
+    onMutate: async (updatedGoal: Goal) => {
+      // Cancel any outgoing refetches so they don't overwrite optimistic update
+      await queryClient.cancelQueries({ queryKey: ['goals'] });
+      // Snapshot previous goals
+      const previousGoals = queryClient.getQueryData<Goal[]>(['goals']);
+      // Optimistically update React Query cache immediately
+      queryClient.setQueryData<Goal[]>(['goals'], (old) => {
+        if (!old) return [updatedGoal];
+        return old.map((g) => (g.id === updatedGoal.id ? { ...g, ...updatedGoal } : g));
+      });
+      return { previousGoals };
+    },
+    onError: (_err, _newGoal, context) => {
+      if (context?.previousGoals) {
+        queryClient.setQueryData(['goals'], context.previousGoals);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['goals'] });
+    },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: api.deleteGoal,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['goals'] }),
@@ -40,6 +64,7 @@ export default function GoalsView() {
 
   // State
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<GoalStatusFilter>('ALL');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
@@ -84,8 +109,19 @@ export default function GoalsView() {
     updateProgressMutation.mutate({ id, progress: newProgress });
   };
 
-  const handleCreateGoal = (goalData: Omit<Goal, 'id'>) => {
-    createMutation.mutate(goalData);
+  const handleSaveGoal = (goalData: Omit<Goal, 'id'> | Goal) => {
+    if (editingGoal || ('id' in goalData && goalData.id)) {
+      const goalToSave: Goal = {
+        ...editingGoal,
+        ...goalData,
+        id: ('id' in goalData && goalData.id) ? (goalData as Goal).id : editingGoal!.id,
+      };
+      updateMutation.mutate(goalToSave);
+    } else {
+      createMutation.mutate(goalData as Omit<Goal, 'id'>);
+    }
+    setEditingGoal(null);
+    setShowAddModal(false);
   };
 
   const handleDeleteConfirm = () => {
@@ -107,7 +143,10 @@ export default function GoalsView() {
         onCategoryChange={setSelectedCategory}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
-        onOpenAddModal={() => setShowAddModal(true)}
+        onOpenAddModal={() => {
+          setEditingGoal(null);
+          setShowAddModal(true);
+        }}
       />
 
       {/* 3. Cards Grid or Matrix Sheet View */}
@@ -119,6 +158,7 @@ export default function GoalsView() {
                 key={goal.id}
                 goal={goal}
                 onUpdateProgress={handleUpdateProgress}
+                onEdit={(g) => setEditingGoal(g)}
                 onDelete={(id) => deleteConfirm.confirm(id, goal.title)}
               />
             ))}
@@ -127,6 +167,7 @@ export default function GoalsView() {
           <GoalMatrixSheet
             goals={filteredGoals}
             onUpdateProgress={handleUpdateProgress}
+            onEdit={(g) => setEditingGoal(g)}
             onDelete={(id) => deleteConfirm.confirm(id, 'Strategic Milestone')}
           />
         )
@@ -142,7 +183,10 @@ export default function GoalsView() {
               : 'You have not set any strategic milestones yet. Start by defining your high-leverage targets.'}
           </p>
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={() => {
+              setEditingGoal(null);
+              setShowAddModal(true);
+            }}
             className="btn btn-primary"
             style={{ marginTop: 8 }}
           >
@@ -151,11 +195,15 @@ export default function GoalsView() {
         </div>
       )}
 
-      {/* Modal: Add Goal */}
+      {/* Modal: Add / Edit Goal */}
       <GoalModal
-        isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        onSubmit={handleCreateGoal}
+        isOpen={showAddModal || !!editingGoal}
+        initialGoal={editingGoal}
+        onClose={() => {
+          setShowAddModal(false);
+          setEditingGoal(null);
+        }}
+        onSubmit={handleSaveGoal}
       />
 
       {/* Modal: Delete Confirmation */}

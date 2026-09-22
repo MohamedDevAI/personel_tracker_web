@@ -46,15 +46,6 @@ export default function FulfillPaymentModal({
     }
   };
 
-  const handlePresetPercentage = (pct: number) => {
-    const amt = Math.round((planned * pct) * 100) / 100;
-    setPaidAmountStr(String(amt));
-    if (pct >= 1) {
-      setIsFulfilled(true);
-    } else {
-      setIsFulfilled(false);
-    }
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

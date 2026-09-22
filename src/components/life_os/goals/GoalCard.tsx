@@ -1,4 +1,4 @@
-import { CheckCircle2, Clock, Trash2, Trophy } from 'lucide-react';
+import { CheckCircle2, Clock, Trash2, Trophy, Pencil } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import type { Goal } from '../../../types';
 
@@ -6,9 +6,10 @@ interface GoalCardProps {
   goal: Goal;
   onUpdateProgress: (id: string, newProgress: number) => void;
   onDelete: (id: string) => void;
+  onEdit?: (goal: Goal) => void;
 }
 
-export default function GoalCard({ goal, onUpdateProgress, onDelete }: GoalCardProps) {
+export default function GoalCard({ goal, onUpdateProgress, onDelete, onEdit }: GoalCardProps) {
   const isAchieved = (goal.progress || 0) >= 100;
 
   const getCategoryClass = (category?: string) => {
@@ -174,6 +175,18 @@ export default function GoalCard({ goal, onUpdateProgress, onDelete }: GoalCardP
             >
               <Trophy size={14} /> Milestone Done!
             </span>
+          )}
+
+          {onEdit && (
+            <button
+              type="button"
+              onClick={() => onEdit(goal)}
+              className="goal-edit-btn"
+              title="Edit strategic milestone"
+              aria-label="Edit strategic milestone"
+            >
+              <Pencil size={14} />
+            </button>
           )}
 
           <button
