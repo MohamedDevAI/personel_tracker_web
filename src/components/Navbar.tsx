@@ -51,7 +51,6 @@ export default function Navbar({ backendStatus, theme, toggleTheme }: NavbarProp
 
       {/* Dual Application Switcher Bar */}
       <div className="app-switcher-container">
-        <span className="app-switcher-label">APPLICATIONS:</span>
         <div className="app-switcher-tabs">
           <NavLink
             to="/life-os"

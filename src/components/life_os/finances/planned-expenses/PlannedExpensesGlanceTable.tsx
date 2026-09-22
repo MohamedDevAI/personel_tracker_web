@@ -1,22 +1,12 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import {
-  CheckCircle2,
-  XCircle,
-  Clock,
-  Trash2,
-  Search,
-  Filter,
-  LayoutGrid,
-  Plus,
-  RefreshCw,
-  Sparkles,
-  Target,
-  ArrowRight,
-  AlertCircle
-} from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { PlannedExpense } from '../../../../types';
-import { formatSAR } from './plannedExpenseSync';
 import { MONTH_NAMES, getCurrentYear, getCurrentMonth } from '../../../../utils/dateHelpers';
+import GlanceHeroBanner from './GlanceHeroBanner';
+import GlanceToolbar from './GlanceToolbar';
+import GlanceMonthCard from './GlanceMonthCard';
+import GlanceAddModal from './GlanceAddModal';
+import GlanceDeleteModal from './GlanceDeleteModal';
 import './planned-expenses.css';
 
 export interface PlannedExpensesGlanceTableProps {
@@ -260,7 +250,6 @@ export default function PlannedExpensesGlanceTable({
   }, [localPlans, calendarYear, calendarMonthIdx]);
 
   // ── Auto-Scroll Landing on Current Month ─────────────────────────────────────
-  // Initial landing positions the current month at the left edge, so current + next 5 months are in view
   const scrollToCurrentMonth = (smooth = true) => {
     if (currentMonthCardRef.current && containerRef.current) {
       const container = containerRef.current;
@@ -334,149 +323,35 @@ export default function PlannedExpensesGlanceTable({
 
   return (
     <div className="glance-schedule-wrapper">
-      {/* ── 1. Hero KPI Banner (Planned Payback Design) ──────────────────────── */}
-      <div className="glance-hero-banner glass-panel">
-        <div className="glance-hero-top">
-          <div className="glance-hero-info">
-            <div className="glance-tag-row">
-              <span className="glance-badge-pill emerald">
-                <Sparkles size={12} />
-                <span>Planned Expenses Horizon</span>
-              </span>
-            </div>
-            <h2 className="glance-hero-title">Planned Budget Matrix</h2>
-          </div>
+      {/* ── 1. Hero KPI Banner ──────────────────────────────────────────────── */}
+      <GlanceHeroBanner
+        isLoading={isLoading}
+        onRefresh={onRefresh}
+        onAddPlan={() => setIsAddModalOpen(true)}
+      />
 
-          <div className="glance-hero-actions-cluster">
-            {onRefresh && (
-              <button
-                type="button"
-                onClick={onRefresh}
-                className="btn btn-secondary btn-sm"
-                title="Refresh schedule data"
-              >
-                <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} />
-                <span>Refresh</span>
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={() => setIsAddModalOpen(true)}
-              className="btn btn-primary btn-sm glance-hero-add-btn"
-            >
-              <Plus size={14} />
-              <span>Add Planned Expense</span>
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* ── 2. Glance Toolbar ───────────────────────────────────────────────── */}
+      <GlanceToolbar
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
+        uniqueCategories={uniqueCategories}
+        calendarMonthShort={calendarMonthShort}
+        calendarYear={calendarYear}
+        totalMonths={kpiStats.totalMonths}
+        completedMonthsCount={kpiStats.completedMonthsCount}
+        isLoading={isLoading}
+        onScrollToCurrentMonth={() => scrollToCurrentMonth(true)}
+        onAddPlan={() => setIsAddModalOpen(true)}
+        onRefresh={onRefresh}
+      />
 
-      {/* ── 2. Glance Toolbar (Planned Payback Design) ────────────────────────── */}
-      <div className="glance-toolbar glass-panel">
-        <div className="glance-toolbar-left">
-          {/* View Toggle */}
-          <div className="glance-view-toggle">
-            <button
-              type="button"
-              onClick={() => setViewMode('matrix')}
-              className={`glance-toggle-btn ${viewMode === 'matrix' ? 'active' : ''}`}
-            >
-              <LayoutGrid size={15} /> Single Glance Board
-            </button>
-          </div>
-
-          {/* Quick Jump to Current Month Button */}
-          <button
-            type="button"
-            onClick={() => scrollToCurrentMonth(true)}
-            className="glance-jump-current-btn"
-            title={`Center view on current month (${calendarMonthShort} ${calendarYear})`}
-          >
-            <Target size={13} /> Current Month ({calendarMonthShort})
-          </button>
-
-          {/* Status Filter Pills */}
-          <div className="glance-status-pills">
-            <button
-              type="button"
-              onClick={() => setStatusFilter('ALL')}
-              className={`glance-pill ${statusFilter === 'ALL' ? 'active' : ''}`}
-            >
-              All ({kpiStats.totalMonths} Mos)
-            </button>
-            <button
-              type="button"
-              onClick={() => setStatusFilter('Completed')}
-              className={`glance-pill completed ${statusFilter === 'Completed' ? 'active' : ''}`}
-            >
-              <CheckCircle2 size={13} /> Completed ({kpiStats.completedMonthsCount})
-            </button>
-            <button
-              type="button"
-              onClick={() => setStatusFilter('In-Completed')}
-              className={`glance-pill incompleted ${statusFilter === 'In-Completed' ? 'active' : ''}`}
-            >
-              <Clock size={13} /> In-Completed ({kpiStats.totalMonths - kpiStats.completedMonthsCount})
-            </button>
-          </div>
-        </div>
-
-        <div className="glance-toolbar-right">
-          {/* Search */}
-          <div className="borrow-search-wrapper glance-search-wrapper">
-            <Search size={14} className="search-icon" />
-            <input
-              type="text"
-              placeholder="Search expense objective..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              className="borrow-search-input"
-            />
-          </div>
-
-          {/* Category Dropdown */}
-          {uniqueCategories.length > 0 && (
-            <div className="filter-select-wrapper">
-              <Filter size={13} className="filter-icon" />
-              <select
-                value={selectedCategory}
-                onChange={e => setSelectedCategory(e.target.value)}
-                className="borrow-select-filter"
-              >
-                <option value="ALL">All Categories ({uniqueCategories.length})</option>
-                {uniqueCategories.map(c => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {/* Add Plan Button */}
-          <button
-            type="button"
-            onClick={() => setIsAddModalOpen(true)}
-            className="btn btn-primary btn-sm glance-hero-add-btn"
-          >
-            <Plus size={15} /> + Add Expense
-          </button>
-
-          {/* Refresh Button */}
-          <button
-            type="button"
-            onClick={() => {
-              if (onRefresh) onRefresh();
-            }}
-            className="btn btn-secondary btn-sm"
-            title="Refresh schedule"
-          >
-            <RefreshCw size={13} className={isLoading ? 'spin-icon' : ''} />
-          </button>
-        </div>
-      </div>
-
-      {/* ── 3. Single Glance Matrix Board (Auto-scrolling to Current Month) ──── */}
+      {/* ── 3. Single Glance Matrix Board ───────────────────────────────────── */}
       {viewMode === 'matrix' && (
         <div className="glance-matrix-container" ref={containerRef}>
           <div className={`glance-columns-track ${filteredColumns.length === 0 ? 'glance-columns-track-full' : ''}`}>
@@ -489,343 +364,50 @@ export default function PlannedExpensesGlanceTable({
                 </p>
               </div>
             ) : (
-              filteredColumns.map(col => {
-                const isColCompleted = col.status === 'Completed';
-                const isCurrent = col.isCurrent;
-
-                return (
-                  <div
-                    key={`${col.mShort}-${col.year}`}
-                    ref={isCurrent ? currentMonthCardRef : null}
-                    className={`glance-month-card glass-panel ${isColCompleted ? 'completed-card' : 'incompleted-card'
-                      } ${isCurrent ? 'is-current-month' : ''} ${col.isNextYear ? 'is-next-year-month' : ''}`}
-                  >
-                    {/* Card Header */}
-                    <div className="glance-card-header">
-                      <div className="glance-month-meta">
-                        <span className="glance-month-index">
-                          Month {col.monthIndex < 10 ? `0${col.monthIndex}` : col.monthIndex} • {col.year}
-                        </span>
-                        {isCurrent ? (
-                          <span className="badge glance-badge-current">
-                            ★ CURRENT
-                          </span>
-                        ) : col.isNextYear ? (
-                          <span className="badge glance-badge-next-year">
-                            NEXT YEAR
-                          </span>
-                        ) : (
-                          <span className="glance-target-date">{col.targetDate}</span>
-                        )}
-                      </div>
-
-                      <div className="glance-month-title-row">
-                        <h4
-                          className={`glance-month-title ${onSelectMonth ? 'clickable' : ''}`}
-                          onClick={() => onSelectMonth && onSelectMonth(col.mShort, col.year)}
-                          title={onSelectMonth ? `Click to open detailed view for ${col.targetMonth}` : undefined}
-                        >
-                          {col.targetMonth}
-                        </h4>
-                        {onSelectMonth && (
-                          <button
-                            type="button"
-                            onClick={() => onSelectMonth(col.mShort, col.year)}
-                            className="btn btn-secondary btn-xs glance-month-details-btn"
-                            title={`Open detailed ${col.targetMonth} table`}
-                          >
-                            Details →
-                          </button>
-                        )}
-                      </div>
-
-                      <div className="glance-month-total-box">
-                        <span className="glance-total-label">MONTH TOTAL</span>
-                        <span className="glance-total-amount">{formatSAR(col.monthTotal)}</span>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => handleToggleColumn(col.mShort, col.year, isColCompleted)}
-                        className={`glance-col-status-pill ${isColCompleted ? 'completed' : 'incompleted'
-                          }`}
-                        title="Click to toggle all expense objectives in this month"
-                      >
-                        {isColCompleted ? (
-                          <>
-                            <CheckCircle2 size={13} />
-                            <span>Completed</span>
-                          </>
-                        ) : (
-                          <>
-                            <Clock size={13} />
-                            <span>In-Completed</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-
-                    {/* Card Body: Items List */}
-                    <div className="glance-card-body">
-                      <div className="glance-items-heading">
-                        <span>Expense Objectives ({col.itemCount})</span>
-                        <span className="glance-hint-text">1-click to toggle</span>
-                      </div>
-
-                      <div className="glance-items-list">
-                        {col.items.length === 0 ? (
-                          <div className="glance-empty-month-placeholder">
-                            No expenses planned
-                          </div>
-                        ) : (
-                          col.items.map(item => {
-                            const isItemFulfilled =
-                              item.isFulfilled ||
-                              item.status === 'Fulfilled' ||
-                              (item.paidAmount ?? 0) >= item.plannedAmount;
-
-                            return (
-                              <div
-                                key={item.id || item.title}
-                                className={`glance-item-row ${isItemFulfilled ? 'item-done' : 'item-pending'
-                                  }`}
-                              >
-                                {/* 1. Expense Objective & Planned Budget */}
-                                <div className="glance-item-info">
-                                  <div className="glance-item-creditor-row">
-                                    <span
-                                      className="glance-creditor-name"
-                                      title={item.title}
-                                    >
-                                      {item.title}
-                                    </span>
-                                    <span className="glance-item-amount">
-                                      {formatSAR(item.plannedAmount)}
-                                    </span>
-                                  </div>
-
-                                  {item.notes && (
-                                    <span
-                                      className="glance-item-notes"
-                                      title={item.notes}
-                                    >
-                                      {item.notes}
-                                    </span>
-                                  )}
-                                </div>
-
-                                {/* 2. Actions: Tick Mark (✓) or Close Mark (✕) Notification & Toggle */}
-                                <div className="glance-item-actions-group">
-                                  <button
-                                    type="button"
-                                    onClick={e => handleToggleItem(item, e)}
-                                    className={`glance-item-toggle-btn ${isItemFulfilled ? 'done' : 'pending'
-                                      }`}
-                                    title={
-                                      isItemFulfilled
-                                        ? 'Fulfilled (Click to mark Pending)'
-                                        : 'Not Fulfilled (Click to mark Fulfilled)'
-                                    }
-                                  >
-                                    {isItemFulfilled ? (
-                                      <>
-                                        <CheckCircle2 size={13} className="emerald-icon" />
-                                        <span>Done</span>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <XCircle
-                                          size={13}
-                                          className="glance-unfulfilled-icon"
-                                        />
-                                        <span>Pending</span>
-                                      </>
-                                    )}
-                                  </button>
-
-                                  <button
-                                    type="button"
-                                    onClick={e => handleDeleteItem(item, e)}
-                                    className="glance-item-del-btn"
-                                    title={`Delete planned expense: ${item.title}`}
-                                  >
-                                    <Trash2 size={13} />
-                                  </button>
-                                </div>
-                              </div>
-                            );
-                          })
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Card Footer */}
-                    <div className="glance-card-footer">
-                      <span className="glance-footer-badge">
-                        {col.items.length === 0
-                          ? '— No Expenses Planned'
-                          : isColCompleted
-                            ? '✓ 100% Fulfilled on Schedule'
-                            : '⏳ Action Required (Unfulfilled)'}
-                      </span>
-                      {onSelectMonth && (
-                        <button
-                          type="button"
-                          onClick={() => onSelectMonth(col.mShort, col.year)}
-                          className="glance-expand-details-btn"
-                          title={`Expand full details for ${col.targetMonth}`}
-                        >
-                          <span>Expand {col.mShort} Details</span>
-                          <ArrowRight size={11} />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                );
-              })
+              filteredColumns.map(col => (
+                <GlanceMonthCard
+                  key={`${col.mShort}-${col.year}`}
+                  col={col}
+                  isCurrent={col.isCurrent}
+                  cardRef={col.isCurrent ? currentMonthCardRef : null}
+                  onToggleItem={handleToggleItem}
+                  onToggleColumn={handleToggleColumn}
+                  onDeleteItem={handleDeleteItem}
+                  onSelectMonth={onSelectMonth}
+                />
+              ))
             )}
           </div>
         </div>
       )}
 
-
-
-      {/* ── 5. Add Plan Modal (Supports Current & Next Year) ─────────────────── */}
+      {/* ── 4. Add Plan Modal ───────────────────────────────────────────────── */}
       {isAddModalOpen && (
-        <div className="glance-modal-overlay">
-          <div className="glance-modal-card glass-panel">
-            <h4 className="glance-modal-header">
-              <Plus size={18} color="#34d399" /> Add Planned Expense
-            </h4>
-
-            <form onSubmit={handleAddSubmit} className="glance-modal-form">
-              <div className="glance-modal-field">
-                <label className="glance-modal-label">
-                  Expense Objective *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Apartment Rent, Groceries, WiFi..."
-                  value={newTitle}
-                  onChange={e => setNewTitle(e.target.value)}
-                  className="borrow-search-input glance-modal-input"
-                />
-              </div>
-
-              <div className="glance-modal-field">
-                <label className="glance-modal-label">
-                  Planned Budget (SAR) *
-                </label>
-                <input
-                  type="number"
-                  required
-                  step="0.01"
-                  min="1"
-                  placeholder="0.00"
-                  value={newAmount}
-                  onChange={e => setNewAmount(e.target.value)}
-                  className="borrow-search-input glance-modal-input"
-                />
-              </div>
-
-              <div className="glance-modal-grid-2">
-                <div className="glance-modal-field">
-                  <label className="glance-modal-label">
-                    Target Month
-                  </label>
-                  <select
-                    value={newMonth}
-                    onChange={e => setNewMonth(e.target.value)}
-                    className="borrow-select-filter glance-modal-select"
-                  >
-                    {MONTH_NAMES.map(m => (
-                      <option key={m} value={m}>
-                        {m}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="glance-modal-field">
-                  <label className="glance-modal-label">
-                    Target Year
-                  </label>
-                  <select
-                    value={newYear}
-                    onChange={e => setNewYear(Number(e.target.value))}
-                    className="borrow-select-filter glance-modal-select"
-                  >
-                    <option value={calendarYear}>{calendarYear}</option>
-                    <option value={calendarYear + 1}>{calendarYear + 1} (Next Year)</option>
-                    <option value={calendarYear + 2}>{calendarYear + 2}</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="glance-modal-field">
-                <label className="glance-modal-label">
-                  Notes / Description (Optional)
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Paid via bank transfer..."
-                  value={newNotes}
-                  onChange={e => setNewNotes(e.target.value)}
-                  className="borrow-search-input glance-modal-input"
-                />
-              </div>
-
-              <div className="glance-modal-actions">
-                <button
-                  type="button"
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="btn btn-secondary btn-sm"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary btn-sm"
-                >
-                  + Add Objective
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <GlanceAddModal
+          calendarYear={calendarYear}
+          newTitle={newTitle}
+          setNewTitle={setNewTitle}
+          newAmount={newAmount}
+          setNewAmount={setNewAmount}
+          newMonth={newMonth}
+          setNewMonth={setNewMonth}
+          newYear={newYear}
+          setNewYear={setNewYear}
+          newNotes={newNotes}
+          setNewNotes={setNewNotes}
+          onSubmit={handleAddSubmit}
+          onClose={() => setIsAddModalOpen(false)}
+        />
       )}
 
-      {/* ── 6. Delete Confirmation Modal ─────────────────────────────────────── */}
+      {/* ── 5. Delete Confirmation Modal ────────────────────────────────────── */}
       {deleteConfirmPlan && (
-        <div className="glance-modal-overlay">
-          <div className="glance-modal-delete-card glass-panel">
-            <h4 className="glance-modal-delete-title">
-              <Trash2 size={18} /> Delete Planned Expense
-            </h4>
-            <p className="glance-modal-delete-text">
-              Are you sure you want to remove <strong>{deleteConfirmPlan.title}</strong> (
-              {formatSAR(deleteConfirmPlan.plannedAmount)}) from {deleteConfirmPlan.month}{' '}
-              {deleteConfirmPlan.year || calendarYear}?
-            </p>
-            <div className="glance-modal-actions">
-              <button
-                type="button"
-                onClick={() => setDeleteConfirmPlan(null)}
-                className="btn btn-secondary btn-sm"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={confirmDelete}
-                className="btn btn-danger btn-sm glance-modal-delete-btn"
-              >
-                Yes, Delete
-              </button>
-            </div>
-          </div>
-        </div>
+        <GlanceDeleteModal
+          plan={deleteConfirmPlan}
+          calendarYear={calendarYear}
+          onConfirm={confirmDelete}
+          onCancel={() => setDeleteConfirmPlan(null)}
+        />
       )}
     </div>
   );

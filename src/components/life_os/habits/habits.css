@@ -89,7 +89,7 @@
 }
 
 .habits-year-select {
-  background: transparent;
+  background: black;
   border: none;
   color: var(--text-primary);
   font-family: var(--font-display);
@@ -414,11 +414,35 @@
   letter-spacing: 0.04em;
 }
 
-.habit-cat-health { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
-.habit-cat-fitness { background: rgba(6, 182, 212, 0.15); color: #38bdf8; border: 1px solid rgba(6, 182, 212, 0.3); }
-.habit-cat-mindset { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
-.habit-cat-productivity { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-.habit-cat-learning { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3); }
+.habit-cat-health {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.habit-cat-fitness {
+  background: rgba(6, 182, 212, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.habit-cat-mindset {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.habit-cat-productivity {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.habit-cat-learning {
+  background: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
 
 .habit-card-title {
   font-family: var(--font-display);
@@ -450,8 +474,13 @@
 }
 
 @keyframes streakGlow {
-  0% { box-shadow: 0 0 10px rgba(245, 158, 11, 0.2); }
-  100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.45); }
+  0% {
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+  }
+
+  100% {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.45);
+  }
 }
 
 .habit-streak-num {
@@ -788,13 +817,6 @@
   font-size: 0.9rem;
 }
 
-/* Modal Enhancements */
-.habit-presets-grid {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 6px;
-}
 
 .habit-preset-chip {
   padding: 5px 12px;

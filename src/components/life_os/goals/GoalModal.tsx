@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Target, X, Sparkles } from 'lucide-react';
+import { Target, X } from 'lucide-react';
 import { GOAL_CATEGORIES } from '../../../utils/constants';
 import type { Goal } from '../../../types';
 
@@ -9,14 +9,7 @@ interface GoalModalProps {
   onSubmit: (goal: Omit<Goal, 'id'>) => void;
 }
 
-const PRESETS = [
-  { title: 'Save SAR 10,000 Emergency Fund', category: 'Financial', targetValue: 10000, currentValue: 2500, unit: 'SAR', progress: 25 },
-  { title: 'Invest ₹5,00,000 Wealth Portfolio', category: 'Financial', targetValue: 500000, currentValue: 125000, unit: 'INR', progress: 25 },
-  { title: 'Read 24 Leadership Books', category: 'Learning', targetValue: 24, currentValue: 6, unit: 'books', progress: 25 },
-  { title: 'Run 100km Total Distance', category: 'Fitness', targetValue: 100, currentValue: 40, unit: 'km', progress: 40 },
-  { title: 'Promote to Tech Lead', category: 'Career', targetValue: 100, currentValue: 60, unit: '%', progress: 60 },
-  { title: 'Launch Side SaaS MVP', category: 'Personal', targetValue: 100, currentValue: 30, unit: '%', progress: 30 },
-];
+
 
 export default function GoalModal({ isOpen, onClose, onSubmit }: GoalModalProps) {
   const defaultDate = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
@@ -59,17 +52,7 @@ export default function GoalModal({ isOpen, onClose, onSubmit }: GoalModalProps)
     onClose();
   };
 
-  const handleApplyPreset = (p: typeof PRESETS[0]) => {
-    setFormData({
-      title: p.title,
-      category: p.category,
-      targetDate: defaultDate,
-      progress: p.progress,
-      targetValue: p.targetValue,
-      currentValue: p.currentValue,
-      unit: p.unit,
-    });
-  };
+
 
   return (
     <div className="modal-overlay-backdrop">
@@ -90,25 +73,6 @@ export default function GoalModal({ isOpen, onClose, onSubmit }: GoalModalProps)
           <button onClick={onClose} className="btn-icon" aria-label="Close modal">
             <X size={18} />
           </button>
-        </div>
-
-        {/* Quick Presets */}
-        <div style={{ marginBottom: 16 }}>
-          <label className="modal-field-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Sparkles size={13} color="#6366f1" /> Preset Goal Inspiration
-          </label>
-          <div className="goal-presets-grid">
-            {PRESETS.map((p) => (
-              <button
-                key={p.title}
-                type="button"
-                onClick={() => handleApplyPreset(p)}
-                className="goal-preset-chip"
-              >
-                + {p.title}
-              </button>
-            ))}
-          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="modal-form-vertical">

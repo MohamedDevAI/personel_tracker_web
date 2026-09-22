@@ -9,14 +9,6 @@ interface TaskModalProps {
   onSubmit: (task: { title: string; category: string; priority: TaskPriority; dueDate: string }) => void;
 }
 
-const PRESETS = [
-  { title: 'Implement Security JWT Filter', category: 'Development', priority: 'HIGH' as TaskPriority },
-  { title: 'Review Pull Request & Code Audit', category: 'Development', priority: 'HIGH' as TaskPriority },
-  { title: 'Pay Monthly Utility & Credit Bills', category: 'Finance', priority: 'HIGH' as TaskPriority },
-  { title: '30-min High Intensity Cardio Session', category: 'Health', priority: 'MEDIUM' as TaskPriority },
-  { title: 'Prepare Weekly Engineering Demo', category: 'Work', priority: 'MEDIUM' as TaskPriority },
-];
-
 export default function TaskModal({ isOpen, onClose, onSubmit }: TaskModalProps) {
   const todayStr = new Date().toISOString().split('T')[0];
 
@@ -49,14 +41,7 @@ export default function TaskModal({ isOpen, onClose, onSubmit }: TaskModalProps)
     onClose();
   };
 
-  const handleApplyPreset = (p: typeof PRESETS[0]) => {
-    setFormData({
-      title: p.title,
-      category: p.category,
-      priority: p.priority,
-      dueDate: todayStr,
-    });
-  };
+
 
   return (
     <div className="modal-overlay-backdrop">
@@ -77,25 +62,6 @@ export default function TaskModal({ isOpen, onClose, onSubmit }: TaskModalProps)
           <button onClick={onClose} className="btn-icon" aria-label="Close modal">
             <X size={18} />
           </button>
-        </div>
-
-        {/* Quick Presets */}
-        <div style={{ marginBottom: 16 }}>
-          <label className="modal-field-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Sparkles size={13} color="#6366f1" /> Task Presets
-          </label>
-          <div className="task-presets-grid">
-            {PRESETS.map((p) => (
-              <button
-                key={p.title}
-                type="button"
-                onClick={() => handleApplyPreset(p)}
-                className="task-preset-chip"
-              >
-                + {p.title}
-              </button>
-            ))}
-          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="modal-form-vertical">
