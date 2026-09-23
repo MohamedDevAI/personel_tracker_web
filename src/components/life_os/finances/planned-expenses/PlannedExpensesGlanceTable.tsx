@@ -281,6 +281,67 @@ export default function PlannedExpensesGlanceTable({
     const progressPercent =
       totalPlanned > 0 ? Math.min(100, Math.round((totalFulfilled / totalPlanned) * 100)) : 0;
 
+    const fulfilledItemsCount = localPlans.filter(
+      p => p.isFulfilled || p.status === 'Fulfilled' || (p.paidAmount ?? 0) >= (p.plannedAmount || 0)
+    ).length;
+    const pendingItemsCount = localPlans.length - fulfilledItemsCount;
+
+    // Current month details
+    const currentMonthPlans = localPlans.filter(p => {
+      const pYear = p.year || calendarYear;
+      return (
+        pYear === calendarYear &&
+        (p.month || '').toLowerCase().slice(0, 3) === calendarMonthShort.toLowerCase().slice(0, 3)
+      );
+    });
+    const currentMonthTotal = currentMonthPlans.reduce((acc, p) => acc + (p.plannedAmount || 0), 0);
+    const currentMonthFulfilled = currentMonthPlans.filter(
+      p => p.isFulfilled || p.status === 'Fulfilled' || (p.paidAmount ?? 0) >= (p.plannedAmount || 0)
+    ).length;
+    const currentMonthPendingCount = currentMonthPlans.length - currentMonthFulfilled;
+
+    // Category breakdown & Top Category
+    const catMap: Record<string, number> = {};
+    localPlans.forEach(p => {
+      const cat = p.category?.trim() || 'General';
+      catMap[cat] = (catMap[cat] || 0) + (p.plannedAmount || 0);
+    });
+    const sortedCats = Object.entries(catMap).sort((a, b) => b[1] - a[1]);
+    const topCategory =
+      sortedCats.length > 0 && totalPlanned > 0
+        ? {
+            name: sortedCats[0][0],
+            amount: sortedCats[0][1],
+            percentage: Math.round((sortedCats[0][1] / totalPlanned) * 100)
+          }
+        : undefined;
+
+    // Next upcoming unfulfilled item
+    const unfulfilledItems = localPlans
+      .filter(
+        p => !(p.isFulfilled || p.status === 'Fulfilled' || (p.paidAmount ?? 0) >= (p.plannedAmount || 0))
+      )
+      .sort((a, b) => {
+        const yDiff = (a.year || calendarYear) - (b.year || calendarYear);
+        if (yDiff !== 0) return yDiff;
+        const mIdxA = MONTH_NAMES.findIndex(
+          m => m.toLowerCase() === (a.month || '').toLowerCase().slice(0, 3)
+        );
+        const mIdxB = MONTH_NAMES.findIndex(
+          m => m.toLowerCase() === (b.month || '').toLowerCase().slice(0, 3)
+        );
+        return mIdxA - mIdxB;
+      });
+    const nextUpcoming =
+      unfulfilledItems.length > 0
+        ? {
+            title: unfulfilledItems[0].title,
+            month: unfulfilledItems[0].month,
+            year: unfulfilledItems[0].year || calendarYear,
+            amount: unfulfilledItems[0].plannedAmount
+          }
+        : undefined;
+
     const nextYearPlans = localPlans.filter(p => (p.year || calendarYear) > calendarYear);
     const nextYearTotal = nextYearPlans.reduce((acc, p) => acc + (p.plannedAmount || 0), 0);
 
@@ -291,11 +352,20 @@ export default function PlannedExpensesGlanceTable({
       completedMonthsCount,
       totalMonths: columns.length,
       totalItems: localPlans.length,
+      fulfilledItemsCount,
+      pendingItemsCount,
       progressPercent,
+      currentMonthName: calendarMonthShort,
+      currentMonthYear: calendarYear,
+      currentMonthTotal,
+      currentMonthItemCount: currentMonthPlans.length,
+      currentMonthPendingCount,
+      topCategory,
+      nextUpcoming,
       nextYearTotal,
       nextYearCount: nextYearPlans.length
     };
-  }, [localPlans, columns, calendarYear]);
+  }, [localPlans, columns, calendarYear, calendarMonthShort]);
 
   // Filtered Columns for the Single Glance Matrix Track
   const filteredColumns = useMemo(() => {
@@ -328,6 +398,8 @@ export default function PlannedExpensesGlanceTable({
         isLoading={isLoading}
         onRefresh={onRefresh}
         onAddPlan={() => setIsAddModalOpen(true)}
+        stats={kpiStats}
+        onSelectMonth={onSelectMonth}
       />
 
       {/* ── 2. Glance Toolbar ───────────────────────────────────────────────── */}

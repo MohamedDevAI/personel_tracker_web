@@ -51,8 +51,8 @@ export default function ExpenseTracker() {
     return plannedExpenseApi.getPlannedExpenses().filter(p => p.status === 'Planned').length;
   }, [financeMainTab]);
 
-  // UI States for Ledger — defaults dynamically to current real-world month & year
-  const [activeTab, setActiveTab] = useState<'transactions' | 'categories'>('transactions');
+
+  const [activeTab] = useState<'transactions' | 'categories'>('transactions');
   const [selectedYear, setSelectedYear] = useState<number>(() => getCurrentYear());
   const [selectedMonth, setSelectedMonth] = useState<string>(() => getCurrentMonth()); // 'All' or 'Jan'..'Dec'
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -385,19 +385,8 @@ export default function ExpenseTracker() {
               <div className="finances-table-toolbar">
 
                 {/* View switcher tabs (Always visible!) */}
-                <div className="finances-tabs-group">
-                  <button
-                    onClick={() => setActiveTab('transactions')}
-                    className={activeTab === 'transactions' ? 'btn btn-primary finances-tab-btn' : 'btn btn-secondary finances-tab-btn'}
-                  >
-                    Transactions List ({filteredTransactions.length})
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('categories')}
-                    className={activeTab === 'categories' ? 'btn btn-primary finances-tab-btn' : 'btn btn-secondary finances-tab-btn'}
-                  >
-                    Categories ({categories.length})
-                  </button>
+                <div className="btn btn-primary ">
+                  Transactions List ({filteredTransactions.length})
                 </div>
 
                 {/* Filter toolbar if transactions tab, or Add Category if categories tab */}

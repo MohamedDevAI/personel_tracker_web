@@ -167,7 +167,7 @@ export const plannedExpenseApi = {
       ? Math.max(0, Number(paidAmount))
       : (isFulfilled ? plannedAmt : 0);
 
-    const finalFulfilled = isFulfilled || finalPaid >= plannedAmt;
+    const finalFulfilled = isFulfilled ? true : (finalPaid >= plannedAmt && plannedAmt > 0 && paidAmount !== 0);
     const status = finalFulfilled ? 'Fulfilled' : (finalPaid > 0 ? 'Partial' : 'Planned');
 
     const updates: Partial<PlannedExpense> = {

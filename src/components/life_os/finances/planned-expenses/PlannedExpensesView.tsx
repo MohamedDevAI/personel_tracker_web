@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Category, PlannedExpense, PlannedExpenseStatus, Transaction } from '../../../../types';
 import { plannedExpenseApi } from '../../../../services/plannedExpenseApi';
+import { expenseApi } from '../../../../services/expenseApi';
 import { MONTH_NAMES, getCurrentMonth, getCurrentYear } from '../../../../utils/dateHelpers';
 import MonthYearFilter from '../MonthYearFilter';
 import PlannedExpenseModal from './PlannedExpenseModal';
@@ -134,7 +135,8 @@ export default function PlannedExpensesView({
 
       if (savedPlan) {
         try {
-          await syncPlanToTransactions(savedPlan, transactions);
+          const freshTransactions = await expenseApi.getTransactions();
+          await syncPlanToTransactions(savedPlan, freshTransactions);
         } catch (syncErr) {
           console.error('Error syncing saved plan to transactions:', syncErr);
         }
@@ -166,9 +168,10 @@ export default function PlannedExpensesView({
       const targetPlan = plan || plans.find(p => p.id === id) || updatedPlan;
       if (targetPlan) {
         try {
+          const freshTransactions = await expenseApi.getTransactions();
           await syncPlanToTransactions(
             { ...targetPlan, isFulfilled, paidAmount },
-            transactions,
+            freshTransactions,
             { isFulfilled, paidAmount }
           );
         } catch (syncErr) {
@@ -189,7 +192,8 @@ export default function PlannedExpensesView({
     mutationFn: async (plan: PlannedExpense) => {
       await plannedExpenseApi.deletePlannedExpense(plan.id);
       try {
-        await removeLinkedTransactionIfExists(plan.id, plan.month, plan.year, transactions);
+        const freshTransactions = await expenseApi.getTransactions();
+        await removeLinkedTransactionIfExists(plan, freshTransactions);
       } catch (syncErr) {
         console.error('Error removing linked transaction on plan deletion:', syncErr);
       }
@@ -366,6 +370,7 @@ export default function PlannedExpensesView({
               className="badge planned-breadcrumb-badge"
             >
               ← Glance Matrix (All Months)
+
             </button>
           </div>
 
@@ -429,8 +434,8 @@ export default function PlannedExpensesView({
         itemName={
           deletePlan
             ? `${deletePlan.title}${deletePlan.category ? ` (${deletePlan.category})` : ''} - ${formatSAR(
-                deletePlan.plannedAmount
-              )}`
+              deletePlan.plannedAmount
+            )}`
             : ''
         }
         confirmText="Yes, Delete"

@@ -43,15 +43,16 @@ export default function FulfillPaymentModal({
       if (!paidAmountStr || currentPaidNum === 0) {
         setPaidAmountStr(String(planned));
       }
+    } else {
+      setPaidAmountStr('0');
     }
   };
-
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const finalPaid = Math.max(0, parseFloat(paidAmountStr) || 0);
-    const finalFulfilled = isFulfilled || finalPaid >= planned;
-    onSave(plan.id, finalFulfilled, finalPaid);
+    const finalFulfilled = isFulfilled ? true : (finalPaid > 0 && finalPaid >= planned);
+    onSave(plan.id, finalFulfilled, isFulfilled ? (finalPaid > 0 ? finalPaid : planned) : finalPaid);
     onClose();
   };
 
