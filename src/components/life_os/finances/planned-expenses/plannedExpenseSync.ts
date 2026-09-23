@@ -4,7 +4,7 @@
  */
 
 import type { Transaction } from '../../../../types';
-import { isFromOctober2026Onwards, getMonthIndex } from '../../../../utils/dateHelpers';
+import { isFromOctober2026Onwards, getMonthIndex, MONTH_NAMES } from '../../../../utils/dateHelpers';
 import { formatSAR } from '../../../../utils/formatters';
 import { expenseApi } from '../../../../services/expenseApi';
 
@@ -13,7 +13,7 @@ export { formatSAR, isFromOctober2026Onwards };
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface SyncablePlan {
+export interface SyncablePlan {
   id: string;
   title: string;
   category?: string;
@@ -26,24 +26,50 @@ interface SyncablePlan {
   notes?: string;
 }
 
-interface SyncOverrides {
+export interface SyncOverrides {
   isFulfilled?: boolean;
   paidAmount?: number;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Find a transaction linked to a planned expense by ID or note tag */
-const findLinkedTransaction = (
-  planId: string,
+/** Find a transaction linked to a planned expense by ID, tag, or matching metadata */
+export const findLinkedTransaction = (
+  plan: SyncablePlan | string,
   transactions: Transaction[]
 ): Transaction | undefined => {
-  return transactions.find(
+  const planId = typeof plan === 'string' ? plan : plan.id;
+  const tag = `[PE-${planId}]`;
+
+  // 1. Exact match by plannedExpenseId property
+  const byProperty = transactions.find((t) => t.plannedExpenseId === planId);
+  if (byProperty) return byProperty;
+
+  // 2. Exact match by [PE-{id}] tag in description or note
+  const byTag = transactions.find(
     (t) =>
-      t.plannedExpenseId === planId ||
-      (t.note && t.note.includes(`[PE-${planId}]`)) ||
-      (t.description && t.description.includes(`[PE-${planId}]`))
+      (t.description && t.description.includes(tag)) ||
+      (t.note && t.note.includes(tag))
   );
+  if (byTag) return byTag;
+
+  // 3. Fallback: match by title, month & Debit type (for transactions created before tag was stored in description)
+  if (typeof plan === 'object' && plan.title) {
+    const normTitle = plan.title.trim().toLowerCase();
+    const byTitleAndMonth = transactions.find((t) => {
+      const desc = (t.description || '').toLowerCase();
+      const note = (t.note || '').toLowerCase();
+      const matchesTitle = desc === normTitle || note === normTitle || desc.startsWith(normTitle);
+      const txMonth = t.month || (t.date ? MONTH_NAMES[new Date(t.date).getMonth()] : undefined);
+      const matchesMonth = !plan.month || (txMonth &&
+        txMonth.toLowerCase().slice(0, 3) === plan.month.toLowerCase().slice(0, 3));
+      const isDebit = String(t.type).toUpperCase() === 'DEBIT';
+      return matchesTitle && matchesMonth && isDebit;
+    });
+    if (byTitleAndMonth) return byTitleAndMonth;
+  }
+
+  return undefined;
 };
 
 // ─── Sync Functions ───────────────────────────────────────────────────────────
@@ -68,7 +94,16 @@ export const syncPlanToTransactions = async (
     ? overrides.paidAmount
     : (plan.paidAmount !== undefined ? plan.paidAmount : (effectiveFulfilled ? plan.plannedAmount : 0));
 
-  const linkedTx = findLinkedTransaction(plan.id, currentTransactions);
+  // Find linked transaction, querying latest if not in currentTransactions
+  let linkedTx = findLinkedTransaction(plan, currentTransactions);
+  if (!linkedTx) {
+    try {
+      const freshTxs = await expenseApi.getTransactions();
+      linkedTx = findLinkedTransaction(plan, freshTxs);
+    } catch {
+      /* ignore */
+    }
+  }
 
   const mIdx = getMonthIndex(plan.month);
   const mNum = String((mIdx >= 0 ? mIdx : 9) + 1).padStart(2, '0');
@@ -77,10 +112,11 @@ export const syncPlanToTransactions = async (
   if (effectiveFulfilled || effectivePaid > 0) {
     // Create or update the linked transaction
     const finalAmount = effectivePaid > 0 ? effectivePaid : plan.plannedAmount;
-    const desc = plan.title;
-    const note = plan.notes
-      ? `${plan.notes} [PE-${plan.id}]`
+    // Always store [PE-{id}] in description so MongoDB document preserves the link
+    const desc = plan.notes
+      ? `${plan.title} [PE-${plan.id}] - ${plan.notes}`
       : `${plan.title} [PE-${plan.id}]`;
+    const note = desc;
     const cat = plan.category || 'General';
 
     if (linkedTx && (linkedTx.id || linkedTx._id)) {
@@ -126,14 +162,40 @@ export const syncPlanToTransactions = async (
  * Only processes plans from October 2026 onwards.
  */
 export const removeLinkedTransactionIfExists = async (
-  planId: string,
-  planMonth: string,
-  planYear: number,
-  currentTransactions: Transaction[]
+  planOrId: SyncablePlan | string,
+  planMonthOrTxs?: string | Transaction[],
+  planYear?: number,
+  currentTransactions?: Transaction[]
 ): Promise<void> => {
-  if (!isFromOctober2026Onwards(planMonth, planYear)) return;
+  let planObj: SyncablePlan;
+  let txList: Transaction[];
 
-  const linkedTx = findLinkedTransaction(planId, currentTransactions);
+  if (typeof planOrId === 'object') {
+    planObj = planOrId;
+    txList = Array.isArray(planMonthOrTxs) ? planMonthOrTxs : [];
+  } else {
+    planObj = {
+      id: planOrId,
+      title: '',
+      month: typeof planMonthOrTxs === 'string' ? planMonthOrTxs : '',
+      year: planYear || 2026,
+      plannedAmount: 0,
+    };
+    txList = currentTransactions || [];
+  }
+
+  if (!isFromOctober2026Onwards(planObj.month, planObj.year)) return;
+
+  let linkedTx = findLinkedTransaction(planObj, txList);
+  if (!linkedTx) {
+    try {
+      const freshTxs = await expenseApi.getTransactions();
+      linkedTx = findLinkedTransaction(planObj, freshTxs);
+    } catch {
+      /* ignore */
+    }
+  }
+
   if (linkedTx && (linkedTx.id || linkedTx._id)) {
     try {
       await expenseApi.deleteTransaction(linkedTx.id || linkedTx._id!);

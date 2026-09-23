@@ -50,16 +50,29 @@
 
 /* Detailed Month Breadcrumb / Back Bar */
 .planned-month-breadcrumb {
+  position: sticky;
+  top: 76px;
+  z-index: 35;
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin: 8px 0 16px 0;
   padding: 10px 16px;
   border-radius: 10px;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   flex-wrap: wrap;
   gap: 10px;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+[data-theme='light'] .planned-month-breadcrumb {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 .planned-breadcrumb-left {
@@ -83,6 +96,10 @@
 
 .planned-month-highlight {
   color: #ffffff;
+}
+
+[data-theme='light'] .planned-month-highlight {
+  color: #0f172a;
 }
 
 .planned-breadcrumb-badge {
@@ -468,7 +485,204 @@
   font-weight: 700;
 }
 
-/* Toolbar */
+/* ─── Hero Executive Stats Grid ─────────────────────────────────────────────── */
+.glance-hero-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+
+.glance-stat-box {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 14px 18px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 180px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.glance-stat-box:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.glance-stat-box.fulfilled {
+  border-color: rgba(16, 185, 129, 0.28);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0.65) 100%);
+}
+
+.glance-stat-box.fulfilled:hover {
+  border-color: rgba(16, 185, 129, 0.45);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15);
+}
+
+.glance-stat-box.pending {
+  border-color: rgba(245, 158, 11, 0.28);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.07) 0%, rgba(15, 23, 42, 0.65) 100%);
+}
+
+.glance-stat-box.pending:hover {
+  border-color: rgba(245, 158, 11, 0.45);
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.12);
+}
+
+.glance-stat-box.current-month {
+  border-color: rgba(99, 102, 241, 0.32);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.09) 0%, rgba(15, 23, 42, 0.65) 100%);
+}
+
+.glance-stat-box.current-month:hover {
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.15);
+}
+
+.glance-stat-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.glance-stat-value {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.glance-stat-value.emerald-text {
+  color: #34d399;
+  text-shadow: 0 0 16px rgba(52, 211, 153, 0.25);
+}
+
+.glance-stat-value.amber-text {
+  color: #fbbf24;
+  text-shadow: 0 0 16px rgba(251, 191, 36, 0.2);
+}
+
+.glance-stat-value.indigo-text {
+  color: #a5b4fc;
+}
+
+.glance-stat-sub {
+  font-size: 0.73rem;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ─── Hero Progress Container ───────────────────────────────────────────────── */
+.glance-progress-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.28);
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  width: 100%;
+}
+
+.glance-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.glance-progress-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.glance-progress-meta {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+}
+
+.glance-progress-meta strong {
+  color: #34d399;
+}
+
+.glance-progress-track {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.glance-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #34d399 50%, #059669 100%);
+  border-radius: 9999px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+}
+
+/* ─── Hero Insights Chips Row ───────────────────────────────────────────────── */
+.glance-insights-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+}
+
+.glance-insight-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.glance-insight-chip:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.glance-insight-chip.highlight {
+  background: rgba(99, 102, 241, 0.12);
+  border-color: rgba(99, 102, 241, 0.28);
+  color: #c7d2fe;
+}
+
+.glance-insight-chip.emerald-chip {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.28);
+  color: #6ee7b7;
+}
+
+.glance-insight-chip strong {
+  color: #ffffff;
+}
 .glance-toolbar {
   padding: 12px 18px;
   border-radius: 12px;
