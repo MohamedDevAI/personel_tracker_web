@@ -414,4 +414,8 @@ export interface TradingStats {
   avgRiskReward: number;
 }
 
+// ─── Sticky Notes & Reminders ────────────────────────────────────────────────
+export * from './notesReminders';
+
+
 
