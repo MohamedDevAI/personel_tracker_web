@@ -1,5 +1,5 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { Sparkles, Coins, Database, Moon, Sun } from 'lucide-react';
+import { Sparkles, Coins, Database, Moon, Sun, Bell } from 'lucide-react';
 import type { BackendHealth } from '../types';
 import './Navbar.css';
 
@@ -7,9 +7,10 @@ interface NavbarProps {
   backendStatus: BackendHealth;
   theme: string;
   toggleTheme: () => void;
+  activeRemindersCount?: number;
 }
 
-export default function Navbar({ backendStatus, theme, toggleTheme }: NavbarProps) {
+export default function Navbar({ backendStatus, theme, toggleTheme, activeRemindersCount = 0 }: NavbarProps) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -98,10 +99,36 @@ export default function Navbar({ backendStatus, theme, toggleTheme }: NavbarProp
           />
         </div>
 
+        {/* Quick Reminders Hub Button */}
+        <button
+          type="button"
+          onClick={() => navigate('/life-os/notes')}
+          className="btn-icon"
+          style={{ position: 'relative' }}
+          title={`Reminders & Sticky Notes (${activeRemindersCount} active)`}
+        >
+          <Bell size={18} />
+          {activeRemindersCount > 0 && (
+            <span
+              style={{
+                position: 'absolute',
+                top: 6,
+                right: 6,
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                background: '#f43f5e',
+                boxShadow: '0 0 8px #f43f5e',
+              }}
+            />
+          )}
+        </button>
+
         <button onClick={toggleTheme} className="btn-icon" title="Toggle Theme">
           {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
         </button>
       </div>
     </header>
+
   );
 }

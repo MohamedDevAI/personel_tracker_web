@@ -2,7 +2,6 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { PlannedExpense } from '../../../../types';
 import { MONTH_NAMES, getCurrentYear, getCurrentMonth } from '../../../../utils/dateHelpers';
-import GlanceHeroBanner from './GlanceHeroBanner';
 import GlanceToolbar from './GlanceToolbar';
 import GlanceMonthCard from './GlanceMonthCard';
 import GlanceAddModal from './GlanceAddModal';
@@ -310,10 +309,10 @@ export default function PlannedExpensesGlanceTable({
     const topCategory =
       sortedCats.length > 0 && totalPlanned > 0
         ? {
-            name: sortedCats[0][0],
-            amount: sortedCats[0][1],
-            percentage: Math.round((sortedCats[0][1] / totalPlanned) * 100)
-          }
+          name: sortedCats[0][0],
+          amount: sortedCats[0][1],
+          percentage: Math.round((sortedCats[0][1] / totalPlanned) * 100)
+        }
         : undefined;
 
     // Next upcoming unfulfilled item
@@ -335,11 +334,11 @@ export default function PlannedExpensesGlanceTable({
     const nextUpcoming =
       unfulfilledItems.length > 0
         ? {
-            title: unfulfilledItems[0].title,
-            month: unfulfilledItems[0].month,
-            year: unfulfilledItems[0].year || calendarYear,
-            amount: unfulfilledItems[0].plannedAmount
-          }
+          title: unfulfilledItems[0].title,
+          month: unfulfilledItems[0].month,
+          year: unfulfilledItems[0].year || calendarYear,
+          amount: unfulfilledItems[0].plannedAmount
+        }
         : undefined;
 
     const nextYearPlans = localPlans.filter(p => (p.year || calendarYear) > calendarYear);
@@ -394,13 +393,7 @@ export default function PlannedExpensesGlanceTable({
   return (
     <div className="glance-schedule-wrapper">
       {/* ── 1. Hero KPI Banner ──────────────────────────────────────────────── */}
-      <GlanceHeroBanner
-        isLoading={isLoading}
-        onRefresh={onRefresh}
-        onAddPlan={() => setIsAddModalOpen(true)}
-        stats={kpiStats}
-        onSelectMonth={onSelectMonth}
-      />
+
 
       {/* ── 2. Glance Toolbar ───────────────────────────────────────────────── */}
       <GlanceToolbar
@@ -484,6 +477,3 @@ export default function PlannedExpensesGlanceTable({
     </div>
   );
 }
-
-export { PlannedExpensesGlanceTable as PlannedExpensesGlanceBoard };
-export { PlannedExpensesGlanceTable as PlannedExpensesGlanceView };
