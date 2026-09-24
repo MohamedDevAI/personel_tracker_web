@@ -295,23 +295,23 @@ export interface MutualFundMetrics {
 
 /** Bond-specific metrics */
 export interface BondMetrics {
-  creditRating?: string;       // "AAA", "AA+", etc.
-  yieldToMaturity?: number;    // %
-  duration?: number;           // Modified duration in years
+  creditRating?: string;
+  yieldToMaturity?: number;
+  duration?: number;
   bondType?: 'Government' | 'Corporate' | 'Tax-Free';
-  couponRate?: number;         // %
-  maturityDate?: string;       // ISO date
-  faceValue?: number;          // ₹ per bond
+  couponRate?: number;
+  maturityDate?: string;
+  faceValue?: number;
   issuer?: string;
 }
 
 /** Fixed Deposit specific metrics */
 export interface FDMetrics {
-  interestRate: number;       // % p.a.
+  interestRate: number;
   fdType?: 'Cumulative' | 'Non-Cumulative';
-  tenure?: number;             // months
-  maturityDate?: string;       // ISO date
-  maturityAmount?: number;     // ₹
+  tenure?: number;
+  maturityDate?: string;
+  maturityAmount?: number;
   bankName?: string;
   taxTreatment?: 'Taxable' | 'Tax-Saver (80C)';
   payoutFrequency?: 'Monthly' | 'Quarterly' | 'Annual' | 'Maturity';
@@ -381,32 +381,32 @@ export type TradeType = 'INTRADAY' | 'SWING' | 'POSITIONAL';
 
 export interface Trade {
   id: string;
-  symbol: string;               // e.g. "NIFTY 24500 CE", "TATASTEEL", "RELIANCE"
-  instrument: InstrumentType;   // "EQUITY" | "F&O" | "CRYPTO" | "COMMODITY"
-  direction: TradeDirection;    // "LONG" | "SHORT"
-  tradeType: TradeType;         // "INTRADAY" | "SWING" | "POSITIONAL"
-  entryPrice: number;           // in INR
-  currentPrice: number;         // latest or exit price
-  exitPrice?: number;           // if closed
-  stopLoss: number;             // in INR
-  targetPrice: number;          // in INR
-  quantity: number;             // units / lots
-  entryDate: string;            // ISO date
-  exitDate?: string;            // ISO date
-  status: TradeStatus;          // "OPEN" | "CLOSED"
-  strategy?: string;            // e.g. "Breakout", "EMA Crossover", "Supply-Demand"
+  symbol: string;
+  instrument: InstrumentType;
+  direction: TradeDirection;
+  tradeType: TradeType;
+  entryPrice: number;
+  currentPrice: number;
+  exitPrice?: number;
+  stopLoss: number;
+  targetPrice: number;
+  quantity: number;
+  entryDate: string;
+  exitDate?: string;
+  status: TradeStatus;
+  strategy?: string;
   notes?: string;
-  realizedPnl?: number;         // in INR
-  unrealizedPnl?: number;       // in INR
-  pnlPercent?: number;          // %
-  riskRewardRatio?: number;     // e.g. 2.5
+  realizedPnl?: number;
+  unrealizedPnl?: number;
+  pnlPercent?: number;
+  riskRewardRatio?: number;
 }
 
 export interface TradingStats {
   capitalDeployed: number;
   totalRealizedPnl: number;
   totalUnrealizedPnl: number;
-  winRate: number;              // 0 - 100
+  winRate: number;
   winCount: number;
   lossCount: number;
   totalTrades: number;

@@ -67,8 +67,11 @@ export const STORAGE_KEYS = {
   BORROW_REPAY: 'pt_borrow_repay_records',
   PLANNED_REPAYMENTS: 'pt_planned_repayments',
   PLANNED_EXPENSES: 'pt_planned_expenses',
+  STICKY_NOTES: 'pt_sticky_notes',
+  REMAINDER: 'pt_remainder',
   // ── Money DB (investment-holdings collection) ────────────────────────────
   INVESTMENT_HOLDINGS: 'money_investment_holdings',
   FINANCIAL_HEALTH_ANSWERS: 'money_financial_health_answers',
   FIRE_SETTINGS: 'money_fire_settings',
 } as const;
+

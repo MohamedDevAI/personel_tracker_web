@@ -1,313 +1,382 @@
-import type { StickyNote, ReminderItem } from '../types/notesReminders';
+/**
+ * Sticky Notes & Reminders API Service.
+ * Connects directly to Spring Boot + MongoDB Atlas collections:
+ *   - Collection `sticky_notes` -> Endpoint `/api/sticky_notes`
+ *   - Collection `remainder`    -> Endpoint `/api/remainder`
+ *
+ * Real actual data from MongoDB with localized offline cache fallback.
+ * Zero dummy seed data.
+ */
 
-const NOTES_STORAGE_KEY = 'pt_sticky_notes_data';
-const REMINDERS_STORAGE_KEY = 'pt_reminders_data';
+import apiClient from './apiClient';
+import { STORAGE_KEYS } from '../utils/constants';
+import type { StickyNote, ReminderItem, NoteColor } from '../types/notesReminders';
 
-// Helper to get formatted date string for today and offsets
-const today = new Date();
-const formatDate = (offsetDays: number = 0) => {
-  const d = new Date(today);
-  d.setDate(d.getDate() + offsetDays);
-  return d.toISOString().split('T')[0];
+// Clean up any legacy dummy cache keys from initial UI preview
+if (typeof window !== 'undefined') {
+  try {
+    localStorage.removeItem('pt_sticky_notes_data');
+    localStorage.removeItem('pt_reminders_data');
+  } catch {
+    // Ignore in non-browser environments
+  }
+}
+
+// ─── Document Normalizers ────────────────────────────────────────────────────
+
+export function normalizeStickyNote(doc: any): StickyNote {
+  const id = String(doc.id || doc._id || '');
+  return {
+    id,
+    title: doc.title || '',
+    content: doc.content || '',
+    color: (doc.color as NoteColor) || 'yellow',
+    isPinned: Boolean(doc.isPinned),
+    tags: Array.isArray(doc.tags) ? doc.tags : [],
+    createdAt: doc.createdAt || new Date().toISOString(),
+    updatedAt: doc.updatedAt || new Date().toISOString(),
+    reminderId: doc.reminderId ? String(doc.reminderId) : undefined,
+  };
+}
+
+export function normalizeReminder(doc: any): ReminderItem {
+  const id = String(doc.id || doc._id || '');
+  return {
+    id,
+    title: doc.title || '',
+    description: doc.description || '',
+    dueDate: doc.dueDate || '',
+    dueTime: doc.dueTime || '',
+    priority: doc.priority || 'MEDIUM',
+    isCompleted: Boolean(doc.isCompleted),
+    completedAt: doc.completedAt || undefined,
+    noteId: doc.noteId ? String(doc.noteId) : undefined,
+    category: doc.category || undefined,
+  };
+}
+
+// ─── Local Cache Helpers ──────────────────────────────────────────────────────
+
+function getNotesCache(): StickyNote[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.STICKY_NOTES);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.map(normalizeStickyNote) : [];
+  } catch (e) {
+    console.warn('Failed to parse sticky_notes cache:', e);
+    return [];
+  }
+}
+
+function setNotesCache(notes: StickyNote[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.STICKY_NOTES, JSON.stringify(notes));
+  } catch (e) {
+    console.warn('Failed to save sticky_notes cache:', e);
+  }
+}
+
+function getRemindersCache(): ReminderItem[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.REMAINDER);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.map(normalizeReminder) : [];
+  } catch (e) {
+    console.warn('Failed to parse remainder cache:', e);
+    return [];
+  }
+}
+
+function setRemindersCache(reminders: ReminderItem[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.REMAINDER, JSON.stringify(reminders));
+  } catch (e) {
+    console.warn('Failed to save remainder cache:', e);
+  }
+}
+
+const generateId = (prefix: string): string => {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
 };
 
-const INITIAL_NOTES: StickyNote[] = [
-  {
-    id: 'note-1',
-    title: '🧠 Architecture Brainstorming',
-    content: 'Microservices architecture with Spring Boot & MongoDB Atlas. Focus on caching read-heavy planned budget matrices with Redis or localized IndexedDB cache.',
-    color: 'yellow',
-    isPinned: true,
-    tags: ['Tech', 'Architecture', 'Sprint'],
-    createdAt: '2026-09-21T09:00:00.000Z',
-    updatedAt: '2026-09-22T14:30:00.000Z',
-  },
-  {
-    id: 'note-2',
-    title: '💡 Investment Strategy 2026',
-    content: 'Review 60/40 Equity vs Debt ratio before next quarterly rebalance. Ensure emergency fund in high-yield liquid funds covers at least 8 months of living expenses.',
-    color: 'green',
-    isPinned: true,
-    tags: ['Finance', 'Strategy'],
-    createdAt: '2026-09-20T10:15:00.000Z',
-    updatedAt: '2026-09-23T11:00:00.000Z',
-    reminderId: 'rem-2',
-  },
-  {
-    id: 'note-3',
-    title: '📚 Books to Read This Quarter',
-    content: '1. Thinking in Systems by Donella Meadows\n2. The Psychology of Money by Morgan Housel\n3. High Output Management by Andy Grove',
-    color: 'purple',
-    isPinned: false,
-    tags: ['Personal', 'Reading', 'Growth'],
-    createdAt: '2026-09-19T18:40:00.000Z',
-    updatedAt: '2026-09-19T18:40:00.000Z',
-  },
-  {
-    id: 'note-4',
-    title: '⚡ UI/UX Enhancements',
-    content: 'Add smooth micro-animations for sticky note pin toggles, confetti on reminder completion, and accessible contrast palettes for dark/light themes.',
-    color: 'blue',
-    isPinned: false,
-    tags: ['Design', 'Frontend'],
-    createdAt: '2026-09-22T16:20:00.000Z',
-    updatedAt: '2026-09-23T08:15:00.000Z',
-  },
-  {
-    id: 'note-5',
-    title: '🎯 Weekly Habit Focus',
-    content: '• Hydration: 3.5L per day\n• 45 mins strength or cardio training\n• Zero screens 30 mins before sleep\n• Evening journaling check-in',
-    color: 'pink',
-    isPinned: false,
-    tags: ['Health', 'Habits'],
-    createdAt: '2026-09-21T07:30:00.000Z',
-    updatedAt: '2026-09-21T07:30:00.000Z',
-  },
-  {
-    id: 'note-6',
-    title: '🔑 Key Credentials & Configs',
-    content: 'Remember to verify Atlas connection string before production deploy. Keep SSL certificates updated and check JWT rotation expiry policy.',
-    color: 'slate',
-    isPinned: false,
-    tags: ['DevOps', 'Security'],
-    createdAt: '2026-09-18T12:00:00.000Z',
-    updatedAt: '2026-09-18T12:00:00.000Z',
-  },
-];
-
-const INITIAL_REMINDERS: ReminderItem[] = [
-  {
-    id: 'rem-1',
-    title: '⚡ Cloud Infrastructure Review & Audit',
-    description: 'Verify MongoDB Atlas performance metrics, active connections, and cluster utilization before end of sprint.',
-    dueDate: formatDate(-1), // Yesterday (Overdue)
-    dueTime: '18:00',
-    priority: 'HIGH',
-    isCompleted: false,
-    category: 'Work',
-  },
-  {
-    id: 'rem-2',
-    title: '💰 Quarterly Portfolio Rebalance Review',
-    description: 'Check asset allocation against 60/40 targets and review mutual fund SIP performance.',
-    dueDate: formatDate(0), // Today
-    dueTime: '17:00',
-    priority: 'HIGH',
-    isCompleted: false,
-    noteId: 'note-2',
-    category: 'Finance',
-  },
-  {
-    id: 'rem-3',
-    title: '🩺 Annual Executive Health Checkup Booking',
-    description: 'Confirm appointment with clinic for annual preventive checkup package.',
-    dueDate: formatDate(0), // Today
-    dueTime: '19:30',
-    priority: 'MEDIUM',
-    isCompleted: false,
-    category: 'Personal',
-  },
-  {
-    id: 'rem-4',
-    title: '🚗 Vehicle Insurance & Registration Renewal',
-    description: 'Download policy renewal document and schedule vehicle inspection.',
-    dueDate: formatDate(3), // In 3 days
-    dueTime: '11:00',
-    priority: 'MEDIUM',
-    isCompleted: false,
-    category: 'Personal',
-  },
-  {
-    id: 'rem-5',
-    title: '📋 Submit Expense Claims & Invoices',
-    description: 'Upload client travel invoices and team reimbursement receipts.',
-    dueDate: formatDate(5), // In 5 days
-    dueTime: '16:00',
-    priority: 'LOW',
-    isCompleted: false,
-    category: 'Work',
-  },
-  {
-    id: 'rem-6',
-    title: '💳 Pay Broadband Fiber & Utilities Bill',
-    description: 'Fiber internet bill SAR 280 paid via online banking transfer.',
-    dueDate: formatDate(-3),
-    dueTime: '10:00',
-    priority: 'LOW',
-    isCompleted: true,
-    completedAt: '2026-09-20T10:15:00.000Z',
-    category: 'Finance',
-  },
-];
-
-function getStoredNotes(): StickyNote[] {
-  try {
-    const raw = localStorage.getItem(NOTES_STORAGE_KEY);
-    if (!raw) {
-      localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(INITIAL_NOTES));
-      return INITIAL_NOTES;
-    }
-    return JSON.parse(raw);
-  } catch (e) {
-    console.error('Failed to load notes from localStorage', e);
-    return INITIAL_NOTES;
-  }
-}
-
-function setStoredNotes(notes: StickyNote[]) {
-  try {
-    localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notes));
-  } catch (e) {
-    console.error('Failed to save notes to localStorage', e);
-  }
-}
-
-function getStoredReminders(): ReminderItem[] {
-  try {
-    const raw = localStorage.getItem(REMINDERS_STORAGE_KEY);
-    if (!raw) {
-      localStorage.setItem(REMINDERS_STORAGE_KEY, JSON.stringify(INITIAL_REMINDERS));
-      return INITIAL_REMINDERS;
-    }
-    return JSON.parse(raw);
-  } catch (e) {
-    console.error('Failed to load reminders from localStorage', e);
-    return INITIAL_REMINDERS;
-  }
-}
-
-function setStoredReminders(reminders: ReminderItem[]) {
-  try {
-    localStorage.setItem(REMINDERS_STORAGE_KEY, JSON.stringify(reminders));
-  } catch (e) {
-    console.error('Failed to save reminders to localStorage', e);
-  }
-}
-
-// ─── Asynchronous API Service (Ready for REST backend endpoint swap) ───────────
+// ─── API Service (Real Endpoints /sticky_notes & /remainder) ───────────────────
 
 export const notesRemindersService = {
-  // ── Notes CRUD ──
+  // ──────────────────────────────────────────────────────────────────────────
+  // 1. STICKY NOTES API (Collection: sticky_notes)
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Fetch all sticky notes from MongoDB collection `sticky_notes`.
+   * Endpoint: GET /api/sticky_notes
+   */
   async getNotes(): Promise<StickyNote[]> {
-    // Simulated async network delay for realism
-    await new Promise((r) => setTimeout(r, 60));
-    return getStoredNotes();
+    try {
+      const response = await apiClient.get<any[]>('/sticky_notes');
+      if (Array.isArray(response.data)) {
+        const normalized = response.data.map(normalizeStickyNote);
+
+        // Auto-sync any notes created while backend was offline/restarting
+        const localCache = getNotesCache();
+        const pendingSync = localCache.filter(
+          (loc) => loc.id.startsWith('note-') && !normalized.some((n) => n.title === loc.title && n.content === loc.content)
+        );
+        if (pendingSync.length > 0) {
+          for (const item of pendingSync) {
+            try {
+              const { id, ...data } = item;
+              const res = await apiClient.post<any>('/sticky_notes', data);
+              if (res.data) {
+                normalized.push(normalizeStickyNote(res.data));
+              }
+            } catch {
+              // Ignore failure for individual sync
+            }
+          }
+        }
+
+        setNotesCache(normalized);
+        return normalized;
+      }
+    } catch (err) {
+      console.warn('[API] Could not fetch from /sticky_notes, using local storage cache:', err);
+    }
+    return getNotesCache();
   },
 
+  /**
+   * Create a new sticky note in MongoDB collection `sticky_notes`.
+   * Endpoint: POST /api/sticky_notes
+   */
   async createNote(
     data: Omit<StickyNote, 'id' | 'createdAt' | 'updatedAt'>
   ): Promise<StickyNote> {
-    await new Promise((r) => setTimeout(r, 60));
-    const notes = getStoredNotes();
-    const newNote: StickyNote = {
+    const payload = {
       ...data,
-      id: `note-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    const updated = [newNote, ...notes];
-    setStoredNotes(updated);
-    return newNote;
+
+    try {
+      const response = await apiClient.post<any>('/sticky_notes', payload);
+      if (response.data) {
+        const created = normalizeStickyNote(response.data);
+        const cache = getNotesCache().filter((n) => n.id !== created.id);
+        setNotesCache([created, ...cache]);
+        return created;
+      }
+    } catch (err) {
+      console.warn('[API] Failed to POST to /sticky_notes, storing locally:', err);
+    }
+
+    // Local fallback if server offline
+    const localNote: StickyNote = {
+      ...payload,
+      id: generateId('note'),
+    };
+    const cache = getNotesCache();
+    setNotesCache([localNote, ...cache]);
+    return localNote;
   },
 
+  /**
+   * Update an existing sticky note in MongoDB collection `sticky_notes`.
+   * Endpoint: PUT /api/sticky_notes/{id}
+   */
   async updateNote(id: string, updates: Partial<StickyNote>): Promise<StickyNote> {
-    await new Promise((r) => setTimeout(r, 60));
-    const notes = getStoredNotes();
-    const index = notes.findIndex((n) => n.id === id);
-    if (index === -1) throw new Error(`Note ${id} not found`);
-
-    const updatedNote: StickyNote = {
-      ...notes[index],
+    const payload = {
       ...updates,
       updatedAt: new Date().toISOString(),
     };
-    notes[index] = updatedNote;
-    setStoredNotes(notes);
-    return updatedNote;
+
+    try {
+      const response = await apiClient.put<any>(`/sticky_notes/${id}`, payload);
+      if (response.data) {
+        const updated = normalizeStickyNote(response.data);
+        const cache = getNotesCache().map((n) => (n.id === id ? updated : n));
+        setNotesCache(cache);
+        return updated;
+      }
+    } catch (err) {
+      console.warn(`[API] Failed to PUT to /sticky_notes/${id}, updating locally:`, err);
+    }
+
+    // Local cache update
+    const cache = getNotesCache();
+    const index = cache.findIndex((n) => n.id === id);
+    if (index !== -1) {
+      const updatedLocal: StickyNote = {
+        ...cache[index],
+        ...payload,
+      };
+      cache[index] = updatedLocal;
+      setNotesCache(cache);
+      return updatedLocal;
+    }
+    throw new Error(`Note ${id} not found in database or cache`);
   },
 
+  /**
+   * Delete a sticky note from MongoDB collection `sticky_notes`.
+   * Endpoint: DELETE /api/sticky_notes/{id}
+   */
   async deleteNote(id: string): Promise<void> {
-    await new Promise((r) => setTimeout(r, 60));
-    const notes = getStoredNotes().filter((n) => n.id !== id);
-    setStoredNotes(notes);
+    try {
+      await apiClient.delete(`/sticky_notes/${id}`);
+    } catch (err) {
+      console.warn(`[API] Failed to DELETE /sticky_notes/${id}, removing locally:`, err);
+    }
+    const cache = getNotesCache().filter((n) => n.id !== id);
+    setNotesCache(cache);
   },
 
+  /**
+   * Pin or unpin a sticky note.
+   */
   async togglePinNote(id: string): Promise<StickyNote> {
-    const notes = getStoredNotes();
-    const target = notes.find((n) => n.id === id);
-    if (!target) throw new Error(`Note ${id} not found`);
-    return this.updateNote(id, { isPinned: !target.isPinned });
+    const cache = getNotesCache();
+    const target = cache.find((n) => n.id === id);
+    const newPinned = target ? !target.isPinned : true;
+    return this.updateNote(id, { isPinned: newPinned });
   },
 
-  // ── Reminders CRUD ──
+  // ──────────────────────────────────────────────────────────────────────────
+  // 2. REMAINDER API (Collection: remainder)
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Fetch all reminders from MongoDB collection `remainder`.
+   * Endpoint: GET /api/remainder
+   */
   async getReminders(): Promise<ReminderItem[]> {
-    await new Promise((r) => setTimeout(r, 60));
-    return getStoredReminders();
+    try {
+      const response = await apiClient.get<any[]>('/remainder');
+      if (Array.isArray(response.data)) {
+        const normalized = response.data.map(normalizeReminder);
+
+        // Auto-sync any reminders created while backend was offline/restarting
+        const localCache = getRemindersCache();
+        const pendingSync = localCache.filter(
+          (loc) => loc.id.startsWith('rem-') && !normalized.some((n) => n.title === loc.title && n.dueDate === loc.dueDate)
+        );
+        if (pendingSync.length > 0) {
+          for (const item of pendingSync) {
+            try {
+              const { id, ...data } = item;
+              const res = await apiClient.post<any>('/remainder', data);
+              if (res.data) {
+                normalized.push(normalizeReminder(res.data));
+              }
+            } catch {
+              // Ignore failure for individual sync
+            }
+          }
+        }
+
+        setRemindersCache(normalized);
+        return normalized;
+      }
+    } catch (err) {
+      console.warn('[API] Could not fetch from /remainder, using local storage cache:', err);
+    }
+    return getRemindersCache();
   },
 
+  /**
+   * Create a new reminder in MongoDB collection `remainder`.
+   * Endpoint: POST /api/remainder
+   */
   async createReminder(data: Omit<ReminderItem, 'id'>): Promise<ReminderItem> {
-    await new Promise((r) => setTimeout(r, 60));
-    const reminders = getStoredReminders();
-    const newReminder: ReminderItem = {
+    try {
+      const response = await apiClient.post<any>('/remainder', data);
+      if (response.data) {
+        const created = normalizeReminder(response.data);
+        const cache = getRemindersCache().filter((r) => r.id !== created.id);
+        setRemindersCache([created, ...cache]);
+        return created;
+      }
+    } catch (err) {
+      console.warn('[API] Failed to POST to /remainder, storing locally:', err);
+    }
+
+    // Local fallback if server offline
+    const localReminder: ReminderItem = {
       ...data,
-      id: `rem-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      id: generateId('rem'),
     };
-    const updated = [newReminder, ...reminders];
-    setStoredReminders(updated);
-    return newReminder;
+    const cache = getRemindersCache();
+    setRemindersCache([localReminder, ...cache]);
+    return localReminder;
   },
 
+  /**
+   * Update an existing reminder in MongoDB collection `remainder`.
+   * Endpoint: PUT /api/remainder/{id}
+   */
   async updateReminder(id: string, updates: Partial<ReminderItem>): Promise<ReminderItem> {
-    await new Promise((r) => setTimeout(r, 60));
-    const reminders = getStoredReminders();
-    const index = reminders.findIndex((r) => r.id === id);
-    if (index === -1) throw new Error(`Reminder ${id} not found`);
+    try {
+      const response = await apiClient.put<any>(`/remainder/${id}`, updates);
+      if (response.data) {
+        const updated = normalizeReminder(response.data);
+        const cache = getRemindersCache().map((r) => (r.id === id ? updated : r));
+        setRemindersCache(cache);
+        return updated;
+      }
+    } catch (err) {
+      console.warn(`[API] Failed to PUT to /remainder/${id}, updating locally:`, err);
+    }
 
-    const updatedItem: ReminderItem = {
-      ...reminders[index],
-      ...updates,
-    };
-    reminders[index] = updatedItem;
-    setStoredReminders(reminders);
-    return updatedItem;
+    // Local cache update
+    const cache = getRemindersCache();
+    const index = cache.findIndex((r) => r.id === id);
+    if (index !== -1) {
+      const updatedLocal: ReminderItem = {
+        ...cache[index],
+        ...updates,
+      };
+      cache[index] = updatedLocal;
+      setRemindersCache(cache);
+      return updatedLocal;
+    }
+    throw new Error(`Reminder ${id} not found in database or cache`);
   },
 
+  /**
+   * Toggle completion status of a reminder.
+   */
   async toggleReminder(id: string): Promise<ReminderItem> {
-    const reminders = getStoredReminders();
-    const target = reminders.find((r) => r.id === id);
-    if (!target) throw new Error(`Reminder ${id} not found`);
+    const cache = getRemindersCache();
+    const target = cache.find((r) => r.id === id);
+    const isCompleted = target ? !target.isCompleted : true;
 
-    const isCompleted = !target.isCompleted;
     return this.updateReminder(id, {
       isCompleted,
       completedAt: isCompleted ? new Date().toISOString() : undefined,
     });
   },
 
+  /**
+   * Delete a reminder from MongoDB collection `remainder`.
+   * Endpoint: DELETE /api/remainder/{id}
+   */
   async deleteReminder(id: string): Promise<void> {
-    await new Promise((r) => setTimeout(r, 60));
-    const reminders = getStoredReminders().filter((r) => r.id !== id);
-    setStoredReminders(reminders);
+    try {
+      await apiClient.delete(`/remainder/${id}`);
+    } catch (err) {
+      console.warn(`[API] Failed to DELETE /remainder/${id}, removing locally:`, err);
+    }
+    const cache = getRemindersCache().filter((r) => r.id !== id);
+    setRemindersCache(cache);
   },
 
-  async snoozeReminder(id: string, days: number = 1): Promise<ReminderItem> {
-    const reminders = getStoredReminders();
-    const target = reminders.find((r) => r.id === id);
-    if (!target) throw new Error(`Reminder ${id} not found`);
-
-    const targetDate = new Date(target.dueDate || today);
-    targetDate.setDate(targetDate.getDate() + days);
-    const newDueDate = targetDate.toISOString().split('T')[0];
-
-    return this.updateReminder(id, {
-      dueDate: newDueDate,
-      isCompleted: false,
-    });
-  },
-
+  /**
+   * Snooze a reminder by specified minutes.
+   */
   async snoozeReminderMinutes(id: string, minutes: number = 10): Promise<ReminderItem> {
-    const reminders = getStoredReminders();
-    const target = reminders.find((r) => r.id === id);
+    const cache = getRemindersCache();
+    const target = cache.find((r) => r.id === id);
     if (!target) throw new Error(`Reminder ${id} not found`);
 
     const now = new Date();
@@ -324,10 +393,21 @@ export const notesRemindersService = {
     });
   },
 
-  async resetToDefaultData(): Promise<{ notes: StickyNote[]; reminders: ReminderItem[] }> {
-    setStoredNotes(INITIAL_NOTES);
-    setStoredReminders(INITIAL_REMINDERS);
-    return { notes: INITIAL_NOTES, reminders: INITIAL_REMINDERS };
+  /**
+   * Snooze a reminder by specified days.
+   */
+  async snoozeReminder(id: string, days: number = 1): Promise<ReminderItem> {
+    const cache = getRemindersCache();
+    const target = cache.find((r) => r.id === id);
+    if (!target) throw new Error(`Reminder ${id} not found`);
+
+    const targetDate = new Date(target.dueDate || new Date().toISOString().split('T')[0]);
+    targetDate.setDate(targetDate.getDate() + days);
+    const newDueDate = targetDate.toISOString().split('T')[0];
+
+    return this.updateReminder(id, {
+      dueDate: newDueDate,
+      isCompleted: false,
+    });
   },
 };
-
