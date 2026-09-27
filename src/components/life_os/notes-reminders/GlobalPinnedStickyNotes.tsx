@@ -1,18 +1,16 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Pin, ChevronDown, ChevronUp, X, Plus, Edit3, Check } from 'lucide-react';
 import { notesRemindersService } from '../../../services/notesRemindersService';
 import type { StickyNote, NoteColor } from '../../../types/notesReminders';
+import { useStickyNotesQuery } from '../../../hooks';
 
 const COLOR_LIST: NoteColor[] = ['yellow', 'green', 'blue', 'purple', 'pink', 'orange', 'slate'];
 
 export default function GlobalPinnedStickyNotes() {
   const queryClient = useQueryClient();
 
-  const { data: notes = [] } = useQuery<StickyNote[]>({
-    queryKey: ['sticky-notes'],
-    queryFn: () => notesRemindersService.getNotes(),
-  });
+  const { data: notes = [] } = useStickyNotesQuery();
 
   const pinnedNotes = notes.filter((n) => n.isPinned);
 

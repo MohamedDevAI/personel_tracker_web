@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Category, PlannedExpense, PlannedExpenseStatus, Transaction } from '../../../../types';
 import { plannedExpenseApi } from '../../../../services/plannedExpenseApi';
 import { expenseApi } from '../../../../services/expenseApi';
@@ -19,6 +19,7 @@ import {
   removeLinkedTransactionIfExists,
   formatSAR
 } from './plannedExpenseSync';
+import { usePlannedExpensesQuery } from '../../../../hooks';
 import './planned-expenses.css';
 
 interface PlannedExpensesViewProps {
@@ -49,10 +50,7 @@ export default function PlannedExpensesView({
 
   // Live Query from MongoDB via Spring Boot API: /api/finance_planned
   // Fetches all plans across years (current year + next year)
-  const { data: plans = [], isLoading } = useQuery<PlannedExpense[]>({
-    queryKey: ['plannedExpenses'],
-    queryFn: () => plannedExpenseApi.fetchFromDb('ALL')
-  });
+  const { data: plans = [], isLoading } = usePlannedExpensesQuery('ALL');
 
   // Available Years for the MonthYearFilter
   const currentCalendarYear = getCurrentYear();

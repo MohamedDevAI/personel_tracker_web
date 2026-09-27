@@ -1,28 +1,25 @@
 import { useState, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Flame, Plus } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { api } from '../../../services/api';
 import { getCurrentMonth, getCurrentYear } from '../../../utils/dateHelpers';
 import { useDeleteConfirmation } from '../../../hooks/useDeleteConfirmation';
 import ConfirmDeleteModal from '../../common/ConfirmDeleteModal';
-import type { Habit } from '../../../types';
 import HabitsDateBuddy from './HabitsDateBuddy';
 import HabitsKpiCards from './HabitsKpiCards';
 import HabitsToolbar, { HabitStatusFilter, HabitViewMode } from './HabitsToolbar';
 import HabitCard from './HabitCard';
 import HabitMatrixSheet from './HabitMatrixSheet';
 import HabitModal from './HabitModal';
+import { useHabitsQuery } from '../../../hooks';
 import './habits.css';
 
 export default function HabitsView() {
   const queryClient = useQueryClient();
 
   // Data Queries
-  const { data: habits = [] } = useQuery<Habit[]>({
-    queryKey: ['habits'],
-    queryFn: api.getHabits,
-  });
+  const { data: habits = [] } = useHabitsQuery();
 
   // Mutations
   const toggleMutation = useMutation({

@@ -1,27 +1,25 @@
 import { useState, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CheckSquare, Plus } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { api } from '../../../services/api';
 import { useDeleteConfirmation } from '../../../hooks/useDeleteConfirmation';
 import ConfirmDeleteModal from '../../common/ConfirmDeleteModal';
-import type { TaskItem, TaskPriority } from '../../../types';
+import type { TaskPriority } from '../../../types';
 import TasksKpiCards from './TasksKpiCards';
 import TasksToolbar, { TaskStatusFilter, TaskViewMode } from './TasksToolbar';
 import TasksKanbanBoard from './TasksKanbanBoard';
 import TaskMatrixSheet from './TaskMatrixSheet';
 import TaskCard from './TaskCard';
 import TaskModal from './TaskModal';
+import { useTasksQuery } from '../../../hooks';
 import './tasks.css';
 
 export default function TasksView() {
   const queryClient = useQueryClient();
 
   // Queries
-  const { data: tasks = [] } = useQuery<TaskItem[]>({
-    queryKey: ['tasks'],
-    queryFn: api.getTasks,
-  });
+  const { data: tasks = [] } = useTasksQuery();
 
   // Mutations
   const toggleMutation = useMutation({

@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { expenseApi } from '../services/expenseApi';
 import { MONTH_NAMES, getCurrentYear, getCurrentMonth } from '../utils/dateHelpers';
 import { Plus, Tag, ArrowDownRight, Search } from 'lucide-react';
-import { Category, Transaction, TransactionType, BorrowRepayRecord } from '../types';
+import { TransactionType } from '../types';
 import { parseTxDate } from '../components/life_os/finances/financeConstants';
 import MonthYearFilter from '../components/life_os/finances/MonthYearFilter';
 import FinanceSummaryCards from '../components/life_os/finances/FinanceSummaryCards';
@@ -16,7 +16,12 @@ import FinanceTabsHeader, { FinanceTabKey } from '../components/life_os/finances
 import BorrowRepayView from '../components/life_os/finances/BorrowRepayView';
 import PlannedExpensesView from '../components/life_os/finances/planned-expenses/PlannedExpensesView';
 import { borrowRepayApi } from '../services/borrowRepayApi';
-import { plannedExpenseApi } from '../services/plannedExpenseApi';
+import {
+  useTransactionsQuery,
+  useCategoriesQuery,
+  useBorrowRepayRecordsQuery,
+  usePlannedExpensesQuery,
+} from '../hooks';
 import ConfirmDeleteModal from '../components/common/ConfirmDeleteModal';
 import '../components/life_os/finances/finances.css';
 
@@ -27,29 +32,20 @@ export default function ExpenseTracker() {
   const [financeMainTab, setFinanceMainTab] = useState<FinanceTabKey>('ledger');
 
   // Queries
-  const { data: transactions = [], isLoading: isTxsLoading } = useQuery<Transaction[]>({
-    queryKey: ['transactions'],
-    queryFn: expenseApi.getTransactions
-  });
-
-  const { data: categories = [] } = useQuery<Category[]>({
-    queryKey: ['categories'],
-    queryFn: () => expenseApi.getCategories()
-  });
-
-  const { data: borrowRecords = [] } = useQuery<BorrowRepayRecord[]>({
-    queryKey: ['borrowRepayRecords'],
-    queryFn: borrowRepayApi.getRecords
-  });
+  const { data: transactions = [], isLoading: isTxsLoading } = useTransactionsQuery();
+  const { data: categories = [] } = useCategoriesQuery();
+  const { data: borrowRecords = [] } = useBorrowRepayRecordsQuery();
 
   // Dynamic pill counters for sub-tabs
   const outstandingDebtCount = useMemo(() => {
     return borrowRepayApi.getCreditorSummaries(borrowRecords).filter(s => s.netBalance > 0).length;
   }, [borrowRecords, financeMainTab]);
 
+  const { data: plannedExpenses = [] } = usePlannedExpensesQuery('ALL');
+
   const activePlansCount = useMemo(() => {
-    return plannedExpenseApi.getPlannedExpenses().filter(p => p.status === 'Planned').length;
-  }, [financeMainTab]);
+    return plannedExpenses.filter(p => p.status === 'Planned').length;
+  }, [plannedExpenses]);
 
 
   const [activeTab] = useState<'transactions' | 'categories'>('transactions');

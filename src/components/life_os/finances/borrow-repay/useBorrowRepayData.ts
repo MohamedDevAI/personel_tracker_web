@@ -1,9 +1,10 @@
 import { useState, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { BorrowRepayRecord, BorrowRepayType, PlannedRepayment, PlannedRepaymentStatus, PlannedRepayCreditItem } from '../../../../types';
 import { borrowRepayApi } from '../../../../services/borrowRepayApi';
 import { plannedRepayCreditApi } from '../../../../services/plannedRepayCreditApi';
 import { MONTH_NAMES, getCurrentYear } from '../../../../utils/dateHelpers';
+import { useBorrowRepayRecordsQuery, usePlannedRepaymentsQuery } from '../../../../hooks';
 
 export type BorrowRepayStep = 'credit_tracker' | 'aggregation' | 'planned_repayment';
 
@@ -36,15 +37,8 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
   }>({ isOpen: false, type: 'credit_record', id: '', itemName: '' });
 
   // ── Data Queries ─────────────────────────────────────────────────────────────
-  const { data: records = [] } = useQuery<BorrowRepayRecord[]>({
-    queryKey: ['borrowRepayRecords'],
-    queryFn: borrowRepayApi.getRecords,
-  });
-
-  const { data: plannedRepayments = [] } = useQuery<PlannedRepayment[]>({
-    queryKey: ['plannedRepayments'],
-    queryFn: borrowRepayApi.getPlannedRepayments,
-  });
+  const { data: records = [] } = useBorrowRepayRecordsQuery();
+  const { data: plannedRepayments = [] } = usePlannedRepaymentsQuery();
 
   // ── Mutations ────────────────────────────────────────────────────────────────
   const invalidateAll = () => {

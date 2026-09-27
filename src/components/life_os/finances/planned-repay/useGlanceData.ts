@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { plannedRepayCreditApi } from '../../../../services/plannedRepayCreditApi';
 import { MONTH_NAMES } from '../../../../utils/dateHelpers';
 import type { PlannedRepayCreditItem, PlannedRepayCreditMatrix, BorrowRepayRecord } from '../../../../types';
+import { usePlannedRepayCreditMatrixQuery } from '../../../../hooks';
 
 export interface NextMonthCheckInfo {
   hasCheck?: boolean;
@@ -49,11 +50,7 @@ export function useGlanceData(actualRecords: BorrowRepayRecord[] = []) {
   }>({ isOpen: false, id: '', creditorName: '', amount: 0, month: '' });
 
   // ── Data Query ───────────────────────────────────────────────────────────────
-  const { data: matrix, isLoading, isFetching, error, refetch } = useQuery<PlannedRepayCreditMatrix>({
-    queryKey: ['plannedRepayCreditMatrix'],
-    queryFn: plannedRepayCreditApi.getMatrix,
-    staleTime: 1000 * 30,
-  });
+  const { data: matrix, isLoading, isFetching, error, refetch } = usePlannedRepayCreditMatrixQuery();
 
   // ── Mutations ────────────────────────────────────────────────────────────────
   const invalidate = () => {

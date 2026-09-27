@@ -8,11 +8,15 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { investmentApi } from '../services/investmentApi';
-import { borrowRepayApi } from '../services/borrowRepayApi';
-import { api } from '../services/api';
 import { tradingService } from '../services/tradingService';
+import {
+  useInvestmentHoldingsQuery,
+  useExpensesQuery,
+  useBorrowRepayRecordsQuery,
+  useTradesQuery,
+} from '../hooks';
 import {
   computeFinancialHealth,
   calculateFireNumbers,
@@ -21,7 +25,7 @@ import {
   saveHealthAnswer,
   FireSettings
 } from '../services/financialHealthService';
-import type { InvestmentHolding, InvestmentCategory, Expense, Trade } from '../types';
+import type { InvestmentHolding, InvestmentCategory, Trade } from '../types';
 import { MoneyPrivacyProvider, useMoneyPrivacy } from '../context/MoneyPrivacyContext';
 
 // Investment Components
@@ -86,31 +90,19 @@ function MoneyHubInner() {
     data: holdings = [],
     refetch: refetchHoldings,
     isFetching: isFetchingHoldings
-  } = useQuery<InvestmentHolding[]>({
-    queryKey: ['investmentHoldings'],
-    queryFn: investmentApi.getHoldings,
-  });
+  } = useInvestmentHoldingsQuery();
 
   // Fetch Ledger Expenses (for Net Cash Liquidity)
-  const { data: expenses = [] } = useQuery<Expense[]>({
-    queryKey: ['expenses'],
-    queryFn: api.getExpenses,
-  });
+  const { data: expenses = [] } = useExpensesQuery();
 
   // Fetch Borrow/Repay (for Debt Liabilities)
-  const { data: borrowRecords = [] } = useQuery({
-    queryKey: ['borrowRepayRecords'],
-    queryFn: borrowRepayApi.getRecords,
-  });
+  const { data: borrowRecords = [] } = useBorrowRepayRecordsQuery();
 
   // Fetch Trading Positions & Trades
   const {
     data: trades = [],
     refetch: refetchTrades,
-  } = useQuery<Trade[]>({
-    queryKey: ['tradingTrades'],
-    queryFn: tradingService.getTrades,
-  });
+  } = useTradesQuery();
 
   // Compute Liquid Cash Balance
   const totalIncome = (expenses || [])

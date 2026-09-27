@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Target, Plus } from 'lucide-react';
 import { api } from '../../../services/api';
 import { useDeleteConfirmation } from '../../../hooks/useDeleteConfirmation';
@@ -10,16 +10,14 @@ import GoalsToolbar, { GoalStatusFilter, GoalViewMode } from './GoalsToolbar';
 import GoalCard from './GoalCard';
 import GoalMatrixSheet from './GoalMatrixSheet';
 import GoalModal from './GoalModal';
+import { useGoalsQuery } from '../../../hooks';
 import './goals.css';
 
 export default function GoalsView() {
   const queryClient = useQueryClient();
 
   // Data Queries
-  const { data: goals = [] } = useQuery<Goal[]>({
-    queryKey: ['goals'],
-    queryFn: api.getGoals,
-  });
+  const { data: goals = [] } = useGoalsQuery();
 
   // Mutations
   const updateProgressMutation = useMutation({

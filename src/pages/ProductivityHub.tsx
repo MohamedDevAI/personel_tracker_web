@@ -1,8 +1,6 @@
 import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { api } from '../services/api';
-import type { TaskItem, Goal, Habit } from '../types';
+import { useTasksQuery, useGoalsQuery, useHabitsQuery } from '../hooks';
 import ProductivityTabsHeader, { ProductivityTabKey } from '../components/life_os/productivity/ProductivityTabsHeader';
 import Tasks from './Tasks';
 import Goals from './Goals';
@@ -21,20 +19,9 @@ export default function ProductivityHub() {
   }, [location.pathname]);
 
   // Data queries for tab counters
-  const { data: tasks = [] } = useQuery<TaskItem[]>({
-    queryKey: ['tasks'],
-    queryFn: api.getTasks,
-  });
-
-  const { data: goals = [] } = useQuery<Goal[]>({
-    queryKey: ['goals'],
-    queryFn: api.getGoals,
-  });
-
-  const { data: habits = [] } = useQuery<Habit[]>({
-    queryKey: ['habits'],
-    queryFn: api.getHabits,
-  });
+  const { data: tasks = [] } = useTasksQuery();
+  const { data: goals = [] } = useGoalsQuery();
+  const { data: habits = [] } = useHabitsQuery();
 
   const pendingTasksCount = useMemo(() => tasks.filter((t) => !t.completed).length, [tasks]);
   const activeGoalsCount = useMemo(() => goals.filter((g) => (g.progress || 0) < 100).length, [goals]);

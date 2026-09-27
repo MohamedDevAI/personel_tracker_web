@@ -4,7 +4,7 @@
  */
 
 import { useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowUpRight, ArrowDownRight, Flame, CheckCircle2, Circle,
   TrendingUp, Calendar,
@@ -12,7 +12,12 @@ import {
 import confetti from 'canvas-confetti';
 import { api } from '../services/api';
 import { formatDateLong } from '../utils/formatters';
-import type { Expense, Habit, Goal, TaskItem } from '../types';
+import {
+  useExpensesQuery,
+  useHabitsQuery,
+  useGoalsQuery,
+  useTasksQuery,
+} from '../hooks';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -20,25 +25,10 @@ export default function Dashboard() {
 
   // ── Data Fetching ─────────────────────────────────────────────────────────
 
-  const { data: expenses = [] } = useQuery<Expense[]>({
-    queryKey: ['expenses'],
-    queryFn: api.getExpenses,
-  });
-
-  const { data: habits = [] } = useQuery<Habit[]>({
-    queryKey: ['habits'],
-    queryFn: api.getHabits,
-  });
-
-  const { data: goals = [] } = useQuery<Goal[]>({
-    queryKey: ['goals'],
-    queryFn: api.getGoals,
-  });
-
-  const { data: tasks = [] } = useQuery<TaskItem[]>({
-    queryKey: ['tasks'],
-    queryFn: api.getTasks,
-  });
+  const { data: expenses = [] } = useExpensesQuery();
+  const { data: habits = [] } = useHabitsQuery();
+  const { data: goals = [] } = useGoalsQuery();
+  const { data: tasks = [] } = useTasksQuery();
 
   // ── Mutations ─────────────────────────────────────────────────────────────
 
