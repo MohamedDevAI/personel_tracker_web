@@ -25,7 +25,6 @@ import {
   saveHealthAnswer,
   FireSettings
 } from '../services/financialHealthService';
-import type { InvestmentHolding, InvestmentCategory, Trade } from '../types';
 import { MoneyPrivacyProvider, useMoneyPrivacy } from '../context/MoneyPrivacyContext';
 
 // Investment Components
@@ -52,6 +51,7 @@ import TradingPositionsTable from '../components/money/trading/TradingPositionsT
 import TradeModal from '../components/money/trading/TradeModal';
 
 import '../components/money/money-theme.css';
+import { InvestmentCategory, InvestmentHolding, Trade } from '../interface';
 
 type MainTab = 'dashboard' | 'investment' | 'trading';
 type InvestmentScreen = 'landing' | 'mf_list' | 'mf_detail' | 'stock_list' | 'stock_detail';

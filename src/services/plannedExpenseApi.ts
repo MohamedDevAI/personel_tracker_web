@@ -4,8 +4,8 @@
  * with localStorage cache for offline availability.
  */
 
+import { PlannedExpense } from '../interface';
 import apiClient from './apiClient';
-import type { PlannedExpense } from '../types';
 
 // ─── API Methods ──────────────────────────────────────────────────────────────
 

@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { expenseApi } from '../services/expenseApi';
 import { MONTH_NAMES, getCurrentYear, getCurrentMonth } from '../utils/dateHelpers';
 import { Plus, Tag, ArrowDownRight, Search } from 'lucide-react';
-import { TransactionType } from '../types';
+
 import { parseTxDate } from '../components/life_os/finances/financeConstants';
 import MonthYearFilter from '../components/life_os/finances/MonthYearFilter';
 import FinanceSummaryCards from '../components/life_os/finances/FinanceSummaryCards';
@@ -24,6 +24,7 @@ import {
 } from '../hooks';
 import ConfirmDeleteModal from '../components/common/ConfirmDeleteModal';
 import '../components/life_os/finances/finances.css';
+import { TransactionType } from '../interface';
 
 export default function ExpenseTracker() {
   const queryClient = useQueryClient();

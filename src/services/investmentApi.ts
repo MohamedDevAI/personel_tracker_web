@@ -15,12 +15,8 @@
 
 import apiClient from './apiClient';
 import { STORAGE_KEYS } from '../utils/constants';
-import type {
-  InvestmentHolding,
-  InvestmentCategory,
-  PortfolioStats,
-  CategoryStats,
-} from '../types';
+import { CategoryStats, InvestmentCategory, InvestmentHolding, PortfolioStats } from '../interface';
+
 
 // ─── Endpoint ─────────────────────────────────────────────────────────────────
 // Spring Boot controller must be mapped to /api/investment-holdings

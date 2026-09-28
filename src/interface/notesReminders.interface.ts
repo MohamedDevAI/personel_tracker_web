@@ -1,3 +1,5 @@
+// ─── Sticky Notes & Reminders Interfaces ─────────────────────────────────────
+
 export type NoteColor =
   | 'yellow'
   | 'green'

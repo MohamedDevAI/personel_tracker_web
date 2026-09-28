@@ -3,8 +3,9 @@
  * All figures computed in Indian Rupee (INR ₹)
  */
 
+import { InvestmentHolding } from '../interface';
 import { STORAGE_KEYS } from '../utils/constants';
-import type { InvestmentHolding } from '../types';
+
 
 export interface HealthPillar {
   id: string;

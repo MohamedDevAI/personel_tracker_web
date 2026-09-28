@@ -10,19 +10,7 @@
 
 import apiClient from './apiClient';
 import { STORAGE_KEYS } from '../utils/constants';
-import type { StickyNote, ReminderItem, NoteColor } from '../types/notesReminders';
-
-// Clean up any legacy dummy cache keys from initial UI preview
-if (typeof window !== 'undefined') {
-  try {
-    localStorage.removeItem('pt_sticky_notes_data');
-    localStorage.removeItem('pt_reminders_data');
-  } catch {
-    // Ignore in non-browser environments
-  }
-}
-
-// ─── Document Normalizers ────────────────────────────────────────────────────
+import { NoteColor, ReminderItem, StickyNote } from '../interface';
 
 export function normalizeStickyNote(doc: any): StickyNote {
   const id = String(doc.id || doc._id || '');

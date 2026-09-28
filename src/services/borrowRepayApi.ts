@@ -6,11 +6,7 @@
 
 import apiClient from './apiClient';
 import { STORAGE_KEYS } from '../utils/constants';
-import type {
-  BorrowRepayRecord,
-  CreditorSummary,
-  PlannedRepayment,
-} from '../types';
+import { BorrowRepayRecord, CreditorSummary, PlannedRepayment } from '../interface';
 
 // ─── Local Storage Cache Helpers ──────────────────────────────────────────────
 
