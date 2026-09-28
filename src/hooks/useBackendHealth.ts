@@ -12,7 +12,7 @@ export function useBackendHealth() {
     useQuery<BackendHealth>({
       queryKey: QUERY_KEYS.BACKEND_HEALTH,
       queryFn: checkBackendHealth,
-      staleTime: 30_000, // Re-check every 30 seconds
+      staleTime: 30_000,
       refetchOnWindowFocus: false,
     });
 
