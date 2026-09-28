@@ -128,7 +128,8 @@ export const investmentApi = {
       }
     }
     if (currentValue > 0) {
-      todayChangePct = (todayChange / (currentValue - todayChange)) * 100;
+      const previousValue = currentValue - todayChange;
+      todayChangePct = previousValue > 0 ? (todayChange / previousValue) * 100 : 0;
     }
 
     let monthlySipTotal = 0;

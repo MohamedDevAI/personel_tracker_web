@@ -60,7 +60,6 @@ export const borrowRepayApi = {
 
   getCreditorSummaries: (records: BorrowRepayRecord[] = []): CreditorSummary[] => {
     const list = Array.isArray(records) ? records : [];
-    if (!Array.isArray(list)) return [];
 
     const creditorMap: Record<string, {
       totalBorrowed: number;

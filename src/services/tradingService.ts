@@ -6,20 +6,17 @@
 import type { Trade, TradingStats } from '../interface';
 import apiClient from './apiClient';
 
-let inMemoryTrades: Trade[] = [];
-
 export const tradingService = {
   getTrades: async (): Promise<Trade[]> => {
     try {
       const { data } = await apiClient.get<Trade[]>('/trading');
       if (Array.isArray(data)) {
-        inMemoryTrades = data;
         return data;
       }
     } catch {
-      // Backend may not have trading endpoint yet; use in-memory
+      // Backend may not have trading endpoint yet; return empty
     }
-    return [...inMemoryTrades];
+    return [];
   },
 
   createTrade: async (tradeData: Omit<Trade, 'id'>): Promise<Trade> => {
@@ -53,25 +50,12 @@ export const tradingService = {
       entryDate: tradeData.entryDate || new Date().toISOString(),
     };
 
-    try {
-      const { data } = await apiClient.post<Trade>('/trading', newTrade);
-      if (data) {
-        inMemoryTrades = [data, ...inMemoryTrades.filter(t => t.id !== data.id)];
-        return data;
-      }
-    } catch {
-      // fallback to in-memory
-    }
-
-    inMemoryTrades = [newTrade, ...inMemoryTrades];
-    return newTrade;
+    const { data } = await apiClient.post<Trade>('/trading', newTrade);
+    return data || newTrade;
   },
 
   updateTrade: async (id: string, updates: Partial<Trade>): Promise<Trade> => {
-    const existing = inMemoryTrades.find((t) => t.id === id);
-    const base = existing || (updates as Trade);
-
-    const merged = { ...base, ...updates };
+    const merged = { ...updates } as Trade;
     const isLong = merged.direction === 'LONG';
     const isClosed = merged.status === 'CLOSED';
     const entryPrice = Number(merged.entryPrice);
@@ -92,18 +76,8 @@ export const tradingService = {
       riskRewardRatio: rr,
     };
 
-    try {
-      const { data } = await apiClient.put<Trade>(`/trading/${id}`, finalTrade);
-      if (data) {
-        inMemoryTrades = inMemoryTrades.map((t) => (t.id === id ? data : t));
-        return data;
-      }
-    } catch {
-      // fallback to in-memory
-    }
-
-    inMemoryTrades = inMemoryTrades.map((t) => (t.id === id ? finalTrade : t));
-    return finalTrade;
+    const { data } = await apiClient.put<Trade>(`/trading/${id}`, finalTrade);
+    return data || finalTrade;
   },
 
   closeTrade: async (id: string, exitPrice: number): Promise<Trade> => {
@@ -115,12 +89,7 @@ export const tradingService = {
   },
 
   deleteTrade: async (id: string): Promise<boolean> => {
-    try {
-      await apiClient.delete(`/trading/${id}`);
-    } catch {
-      // fallback
-    }
-    inMemoryTrades = inMemoryTrades.filter((t) => t.id !== id);
+    await apiClient.delete(`/trading/${id}`);
     return true;
   },
 
@@ -191,3 +160,4 @@ export const tradingService = {
     return points;
   }
 };
+

@@ -393,18 +393,24 @@ function MoneyHubInner() {
             />
           )}
 
-          {/* Screen 3: Mutual Fund Detail */}
-          {invScreen === 'mf_detail' && (
-            <MutualFundDetailScreen
-              fund={
-                holdings.find((h) => h.id === selectedHoldingId) ||
-                holdings.find((h) => h.category === 'Mutual Funds' || h.category === 'SIPs') ||
-                holdings[0]
+          {invScreen === 'mf_detail' && (() => {
+              const fund = holdings.find((h) => h.id === selectedHoldingId) ||
+                holdings.find((h) => h.category === 'Mutual Funds' || h.category === 'SIPs');
+              if (!fund) {
+                // No matching fund found — navigate back to list to prevent crash
+                return <MutualFundListScreen
+                  holdings={holdings}
+                  onBackToLanding={() => setInvScreen('landing')}
+                  onSelectFund={(id) => { setSelectedHoldingId(id); setInvScreen('mf_detail'); }}
+                  onOpenAddModal={() => handleOpenAdd('Mutual Funds')}
+                />;
               }
-              onBackToList={() => setInvScreen('mf_list')}
-              onEditFund={handleEditHolding}
-            />
-          )}
+              return <MutualFundDetailScreen
+                fund={fund}
+                onBackToList={() => setInvScreen('mf_list')}
+                onEditFund={handleEditHolding}
+              />;
+            })()}
 
           {/* Screen 4: Stock List */}
           {invScreen === 'stock_list' && (
@@ -419,18 +425,23 @@ function MoneyHubInner() {
             />
           )}
 
-          {/* Screen 5: Stock Detail */}
-          {invScreen === 'stock_detail' && (
-            <StockDetailScreen
-              stock={
-                holdings.find((h) => h.id === selectedHoldingId) ||
-                holdings.find((h) => h.category === 'Stocks') ||
-                holdings[0]
+          {invScreen === 'stock_detail' && (() => {
+              const stock = holdings.find((h) => h.id === selectedHoldingId) ||
+                holdings.find((h) => h.category === 'Stocks');
+              if (!stock) {
+                return <StockListScreen
+                  holdings={holdings}
+                  onBackToLanding={() => setInvScreen('landing')}
+                  onSelectStock={(id) => { setSelectedHoldingId(id); setInvScreen('stock_detail'); }}
+                  onOpenAddModal={() => handleOpenAdd('Stocks')}
+                />;
               }
-              onBackToList={() => setInvScreen('stock_list')}
-              onEditStock={handleEditHolding}
-            />
-          )}
+              return <StockDetailScreen
+                stock={stock}
+                onBackToList={() => setInvScreen('stock_list')}
+                onEditStock={handleEditHolding}
+              />;
+            })()}
         </div>
       )}
 

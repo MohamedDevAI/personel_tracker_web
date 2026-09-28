@@ -9,7 +9,6 @@ import MonthYearFilter from '../components/life_os/finances/MonthYearFilter';
 import FinanceSummaryCards from '../components/life_os/finances/FinanceSummaryCards';
 import TransactionTable from '../components/life_os/finances/TransactionTable';
 import OutflowBreakdownCard from '../components/life_os/finances/OutflowBreakdownCard';
-import CategoryTable from '../components/life_os/finances/CategoryTable';
 import TransactionModal from '../components/life_os/finances/TransactionModal';
 import CategoryModal from '../components/life_os/finances/CategoryModal';
 import FinanceTabsHeader, { FinanceTabKey } from '../components/life_os/finances/FinanceTabsHeader';
@@ -37,7 +36,7 @@ export default function ExpenseTracker() {
   // Dynamic pill counters for sub-tabs
   const outstandingDebtCount = useMemo(() => {
     return borrowRepayApi.getCreditorSummaries(borrowRecords).filter(s => s.netBalance > 0).length;
-  }, [borrowRecords, financeMainTab]);
+  }, [borrowRecords]);
 
   const { data: plannedExpenses = [] } = usePlannedExpensesQuery('ALL');
 
@@ -46,7 +45,7 @@ export default function ExpenseTracker() {
   }, [plannedExpenses]);
 
 
-  const [activeTab] = useState<'transactions' | 'categories'>('transactions');
+
   const [selectedYear, setSelectedYear] = useState<number>(() => getCurrentYear());
   const [selectedMonth, setSelectedMonth] = useState<string>(() => getCurrentMonth()); // 'All' or 'Jan'..'Dec'
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -116,15 +115,6 @@ export default function ExpenseTracker() {
     });
   };
 
-  const promptDeleteCategory = (id: string) => {
-    const cat = categories.find(c => (c.id || c._id) === id);
-    setDeleteConfirm({
-      isOpen: true,
-      type: 'category',
-      id,
-      itemName: cat ? cat.name : 'Selected Category'
-    });
-  };
 
   const handleExecuteDelete = () => {
     if (deleteConfirm.type === 'transaction') {
@@ -384,7 +374,7 @@ export default function ExpenseTracker() {
                 </div>
 
                 {/* Filter toolbar if transactions tab, or Add Category if categories tab */}
-                {activeTab === 'transactions' ? (
+                {(
                   <div className="finances-toolbar-actions">
                     <div className="finances-search-box">
                       <Search size={14} className="finances-search-icon" />
@@ -418,19 +408,11 @@ export default function ExpenseTracker() {
                       ))}
                     </select>
                   </div>
-                ) : (
-                  <button
-                    onClick={() => setShowCategoryModal(true)}
-                    className="btn btn-secondary finances-add-cat-btn"
-                  >
-                    <Tag size={14} /> Add Category
-                  </button>
                 )}
               </div>
 
               {/* Table Component with 90vh height and internal scrolling */}
-              {activeTab === 'transactions' ? (
-                <TransactionTable
+              <TransactionTable
                   transactions={filteredTransactions}
                   categories={categories}
                   isLoading={isTxsLoading}
@@ -439,12 +421,6 @@ export default function ExpenseTracker() {
                   onDeleteTransaction={promptDeleteTransaction}
                   onOpenAddModal={handleOpenAddModal}
                 />
-              ) : (
-                <CategoryTable
-                  categories={categories}
-                  onDeleteCategory={promptDeleteCategory}
-                />
-              )}
             </div>
 
             {/* Right Column: Donut Chart & Ranked Categories (Height matches 90vh) */}

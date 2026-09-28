@@ -107,19 +107,17 @@ export const api = {
   },
 
   updateGoal: async (goal: Goal): Promise<Goal> => {
-    // 1. Try POST /goals (Spring Data Mongo repository.save updates existing doc when ID is present)
+    // Spring Boot Mongo controller typically uses PUT /goals/{id} or POST /goals
     try {
-      const { data } = await apiClient.post<Goal>('/goals', goal);
+      const { data } = await apiClient.put<Goal>(`/goals/${goal.id}`, goal);
       if (data) return data;
-    } catch {
-      // 2. Try PUT /goals/{id}
-      try {
-        const { data } = await apiClient.put<Goal>(`/goals/${goal.id}`, goal);
+    } catch (err: any) {
+      if (err?.response?.status === 404 || err?.response?.status === 405) {
+        // Fallback to POST /goals (Spring Data Mongo save updates if ID is present)
+        const { data } = await apiClient.post<Goal>('/goals', goal);
         if (data) return data;
-      } catch {
-        // 3. Try PATCH /goals/{id}
-        const { data } = await apiClient.patch<Goal>(`/goals/${goal.id}`, goal);
-        if (data) return data;
+      } else {
+        throw err;
       }
     }
     return goal;

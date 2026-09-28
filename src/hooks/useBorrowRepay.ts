@@ -4,11 +4,13 @@
  */
 
 import { useState, useMemo, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { borrowRepayApi } from '../services/borrowRepayApi';
 import { parseDateMonthYear, getCurrentMonth, getCurrentYear } from '../utils/dateHelpers';
 import { formatINR } from '../utils/formatters';
 import { BorrowRepayRecord, BorrowRepayType, PlannedRepayment, PlannedRepaymentStatus } from '../interface';
-
+import { useBorrowRepayRecordsQuery, usePlannedRepaymentsQuery } from './useBorrowRepayQueries';
+import { QUERY_KEYS } from './queryKeys';
 
 // Re-export for convenience
 export { formatINR };
@@ -16,6 +18,8 @@ export { formatINR };
 type BorrowRepayStep = 'credit_tracker' | 'planned_repayment';
 
 export function useBorrowRepay() {
+  const queryClient = useQueryClient();
+
   // ── Step Navigation ─────────────────────────────────────────────────────
 
   const [activeStep, setActiveStep] = useState<BorrowRepayStep>('credit_tracker');
@@ -28,31 +32,24 @@ export function useBorrowRepay() {
 
   // ── Credit Tracker State ────────────────────────────────────────────────
 
-  const [records, setRecords] = useState<BorrowRepayRecord[]>([]);
+  const { data: records = [] } = useBorrowRepayRecordsQuery();
   const [typeFilter, setTypeFilter] = useState<'ALL' | BorrowRepayType>('ALL');
   const [selectedCreditorFilter, setSelectedCreditorFilter] = useState<string>('ALL');
 
   // ── Planned Repayments State ────────────────────────────────────────────
 
-  const [plannedRepayments, setPlannedRepayments] = useState<PlannedRepayment[]>([]);
+  const { data: plannedRepayments = [] } = usePlannedRepaymentsQuery();
   const [plannedStatusFilter, setPlannedStatusFilter] = useState<'ALL' | PlannedRepaymentStatus>('ALL');
 
   // ── Data Refresh ────────────────────────────────────────────────────────
 
   const refreshAllData = useCallback(async () => {
-    try {
-      const [rec, plans] = await Promise.all([
-        borrowRepayApi.getRecords(),
-        borrowRepayApi.getPlannedRepayments()
-      ]);
-      setRecords(rec);
-      setPlannedRepayments(plans);
-    } catch (e) {
-      console.warn('refreshAllData error:', e);
-      setRecords([]);
-      setPlannedRepayments([]);
-    }
-  }, []);
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.BORROW_REPAY_RECORDS }),
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PLANNED_REPAYMENTS }),
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PLANNED_REPAY_CREDIT_MATRIX }),
+    ]);
+  }, [queryClient]);
 
   // ── Available Years ─────────────────────────────────────────────────────
 

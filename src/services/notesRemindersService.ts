@@ -103,13 +103,20 @@ export const notesRemindersService = {
 
   /**
    * Pin or unpin a sticky note.
+   * If currentPinned boolean is provided, updates directly without extra GET.
    */
-  async togglePinNote(id: string): Promise<StickyNote> {
+  async togglePinNote(id: string, currentPinned?: boolean): Promise<StickyNote> {
+    if (typeof currentPinned === 'boolean') {
+      return this.updateNote(id, { isPinned: !currentPinned });
+    }
     try {
       const { data } = await apiClient.post<any>(`/sticky_notes/${id}/toggle-pin`);
       if (data) return normalizeStickyNote(data);
-    } catch {
-      // Fallback: fetch note and invert isPinned
+    } catch (err: any) {
+      // Only fallback to GET + PUT if the endpoint doesn't exist on server (404/405)
+      if (err?.response?.status !== 404 && err?.response?.status !== 405) {
+        throw err;
+      }
     }
     const { data: note } = await apiClient.get<any>(`/sticky_notes/${id}`);
     const normalized = normalizeStickyNote(note);
@@ -156,13 +163,24 @@ export const notesRemindersService = {
 
   /**
    * Toggle completion status of a reminder.
+   * If currentCompleted boolean is provided, updates directly without extra GET.
    */
-  async toggleReminder(id: string): Promise<ReminderItem> {
+  async toggleReminder(id: string, currentCompleted?: boolean): Promise<ReminderItem> {
+    if (typeof currentCompleted === 'boolean') {
+      const isCompleted = !currentCompleted;
+      return this.updateReminder(id, {
+        isCompleted,
+        completedAt: isCompleted ? new Date().toISOString() : undefined,
+      });
+    }
     try {
       const { data } = await apiClient.post<any>(`/remainder/${id}/toggle`);
       if (data) return normalizeReminder(data);
-    } catch {
-      // Fallback
+    } catch (err: any) {
+      // Only fallback to GET + PUT if the endpoint doesn't exist on server (404/405)
+      if (err?.response?.status !== 404 && err?.response?.status !== 405) {
+        throw err;
+      }
     }
     const { data: rem } = await apiClient.get<any>(`/remainder/${id}`);
     const normalized = normalizeReminder(rem);
