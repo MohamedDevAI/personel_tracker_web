@@ -1,7 +1,7 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { plannedRepayCreditApi } from '../services/plannedRepayCreditApi';
-import type { PlannedRepayCreditMatrix, PlannedRepayCreditItem } from '../types';
 import { QUERY_KEYS } from './queryKeys';
+import { PlannedRepayCreditItem, PlannedRepayCreditMatrix } from '../interface';
 
 export function usePlannedRepayCreditMatrixQuery(
   options?: Partial<UseQueryOptions<PlannedRepayCreditMatrix, Error>>

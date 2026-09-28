@@ -12,12 +12,10 @@ import {
 import confetti from 'canvas-confetti';
 import { api } from '../services/api';
 import { formatDateLong } from '../utils/formatters';
-import {
-  useExpensesQuery,
-  useHabitsQuery,
-  useGoalsQuery,
-  useTasksQuery,
-} from '../hooks';
+import { useExpensesQuery } from '../hooks/useExpensesQuery';
+import { useHabitsQuery } from '../hooks/useHabitsQuery';
+import { useGoalsQuery } from '../hooks/useGoalsQuery';
+import { useTasksQuery } from '../hooks/useTasksQuery';
 
 export default function Dashboard() {
   const navigate = useNavigate();

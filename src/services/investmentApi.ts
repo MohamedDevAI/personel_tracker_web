@@ -1,4 +1,3 @@
-
 /**
  * Investment Holdings API Service
  *
@@ -6,41 +5,13 @@
  *   Database:    money  (via @Qualifier("moneyTemplate") MongoTemplate)
  *   Collection:  investment_holdings
  *   Base path:   /api/investment-holdings
- *
- * Pattern mirrors borrowRepayApi.ts:
- *   - Try Spring Boot endpoint first (apiClient)
- *   - On any failure, fall back to localStorage cache
- *   - Write-through: successful API responses update the cache
  */
 
 import apiClient from './apiClient';
-import { STORAGE_KEYS } from '../utils/constants';
 import { CategoryStats, InvestmentCategory, InvestmentHolding, PortfolioStats } from '../interface';
 
-
 // ─── Endpoint ─────────────────────────────────────────────────────────────────
-// Spring Boot controller must be mapped to /api/investment-holdings
-// and must use @Qualifier("moneyTemplate") to route to the money database.
 const ENDPOINT = '/investment-holdings';
-
-// ─── LocalStorage Cache Helpers ───────────────────────────────────────────────
-
-const readCache = (): InvestmentHolding[] => {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEYS.INVESTMENT_HOLDINGS);
-    if (stored !== null) {
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed)) return parsed;
-    }
-  } catch (e) {
-    console.warn('[investmentApi] Failed to read localStorage cache:', e);
-  }
-  return [];
-};
-
-const writeCache = (data: InvestmentHolding[]): void => {
-  localStorage.setItem(STORAGE_KEYS.INVESTMENT_HOLDINGS, JSON.stringify(data));
-};
 
 // ─── ID Normalizer ─────────────────────────────────────────────────────────────
 /**
@@ -65,20 +36,17 @@ export const investmentApi = {
   /**
    * GET /api/investment-holdings
    * Fetches all holdings from the money MongoDB database.
-   * Falls back to localStorage cache when Spring Boot is offline.
    */
   getHoldings: async (): Promise<InvestmentHolding[]> => {
     try {
       const { data } = await apiClient.get<any[]>(ENDPOINT, { timeout: 6000 });
-      if (Array.isArray(data) && data.length > 0) {
-        const normalized = data.map(normalizeHolding);
-        writeCache(normalized);
-        return normalized;
+      if (Array.isArray(data)) {
+        return data.map(normalizeHolding);
       }
     } catch (e) {
-      console.warn('[investmentApi] GET failed, using localStorage cache:', e);
+      console.warn('[investmentApi] GET failed:', e);
     }
-    return readCache();
+    return [];
   },
 
   // ── Create ──────────────────────────────────────────────────────────────────
@@ -86,7 +54,6 @@ export const investmentApi = {
   /**
    * POST /api/investment-holdings
    * Creates a new holding in money.investment_holdings.
-   * Falls back to localStorage-only on API failure.
    */
   createHolding: async (
     holding: Omit<InvestmentHolding, 'id' | '_id' | 'createdAt' | 'updatedAt'>
@@ -97,26 +64,8 @@ export const investmentApi = {
       createdAt: new Date().toISOString(),
     };
 
-    try {
-      const { data } = await apiClient.post<any>(ENDPOINT, payload);
-      if (data) {
-        const normalized = normalizeHolding(data);
-        const cached = readCache();
-        writeCache([normalized, ...cached]);
-        return normalized;
-      }
-    } catch (e) {
-      console.warn('[investmentApi] POST failed, saving to localStorage only:', e);
-    }
-
-    // Local-only fallback
-    const local: InvestmentHolding = {
-      ...payload,
-      id: `inv-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-    };
-    const cached = readCache();
-    writeCache([local, ...cached]);
-    return local;
+    const { data } = await apiClient.post<any>(ENDPOINT, payload);
+    return normalizeHolding(data);
   },
 
   // ── Update ──────────────────────────────────────────────────────────────────
@@ -129,32 +78,13 @@ export const investmentApi = {
     id: string,
     updates: Partial<InvestmentHolding>
   ): Promise<InvestmentHolding | null> => {
-    const cached = readCache();
-    const existing = cached.find((h) => h.id === id || h._id === id);
-    if (!existing) return null;
-
-    const merged: InvestmentHolding = {
-      ...existing,
+    const payload = {
       ...updates,
-      id: existing.id,
       updatedAt: new Date().toISOString(),
     };
 
-    try {
-      const { data } = await apiClient.put<any>(`${ENDPOINT}/${id}`, merged);
-      if (data) {
-        const normalized = normalizeHolding(data);
-        const updated = cached.map((h) => (h.id === id ? normalized : h));
-        writeCache(updated);
-        return normalized;
-      }
-    } catch (e) {
-      console.warn('[investmentApi] PUT failed, updating localStorage only:', e);
-    }
-
-    const updated = cached.map((h) => (h.id === id ? merged : h));
-    writeCache(updated);
-    return merged;
+    const { data } = await apiClient.put<any>(`${ENDPOINT}/${id}`, payload);
+    return data ? normalizeHolding(data) : null;
   },
 
   // ── Delete ──────────────────────────────────────────────────────────────────
@@ -164,13 +94,7 @@ export const investmentApi = {
    * Removes holding from money.investment_holdings.
    */
   deleteHolding: async (id: string): Promise<void> => {
-    try {
-      await apiClient.delete(`${ENDPOINT}/${id}`);
-    } catch (e) {
-      console.warn('[investmentApi] DELETE failed, removing from localStorage only:', e);
-    }
-    const filtered = readCache().filter((h) => h.id !== id && h._id !== id);
-    writeCache(filtered);
+    await apiClient.delete(`${ENDPOINT}/${id}`);
   },
 
   // ── Computed Aggregations (client-side, no extra API calls) ─────────────────

@@ -2,8 +2,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import confetti from 'canvas-confetti';
 import { notesRemindersService } from '../services/notesRemindersService';
-import type { ReminderItem } from '../types/notesReminders';
 import { useRemindersQuery } from './useRemindersQuery';
+import { ReminderItem } from '../interface';
 
 /**
  * Synthesizes a crisp, executive two-tone chime via Web Audio API.
@@ -121,7 +121,7 @@ export function useGlobalRemindersNotifier() {
   // Request browser notification permission once on interaction if default
   const requestNotificationPermission = useCallback(() => {
     if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission().catch(() => {});
+      Notification.requestPermission().catch(() => { });
     }
   }, []);
 

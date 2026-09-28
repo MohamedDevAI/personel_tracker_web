@@ -16,15 +16,12 @@ import FinanceTabsHeader, { FinanceTabKey } from '../components/life_os/finances
 import BorrowRepayView from '../components/life_os/finances/BorrowRepayView';
 import PlannedExpensesView from '../components/life_os/finances/planned-expenses/PlannedExpensesView';
 import { borrowRepayApi } from '../services/borrowRepayApi';
-import {
-  useTransactionsQuery,
-  useCategoriesQuery,
-  useBorrowRepayRecordsQuery,
-  usePlannedExpensesQuery,
-} from '../hooks';
+
 import ConfirmDeleteModal from '../components/common/ConfirmDeleteModal';
 import '../components/life_os/finances/finances.css';
 import { TransactionType } from '../interface';
+import { useBorrowRepayRecordsQuery } from '../hooks/useBorrowRepayQueries';
+import { useCategoriesQuery, usePlannedExpensesQuery, useTransactionsQuery } from '../hooks';
 
 export default function ExpenseTracker() {
   const queryClient = useQueryClient();

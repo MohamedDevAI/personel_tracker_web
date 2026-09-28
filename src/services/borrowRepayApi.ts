@@ -1,63 +1,33 @@
 /**
  * Borrow & Repay API service.
  * Handles CRUD operations for borrow/repay records and planned repayments
- * via Spring Boot + MongoDB Atlas, with localStorage cache fallback.
+ * via Spring Boot + MongoDB Atlas.
  */
 
 import apiClient from './apiClient';
-import { STORAGE_KEYS } from '../utils/constants';
 import { BorrowRepayRecord, CreditorSummary, PlannedRepayment } from '../interface';
-
-// ─── Local Storage Cache Helpers ──────────────────────────────────────────────
-
-const readCache = <T>(key: string): T[] => {
-  try {
-    const stored = localStorage.getItem(key);
-    if (stored !== null) {
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed)) return parsed;
-    }
-  } catch (e) {
-    console.warn(`Failed to load ${key}:`, e);
-  }
-  return [];
-};
-
-const writeCache = <T>(key: string, data: T[]): void => {
-  localStorage.setItem(key, JSON.stringify(data));
-};
-
-const getCachedRecords = (): BorrowRepayRecord[] =>
-  readCache<BorrowRepayRecord>(STORAGE_KEYS.BORROW_REPAY);
-
-const getCachedPlans = (): PlannedRepayment[] =>
-  readCache<PlannedRepayment>(STORAGE_KEYS.PLANNED_REPAYMENTS);
 
 // ─── API Methods ──────────────────────────────────────────────────────────────
 
 export const borrowRepayApi = {
   // ── Borrow/Repay Records ──────────────────────────────────────────────────
 
-  /** Fetch all borrow/repay records from MongoDB. Falls back to localStorage cache. */
+  /** Fetch all borrow/repay records from MongoDB. */
   getRecords: async (): Promise<BorrowRepayRecord[]> => {
     try {
       const { data } = await apiClient.get<BorrowRepayRecord[]>('/borrow-repay', { timeout: 6000 });
       if (Array.isArray(data)) {
-        writeCache(STORAGE_KEYS.BORROW_REPAY, data);
         return data;
       }
     } catch (e) {
-      console.warn('Unable to fetch borrow/repay records from API, using local cache:', e);
+      console.warn('Unable to fetch borrow/repay records from API:', e);
     }
-    return getCachedRecords();
+    return [];
   },
 
-  /** Synchronous getter from localStorage cache (for derived computations) */
-  getRecordsSync: (): BorrowRepayRecord[] => {
-    return getCachedRecords();
-  },
 
-  /** Create a new borrow/repay record in MongoDB, with local cache fallback. */
+
+  /** Create a new borrow/repay record in MongoDB. */
   createRecord: async (record: Omit<BorrowRepayRecord, 'id' | 'createdAt'>): Promise<BorrowRepayRecord> => {
     const payload = {
       ...record,
@@ -66,71 +36,30 @@ export const borrowRepayApi = {
       createdAt: new Date().toISOString(),
     };
 
-    try {
-      const { data } = await apiClient.post<BorrowRepayRecord>('/borrow-repay', payload);
-      if (data) {
-        const cached = getCachedRecords();
-        writeCache(STORAGE_KEYS.BORROW_REPAY, [data, ...cached]);
-        return data;
-      }
-    } catch (e) {
-      console.warn('API create failed, saving to local cache:', e);
-    }
-
-    // Local fallback
-    const localRecord: BorrowRepayRecord = {
-      ...payload,
-      id: `br-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
-    };
-    const cached = getCachedRecords();
-    writeCache(STORAGE_KEYS.BORROW_REPAY, [localRecord, ...cached]);
-    return localRecord;
+    const { data } = await apiClient.post<BorrowRepayRecord>('/borrow-repay', payload);
+    return data;
   },
 
   /** Update an existing borrow/repay record in MongoDB. */
   updateRecord: async (id: string, updates: Partial<BorrowRepayRecord>): Promise<BorrowRepayRecord | null> => {
-    const cached = getCachedRecords();
-    const existing = cached.find(r => r.id === id);
-    if (!existing) return null;
-
     const merged = {
-      ...existing,
       ...updates,
-      amount: updates.amount !== undefined ? Math.abs(Number(updates.amount)) : existing.amount,
+      ...(updates.amount !== undefined ? { amount: Math.abs(Number(updates.amount)) } : {}),
     };
 
-    try {
-      const { data } = await apiClient.put<BorrowRepayRecord>(`/borrow-repay/${id}`, merged);
-      if (data) {
-        const updatedList = cached.map(r => (r.id === id ? data : r));
-        writeCache(STORAGE_KEYS.BORROW_REPAY, updatedList);
-        return data;
-      }
-    } catch (e) {
-      console.warn('API update failed, updating local cache:', e);
-    }
-
-    // Local fallback
-    const updatedList = cached.map(r => (r.id === id ? merged : r));
-    writeCache(STORAGE_KEYS.BORROW_REPAY, updatedList);
-    return merged;
+    const { data } = await apiClient.put<BorrowRepayRecord>(`/borrow-repay/${id}`, merged);
+    return data || null;
   },
 
-  /** Delete a borrow/repay record from MongoDB and local cache. */
+  /** Delete a borrow/repay record from MongoDB. */
   deleteRecord: async (id: string): Promise<void> => {
-    try {
-      await apiClient.delete(`/borrow-repay/${id}`);
-    } catch (e) {
-      console.warn('API delete failed:', e);
-    }
-    const filtered = getCachedRecords().filter(r => r.id !== id);
-    writeCache(STORAGE_KEYS.BORROW_REPAY, filtered);
+    await apiClient.delete(`/borrow-repay/${id}`);
   },
 
-  // ── Creditor Summaries (computed from cached data or passed records) ──────
+  // ── Creditor Summaries (computed from passed records) ──────────────────────
 
-  getCreditorSummaries: (records?: BorrowRepayRecord[]): CreditorSummary[] => {
-    const list = Array.isArray(records) ? records : borrowRepayApi.getRecordsSync();
+  getCreditorSummaries: (records: BorrowRepayRecord[] = []): CreditorSummary[] => {
+    const list = Array.isArray(records) ? records : [];
     if (!Array.isArray(list)) return [];
 
     const creditorMap: Record<string, {
@@ -188,8 +117,8 @@ export const borrowRepayApi = {
 
   // ── Overall Stats (computed from records) ─────────────────────────────────
 
-  getOverallStats: (records?: BorrowRepayRecord[]) => {
-    const list = Array.isArray(records) ? records : borrowRepayApi.getRecordsSync();
+  getOverallStats: (records: BorrowRepayRecord[] = []) => {
+    const list = Array.isArray(records) ? records : [];
     if (!Array.isArray(list)) {
       return {
         totalBorrowed: 0,
@@ -242,26 +171,21 @@ export const borrowRepayApi = {
 
   // ── Planned Repayments ────────────────────────────────────────────────────
 
-  /** Fetch all planned repayments from MongoDB. Falls back to localStorage cache. */
+  /** Fetch all planned repayments from MongoDB. */
   getPlannedRepayments: async (): Promise<PlannedRepayment[]> => {
     try {
       const { data } = await apiClient.get<PlannedRepayment[]>('/planned-repayments', { timeout: 6000 });
       if (Array.isArray(data)) {
-        writeCache(STORAGE_KEYS.PLANNED_REPAYMENTS, data);
         return data;
       }
     } catch (e) {
-      console.warn('Unable to fetch planned repayments from API, using local cache:', e);
+      console.warn('Unable to fetch planned repayments from API:', e);
     }
-    return getCachedPlans();
+    return [];
   },
 
-  /** Synchronous getter from localStorage cache */
-  getPlannedRepaymentsSync: (): PlannedRepayment[] => {
-    return getCachedPlans();
-  },
 
-  /** Create a planned repayment in MongoDB with local fallback. */
+  /** Create a planned repayment in MongoDB. */
   createPlannedRepayment: async (plan: Omit<PlannedRepayment, 'id' | 'createdAt'>): Promise<PlannedRepayment> => {
     const payload = {
       ...plan,
@@ -269,79 +193,39 @@ export const borrowRepayApi = {
       createdAt: new Date().toISOString(),
     };
 
-    try {
-      const { data } = await apiClient.post<PlannedRepayment>('/planned-repayments', payload);
-      if (data) {
-        const cached = getCachedPlans();
-        writeCache(STORAGE_KEYS.PLANNED_REPAYMENTS, [data, ...cached]);
-        return data;
-      }
-    } catch (e) {
-      console.warn('API create failed, saving to local cache:', e);
-    }
-
-    // Local fallback
-    const localPlan: PlannedRepayment = {
-      ...payload,
-      id: `pr-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
-    };
-    const cached = getCachedPlans();
-    writeCache(STORAGE_KEYS.PLANNED_REPAYMENTS, [localPlan, ...cached]);
-    return localPlan;
+    const { data } = await apiClient.post<PlannedRepayment>('/planned-repayments', payload);
+    return data;
   },
 
   /** Update a planned repayment in MongoDB. */
   updatePlannedRepayment: async (id: string, updates: Partial<PlannedRepayment>): Promise<PlannedRepayment | null> => {
-    const cached = getCachedPlans();
-    const existing = cached.find(p => p.id === id);
-    if (!existing) return null;
-
-    const merged: PlannedRepayment = {
-      ...existing,
+    const payload = {
       ...updates,
-      plannedAmount: updates.plannedAmount !== undefined
-        ? Math.abs(Number(updates.plannedAmount))
-        : existing.plannedAmount,
+      ...(updates.plannedAmount !== undefined ? { plannedAmount: Math.abs(Number(updates.plannedAmount)) } : {}),
     };
 
-    try {
-      const { data } = await apiClient.put<PlannedRepayment>(`/planned-repayments/${id}`, merged);
-      if (data) {
-        const updatedList = cached.map(p => (p.id === id ? data : p));
-        writeCache(STORAGE_KEYS.PLANNED_REPAYMENTS, updatedList);
-        return data;
-      }
-    } catch (e) {
-      console.warn('API update failed, updating local cache:', e);
-    }
-
-    // Local fallback
-    const updatedList = cached.map(p => (p.id === id ? merged : p));
-    writeCache(STORAGE_KEYS.PLANNED_REPAYMENTS, updatedList);
-    return merged;
+    const { data } = await apiClient.put<PlannedRepayment>(`/planned-repayments/${id}`, payload);
+    return data || null;
   },
 
-  /** Delete a planned repayment from MongoDB and local cache. */
+  /** Delete a planned repayment from MongoDB. */
   deletePlannedRepayment: async (id: string): Promise<void> => {
-    try {
-      await apiClient.delete(`/planned-repayments/${id}`);
-    } catch (e) {
-      console.warn('API delete failed:', e);
-    }
-    const filtered = getCachedPlans().filter(p => p.id !== id);
-    writeCache(STORAGE_KEYS.PLANNED_REPAYMENTS, filtered);
+    await apiClient.delete(`/planned-repayments/${id}`);
   },
 
   /**
    * Mark a planned repayment as paid and create a corresponding actual repayment record.
    * Both operations hit the API (update planned + create record).
    */
-  markPlannedRepaymentAsPaid: async (id: string) => {
-    const cached = getCachedPlans();
-    const plan = cached.find(p => p.id === id);
+  markPlannedRepaymentAsPaid: async (id: string, planData?: PlannedRepayment) => {
+    let plan = planData;
+    if (!plan) {
+      const all = await borrowRepayApi.getPlannedRepayments();
+      plan = all.find(p => p.id === id);
+    }
     if (!plan) return null;
 
-    await borrowRepayApi.updatePlannedRepayment(id, { status: 'Paid' });
+    const updatedPlan = await borrowRepayApi.updatePlannedRepayment(id, { status: 'Paid' });
 
     const record = await borrowRepayApi.createRecord({
       creditorName: plan.creditorName,
@@ -352,6 +236,6 @@ export const borrowRepayApi = {
       notes: `Planned Repayment: ${plan.notes || 'Settled'}`,
     });
 
-    return { plan, record };
+    return { plan: updatedPlan || plan, record };
   },
 };

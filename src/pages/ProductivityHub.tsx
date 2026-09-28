@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useTasksQuery, useGoalsQuery, useHabitsQuery } from '../hooks';
+import { useTasksQuery } from '../hooks/useTasksQuery';
+import { useGoalsQuery } from '../hooks/useGoalsQuery';
+import { useHabitsQuery } from '../hooks/useHabitsQuery';
 import ProductivityTabsHeader, { ProductivityTabKey } from '../components/life_os/productivity/ProductivityTabsHeader';
 import Tasks from './Tasks';
 import Goals from './Goals';

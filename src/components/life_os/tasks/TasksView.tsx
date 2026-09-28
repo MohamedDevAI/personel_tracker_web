@@ -5,14 +5,14 @@ import confetti from 'canvas-confetti';
 import { api } from '../../../services/api';
 import { useDeleteConfirmation } from '../../../hooks/useDeleteConfirmation';
 import ConfirmDeleteModal from '../../common/ConfirmDeleteModal';
-import type { TaskPriority } from '../../../types';
+import { TaskPriority } from '../../../interface';
 import TasksKpiCards from './TasksKpiCards';
 import TasksToolbar, { TaskStatusFilter, TaskViewMode } from './TasksToolbar';
 import TasksKanbanBoard from './TasksKanbanBoard';
 import TaskMatrixSheet from './TaskMatrixSheet';
 import TaskCard from './TaskCard';
 import TaskModal from './TaskModal';
-import { useTasksQuery } from '../../../hooks';
+import { useTasksQuery } from '../../../hooks/useTasksQuery';
 import './tasks.css';
 
 export default function TasksView() {

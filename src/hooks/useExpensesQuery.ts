@@ -1,7 +1,7 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { api } from '../services/api';
-import type { Expense } from '../types';
 import { QUERY_KEYS } from './queryKeys';
+import { Expense } from '../interface';
 
 export function useExpensesQuery(options?: Partial<UseQueryOptions<Expense[], Error>>) {
   return useQuery<Expense[], Error>({

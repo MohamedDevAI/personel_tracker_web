@@ -11,12 +11,10 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { investmentApi } from '../services/investmentApi';
 import { tradingService } from '../services/tradingService';
-import {
-  useInvestmentHoldingsQuery,
-  useExpensesQuery,
-  useBorrowRepayRecordsQuery,
-  useTradesQuery,
-} from '../hooks';
+import { useInvestmentHoldingsQuery } from '../hooks/useInvestmentHoldingsQuery';
+import { useExpensesQuery } from '../hooks/useExpensesQuery';
+import { useBorrowRepayRecordsQuery } from '../hooks/useBorrowRepayQueries';
+import { useTradesQuery } from '../hooks/useTradesQuery';
 import {
   computeFinancialHealth,
   calculateFireNumbers,

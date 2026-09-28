@@ -4,8 +4,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { checkBackendHealth } from '../services/api';
-import type { BackendHealth } from '../types';
 import { QUERY_KEYS } from './queryKeys';
+import { BackendHealth } from '../interface';
 
 export function useBackendHealth() {
   const { data: backendStatus = { connected: false, mode: 'local' as const } } =

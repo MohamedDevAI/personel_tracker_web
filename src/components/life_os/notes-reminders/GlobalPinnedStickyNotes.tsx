@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Pin, ChevronDown, ChevronUp, X, Plus, Edit3, Check } from 'lucide-react';
 import { notesRemindersService } from '../../../services/notesRemindersService';
-import type { StickyNote, NoteColor } from '../../../types/notesReminders';
-import { useStickyNotesQuery } from '../../../hooks';
+import { StickyNote, NoteColor } from '../../../interface';
+import { useStickyNotesQuery } from '../../../hooks/useStickyNotesQuery';
 
 const COLOR_LIST: NoteColor[] = ['yellow', 'green', 'blue', 'purple', 'pink', 'orange', 'slate'];
 

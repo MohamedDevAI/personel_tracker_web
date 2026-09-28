@@ -7,12 +7,8 @@ import { useState, useMemo, useCallback } from 'react';
 import { borrowRepayApi } from '../services/borrowRepayApi';
 import { parseDateMonthYear, getCurrentMonth, getCurrentYear } from '../utils/dateHelpers';
 import { formatINR } from '../utils/formatters';
-import type {
-  BorrowRepayRecord,
-  BorrowRepayType,
-  PlannedRepayment,
-  PlannedRepaymentStatus,
-} from '../types';
+import { BorrowRepayRecord, BorrowRepayType, PlannedRepayment, PlannedRepaymentStatus } from '../interface';
+
 
 // Re-export for convenience
 export { formatINR };
@@ -32,15 +28,13 @@ export function useBorrowRepay() {
 
   // ── Credit Tracker State ────────────────────────────────────────────────
 
-  const [records, setRecords] = useState<BorrowRepayRecord[]>(() => borrowRepayApi.getRecordsSync());
+  const [records, setRecords] = useState<BorrowRepayRecord[]>([]);
   const [typeFilter, setTypeFilter] = useState<'ALL' | BorrowRepayType>('ALL');
   const [selectedCreditorFilter, setSelectedCreditorFilter] = useState<string>('ALL');
 
   // ── Planned Repayments State ────────────────────────────────────────────
 
-  const [plannedRepayments, setPlannedRepayments] = useState<PlannedRepayment[]>(
-    () => borrowRepayApi.getPlannedRepaymentsSync()
-  );
+  const [plannedRepayments, setPlannedRepayments] = useState<PlannedRepayment[]>([]);
   const [plannedStatusFilter, setPlannedStatusFilter] = useState<'ALL' | PlannedRepaymentStatus>('ALL');
 
   // ── Data Refresh ────────────────────────────────────────────────────────
@@ -55,8 +49,8 @@ export function useBorrowRepay() {
       setPlannedRepayments(plans);
     } catch (e) {
       console.warn('refreshAllData error:', e);
-      setRecords(borrowRepayApi.getRecordsSync());
-      setPlannedRepayments(borrowRepayApi.getPlannedRepaymentsSync());
+      setRecords([]);
+      setPlannedRepayments([]);
     }
   }, []);
 

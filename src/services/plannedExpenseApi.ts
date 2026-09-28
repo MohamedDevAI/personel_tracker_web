@@ -1,7 +1,6 @@
 /**
  * Planned Expenses API service.
- * Handles CRUD for planned monthly expenses (SAR) via Spring Boot + MongoDB Atlas,
- * with localStorage cache for offline availability.
+ * Handles CRUD for planned monthly expenses (SAR) via Spring Boot + MongoDB Atlas.
  */
 
 import { PlannedExpense } from '../interface';

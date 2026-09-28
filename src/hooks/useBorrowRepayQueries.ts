@@ -1,7 +1,7 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { borrowRepayApi } from '../services/borrowRepayApi';
-import type { BorrowRepayRecord, PlannedRepayment } from '../types';
 import { QUERY_KEYS } from './queryKeys';
+import { BorrowRepayRecord, PlannedRepayment } from '../interface';
 
 export function useBorrowRepayRecordsQuery(
   options?: Partial<UseQueryOptions<BorrowRepayRecord[], Error>>

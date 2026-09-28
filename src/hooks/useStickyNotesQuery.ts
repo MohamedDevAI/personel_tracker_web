@@ -1,7 +1,7 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { notesRemindersService } from '../services/notesRemindersService';
-import type { StickyNote } from '../types/notesReminders';
 import { QUERY_KEYS } from './queryKeys';
+import { StickyNote } from '../interface';
 
 export function useStickyNotesQuery(options?: Partial<UseQueryOptions<StickyNote[], Error>>) {
   return useQuery<StickyNote[], Error>({

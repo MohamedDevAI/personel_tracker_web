@@ -1,7 +1,7 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { plannedExpenseApi } from '../services/plannedExpenseApi';
-import type { PlannedExpense } from '../types';
 import { QUERY_KEYS } from './queryKeys';
+import { PlannedExpense } from '../interface';
 
 export function usePlannedExpensesQuery(
   month?: string,

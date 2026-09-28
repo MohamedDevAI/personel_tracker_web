@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import confetti from 'canvas-confetti';
 import { Pin, StickyNote as StickyNoteIcon, Bell, Calendar, Plus } from 'lucide-react';
 import { notesRemindersService } from '../../../services/notesRemindersService';
-import type { StickyNote, ReminderItem, NoteColor } from '../../../types/notesReminders';
+import { StickyNote, ReminderItem, NoteColor } from '../../../interface';
 import StickyNotesKpiBanner from './StickyNotesKpiBanner';
 import StickyNotesToolbar, { NotesViewMode } from './StickyNotesToolbar';
 import StickyNoteCard from './StickyNoteCard';
@@ -11,7 +11,8 @@ import ReminderItemRow from './ReminderItemRow';
 import StickyNoteModal from './StickyNoteModal';
 import ReminderModal from './ReminderModal';
 import ConfirmDeleteModal from '../../common/ConfirmDeleteModal';
-import { useStickyNotesQuery, useRemindersQuery } from '../../../hooks';
+import { useStickyNotesQuery } from '../../../hooks/useStickyNotesQuery';
+import { useRemindersQuery } from '../../../hooks/useRemindersQuery';
 import './notes-reminders.css';
 
 export default function StickyNotesRemindersView() {

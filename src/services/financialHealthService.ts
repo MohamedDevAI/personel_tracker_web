@@ -4,7 +4,7 @@
  */
 
 import { InvestmentHolding } from '../interface';
-import { STORAGE_KEYS } from '../utils/constants';
+
 
 
 export interface HealthPillar {
@@ -60,36 +60,26 @@ const DEFAULT_FIRE_SETTINGS: FireSettings = {
   expectedAnnualReturn: 11, // 11% CAGR
 };
 
-// ─── LocalStorage Helpers ───────────────────────────────────────────────────
+// ─── In-Memory Store Helpers ──────────────────────────────────────────────────
+
+let inMemoryHealthAnswers: Record<string, boolean> = {};
+let inMemoryFireSettings: FireSettings = { ...DEFAULT_FIRE_SETTINGS };
 
 export const getStoredHealthAnswers = (): Record<string, boolean> => {
-  try {
-    const data = localStorage.getItem(STORAGE_KEYS.FINANCIAL_HEALTH_ANSWERS);
-    return data ? JSON.parse(data) : {};
-  } catch (e) {
-    return {};
-  }
+  return { ...inMemoryHealthAnswers };
 };
 
 export const saveHealthAnswer = (pillarId: string, fulfilled: boolean): void => {
-  const current = getStoredHealthAnswers();
-  current[pillarId] = fulfilled;
-  localStorage.setItem(STORAGE_KEYS.FINANCIAL_HEALTH_ANSWERS, JSON.stringify(current));
+  inMemoryHealthAnswers[pillarId] = fulfilled;
 };
 
 export const getStoredFireSettings = (): FireSettings => {
-  try {
-    const data = localStorage.getItem(STORAGE_KEYS.FIRE_SETTINGS);
-    return data ? { ...DEFAULT_FIRE_SETTINGS, ...JSON.parse(data) } : DEFAULT_FIRE_SETTINGS;
-  } catch (e) {
-    return DEFAULT_FIRE_SETTINGS;
-  }
+  return { ...inMemoryFireSettings };
 };
 
 export const saveFireSettings = (settings: Partial<FireSettings>): FireSettings => {
-  const merged = { ...getStoredFireSettings(), ...settings };
-  localStorage.setItem(STORAGE_KEYS.FIRE_SETTINGS, JSON.stringify(merged));
-  return merged;
+  inMemoryFireSettings = { ...inMemoryFireSettings, ...settings };
+  return { ...inMemoryFireSettings };
 };
 
 // ─── Financial Health Score Computation ─────────────────────────────────────
