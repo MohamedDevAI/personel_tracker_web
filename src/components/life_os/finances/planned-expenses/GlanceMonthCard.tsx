@@ -137,8 +137,6 @@ export default function GlanceMonthCard({
                 !isExplicitPending &&
                 !isPartial &&
                 ((paidVal >= plannedVal && plannedVal > 0) || (isExplicitFulfilled && !hasExplicitPaid));
-              const isOverpaid = paidVal > plannedVal;
-              const extraVal = Math.max(0, paidVal - plannedVal);
               const remainingVal = Math.max(0, plannedVal - paidVal);
 
               const handleFulfillClick = (e: React.MouseEvent) => {
