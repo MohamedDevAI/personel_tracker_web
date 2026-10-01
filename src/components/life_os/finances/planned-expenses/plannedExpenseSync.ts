@@ -53,13 +53,22 @@ export const findLinkedTransaction = (
   );
   if (byTag) return byTag;
 
-  // 3. Fallback: match by title, month & Debit type (for transactions created before tag was stored in description)
+  // 3. Fallback: match by title, month & Debit type (for legacy transactions created before tag was stored in description)
+  // CRITICAL: NEVER match a transaction that already belongs to another planned expense!
   if (typeof plan === 'object' && plan.title) {
     const normTitle = plan.title.trim().toLowerCase();
     const byTitleAndMonth = transactions.find((t) => {
-      const desc = (t.description || '').toLowerCase();
-      const note = (t.note || '').toLowerCase();
-      const matchesTitle = desc === normTitle || note === normTitle || desc.startsWith(normTitle);
+      // If transaction is already explicitly linked to another plan, never steal it!
+      const hasOtherPeProperty = t.plannedExpenseId && t.plannedExpenseId !== planId;
+      const hasOtherPeTag =
+        (t.description && t.description.includes('[PE-') && !t.description.includes(tag)) ||
+        (t.note && t.note.includes('[PE-') && !t.note.includes(tag));
+      if (hasOtherPeProperty || hasOtherPeTag) return false;
+
+      const desc = (t.description || '').trim().toLowerCase();
+      const note = (t.note || '').trim().toLowerCase();
+      // Must be an exact title match (not startsWith, which falsely matches other plans like "Tamara [PE-other]")
+      const matchesTitle = desc === normTitle || note === normTitle;
       const txMonth = t.month || (t.date ? MONTH_NAMES[new Date(t.date).getMonth()] : undefined);
       const matchesMonth = !plan.month || (txMonth &&
         txMonth.toLowerCase().slice(0, 3) === plan.month.toLowerCase().slice(0, 3));

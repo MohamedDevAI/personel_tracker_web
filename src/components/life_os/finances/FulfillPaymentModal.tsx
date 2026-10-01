@@ -105,7 +105,7 @@ export default function FulfillPaymentModal({
       finalFulfilled = false;
     } else {
       finalPaid = Math.max(0, parseFloat(paidAmountStr) || 0);
-      finalFulfilled = isFulfilled || (finalPaid > 0 && finalPaid >= planned);
+      finalFulfilled = finalPaid >= planned && planned > 0;
     }
 
     onSave(plan.id, finalFulfilled, finalPaid);

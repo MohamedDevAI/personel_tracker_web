@@ -96,18 +96,22 @@ export default function PlannedExpensesTable({
           ) : (
             plans.map(plan => {
               const plannedVal = Number(plan.plannedAmount) || 0;
+              const hasExplicitPaid = plan.paidAmount !== undefined && plan.paidAmount !== null;
+              const isExplicitPending = plan.status === 'Pending' || plan.status === 'Planned';
               const isExplicitFulfilled =
-                plan.isFulfilled || plan.status === 'Fulfilled';
-              const paidVal =
-                plan.paidAmount !== undefined && plan.paidAmount !== null
-                  ? plan.paidAmount
-                  : isExplicitFulfilled
+                !isExplicitPending && (Boolean(plan.isFulfilled) || plan.status === 'Fulfilled');
+
+              const paidVal = hasExplicitPaid
+                ? plan.paidAmount!
+                : isExplicitFulfilled
                   ? plannedVal
                   : 0;
 
+              const isPartial = paidVal > 0 && plannedVal > 0 && paidVal < plannedVal;
               const isItemFulfilled =
-                isExplicitFulfilled || (plannedVal > 0 && paidVal >= plannedVal);
-              const isPartial = !isItemFulfilled && paidVal > 0 && paidVal < plannedVal;
+                !isExplicitPending &&
+                !isPartial &&
+                ((paidVal >= plannedVal && plannedVal > 0) || (isExplicitFulfilled && !hasExplicitPaid));
               const isOverpaid = paidVal > plannedVal;
               const extraAmt = Math.max(0, paidVal - plannedVal);
               const remainingVal = Math.max(0, plannedVal - paidVal);

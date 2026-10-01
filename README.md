@@ -6,7 +6,7 @@ A productivity and finance management web application built with React, TypeScri
 
 - **Life OS** — Tasks (Kanban), Habits (streak tracker), Goals, and an Overview dashboard.
 - **Money OS** — Transactions ledger, borrow-repay tracker, planned expenses, and investment portfolio.
-- Dual-mode persistence: Spring Boot + MongoDB Atlas when available, localStorage fallback when offline.
+- Direct Server API persistence: Spring Boot + MongoDB Atlas backend REST APIs with React Query.
 - Light / dark theme with full CSS variable theming.
 
 ## Project Structure
@@ -22,7 +22,7 @@ src/
 │       └── tasks/       # Tasks feature
 ├── hooks/               # Custom React hooks (useTheme, useBackendHealth, etc.)
 ├── pages/               # Top-level page components (LifeOSHub, MoneyHub)
-├── services/            # API layer (axios + localStorage fallback)
+├── services/            # API layer (Axios client connected to Spring Boot REST endpoints)
 ├── types/               # Shared TypeScript interfaces and types
 ├── utils/               # Pure helper functions (formatters, date helpers, constants)
 └── __tests__/           # Vitest + Testing Library test files

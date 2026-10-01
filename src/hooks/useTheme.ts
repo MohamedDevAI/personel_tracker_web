@@ -1,18 +1,14 @@
 /**
- * Hook for managing theme (dark/light) with localStorage persistence.
+ * Hook for managing theme (dark/light) in-app.
  */
 
 import { useState, useEffect } from 'react';
-import { STORAGE_KEYS } from '../utils/constants';
 
 export function useTheme() {
-  const [theme, setTheme] = useState<string>(() => {
-    return localStorage.getItem(STORAGE_KEYS.THEME) || 'dark';
-  });
+  const [theme, setTheme] = useState<string>('dark');
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem(STORAGE_KEYS.THEME, theme);
   }, [theme]);
 
   const toggleTheme = () => {
@@ -21,3 +17,4 @@ export function useTheme() {
 
   return { theme, toggleTheme };
 }
+

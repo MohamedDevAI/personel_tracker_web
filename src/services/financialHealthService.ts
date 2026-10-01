@@ -60,49 +60,25 @@ const DEFAULT_FIRE_SETTINGS: FireSettings = {
   expectedAnnualReturn: 11, // 11% CAGR
 };
 
-// ─── LocalStorage-Backed Store Helpers ────────────────────────────────────────
-
-const HEALTH_ANSWERS_KEY = 'pt_financial_health_answers';
-const FIRE_SETTINGS_KEY = 'pt_fire_settings';
-
-function loadHealthAnswers(): Record<string, boolean> {
-  try {
-    const stored = localStorage.getItem(HEALTH_ANSWERS_KEY);
-    if (stored) return JSON.parse(stored);
-  } catch { /* ignore parse errors */ }
-  return {};
-}
-
-function loadFireSettings(): FireSettings {
-  try {
-    const stored = localStorage.getItem(FIRE_SETTINGS_KEY);
-    if (stored) return { ...DEFAULT_FIRE_SETTINGS, ...JSON.parse(stored) };
-  } catch { /* ignore parse errors */ }
-  return { ...DEFAULT_FIRE_SETTINGS };
-}
+// ─── In-Memory Store Helpers ──────────────────────────────────────────────────
+let inMemoryHealthAnswers: Record<string, boolean> = {};
+let inMemoryFireSettings: FireSettings = { ...DEFAULT_FIRE_SETTINGS };
 
 export const getStoredHealthAnswers = (): Record<string, boolean> => {
-  return { ...loadHealthAnswers() };
+  return { ...inMemoryHealthAnswers };
 };
 
 export const saveHealthAnswer = (pillarId: string, fulfilled: boolean): void => {
-  const answers = loadHealthAnswers();
-  answers[pillarId] = fulfilled;
-  try {
-    localStorage.setItem(HEALTH_ANSWERS_KEY, JSON.stringify(answers));
-  } catch { /* localStorage full or unavailable */ }
+  inMemoryHealthAnswers[pillarId] = fulfilled;
 };
 
 export const getStoredFireSettings = (): FireSettings => {
-  return { ...loadFireSettings() };
+  return { ...inMemoryFireSettings };
 };
 
 export const saveFireSettings = (settings: Partial<FireSettings>): FireSettings => {
-  const merged = { ...loadFireSettings(), ...settings };
-  try {
-    localStorage.setItem(FIRE_SETTINGS_KEY, JSON.stringify(merged));
-  } catch { /* localStorage full or unavailable */ }
-  return { ...merged };
+  inMemoryFireSettings = { ...inMemoryFireSettings, ...settings };
+  return { ...inMemoryFireSettings };
 };
 
 // ─── Financial Health Score Computation ─────────────────────────────────────
