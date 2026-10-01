@@ -3,26 +3,10 @@
  * Connects directly to Spring Boot + MongoDB Atlas collections:
  *   - Collection `sticky_notes` -> Endpoint `/api/sticky_notes`
  *   - Collection `remainder`    -> Endpoint `/api/remainder`
- *
- * Real actual data from MongoDB with localized offline cache fallback.
- * Zero dummy seed data.
  */
 
 import apiClient from './apiClient';
-import { STORAGE_KEYS } from '../utils/constants';
-import type { StickyNote, ReminderItem, NoteColor } from '../types/notesReminders';
-
-// Clean up any legacy dummy cache keys from initial UI preview
-if (typeof window !== 'undefined') {
-  try {
-    localStorage.removeItem('pt_sticky_notes_data');
-    localStorage.removeItem('pt_reminders_data');
-  } catch {
-    // Ignore in non-browser environments
-  }
-}
-
-// ─── Document Normalizers ────────────────────────────────────────────────────
+import { NoteColor, ReminderItem, StickyNote } from '../interface';
 
 export function normalizeStickyNote(doc: any): StickyNote {
   const id = String(doc.id || doc._id || '');
@@ -55,52 +39,6 @@ export function normalizeReminder(doc: any): ReminderItem {
   };
 }
 
-// ─── Local Cache Helpers ──────────────────────────────────────────────────────
-
-function getNotesCache(): StickyNote[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.STICKY_NOTES);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.map(normalizeStickyNote) : [];
-  } catch (e) {
-    console.warn('Failed to parse sticky_notes cache:', e);
-    return [];
-  }
-}
-
-function setNotesCache(notes: StickyNote[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEYS.STICKY_NOTES, JSON.stringify(notes));
-  } catch (e) {
-    console.warn('Failed to save sticky_notes cache:', e);
-  }
-}
-
-function getRemindersCache(): ReminderItem[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.REMAINDER);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.map(normalizeReminder) : [];
-  } catch (e) {
-    console.warn('Failed to parse remainder cache:', e);
-    return [];
-  }
-}
-
-function setRemindersCache(reminders: ReminderItem[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEYS.REMAINDER, JSON.stringify(reminders));
-  } catch (e) {
-    console.warn('Failed to save remainder cache:', e);
-  }
-}
-
-const generateId = (prefix: string): string => {
-  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-};
-
 // ─── API Service (Real Endpoints /sticky_notes & /remainder) ───────────────────
 
 export const notesRemindersService = {
@@ -116,34 +54,12 @@ export const notesRemindersService = {
     try {
       const response = await apiClient.get<any[]>('/sticky_notes');
       if (Array.isArray(response.data)) {
-        const normalized = response.data.map(normalizeStickyNote);
-
-        // Auto-sync any notes created while backend was offline/restarting
-        const localCache = getNotesCache();
-        const pendingSync = localCache.filter(
-          (loc) => loc.id.startsWith('note-') && !normalized.some((n) => n.title === loc.title && n.content === loc.content)
-        );
-        if (pendingSync.length > 0) {
-          for (const item of pendingSync) {
-            try {
-              const { id, ...data } = item;
-              const res = await apiClient.post<any>('/sticky_notes', data);
-              if (res.data) {
-                normalized.push(normalizeStickyNote(res.data));
-              }
-            } catch {
-              // Ignore failure for individual sync
-            }
-          }
-        }
-
-        setNotesCache(normalized);
-        return normalized;
+        return response.data.map(normalizeStickyNote);
       }
     } catch (err) {
-      console.warn('[API] Could not fetch from /sticky_notes, using local storage cache:', err);
+      console.warn('[API] Could not fetch from /sticky_notes:', err);
     }
-    return getNotesCache();
+    return [];
   },
 
   /**
@@ -159,26 +75,8 @@ export const notesRemindersService = {
       updatedAt: new Date().toISOString(),
     };
 
-    try {
-      const response = await apiClient.post<any>('/sticky_notes', payload);
-      if (response.data) {
-        const created = normalizeStickyNote(response.data);
-        const cache = getNotesCache().filter((n) => n.id !== created.id);
-        setNotesCache([created, ...cache]);
-        return created;
-      }
-    } catch (err) {
-      console.warn('[API] Failed to POST to /sticky_notes, storing locally:', err);
-    }
-
-    // Local fallback if server offline
-    const localNote: StickyNote = {
-      ...payload,
-      id: generateId('note'),
-    };
-    const cache = getNotesCache();
-    setNotesCache([localNote, ...cache]);
-    return localNote;
+    const response = await apiClient.post<any>('/sticky_notes', payload);
+    return normalizeStickyNote(response.data);
   },
 
   /**
@@ -191,31 +89,8 @@ export const notesRemindersService = {
       updatedAt: new Date().toISOString(),
     };
 
-    try {
-      const response = await apiClient.put<any>(`/sticky_notes/${id}`, payload);
-      if (response.data) {
-        const updated = normalizeStickyNote(response.data);
-        const cache = getNotesCache().map((n) => (n.id === id ? updated : n));
-        setNotesCache(cache);
-        return updated;
-      }
-    } catch (err) {
-      console.warn(`[API] Failed to PUT to /sticky_notes/${id}, updating locally:`, err);
-    }
-
-    // Local cache update
-    const cache = getNotesCache();
-    const index = cache.findIndex((n) => n.id === id);
-    if (index !== -1) {
-      const updatedLocal: StickyNote = {
-        ...cache[index],
-        ...payload,
-      };
-      cache[index] = updatedLocal;
-      setNotesCache(cache);
-      return updatedLocal;
-    }
-    throw new Error(`Note ${id} not found in database or cache`);
+    const response = await apiClient.put<any>(`/sticky_notes/${id}`, payload);
+    return normalizeStickyNote(response.data);
   },
 
   /**
@@ -223,23 +98,29 @@ export const notesRemindersService = {
    * Endpoint: DELETE /api/sticky_notes/{id}
    */
   async deleteNote(id: string): Promise<void> {
-    try {
-      await apiClient.delete(`/sticky_notes/${id}`);
-    } catch (err) {
-      console.warn(`[API] Failed to DELETE /sticky_notes/${id}, removing locally:`, err);
-    }
-    const cache = getNotesCache().filter((n) => n.id !== id);
-    setNotesCache(cache);
+    await apiClient.delete(`/sticky_notes/${id}`);
   },
 
   /**
    * Pin or unpin a sticky note.
+   * If currentPinned boolean is provided, updates directly without extra GET.
    */
-  async togglePinNote(id: string): Promise<StickyNote> {
-    const cache = getNotesCache();
-    const target = cache.find((n) => n.id === id);
-    const newPinned = target ? !target.isPinned : true;
-    return this.updateNote(id, { isPinned: newPinned });
+  async togglePinNote(id: string, currentPinned?: boolean): Promise<StickyNote> {
+    if (typeof currentPinned === 'boolean') {
+      return this.updateNote(id, { isPinned: !currentPinned });
+    }
+    try {
+      const { data } = await apiClient.post<any>(`/sticky_notes/${id}/toggle-pin`);
+      if (data) return normalizeStickyNote(data);
+    } catch (err: any) {
+      // Only fallback to GET + PUT if the endpoint doesn't exist on server (404/405)
+      if (err?.response?.status !== 404 && err?.response?.status !== 405) {
+        throw err;
+      }
+    }
+    const { data: note } = await apiClient.get<any>(`/sticky_notes/${id}`);
+    const normalized = normalizeStickyNote(note);
+    return this.updateNote(id, { isPinned: !normalized.isPinned });
   },
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -254,34 +135,12 @@ export const notesRemindersService = {
     try {
       const response = await apiClient.get<any[]>('/remainder');
       if (Array.isArray(response.data)) {
-        const normalized = response.data.map(normalizeReminder);
-
-        // Auto-sync any reminders created while backend was offline/restarting
-        const localCache = getRemindersCache();
-        const pendingSync = localCache.filter(
-          (loc) => loc.id.startsWith('rem-') && !normalized.some((n) => n.title === loc.title && n.dueDate === loc.dueDate)
-        );
-        if (pendingSync.length > 0) {
-          for (const item of pendingSync) {
-            try {
-              const { id, ...data } = item;
-              const res = await apiClient.post<any>('/remainder', data);
-              if (res.data) {
-                normalized.push(normalizeReminder(res.data));
-              }
-            } catch {
-              // Ignore failure for individual sync
-            }
-          }
-        }
-
-        setRemindersCache(normalized);
-        return normalized;
+        return response.data.map(normalizeReminder);
       }
     } catch (err) {
-      console.warn('[API] Could not fetch from /remainder, using local storage cache:', err);
+      console.warn('[API] Could not fetch from /remainder:', err);
     }
-    return getRemindersCache();
+    return [];
   },
 
   /**
@@ -289,26 +148,8 @@ export const notesRemindersService = {
    * Endpoint: POST /api/remainder
    */
   async createReminder(data: Omit<ReminderItem, 'id'>): Promise<ReminderItem> {
-    try {
-      const response = await apiClient.post<any>('/remainder', data);
-      if (response.data) {
-        const created = normalizeReminder(response.data);
-        const cache = getRemindersCache().filter((r) => r.id !== created.id);
-        setRemindersCache([created, ...cache]);
-        return created;
-      }
-    } catch (err) {
-      console.warn('[API] Failed to POST to /remainder, storing locally:', err);
-    }
-
-    // Local fallback if server offline
-    const localReminder: ReminderItem = {
-      ...data,
-      id: generateId('rem'),
-    };
-    const cache = getRemindersCache();
-    setRemindersCache([localReminder, ...cache]);
-    return localReminder;
+    const response = await apiClient.post<any>('/remainder', data);
+    return normalizeReminder(response.data);
   },
 
   /**
@@ -316,40 +157,34 @@ export const notesRemindersService = {
    * Endpoint: PUT /api/remainder/{id}
    */
   async updateReminder(id: string, updates: Partial<ReminderItem>): Promise<ReminderItem> {
-    try {
-      const response = await apiClient.put<any>(`/remainder/${id}`, updates);
-      if (response.data) {
-        const updated = normalizeReminder(response.data);
-        const cache = getRemindersCache().map((r) => (r.id === id ? updated : r));
-        setRemindersCache(cache);
-        return updated;
-      }
-    } catch (err) {
-      console.warn(`[API] Failed to PUT to /remainder/${id}, updating locally:`, err);
-    }
-
-    // Local cache update
-    const cache = getRemindersCache();
-    const index = cache.findIndex((r) => r.id === id);
-    if (index !== -1) {
-      const updatedLocal: ReminderItem = {
-        ...cache[index],
-        ...updates,
-      };
-      cache[index] = updatedLocal;
-      setRemindersCache(cache);
-      return updatedLocal;
-    }
-    throw new Error(`Reminder ${id} not found in database or cache`);
+    const response = await apiClient.put<any>(`/remainder/${id}`, updates);
+    return normalizeReminder(response.data);
   },
 
   /**
    * Toggle completion status of a reminder.
+   * If currentCompleted boolean is provided, updates directly without extra GET.
    */
-  async toggleReminder(id: string): Promise<ReminderItem> {
-    const cache = getRemindersCache();
-    const target = cache.find((r) => r.id === id);
-    const isCompleted = target ? !target.isCompleted : true;
+  async toggleReminder(id: string, currentCompleted?: boolean): Promise<ReminderItem> {
+    if (typeof currentCompleted === 'boolean') {
+      const isCompleted = !currentCompleted;
+      return this.updateReminder(id, {
+        isCompleted,
+        completedAt: isCompleted ? new Date().toISOString() : undefined,
+      });
+    }
+    try {
+      const { data } = await apiClient.post<any>(`/remainder/${id}/toggle`);
+      if (data) return normalizeReminder(data);
+    } catch (err: any) {
+      // Only fallback to GET + PUT if the endpoint doesn't exist on server (404/405)
+      if (err?.response?.status !== 404 && err?.response?.status !== 405) {
+        throw err;
+      }
+    }
+    const { data: rem } = await apiClient.get<any>(`/remainder/${id}`);
+    const normalized = normalizeReminder(rem);
+    const isCompleted = !normalized.isCompleted;
 
     return this.updateReminder(id, {
       isCompleted,
@@ -362,23 +197,13 @@ export const notesRemindersService = {
    * Endpoint: DELETE /api/remainder/{id}
    */
   async deleteReminder(id: string): Promise<void> {
-    try {
-      await apiClient.delete(`/remainder/${id}`);
-    } catch (err) {
-      console.warn(`[API] Failed to DELETE /remainder/${id}, removing locally:`, err);
-    }
-    const cache = getRemindersCache().filter((r) => r.id !== id);
-    setRemindersCache(cache);
+    await apiClient.delete(`/remainder/${id}`);
   },
 
   /**
    * Snooze a reminder by specified minutes.
    */
   async snoozeReminderMinutes(id: string, minutes: number = 10): Promise<ReminderItem> {
-    const cache = getRemindersCache();
-    const target = cache.find((r) => r.id === id);
-    if (!target) throw new Error(`Reminder ${id} not found`);
-
     const now = new Date();
     now.setMinutes(now.getMinutes() + minutes);
     const newDueDate = now.toISOString().split('T')[0];
@@ -397,11 +222,9 @@ export const notesRemindersService = {
    * Snooze a reminder by specified days.
    */
   async snoozeReminder(id: string, days: number = 1): Promise<ReminderItem> {
-    const cache = getRemindersCache();
-    const target = cache.find((r) => r.id === id);
-    if (!target) throw new Error(`Reminder ${id} not found`);
-
-    const targetDate = new Date(target.dueDate || new Date().toISOString().split('T')[0]);
+    const { data: rem } = await apiClient.get<any>(`/remainder/${id}`);
+    const normalized = normalizeReminder(rem);
+    const targetDate = new Date(normalized.dueDate || new Date().toISOString().split('T')[0]);
     targetDate.setDate(targetDate.getDate() + days);
     const newDueDate = targetDate.toISOString().split('T')[0];
 

@@ -5,8 +5,7 @@
 
 import { useState, useMemo, useCallback } from 'react';
 import { MONTH_NAMES, getCurrentMonth, getCurrentYear, parseTxDate } from '../utils/dateHelpers';
-import type { Transaction } from '../types';
-
+import { Transaction } from '../interface';
 
 interface MonthlyStats {
   totalCredit: number;

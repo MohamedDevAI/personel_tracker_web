@@ -55,23 +55,5 @@ export const TASK_CATEGORIES = [
 
 export const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
 
-// ─── Local Storage Keys ──────────────────────────────────────────────────────
 
-export const STORAGE_KEYS = {
-  THEME: 'pt_theme',
-  DASHBOARD: 'pt_dashboard',
-  EXPENSES: 'pt_expenses',
-  HABITS: 'pt_habits',
-  GOALS: 'pt_goals',
-  TASKS: 'pt_tasks',
-  BORROW_REPAY: 'pt_borrow_repay_records',
-  PLANNED_REPAYMENTS: 'pt_planned_repayments',
-  PLANNED_EXPENSES: 'pt_planned_expenses',
-  STICKY_NOTES: 'pt_sticky_notes',
-  REMAINDER: 'pt_remainder',
-  // ── Money DB (investment-holdings collection) ────────────────────────────
-  INVESTMENT_HOLDINGS: 'money_investment_holdings',
-  FINANCIAL_HEALTH_ANSWERS: 'money_financial_health_answers',
-  FIRE_SETTINGS: 'money_fire_settings',
-} as const;
 

@@ -1,79 +1,27 @@
 /**
  * Planned Expenses API service.
- * Handles CRUD for planned monthly expenses (SAR) via Spring Boot + MongoDB Atlas,
- * with localStorage cache for offline availability.
+ * Handles CRUD for planned monthly expenses (SAR) via Spring Boot + MongoDB Atlas.
  */
 
+import { PlannedExpense } from '../interface';
 import apiClient from './apiClient';
-import { STORAGE_KEYS } from '../utils/constants';
-import type { PlannedExpense } from '../types';
-
-// ─── Local Storage Helpers ────────────────────────────────────────────────────
-
-const readCache = (): PlannedExpense[] => {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEYS.PLANNED_EXPENSES);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed)) return parsed;
-    }
-  } catch (e) {
-    console.warn('Failed to parse local planned expenses:', e);
-  }
-  return [];
-};
-
-const writeCache = (data: PlannedExpense[]): void => {
-  localStorage.setItem(STORAGE_KEYS.PLANNED_EXPENSES, JSON.stringify(data));
-};
-
-const generateId = (): string => {
-  return `pe-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
-};
 
 // ─── API Methods ──────────────────────────────────────────────────────────────
 
 export const plannedExpenseApi = {
   /**
    * Fetch planned expenses from MongoDB via Spring Boot API.
-   * Falls back to localStorage cache on failure.
    */
   fetchFromDb: async (month?: string, year?: number): Promise<PlannedExpense[]> => {
-    try {
-      const params: Record<string, any> = {};
-      if (month && month !== 'ALL') params.month = month;
-      if (year) params.year = year;
+    const params: Record<string, any> = {};
+    if (month && month !== 'ALL') params.month = month;
+    if (year) params.year = year;
 
-      const { data } = await apiClient.get<PlannedExpense[]>('/finance_planned', { params });
-
-      if (Array.isArray(data)) {
-        // Merge into cache so other months aren't lost
-        const currentStored = readCache();
-        const map = new Map<string, PlannedExpense>();
-        currentStored.forEach((p) => map.set(p.id, p));
-        data.forEach((p) => map.set(p.id, p));
-        writeCache(Array.from(map.values()));
-        return data;
-      }
-    } catch (err) {
-      console.warn('Could not fetch from /api/finance_planned, falling back to local storage:', err);
-    }
-    return plannedExpenseApi.getPlannedExpenses(month, year);
+    const { data } = await apiClient.get<PlannedExpense[]>('/finance_planned', { params });
+    return Array.isArray(data) ? data : [];
   },
 
-  /** Synchronous getter from localStorage cache */
-  getPlannedExpenses: (filterMonth?: string, filterYear?: number): PlannedExpense[] => {
-    const all = readCache();
-    if (!filterMonth && !filterYear) return all;
-
-    return all.filter((p) => {
-      const matchesMonth = !filterMonth || filterMonth === 'ALL' || p.month === filterMonth;
-      const matchesYear = !filterYear || p.year === filterYear;
-      return matchesMonth && matchesYear;
-    });
-  },
-
-  /** Create a planned expense in MongoDB, with local fallback */
+  /** Create a planned expense in MongoDB */
   createPlannedExpense: async (plan: Omit<PlannedExpense, 'id' | 'createdAt'>): Promise<PlannedExpense> => {
     const plannedAmt = Math.abs(Number(plan.plannedAmount) || 0);
     const isFulfilled = plan.isFulfilled ?? (plan.status === 'Fulfilled');
@@ -92,65 +40,24 @@ export const plannedExpenseApi = {
       createdAt: new Date().toISOString(),
     };
 
-    try {
-      const { data } = await apiClient.post<PlannedExpense>('/finance_planned', payload);
-      if (data) {
-        writeCache([data, ...readCache()]);
-        return data;
-      }
-    } catch (err) {
-      console.warn('API create failed, saving to local cache:', err);
-    }
-
-    // Local fallback
-    const localPlan: PlannedExpense = { ...payload, id: generateId() };
-    writeCache([localPlan, ...readCache()]);
-    return localPlan;
+    const { data } = await apiClient.post<PlannedExpense>('/finance_planned', payload);
+    return data;
   },
 
-  /** Update a planned expense in MongoDB with full payload preservation */
+  /** Update a planned expense in MongoDB */
   updatePlannedExpense: async (
     id: string,
     updates: Partial<PlannedExpense>,
     fallbackBase?: PlannedExpense
   ): Promise<PlannedExpense> => {
-    const all = readCache();
-    const existing = fallbackBase || all.find((p) => p.id === id);
-    const merged = { ...(existing || {}), ...updates, id };
-
-    try {
-      const { data } = await apiClient.put<PlannedExpense>(`/finance_planned/${id}`, merged);
-      if (data) {
-        const updatedList = all.map((p) => (p.id === id ? data : p));
-        if (!all.some((p) => p.id === id)) updatedList.push(data);
-        writeCache(updatedList);
-        return data;
-      }
-    } catch (err) {
-      console.warn('API update failed, updating local cache:', err);
-    }
-
-    // Local fallback
-    const index = all.findIndex((p) => p.id === id);
-    if (index === -1) {
-      const fullPlan = merged as PlannedExpense;
-      writeCache([...all, fullPlan]);
-      return fullPlan;
-    }
-    const updated = { ...all[index], ...updates };
-    all[index] = updated;
-    writeCache(all);
-    return updated;
+    const merged = { ...(fallbackBase || {}), ...updates, id };
+    const { data } = await apiClient.put<PlannedExpense>(`/finance_planned/${id}`, merged);
+    return data;
   },
 
-  /** Delete a planned expense from MongoDB and local cache */
+  /** Delete a planned expense from MongoDB */
   deletePlannedExpense: async (id: string): Promise<void> => {
-    try {
-      await apiClient.delete(`/finance_planned/${id}`);
-    } catch (err) {
-      console.warn('API delete failed:', err);
-    }
-    writeCache(readCache().filter((p) => p.id !== id));
+    await apiClient.delete(`/finance_planned/${id}`);
   },
 
   /** Set fulfillment status and payment amount for a planned expense */
@@ -160,24 +67,25 @@ export const plannedExpenseApi = {
     paidAmount?: number,
     existingPlan?: PlannedExpense
   ): Promise<PlannedExpense> => {
-    const current = existingPlan || readCache().find((p) => p.id === id);
-    const plannedAmt = current?.plannedAmount || 0;
+    const plannedAmt = existingPlan?.plannedAmount || 0;
 
     const finalPaid = paidAmount !== undefined && paidAmount !== null
       ? Math.max(0, Number(paidAmount))
       : (isFulfilled ? plannedAmt : 0);
 
-    const finalFulfilled = isFulfilled ? true : (finalPaid >= plannedAmt && plannedAmt > 0 && paidAmount !== 0);
+    const isUnderpaid = finalPaid > 0 && plannedAmt > 0 && finalPaid < plannedAmt;
+    const finalFulfilled = isUnderpaid ? false : (isFulfilled || (finalPaid >= plannedAmt && plannedAmt > 0));
     const status = finalFulfilled ? 'Fulfilled' : (finalPaid > 0 ? 'Partial' : 'Planned');
 
     const updates: Partial<PlannedExpense> = {
-      ...(current || {}),
+      ...(existingPlan || {}),
+      id,
       isFulfilled: finalFulfilled,
       paidAmount: finalPaid,
       status,
     };
 
-    return plannedExpenseApi.updatePlannedExpense(id, updates, current);
+    return plannedExpenseApi.updatePlannedExpense(id, updates, existingPlan);
   },
 
   /** Calculate monthly budget summary with category variance analysis */

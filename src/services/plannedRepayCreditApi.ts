@@ -3,11 +3,8 @@
  * Communicates with Spring Boot backend MongoDB collection: 'planned_repay_credit'.
  */
 
+import { PlannedRepayCreditItem, PlannedRepayCreditMatrix } from '../interface';
 import apiClient from './apiClient';
-import type {
-  PlannedRepayCreditItem,
-  PlannedRepayCreditMatrix
-} from '../types';
 
 export const plannedRepayCreditApi = {
   /**

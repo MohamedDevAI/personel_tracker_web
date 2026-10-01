@@ -84,14 +84,14 @@ export default function Navbar({ backendStatus, theme, toggleTheme, activeRemind
           title={
             backendStatus.connected
               ? 'Spring Boot & MongoDB Atlas connected'
-              : 'Spring Boot offline / running local storage cache'
+              : 'Connecting to Spring Boot Server API...'
           }
           className={`navbar-status-badge ${backendStatus.connected ? 'navbar-status-connected' : 'navbar-status-local'
             }`}
         >
           <Database size={13} />
           <span className="navbar-status-label">
-            {backendStatus.connected ? 'Server: Live' : 'Atlas Ready (Local)'}
+            {backendStatus.connected ? 'Server: Live' : 'Server: Connecting'}
           </span>
           <span
             className={`navbar-status-dot ${backendStatus.connected ? 'navbar-status-dot-connected' : 'navbar-status-dot-local'

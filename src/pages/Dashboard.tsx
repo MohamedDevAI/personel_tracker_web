@@ -4,7 +4,7 @@
  */
 
 import { useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowUpRight, ArrowDownRight, Flame, CheckCircle2, Circle,
   TrendingUp, Calendar,
@@ -12,7 +12,10 @@ import {
 import confetti from 'canvas-confetti';
 import { api } from '../services/api';
 import { formatDateLong } from '../utils/formatters';
-import type { Expense, Habit, Goal, TaskItem } from '../types';
+import { useExpensesQuery } from '../hooks/useExpensesQuery';
+import { useHabitsQuery } from '../hooks/useHabitsQuery';
+import { useGoalsQuery } from '../hooks/useGoalsQuery';
+import { useTasksQuery } from '../hooks/useTasksQuery';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -20,25 +23,10 @@ export default function Dashboard() {
 
   // ── Data Fetching ─────────────────────────────────────────────────────────
 
-  const { data: expenses = [] } = useQuery<Expense[]>({
-    queryKey: ['expenses'],
-    queryFn: api.getExpenses,
-  });
-
-  const { data: habits = [] } = useQuery<Habit[]>({
-    queryKey: ['habits'],
-    queryFn: api.getHabits,
-  });
-
-  const { data: goals = [] } = useQuery<Goal[]>({
-    queryKey: ['goals'],
-    queryFn: api.getGoals,
-  });
-
-  const { data: tasks = [] } = useQuery<TaskItem[]>({
-    queryKey: ['tasks'],
-    queryFn: api.getTasks,
-  });
+  const { data: expenses = [] } = useExpensesQuery();
+  const { data: habits = [] } = useHabitsQuery();
+  const { data: goals = [] } = useGoalsQuery();
+  const { data: tasks = [] } = useTasksQuery();
 
   // ── Mutations ─────────────────────────────────────────────────────────────
 
@@ -101,10 +89,10 @@ export default function Dashboard() {
         </div>
 
         <div className="page-header-actions">
-          <button onClick={() => navigate('/productivity/habits')} className="btn btn-secondary">
+          <button onClick={() => navigate('/life-os/habits')} className="btn btn-secondary">
             <Flame size={14} color="#f59e0b" /> Daily Habits
           </button>
-          <button onClick={() => navigate('/finances')} className="btn btn-secondary">
+          <button onClick={() => navigate('/life-os/finances')} className="btn btn-secondary">
             <TrendingUp size={14} color="#10b981" /> Financial Ledger
           </button>
         </div>
@@ -183,7 +171,7 @@ export default function Dashboard() {
               <h3 className="dashboard-card-title">Today's Habit Checklist</h3>
               <p className="dashboard-card-subtitle">Check off habits to compound your streak</p>
             </div>
-            <button onClick={() => navigate('/productivity/habits')} className="btn btn-secondary dashboard-btn-action">
+            <button onClick={() => navigate('/life-os/habits')} className="btn btn-secondary dashboard-btn-action">
               View All
             </button>
           </div>
@@ -229,7 +217,7 @@ export default function Dashboard() {
               <h3 className="dashboard-card-title">Financial Cash Flow</h3>
               <p className="dashboard-card-subtitle">Recent transactions and inflows</p>
             </div>
-            <button onClick={() => navigate('/finances')} className="btn btn-secondary dashboard-btn-action">
+            <button onClick={() => navigate('/life-os/finances')} className="btn btn-secondary dashboard-btn-action">
               Ledger
             </button>
           </div>
@@ -282,7 +270,7 @@ export default function Dashboard() {
               <h3 className="dashboard-card-title">Strategic Milestones</h3>
               <p className="dashboard-card-subtitle">Quarterly and annual pursuits</p>
             </div>
-            <button onClick={() => navigate('/productivity/goals')} className="btn btn-secondary dashboard-btn-action">
+            <button onClick={() => navigate('/life-os/goals')} className="btn btn-secondary dashboard-btn-action">
               Manage
             </button>
           </div>
@@ -309,7 +297,7 @@ export default function Dashboard() {
               <h3 className="dashboard-card-title">High Priority Action Items</h3>
               <p className="dashboard-card-subtitle">Key deliverables for today</p>
             </div>
-            <button onClick={() => navigate('/productivity/tasks')} className="btn btn-secondary dashboard-btn-action">
+            <button onClick={() => navigate('/life-os/tasks')} className="btn btn-secondary dashboard-btn-action">
               Task Board
             </button>
           </div>

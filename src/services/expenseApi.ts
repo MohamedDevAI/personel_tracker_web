@@ -5,8 +5,7 @@
 
 import apiClient from './apiClient';
 import { MONTH_NAMES, getCurrentYear, getCurrentMonth } from '../utils/dateHelpers';
-import type { Category, Transaction, TransactionType, DashboardSummary } from '../types';
-
+import { Category, DashboardSummary, Transaction, TransactionType } from '../interface';
 export { MONTH_NAMES, getCurrentYear, getCurrentMonth };
 
 // ─── Transaction Normalizer ───────────────────────────────────────────────────

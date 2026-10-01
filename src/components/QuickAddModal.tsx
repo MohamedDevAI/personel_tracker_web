@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Wallet, Flame, Target, CheckSquare, LucideIcon } from 'lucide-react';
-import { Expense, Habit, Goal, TaskItem, ExpenseType, TaskPriority } from '../types';
+import { Expense, Habit, Goal, TaskItem, ExpenseType, TaskPriority } from '../interface';
 import './QuickAddModal.css';
 
 interface QuickAddModalProps {

@@ -8,11 +8,13 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { investmentApi } from '../services/investmentApi';
-import { borrowRepayApi } from '../services/borrowRepayApi';
-import { api } from '../services/api';
 import { tradingService } from '../services/tradingService';
+import { useInvestmentHoldingsQuery } from '../hooks/useInvestmentHoldingsQuery';
+import { useExpensesQuery } from '../hooks/useExpensesQuery';
+import { useBorrowRepayRecordsQuery } from '../hooks/useBorrowRepayQueries';
+import { useTradesQuery } from '../hooks/useTradesQuery';
 import {
   computeFinancialHealth,
   calculateFireNumbers,
@@ -21,7 +23,6 @@ import {
   saveHealthAnswer,
   FireSettings
 } from '../services/financialHealthService';
-import type { InvestmentHolding, InvestmentCategory, Expense, Trade } from '../types';
 import { MoneyPrivacyProvider, useMoneyPrivacy } from '../context/MoneyPrivacyContext';
 
 // Investment Components
@@ -48,6 +49,7 @@ import TradingPositionsTable from '../components/money/trading/TradingPositionsT
 import TradeModal from '../components/money/trading/TradeModal';
 
 import '../components/money/money-theme.css';
+import { InvestmentCategory, InvestmentHolding, Trade } from '../interface';
 
 type MainTab = 'dashboard' | 'investment' | 'trading';
 type InvestmentScreen = 'landing' | 'mf_list' | 'mf_detail' | 'stock_list' | 'stock_detail';
@@ -86,31 +88,19 @@ function MoneyHubInner() {
     data: holdings = [],
     refetch: refetchHoldings,
     isFetching: isFetchingHoldings
-  } = useQuery<InvestmentHolding[]>({
-    queryKey: ['investmentHoldings'],
-    queryFn: investmentApi.getHoldings,
-  });
+  } = useInvestmentHoldingsQuery();
 
   // Fetch Ledger Expenses (for Net Cash Liquidity)
-  const { data: expenses = [] } = useQuery<Expense[]>({
-    queryKey: ['expenses'],
-    queryFn: api.getExpenses,
-  });
+  const { data: expenses = [] } = useExpensesQuery();
 
   // Fetch Borrow/Repay (for Debt Liabilities)
-  const { data: borrowRecords = [] } = useQuery({
-    queryKey: ['borrowRepayRecords'],
-    queryFn: borrowRepayApi.getRecords,
-  });
+  const { data: borrowRecords = [] } = useBorrowRepayRecordsQuery();
 
   // Fetch Trading Positions & Trades
   const {
     data: trades = [],
     refetch: refetchTrades,
-  } = useQuery<Trade[]>({
-    queryKey: ['tradingTrades'],
-    queryFn: tradingService.getTrades,
-  });
+  } = useTradesQuery();
 
   // Compute Liquid Cash Balance
   const totalIncome = (expenses || [])
@@ -403,18 +393,24 @@ function MoneyHubInner() {
             />
           )}
 
-          {/* Screen 3: Mutual Fund Detail */}
-          {invScreen === 'mf_detail' && (
-            <MutualFundDetailScreen
-              fund={
-                holdings.find((h) => h.id === selectedHoldingId) ||
-                holdings.find((h) => h.category === 'Mutual Funds' || h.category === 'SIPs') ||
-                holdings[0]
+          {invScreen === 'mf_detail' && (() => {
+              const fund = holdings.find((h) => h.id === selectedHoldingId) ||
+                holdings.find((h) => h.category === 'Mutual Funds' || h.category === 'SIPs');
+              if (!fund) {
+                // No matching fund found — navigate back to list to prevent crash
+                return <MutualFundListScreen
+                  holdings={holdings}
+                  onBackToLanding={() => setInvScreen('landing')}
+                  onSelectFund={(id) => { setSelectedHoldingId(id); setInvScreen('mf_detail'); }}
+                  onOpenAddModal={() => handleOpenAdd('Mutual Funds')}
+                />;
               }
-              onBackToList={() => setInvScreen('mf_list')}
-              onEditFund={handleEditHolding}
-            />
-          )}
+              return <MutualFundDetailScreen
+                fund={fund}
+                onBackToList={() => setInvScreen('mf_list')}
+                onEditFund={handleEditHolding}
+              />;
+            })()}
 
           {/* Screen 4: Stock List */}
           {invScreen === 'stock_list' && (
@@ -429,18 +425,23 @@ function MoneyHubInner() {
             />
           )}
 
-          {/* Screen 5: Stock Detail */}
-          {invScreen === 'stock_detail' && (
-            <StockDetailScreen
-              stock={
-                holdings.find((h) => h.id === selectedHoldingId) ||
-                holdings.find((h) => h.category === 'Stocks') ||
-                holdings[0]
+          {invScreen === 'stock_detail' && (() => {
+              const stock = holdings.find((h) => h.id === selectedHoldingId) ||
+                holdings.find((h) => h.category === 'Stocks');
+              if (!stock) {
+                return <StockListScreen
+                  holdings={holdings}
+                  onBackToLanding={() => setInvScreen('landing')}
+                  onSelectStock={(id) => { setSelectedHoldingId(id); setInvScreen('stock_detail'); }}
+                  onOpenAddModal={() => handleOpenAdd('Stocks')}
+                />;
               }
-              onBackToList={() => setInvScreen('stock_list')}
-              onEditStock={handleEditHolding}
-            />
-          )}
+              return <StockDetailScreen
+                stock={stock}
+                onBackToList={() => setInvScreen('stock_list')}
+                onEditStock={handleEditHolding}
+              />;
+            })()}
         </div>
       )}
 

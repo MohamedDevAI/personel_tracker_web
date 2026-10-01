@@ -1,40 +1,25 @@
 /**
- * Trading Service & Local Storage Manager for Money Hub Trading Workspace.
+ * Trading Service for Money Hub Trading Workspace.
  * Tracks Open Positions, Trade Journal (Closed Trades), Realized & Unrealized P&L in INR (₹).
  */
 
-import type { Trade, TradingStats } from '../types';
-
-const TRADES_STORAGE_KEY = 'money_trading_positions';
-
-const loadTradesFromStorage = (): Trade[] => {
-  try {
-    const raw = localStorage.getItem(TRADES_STORAGE_KEY);
-    if (!raw) {
-      return [];
-    }
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-};
-
-const saveTradesToStorage = (trades: Trade[]): void => {
-  try {
-    localStorage.setItem(TRADES_STORAGE_KEY, JSON.stringify(trades));
-  } catch (e) {
-    console.error('Failed to save trades to storage:', e);
-  }
-};
+import type { Trade, TradingStats } from '../interface';
+import apiClient from './apiClient';
 
 export const tradingService = {
   getTrades: async (): Promise<Trade[]> => {
-    return loadTradesFromStorage();
+    try {
+      const { data } = await apiClient.get<Trade[]>('/trading');
+      if (Array.isArray(data)) {
+        return data;
+      }
+    } catch {
+      // Backend may not have trading endpoint yet; return empty
+    }
+    return [];
   },
 
   createTrade: async (tradeData: Omit<Trade, 'id'>): Promise<Trade> => {
-    const list = loadTradesFromStorage();
     const isLong = tradeData.direction === 'LONG';
     const currentPrice = Number(tradeData.currentPrice || tradeData.entryPrice);
     const entryPrice = Number(tradeData.entryPrice);
@@ -65,17 +50,12 @@ export const tradingService = {
       entryDate: tradeData.entryDate || new Date().toISOString(),
     };
 
-    const updated = [newTrade, ...list];
-    saveTradesToStorage(updated);
-    return newTrade;
+    const { data } = await apiClient.post<Trade>('/trading', newTrade);
+    return data || newTrade;
   },
 
   updateTrade: async (id: string, updates: Partial<Trade>): Promise<Trade> => {
-    const list = loadTradesFromStorage();
-    const existing = list.find((t) => t.id === id);
-    if (!existing) throw new Error('Trade not found');
-
-    const merged = { ...existing, ...updates };
+    const merged = { ...updates } as Trade;
     const isLong = merged.direction === 'LONG';
     const isClosed = merged.status === 'CLOSED';
     const entryPrice = Number(merged.entryPrice);
@@ -96,9 +76,8 @@ export const tradingService = {
       riskRewardRatio: rr,
     };
 
-    const updatedList = list.map((t) => (t.id === id ? finalTrade : t));
-    saveTradesToStorage(updatedList);
-    return finalTrade;
+    const { data } = await apiClient.put<Trade>(`/trading/${id}`, finalTrade);
+    return data || finalTrade;
   },
 
   closeTrade: async (id: string, exitPrice: number): Promise<Trade> => {
@@ -110,9 +89,7 @@ export const tradingService = {
   },
 
   deleteTrade: async (id: string): Promise<boolean> => {
-    const list = loadTradesFromStorage();
-    const updated = list.filter((t) => t.id !== id);
-    saveTradesToStorage(updated);
+    await apiClient.delete(`/trading/${id}`);
     return true;
   },
 
@@ -183,3 +160,4 @@ export const tradingService = {
     return points;
   }
 };
+

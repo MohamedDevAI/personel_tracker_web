@@ -1,24 +1,26 @@
 import { useState, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { expenseApi } from '../services/expenseApi';
 import { MONTH_NAMES, getCurrentYear, getCurrentMonth } from '../utils/dateHelpers';
 import { Plus, Tag, ArrowDownRight, Search } from 'lucide-react';
-import { Category, Transaction, TransactionType, BorrowRepayRecord } from '../types';
+
 import { parseTxDate } from '../components/life_os/finances/financeConstants';
 import MonthYearFilter from '../components/life_os/finances/MonthYearFilter';
 import FinanceSummaryCards from '../components/life_os/finances/FinanceSummaryCards';
 import TransactionTable from '../components/life_os/finances/TransactionTable';
 import OutflowBreakdownCard from '../components/life_os/finances/OutflowBreakdownCard';
-import CategoryTable from '../components/life_os/finances/CategoryTable';
 import TransactionModal from '../components/life_os/finances/TransactionModal';
 import CategoryModal from '../components/life_os/finances/CategoryModal';
 import FinanceTabsHeader, { FinanceTabKey } from '../components/life_os/finances/FinanceTabsHeader';
 import BorrowRepayView from '../components/life_os/finances/BorrowRepayView';
 import PlannedExpensesView from '../components/life_os/finances/planned-expenses/PlannedExpensesView';
 import { borrowRepayApi } from '../services/borrowRepayApi';
-import { plannedExpenseApi } from '../services/plannedExpenseApi';
+
 import ConfirmDeleteModal from '../components/common/ConfirmDeleteModal';
 import '../components/life_os/finances/finances.css';
+import { TransactionType } from '../interface';
+import { useBorrowRepayRecordsQuery } from '../hooks/useBorrowRepayQueries';
+import { useCategoriesQuery, usePlannedExpensesQuery, useTransactionsQuery } from '../hooks';
 
 export default function ExpenseTracker() {
   const queryClient = useQueryClient();
@@ -27,32 +29,23 @@ export default function ExpenseTracker() {
   const [financeMainTab, setFinanceMainTab] = useState<FinanceTabKey>('ledger');
 
   // Queries
-  const { data: transactions = [], isLoading: isTxsLoading } = useQuery<Transaction[]>({
-    queryKey: ['transactions'],
-    queryFn: expenseApi.getTransactions
-  });
-
-  const { data: categories = [] } = useQuery<Category[]>({
-    queryKey: ['categories'],
-    queryFn: () => expenseApi.getCategories()
-  });
-
-  const { data: borrowRecords = [] } = useQuery<BorrowRepayRecord[]>({
-    queryKey: ['borrowRepayRecords'],
-    queryFn: borrowRepayApi.getRecords
-  });
+  const { data: transactions = [], isLoading: isTxsLoading } = useTransactionsQuery();
+  const { data: categories = [] } = useCategoriesQuery();
+  const { data: borrowRecords = [] } = useBorrowRepayRecordsQuery();
 
   // Dynamic pill counters for sub-tabs
   const outstandingDebtCount = useMemo(() => {
     return borrowRepayApi.getCreditorSummaries(borrowRecords).filter(s => s.netBalance > 0).length;
-  }, [borrowRecords, financeMainTab]);
+  }, [borrowRecords]);
+
+  const { data: plannedExpenses = [] } = usePlannedExpensesQuery('ALL');
 
   const activePlansCount = useMemo(() => {
-    return plannedExpenseApi.getPlannedExpenses().filter(p => p.status === 'Planned').length;
-  }, [financeMainTab]);
+    return plannedExpenses.filter(p => p.status === 'Planned').length;
+  }, [plannedExpenses]);
 
 
-  const [activeTab] = useState<'transactions' | 'categories'>('transactions');
+
   const [selectedYear, setSelectedYear] = useState<number>(() => getCurrentYear());
   const [selectedMonth, setSelectedMonth] = useState<string>(() => getCurrentMonth()); // 'All' or 'Jan'..'Dec'
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -122,15 +115,6 @@ export default function ExpenseTracker() {
     });
   };
 
-  const promptDeleteCategory = (id: string) => {
-    const cat = categories.find(c => (c.id || c._id) === id);
-    setDeleteConfirm({
-      isOpen: true,
-      type: 'category',
-      id,
-      itemName: cat ? cat.name : 'Selected Category'
-    });
-  };
 
   const handleExecuteDelete = () => {
     if (deleteConfirm.type === 'transaction') {
@@ -390,7 +374,7 @@ export default function ExpenseTracker() {
                 </div>
 
                 {/* Filter toolbar if transactions tab, or Add Category if categories tab */}
-                {activeTab === 'transactions' ? (
+                {(
                   <div className="finances-toolbar-actions">
                     <div className="finances-search-box">
                       <Search size={14} className="finances-search-icon" />
@@ -424,19 +408,11 @@ export default function ExpenseTracker() {
                       ))}
                     </select>
                   </div>
-                ) : (
-                  <button
-                    onClick={() => setShowCategoryModal(true)}
-                    className="btn btn-secondary finances-add-cat-btn"
-                  >
-                    <Tag size={14} /> Add Category
-                  </button>
                 )}
               </div>
 
               {/* Table Component with 90vh height and internal scrolling */}
-              {activeTab === 'transactions' ? (
-                <TransactionTable
+              <TransactionTable
                   transactions={filteredTransactions}
                   categories={categories}
                   isLoading={isTxsLoading}
@@ -445,12 +421,6 @@ export default function ExpenseTracker() {
                   onDeleteTransaction={promptDeleteTransaction}
                   onOpenAddModal={handleOpenAddModal}
                 />
-              ) : (
-                <CategoryTable
-                  categories={categories}
-                  onDeleteCategory={promptDeleteCategory}
-                />
-              )}
             </div>
 
             {/* Right Column: Donut Chart & Ranked Categories (Height matches 90vh) */}

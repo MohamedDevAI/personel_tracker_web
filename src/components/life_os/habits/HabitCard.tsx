@@ -1,6 +1,13 @@
-import { Flame, CheckCircle2, Circle, Sparkles, Trash2 } from 'lucide-react';
-import { DAY_NAMES } from '../../../utils/constants';
+import { useMemo } from 'react';
+import { Flame, CheckCircle2, Circle, Trash2, Check, Sparkles } from 'lucide-react';
 import type { Habit } from '../../../types';
+import {
+  getRolling7Days,
+  getHabit7DayStatuses,
+  calculateConsistency,
+  getCategoryBadgeClass,
+  getStreakTier,
+} from './habitHelpers';
 
 interface HabitCardProps {
   habit: Habit;
@@ -9,65 +16,104 @@ interface HabitCardProps {
 }
 
 export default function HabitCard({ habit, onToggle, onDelete }: HabitCardProps) {
-  const completedCount = habit.history.filter((x) => x === 1).length;
-  const consistency = Math.round((completedCount / (habit.history.length || 1)) * 100);
-
-  const getCategoryClass = (category?: string) => {
-    const cat = (category || '').toLowerCase();
-    if (cat.includes('health')) return 'habit-cat-health';
-    if (cat.includes('fit')) return 'habit-cat-fitness';
-    if (cat.includes('mind')) return 'habit-cat-mindset';
-    if (cat.includes('prod')) return 'habit-cat-productivity';
-    if (cat.includes('learn')) return 'habit-cat-learning';
-    return 'habit-cat-productivity';
-  };
-
-  const isHotStreak = habit.streak >= 5;
+  const rollingDays = useMemo(() => getRolling7Days(), []);
+  const statuses = getHabit7DayStatuses(habit.history, habit.completedToday);
+  const consistency = calculateConsistency(statuses);
+  const tier = getStreakTier(habit.streak);
 
   return (
-    <div className="glass-panel habit-card-container">
-      {/* Top Row: Title, Category, Streak */}
+    <div className={`glass-panel habit-card-container ${habit.completedToday ? 'card-is-done' : ''}`}>
+      {/* Top Header Row */}
       <div className="habit-card-header">
-        <div className="habit-card-title-group">
-          <div className="habit-card-badges">
-            <span className={`habit-cat-badge ${getCategoryClass(habit.category)}`}>
-              {habit.category || 'General'}
-            </span>
-          </div>
-          <h3 className="habit-card-title">{habit.title}</h3>
-          <span className="habit-card-freq">Schedule: {habit.targetFrequency}</span>
+        <div className="habit-card-badges">
+          <span className={`habit-cat-badge ${getCategoryBadgeClass(habit.category)}`}>
+            {habit.category || 'General'}
+          </span>
+          <span className="habit-card-freq-tag">{habit.targetFrequency}</span>
         </div>
 
-        <div className={`habit-streak-badge ${isHotStreak ? 'fire' : ''}`}>
-          <Flame size={18} fill={isHotStreak ? '#f59e0b' : 'none'} color="#f59e0b" />
+        <button
+          onClick={() => onDelete(habit.id)}
+          className="habit-delete-btn"
+          title="Delete Routine"
+        >
+          <Trash2 size={15} />
+        </button>
+      </div>
+
+      {/* Main Habit Title & Streak */}
+      <div className="habit-card-body-row">
+        <div className="habit-card-title-group">
+          <h4 className={`habit-card-title ${habit.completedToday ? 'text-done' : ''}`}>
+            {habit.title}
+          </h4>
+          <span className="habit-card-target-hint">Consistency: {consistency}% this week</span>
+        </div>
+
+        {/* Gamified Streak Trophy Badge */}
+        <div
+          className={`habit-streak-badge ${tier.badgeClass}`}
+          title={`${tier.name}: ${tier.motto}`}
+        >
+          <span className="matrix-streak-emoji">{tier.emoji}</span>
+          <Flame
+            size={16}
+            fill={habit.streak >= 3 ? tier.color : 'none'}
+            color={tier.color}
+            className={habit.streak >= 7 ? 'streak-fire-anim' : ''}
+          />
           <span className="habit-streak-num">{habit.streak}</span>
           <span className="habit-streak-days">days</span>
         </div>
       </div>
 
-      {/* 7-Day History Heatmap */}
+      {/* 7-Day Rolling Heatmap Strip */}
       <div className="habit-card-heatmap">
         <div className="habit-heatmap-top">
-          <span className="habit-heatmap-title">Past 7 Days History</span>
-          <span className="habit-heatmap-pct">{consistency}% Consistency</span>
+          <span className="habit-heatmap-title">7-Day Consistency</span>
+          <span className={`habit-heatmap-pct ${consistency >= 80 ? 'high' : 'normal'}`}>
+            <Sparkles size={11} /> {consistency}% Score
+          </span>
         </div>
 
         <div className="habit-heatmap-boxes">
-          {habit.history.map((val, idx) => (
-            <div key={idx} className="habit-heatmap-day-col">
+          {rollingDays.map((day, idx) => {
+            const isDone = statuses[idx] === 1;
+
+            if (day.isToday) {
+              return (
+                <div
+                  key={day.dateStr}
+                  className="habit-heatmap-day-col is-today-col"
+                  onClick={() => onToggle(habit.id, habit.completedToday)}
+                  title={`Today (${day.displayDate}): Click to toggle`}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div className={`habit-heatmap-square today-square ${habit.completedToday ? 'completed' : 'missed'}`}>
+                    {habit.completedToday ? <Check size={12} strokeWidth={3} /> : <span className="today-dot-pulse" />}
+                  </div>
+                  <span className="habit-heatmap-day-label today-label">Today</span>
+                </div>
+              );
+            }
+
+            return (
               <div
-                className={`habit-heatmap-square ${val === 1 ? 'completed' : 'missed'}`}
-                title={`${DAY_NAMES[idx]}: ${val === 1 ? 'Completed' : 'Not Done'}`}
+                key={day.dateStr}
+                className="habit-heatmap-day-col"
+                title={`${day.displayDate} (${day.dayName}): ${isDone ? 'Completed' : 'Missed'}`}
               >
-                {val === 1 ? <Sparkles size={11} /> : null}
+                <div className={`habit-heatmap-square ${isDone ? 'completed' : 'missed'}`}>
+                  {isDone ? <Check size={11} strokeWidth={2.5} /> : null}
+                </div>
+                <span className="habit-heatmap-day-label">{day.dayName.slice(0, 2)}</span>
               </div>
-              <span className="habit-heatmap-day-label">{DAY_NAMES[idx]}</span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
-      {/* Card Footer Actions */}
+      {/* Card Footer Action */}
       <div className="habit-card-footer">
         <button
           onClick={() => onToggle(habit.id, habit.completedToday)}
@@ -75,21 +121,13 @@ export default function HabitCard({ habit, onToggle, onDelete }: HabitCardProps)
         >
           {habit.completedToday ? (
             <>
-              <CheckCircle2 size={18} /> Completed for Today
+              <CheckCircle2 size={18} color="#10b981" /> Completed for Today
             </>
           ) : (
             <>
-              <Circle size={18} /> Check In Today
+              <Circle size={18} /> Mark Done for Today
             </>
           )}
-        </button>
-
-        <button
-          onClick={() => onDelete(habit.id)}
-          className="habit-delete-btn"
-          title="Delete habit routine"
-        >
-          <Trash2 size={16} />
         </button>
       </div>
     </div>
