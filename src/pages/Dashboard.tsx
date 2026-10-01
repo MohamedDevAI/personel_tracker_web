@@ -15,7 +15,6 @@ import { formatDateLong } from '../utils/formatters';
 import { useExpensesQuery } from '../hooks/useExpensesQuery';
 import { useHabitsQuery } from '../hooks/useHabitsQuery';
 import { useGoalsQuery } from '../hooks/useGoalsQuery';
-import { useTasksQuery } from '../hooks/useTasksQuery';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -26,18 +25,12 @@ export default function Dashboard() {
   const { data: expenses = [] } = useExpensesQuery();
   const { data: habits = [] } = useHabitsQuery();
   const { data: goals = [] } = useGoalsQuery();
-  const { data: tasks = [] } = useTasksQuery();
 
   // ── Mutations ─────────────────────────────────────────────────────────────
 
   const toggleHabitMutation = useMutation({
     mutationFn: api.toggleHabit,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['habits'] }),
-  });
-
-  const toggleTaskMutation = useMutation({
-    mutationFn: api.toggleTask,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tasks'] }),
   });
 
   // ── Computed Metrics ──────────────────────────────────────────────────────
@@ -57,8 +50,6 @@ export default function Dashboard() {
   const avgGoalProgress = goals.length > 0
     ? Math.round(goals.reduce((acc, g) => acc + (g.progress || 0), 0) / goals.length)
     : 0;
-
-  const completedTasks = tasks.filter((t) => t.completed).length;
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
@@ -144,20 +135,6 @@ export default function Dashboard() {
           </div>
           <div className="dashboard-progress-track">
             <div className="dashboard-progress-bar" style={{ width: `${avgGoalProgress}%` }} />
-          </div>
-        </div>
-
-        {/* Daily Tasks */}
-        <div className="glass-panel dashboard-kpi-card">
-          <div className="dashboard-kpi-top">
-            <span className="dashboard-kpi-label">TODAY'S EXECUTION</span>
-            <span className="badge badge-emerald">{completedTasks}/{tasks.length} Completed</span>
-          </div>
-          <div className="dashboard-kpi-value">
-            {tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0}%
-          </div>
-          <div className="dashboard-kpi-subtext">
-            {tasks.filter((t) => !t.completed && t.priority === 'HIGH').length} high-priority tasks pending
           </div>
         </div>
       </div>
@@ -261,64 +238,30 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Strategic Goals & High Priority Tasks Row */}
-      <div className="dashboard-split-grid">
-        {/* Goals Progress */}
-        <div className="glass-panel dashboard-card-section">
-          <div className="dashboard-card-header">
-            <div>
-              <h3 className="dashboard-card-title">Strategic Milestones</h3>
-              <p className="dashboard-card-subtitle">Quarterly and annual pursuits</p>
-            </div>
-            <button onClick={() => navigate('/life-os/goals')} className="btn btn-secondary dashboard-btn-action">
-              Manage
-            </button>
+      {/* Strategic Goals */}
+      <div className="glass-panel dashboard-card-section" style={{ marginTop: 24 }}>
+        <div className="dashboard-card-header">
+          <div>
+            <h3 className="dashboard-card-title">Strategic Milestones</h3>
+            <p className="dashboard-card-subtitle">Quarterly and annual pursuits</p>
           </div>
-
-          <div className="dashboard-goals-list">
-            {goals.slice(0, 3).map((goal) => (
-              <div key={goal.id}>
-                <div className="dashboard-goal-row">
-                  <span className="dashboard-goal-title">{goal.title}</span>
-                  <span className="dashboard-goal-pct">{goal.progress}%</span>
-                </div>
-                <div className="dashboard-goal-track">
-                  <div className="dashboard-progress-bar" style={{ width: `${goal.progress}%` }} />
-                </div>
-              </div>
-            ))}
-          </div>
+          <button onClick={() => navigate('/life-os/goals')} className="btn btn-secondary dashboard-btn-action">
+            Manage
+          </button>
         </div>
 
-        {/* High Priority Tasks */}
-        <div className="glass-panel dashboard-card-section">
-          <div className="dashboard-card-header">
-            <div>
-              <h3 className="dashboard-card-title">High Priority Action Items</h3>
-              <p className="dashboard-card-subtitle">Key deliverables for today</p>
-            </div>
-            <button onClick={() => navigate('/life-os/tasks')} className="btn btn-secondary dashboard-btn-action">
-              Task Board
-            </button>
-          </div>
-
-          <div className="habits-list-vertical">
-            {tasks.filter((t) => t.priority === 'HIGH').slice(0, 4).map((task) => (
-              <div
-                key={task.id}
-                onClick={() => toggleTaskMutation.mutate(task.id)}
-                className={`dashboard-task-item ${task.completed ? 'completed' : 'pending'}`}
-              >
-                <div className="dashboard-task-left">
-                  {task.completed ? <CheckCircle2 size={18} color="#10b981" /> : <Circle size={18} color="#6366f1" />}
-                  <span className={`dashboard-task-title ${task.completed ? 'completed' : ''}`}>
-                    {task.title}
-                  </span>
-                </div>
-                <span className="badge badge-rose badge-priority-sm">HIGH</span>
+        <div className="dashboard-goals-list">
+          {goals.slice(0, 4).map((goal) => (
+            <div key={goal.id}>
+              <div className="dashboard-goal-row">
+                <span className="dashboard-goal-title">{goal.title}</span>
+                <span className="dashboard-goal-pct">{goal.progress}%</span>
               </div>
-            ))}
-          </div>
+              <div className="dashboard-goal-track">
+                <div className="dashboard-progress-bar" style={{ width: `${goal.progress}%` }} />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

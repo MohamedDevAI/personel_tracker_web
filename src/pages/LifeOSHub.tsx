@@ -1,15 +1,14 @@
 import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Wallet, CheckSquare, Target, Flame, StickyNote as StickyNoteIcon } from 'lucide-react';
+import { LayoutDashboard, Wallet, Target, Flame, StickyNote as StickyNoteIcon } from 'lucide-react';
 import Dashboard from './Dashboard';
 import ExpenseTracker from './ExpenseTracker';
-import TasksView from '../components/life_os/tasks/TasksView';
 import GoalsView from '../components/life_os/goals/GoalsView';
 import HabitsView from '../components/life_os/habits/HabitsView';
 import StickyNotesRemindersView from '../components/life_os/notes-reminders/StickyNotesRemindersView';
 import '../components/life_os/productivity/productivity.css';
 
-export type LifeOSTabKey = 'overview' | 'finances' | 'tasks' | 'goals' | 'habits' | 'notes';
+export type LifeOSTabKey = 'overview' | 'finances' | 'goals' | 'habits' | 'notes';
 
 export default function LifeOSHub() {
   const location = useLocation();
@@ -18,7 +17,6 @@ export default function LifeOSHub() {
   // Active sub-tab from current path
   const activeTab: LifeOSTabKey = useMemo(() => {
     if (location.pathname.includes('/finances') || location.pathname.includes('/finance')) return 'finances';
-    if (location.pathname.includes('/tasks')) return 'tasks';
     if (location.pathname.includes('/goals')) return 'goals';
     if (location.pathname.includes('/habits')) return 'habits';
     if (location.pathname.includes('/notes') || location.pathname.includes('/reminders')) return 'notes';
@@ -29,13 +27,10 @@ export default function LifeOSHub() {
     navigate(`/life-os/${tab}`);
   };
 
-
   return (
     <div className="productivity-hub-container">
       {/* Life OS Header */}
       <div className="productivity-hub-header">
-
-
         {/* Life OS Sub-Navigation Bar */}
         <div className="productivity-nav-tabs-wrapper">
           <div className="productivity-nav-tabs-bar">
@@ -53,14 +48,6 @@ export default function LifeOSHub() {
             >
               <Wallet size={17} />
               <span>Finances & Ledger</span>
-            </button>
-
-            <button
-              onClick={() => handleSelectTab('tasks')}
-              className={`productivity-main-nav-tab ${activeTab === 'tasks' ? 'active' : ''}`}
-            >
-              <CheckSquare size={17} />
-              <span>Daily Tasks</span>
             </button>
 
             <button
@@ -94,7 +81,6 @@ export default function LifeOSHub() {
       <div className="productivity-subtab-content">
         {activeTab === 'overview' && <Dashboard />}
         {activeTab === 'finances' && <ExpenseTracker />}
-        {activeTab === 'tasks' && <TasksView />}
         {activeTab === 'goals' && <GoalsView />}
         {activeTab === 'habits' && <HabitsView />}
         {activeTab === 'notes' && <StickyNotesRemindersView />}

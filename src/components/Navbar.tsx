@@ -45,7 +45,7 @@ export default function Navbar({ backendStatus, theme, toggleTheme, activeRemind
             </span>
           </div>
           <div className="navbar-brand-subtitle">
-            {isMoneyApp ? 'Wealth Management & Financial Suite' : 'Executive Tasks, Goals & Habit Engine'}
+            {isMoneyApp ? 'Wealth Management & Financial Suite' : 'Executive Finances, Goals & Habit Engine'}
           </div>
         </div>
       </div>
