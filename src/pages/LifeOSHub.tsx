@@ -35,6 +35,7 @@ export default function LifeOSHub() {
       {/* Life OS Header */}
       <div className="productivity-hub-header">
 
+
         {/* Life OS Sub-Navigation Bar */}
         <div className="productivity-nav-tabs-wrapper">
           <div className="productivity-nav-tabs-bar">
