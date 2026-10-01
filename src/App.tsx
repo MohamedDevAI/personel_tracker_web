@@ -56,10 +56,10 @@ export default function App() {
 
           {/* Backwards-compatibility redirects for old URLs */}
           <Route path="/finances/*" element={<Navigate to="/money" replace />} />
-          <Route path="/productivity/*" element={<Navigate to="/life-os/tasks" replace />} />
+          <Route path="/productivity/*" element={<Navigate to="/life-os/overview" replace />} />
           <Route path="/habits" element={<Navigate to="/life-os/habits" replace />} />
           <Route path="/goals" element={<Navigate to="/life-os/goals" replace />} />
-          <Route path="/tasks" element={<Navigate to="/life-os/tasks" replace />} />
+          <Route path="/tasks" element={<Navigate to="/life-os/overview" replace />} />
           <Route path="/notes" element={<Navigate to="/life-os/notes" replace />} />
           <Route path="/reminders" element={<Navigate to="/life-os/notes" replace />} />
           <Route path="/sticky-notes" element={<Navigate to="/life-os/notes" replace />} />
