@@ -9,10 +9,13 @@ import ConfirmDeleteModal from '../../common/ConfirmDeleteModal';
 import HabitsDateBuddy from './HabitsDateBuddy';
 import HabitsKpiCards from './HabitsKpiCards';
 import HabitsToolbar, { HabitStatusFilter, HabitViewMode } from './HabitsToolbar';
+import TodayFocusBar from './TodayFocusBar';
+import StreaksRingView from './StreaksRingView';
 import HabitCard from './HabitCard';
 import HabitMatrixSheet from './HabitMatrixSheet';
 import HabitModal from './HabitModal';
 import { useHabitsQuery } from '../../../hooks';
+import { playHabitChime } from './habitHelpers';
 import './habits.css';
 
 export default function HabitsView() {
@@ -41,8 +44,8 @@ export default function HabitsView() {
   const [selectedYear, setSelectedYear] = useState<number>(() => getCurrentYear());
   const [selectedMonth, setSelectedMonth] = useState<string>(() => getCurrentMonth());
 
-  // State: View & Filter
-  const [viewMode, setViewMode] = useState<HabitViewMode>('sheet'); // Default to high-density Matrix Sheet!
+  // State: View & Filter (Default to iconic iPhone 'streaks' circular rings mode!)
+  const [viewMode, setViewMode] = useState<HabitViewMode>('streaks');
   const [showAddModal, setShowAddModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<HabitStatusFilter>('ALL');
@@ -55,6 +58,10 @@ export default function HabitsView() {
     setSelectedYear(getCurrentYear());
     setSelectedMonth(getCurrentMonth());
   };
+
+  // Status Counts
+  const pendingCount = useMemo(() => habits.filter((h) => !h.completedToday).length, [habits]);
+  const completedCount = useMemo(() => habits.filter((h) => h.completedToday).length, [habits]);
 
   // Filtering
   const filteredHabits = useMemo(() => {
@@ -81,11 +88,32 @@ export default function HabitsView() {
     });
   }, [habits, searchQuery, selectedCategory, statusFilter]);
 
-  // Handlers
-  const handleToggle = (id: string, isDone: boolean) => {
+  // Handlers with Dopamine Audio & Confetti
+  const handleToggle = (id: string, currentlyDone: boolean) => {
+    const isNowDone = !currentlyDone;
     toggleMutation.mutate(id);
-    if (!isDone) {
-      confetti({ particleCount: 50, spread: 70, origin: { y: 0.65 } });
+
+    // Play synthesized dopamine sound chime
+    playHabitChime(isNowDone);
+
+    if (isNowDone) {
+      // If this was the last remaining habit, trigger major victory fireworks!
+      const remainingAfterThis = pendingCount - 1;
+      if (remainingAfterThis <= 0 && habits.length > 0) {
+        confetti({
+          particleCount: 140,
+          spread: 120,
+          origin: { y: 0.5 },
+          colors: ['#ff5500', '#ff7a00', '#ff9500', '#ffffff', '#fbbf24'],
+        });
+      } else {
+        confetti({
+          particleCount: 50,
+          spread: 70,
+          origin: { y: 0.65 },
+          colors: ['#ff5500', '#ff7a00', '#ff9e42'],
+        });
+      }
     }
   };
 
@@ -94,8 +122,15 @@ export default function HabitsView() {
     pendingHabits.forEach((h) => {
       toggleMutation.mutate(h.id);
     });
+
     if (pendingHabits.length > 0) {
-      confetti({ particleCount: 80, spread: 90, origin: { y: 0.6 } });
+      playHabitChime(true);
+      confetti({
+        particleCount: 160,
+        spread: 130,
+        origin: { y: 0.45 },
+        colors: ['#ff5500', '#ff7a00', '#ff9500', '#ffffff', '#fbbf24'],
+      });
     }
   };
 
@@ -109,19 +144,7 @@ export default function HabitsView() {
 
   return (
     <div className="habits-view-container">
-      {/* 1. Date Buddy Bar */}
-      <HabitsDateBuddy
-        selectedYear={selectedYear}
-        onYearChange={setSelectedYear}
-        selectedMonth={selectedMonth}
-        onMonthChange={setSelectedMonth}
-        onJumpToday={handleJumpToday}
-      />
-
-      {/* 2. KPI Cards Header */}
-      <HabitsKpiCards habits={habits} />
-
-      {/* 3. Toolbar & Filters & View Switcher */}
+      {/* 1. Toolbar & Filters & View Switcher (Top Command Line) */}
       <HabitsToolbar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -132,42 +155,83 @@ export default function HabitsView() {
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         onOpenAddModal={() => setShowAddModal(true)}
+        pendingCount={pendingCount}
+        completedCount={completedCount}
       />
 
-      {/* 4. Content Views (Matrix Sheet vs Cards Grid) */}
+      {/* 2. Date Buddy (Only displayed when exploring Matrix Sheet historical view) */}
+      {viewMode === 'sheet' && (
+        <HabitsDateBuddy
+          selectedYear={selectedYear}
+          onYearChange={setSelectedYear}
+          selectedMonth={selectedMonth}
+          onMonthChange={setSelectedMonth}
+          onJumpToday={handleJumpToday}
+        />
+      )}
+
+      {/* 3. Primary Content View: Streaks iPhone Rings vs Matrix Sheet vs Cards */}
       {filteredHabits.length > 0 ? (
-        viewMode === 'sheet' ? (
-          <HabitMatrixSheet
-            habits={filteredHabits}
-            onToggle={handleToggle}
-            onDelete={(id) => deleteConfirm.confirm(id, 'Habit Routine')}
-            onBulkCheckIn={handleBulkCheckIn}
-          />
+        viewMode === 'streaks' ? (
+          <>
+            <StreaksRingView
+              habits={filteredHabits}
+              onToggle={handleToggle}
+              onDelete={(id) => deleteConfirm.confirm(id, 'Habit Routine')}
+              onBulkCheckIn={handleBulkCheckIn}
+              onOpenAddModal={() => setShowAddModal(true)}
+            />
+            {/* KPI Overview below the rings */}
+            <HabitsKpiCards habits={habits} />
+          </>
+        ) : viewMode === 'sheet' ? (
+          <>
+            <HabitsKpiCards habits={habits} />
+            <TodayFocusBar
+              habits={habits}
+              onToggle={handleToggle}
+              onBulkCheckIn={handleBulkCheckIn}
+            />
+            <HabitMatrixSheet
+              habits={filteredHabits}
+              onToggle={handleToggle}
+              onDelete={(id) => deleteConfirm.confirm(id, 'Habit Routine')}
+              onBulkCheckIn={handleBulkCheckIn}
+            />
+          </>
         ) : (
-          <div className="habits-cards-grid">
-            {filteredHabits.map((habit) => (
-              <HabitCard
-                key={habit.id}
-                habit={habit}
-                onToggle={handleToggle}
-                onDelete={(id) => deleteConfirm.confirm(id, habit.title)}
-              />
-            ))}
-          </div>
+          <>
+            <HabitsKpiCards habits={habits} />
+            <TodayFocusBar
+              habits={habits}
+              onToggle={handleToggle}
+              onBulkCheckIn={handleBulkCheckIn}
+            />
+            <div className="habits-cards-grid">
+              {filteredHabits.map((habit) => (
+                <HabitCard
+                  key={habit.id}
+                  habit={habit}
+                  onToggle={handleToggle}
+                  onDelete={(id) => deleteConfirm.confirm(id, habit.title)}
+                />
+              ))}
+            </div>
+          </>
         )
       ) : (
-        <div className="habits-empty-state">
+        <div className="glass-panel habits-empty-state">
           <div className="habits-empty-icon">
             <Flame size={28} />
           </div>
           <h3 className="habits-empty-title">No Habit Routines Found</h3>
           <p className="habits-empty-sub">
             {searchQuery || statusFilter !== 'ALL' || selectedCategory !== 'ALL'
-              ? 'No habit routines match your active filter parameters. Try clearing your filters or search term.'
-              : 'You have not built any habit routines yet. Start by creating your first daily consistency routine.'}
+              ? 'No habit routines match your active filter parameters. Try clearing your search or status filters.'
+              : 'You have not built any habit routines yet. Start creating your daily consistency rituals.'}
           </p>
-          <button onClick={() => setShowAddModal(true)} className="btn btn-primary" style={{ marginTop: 8 }}>
-            <Plus size={16} /> Create First Habit
+          <button onClick={() => setShowAddModal(true)} className="streaks-btn-orange-solid" style={{ marginTop: 8 }}>
+            <Plus size={16} /> Create First Routine
           </button>
         </div>
       )}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Flame, X } from 'lucide-react';
+import { Flame, X, Sparkles } from 'lucide-react';
 import { HABIT_CATEGORIES } from '../../../utils/constants';
 
 interface HabitModalProps {
@@ -8,7 +8,21 @@ interface HabitModalProps {
   onSubmit: (data: { title: string; category: string; targetFrequency: string }) => void;
 }
 
+interface HabitPreset {
+  title: string;
+  category: string;
+  targetFrequency: string;
+}
 
+const PRESET_SUGGESTIONS: HabitPreset[] = [
+  { title: '💧 Drink 2.5L Water', category: 'Health', targetFrequency: 'Daily' },
+  { title: '🏃 30 Min Morning Workout', category: 'Fitness', targetFrequency: 'Daily' },
+  { title: '📖 Read 20 Pages', category: 'Learning', targetFrequency: 'Daily' },
+  { title: '🧘 10 Min Meditation', category: 'Mindset', targetFrequency: 'Daily' },
+  { title: '💻 Code / Build Projects', category: 'Productivity', targetFrequency: 'Weekdays' },
+  { title: '💰 Track Daily Expenses', category: 'Finance', targetFrequency: 'Daily' },
+  { title: '🚶 10,000 Steps Walk', category: 'Fitness', targetFrequency: 'Daily' },
+];
 
 export default function HabitModal({ isOpen, onClose, onSubmit }: HabitModalProps) {
   const [formData, setFormData] = useState({
@@ -27,18 +41,31 @@ export default function HabitModal({ isOpen, onClose, onSubmit }: HabitModalProp
     onClose();
   };
 
+  const handleApplyPreset = (preset: HabitPreset) => {
+    setFormData({
+      title: preset.title,
+      category: preset.category,
+      targetFrequency: preset.targetFrequency,
+    });
+  };
 
   return (
     <div className="modal-overlay-backdrop">
-      <div className="glass-panel modal-content-card modal-content-card-sm">
+      <div className="glass-panel modal-content-card modal-content-card-sm habit-modal-dialog">
         {/* Header */}
         <div className="modal-header-row">
           <div className="modal-header-with-icon">
-            <div className="modal-icon-badge planned" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}>
+            <div
+              className="modal-icon-badge planned"
+              style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}
+            >
               <Flame size={20} />
             </div>
             <div>
               <h3 className="modal-title-main">Build New Habit Routine</h3>
+              <p className="modal-subtitle-text">
+                Design a daily or recurring routine to build unbreakable consistency.
+              </p>
             </div>
           </div>
           <button onClick={onClose} className="btn-icon" aria-label="Close modal">
@@ -46,7 +73,24 @@ export default function HabitModal({ isOpen, onClose, onSubmit }: HabitModalProp
           </button>
         </div>
 
-
+        {/* Quick Presets Section */}
+        <div className="habit-presets-section">
+          <span className="habit-presets-label">
+            <Sparkles size={12} color="#818cf8" /> Quick Inspiration Presets:
+          </span>
+          <div className="habit-presets-wrap">
+            {PRESET_SUGGESTIONS.map((preset) => (
+              <button
+                key={preset.title}
+                type="button"
+                onClick={() => handleApplyPreset(preset)}
+                className={`habit-preset-chip ${formData.title === preset.title ? 'active' : ''}`}
+              >
+                {preset.title}
+              </button>
+            ))}
+          </div>
+        </div>
 
         <form onSubmit={handleSubmit} className="modal-form-vertical">
           <div className="form-group-custom">
@@ -79,7 +123,7 @@ export default function HabitModal({ isOpen, onClose, onSubmit }: HabitModalProp
             </div>
 
             <div className="form-group-custom">
-              <label className="modal-field-label">Target Frequency</label>
+              <label className="modal-field-label">Target Cadence</label>
               <select
                 value={formData.targetFrequency}
                 onChange={(e) => setFormData({ ...formData, targetFrequency: e.target.value })}
@@ -98,7 +142,7 @@ export default function HabitModal({ isOpen, onClose, onSubmit }: HabitModalProp
               Cancel
             </button>
             <button type="submit" className="btn btn-primary">
-              Save Habit Routine
+              <Flame size={15} /> Save Habit Routine
             </button>
           </div>
         </form>
