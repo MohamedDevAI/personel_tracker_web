@@ -319,6 +319,8 @@ export default function PlannedExpensesView({
             setSelectedMonth(mShort);
             if (colYear) setSelectedYear(colYear);
           }}
+          onFulfillPlan={plan => setActiveFulfillPlan(plan)}
+          onSaveFulfillment={handleSaveFulfillment}
           onTogglePlanStatus={plan => {
             const isDone = plan.isFulfilled || plan.status === 'Fulfilled';
             fulfillMutation.mutate({

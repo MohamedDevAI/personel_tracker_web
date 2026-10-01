@@ -1107,6 +1107,11 @@
   border-left: 3px solid #10b981;
 }
 
+.glance-item-row.item-partial {
+  border-left: 3px solid #f59e0b;
+  background: rgba(245, 158, 11, 0.05);
+}
+
 .glance-item-row.item-pending {
   border-left: 3px solid #f43f5e;
   background: rgba(244, 63, 94, 0.04);
@@ -1156,6 +1161,47 @@
   color: #fb7185;
 }
 
+.glance-item-subline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 1px;
+}
+
+.glance-item-payment-meta {
+  font-size: 0.68rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.glance-item-payment-meta.fulfilled {
+  color: #34d399;
+}
+
+.glance-item-payment-meta.partial {
+  color: #fbbf24;
+}
+
+.glance-item-payment-meta.overpaid {
+  color: #fbbf24;
+}
+
+.glance-item-payment-meta.pending {
+  color: var(--text-muted);
+}
+
+.glance-item-payment-meta .rem-tag {
+  color: #fb7185;
+  font-weight: 700;
+}
+
+.glance-item-payment-meta .extra-tag {
+  color: #f59e0b;
+  font-weight: 700;
+}
+
 .glance-item-notes {
   font-size: 0.68rem;
   color: var(--text-secondary);
@@ -1192,6 +1238,15 @@
 
 .glance-item-toggle-btn.done:hover {
   background: rgba(16, 185, 129, 0.25);
+}
+
+.glance-item-toggle-btn.partial {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+
+.glance-item-toggle-btn.partial:hover {
+  background: rgba(245, 158, 11, 0.25);
 }
 
 .glance-item-toggle-btn.pending {

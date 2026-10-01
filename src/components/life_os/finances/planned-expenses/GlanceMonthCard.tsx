@@ -15,6 +15,7 @@ interface GlanceMonthCardProps {
   isCurrent: boolean;
   cardRef: React.Ref<HTMLDivElement> | null;
   onToggleItem: (plan: PlannedExpense, e?: React.MouseEvent) => void;
+  onFulfillItem?: (plan: PlannedExpense, e?: React.MouseEvent) => void;
   onToggleColumn: (monthShort: string, year: number, isCompleted: boolean) => void;
   onDeleteItem: (plan: PlannedExpense, e?: React.MouseEvent) => void;
   onSelectMonth?: (monthShort: string, year?: number) => void;
@@ -25,6 +26,7 @@ export default function GlanceMonthCard({
   isCurrent,
   cardRef,
   onToggleItem,
+  onFulfillItem,
   onToggleColumn,
   onDeleteItem,
   onSelectMonth
@@ -107,7 +109,7 @@ export default function GlanceMonthCard({
       <div className="glance-card-body">
         <div className="glance-items-heading">
           <span>Expense Objectives ({col.itemCount})</span>
-          <span className="glance-hint-text">1-click to toggle</span>
+          <span className="glance-hint-text">Click Fulfilment to record payment</span>
         </div>
 
         <div className="glance-items-list">
@@ -117,16 +119,41 @@ export default function GlanceMonthCard({
             </div>
           ) : (
             col.items.map(item => {
+              const plannedVal = item.plannedAmount || 0;
+              const isExplicitFulfilled = item.isFulfilled || item.status === 'Fulfilled';
+              const paidVal =
+                item.paidAmount !== undefined && item.paidAmount !== null
+                  ? item.paidAmount
+                  : isExplicitFulfilled
+                  ? plannedVal
+                  : 0;
+
               const isItemFulfilled =
-                item.isFulfilled ||
-                item.status === 'Fulfilled' ||
-                (item.paidAmount ?? 0) >= item.plannedAmount;
+                isExplicitFulfilled || (plannedVal > 0 && paidVal >= plannedVal);
+              const isPartial = !isItemFulfilled && paidVal > 0 && paidVal < plannedVal;
+              const isOverpaid = paidVal > plannedVal;
+              const extraVal = Math.max(0, paidVal - plannedVal);
+              const remainingVal = Math.max(0, plannedVal - paidVal);
+
+              const handleFulfillClick = (e: React.MouseEvent) => {
+                e.stopPropagation();
+                if (onFulfillItem) {
+                  onFulfillItem(item, e);
+                } else {
+                  onToggleItem(item, e);
+                }
+              };
 
               return (
                 <div
                   key={item.id || item.title}
-                  className={`glance-item-row ${isItemFulfilled ? 'item-done' : 'item-pending'
-                    }`}
+                  className={`glance-item-row ${
+                    isItemFulfilled
+                      ? 'item-done'
+                      : isPartial
+                      ? 'item-partial'
+                      : 'item-pending'
+                  }`}
                 >
                   {/* 1. Expense Objective & Planned Budget */}
                   <div className="glance-item-info">
@@ -137,28 +164,69 @@ export default function GlanceMonthCard({
                       >
                         {item.title}
                       </span>
-                      <span className="glance-item-amount">
-                        {formatSAR(item.plannedAmount)}
+                      <span
+                        className="glance-item-amount"
+                        title={`Planned Budget: ${formatSAR(plannedVal)}`}
+                      >
+                        {formatSAR(plannedVal)}
                       </span>
+                    </div>
+
+                    {/* Informative Payment Subline */}
+                    <div className="glance-item-subline">
+                      {isOverpaid ? (
+                        <span
+                          className="glance-item-payment-meta overpaid"
+                          title={`Budgeted: ${formatSAR(plannedVal)} | Paid: ${formatSAR(paidVal)}`}
+                        >
+                          Paid {formatSAR(paidVal)}{' '}
+                          <span className="extra-tag">+{formatSAR(extraVal)} extra</span>
+                        </span>
+                      ) : isItemFulfilled ? (
+                        <span className="glance-item-payment-meta fulfilled">
+                          ✓ Paid {formatSAR(paidVal)} (Full)
+                        </span>
+                      ) : isPartial ? (
+                        <span
+                          className="glance-item-payment-meta partial"
+                          title={`Paid ${formatSAR(paidVal)} of ${formatSAR(plannedVal)} | Balance Due: ${formatSAR(remainingVal)}`}
+                        >
+                          Paid {formatSAR(paidVal)} •{' '}
+                          <span className="rem-tag">{formatSAR(remainingVal)} left</span>
+                        </span>
+                      ) : (
+                        <span className="glance-item-payment-meta pending">
+                          Unpaid • SAR 0.00
+                        </span>
+                      )}
                     </div>
                   </div>
 
-                  {/* 2. Actions: Tick Mark (✓) or Close Mark (✕) */}
+                  {/* 2. Actions: Fulfillment button (opens payment choice modal) + Delete */}
                   <div className="glance-item-actions-group">
                     <button
                       type="button"
-                      onClick={e => onToggleItem(item, e)}
-                      className={`glance-item-toggle-btn ${isItemFulfilled ? 'done' : 'pending'
-                        }`}
+                      onClick={handleFulfillClick}
+                      className={`glance-item-toggle-btn ${
+                        isItemFulfilled ? 'done' : isPartial ? 'partial' : 'pending'
+                      }`}
                       title={
                         isItemFulfilled
-                          ? 'Fulfilled (Click to mark Pending)'
-                          : 'Not Fulfilled (Click to mark Fulfilled)'
+                          ? `Fulfilled (${formatSAR(paidVal)}) — Click to update payment (Full or Customized)`
+                          : isPartial
+                          ? `Partially Paid (${formatSAR(paidVal)}) — Click to update payment`
+                          : 'Unpaid — Click to record Full or Customized payment'
                       }
                     >
                       {isItemFulfilled ? (
                         <>
                           <CheckCircle2 size={13} className="emerald-icon" />
+                          <span>Paid</span>
+                        </>
+                      ) : isPartial ? (
+                        <>
+                          <Clock size={13} className="amber-icon" />
+                          <span>Partial</span>
                         </>
                       ) : (
                         <>
@@ -166,6 +234,7 @@ export default function GlanceMonthCard({
                             size={13}
                             className="glance-unfulfilled-icon"
                           />
+                          <span>Unpaid</span>
                         </>
                       )}
                     </button>

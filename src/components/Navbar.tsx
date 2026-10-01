@@ -91,7 +91,7 @@ export default function Navbar({ backendStatus, theme, toggleTheme, activeRemind
         >
           <Database size={13} />
           <span className="navbar-status-label">
-            {backendStatus.connected ? 'Server: Live' : 'Atlas Ready (Local)'}
+            {backendStatus.connected ? 'Server: Live' : 'Server: Not Ready'}
           </span>
           <span
             className={`navbar-status-dot ${backendStatus.connected ? 'navbar-status-dot-connected' : 'navbar-status-dot-local'

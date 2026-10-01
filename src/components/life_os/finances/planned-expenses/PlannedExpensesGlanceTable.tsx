@@ -6,6 +6,7 @@ import GlanceToolbar from './GlanceToolbar';
 import GlanceMonthCard from './GlanceMonthCard';
 import GlanceAddModal from './GlanceAddModal';
 import GlanceDeleteModal from './GlanceDeleteModal';
+import FulfillPaymentModal from '../FulfillPaymentModal';
 import './planned-expenses.css';
 
 export interface PlannedExpensesGlanceTableProps {
@@ -13,6 +14,8 @@ export interface PlannedExpensesGlanceTableProps {
   isLoading?: boolean;
   selectedYear?: number;
   onTogglePlanStatus?: (plan: PlannedExpense, e?: React.MouseEvent) => void;
+  onFulfillPlan?: (plan: PlannedExpense) => void;
+  onSaveFulfillment?: (id: string, isFulfilled: boolean, paidAmount: number, plan?: PlannedExpense) => void;
   onDeletePlan?: (plan: PlannedExpense, e?: React.MouseEvent) => void;
   onAddPlan?: (newPlan: Partial<PlannedExpense>) => void;
   onRefresh?: () => void;
@@ -42,6 +45,8 @@ export default function PlannedExpensesGlanceTable({
   isLoading = false,
   selectedYear: _selectedYear = getCurrentYear(),
   onTogglePlanStatus,
+  onFulfillPlan,
+  onSaveFulfillment,
   onDeletePlan,
   onAddPlan,
   onRefresh,
@@ -76,6 +81,7 @@ export default function PlannedExpensesGlanceTable({
   const [newYear, setNewYear] = useState<number>(calendarYear);
   const [newNotes, setNewNotes] = useState('');
   const [deleteConfirmPlan, setDeleteConfirmPlan] = useState<PlannedExpense | null>(null);
+  const [internalFulfillPlan, setInternalFulfillPlan] = useState<PlannedExpense | null>(null);
 
   // Unique Categories
   const uniqueCategories = useMemo(() => {
@@ -86,38 +92,59 @@ export default function PlannedExpensesGlanceTable({
     return Array.from(set).sort((a, b) => a.localeCompare(b));
   }, [localPlans]);
 
-  // 1-Click Toggle Item Fulfillment Status
-  const handleToggleItem = (plan: PlannedExpense, e?: React.MouseEvent) => {
+  // Fulfillment Click Handler (delegates to parent modal or local fallback)
+  const handleFulfillItem = (plan: PlannedExpense, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    const plannedVal = plan.plannedAmount || 0;
-    const isCurrentlyFulfilled =
-      plan.isFulfilled || plan.status === 'Fulfilled' || (plan.paidAmount ?? 0) >= plannedVal;
-    const nextFulfilled = !isCurrentlyFulfilled;
+    if (onFulfillPlan) {
+      onFulfillPlan(plan);
+    } else {
+      setInternalFulfillPlan(plan);
+    }
+  };
+
+  // Local save fulfillment handler for instant UI updates & backend sync
+  const handleSaveInternalFulfillment = (
+    id: string,
+    isFulfilled: boolean,
+    paidAmount: number
+  ) => {
+    const target = localPlans.find(p => p.id === id);
+    const plannedVal = target?.plannedAmount || 0;
+    const finalPaid = Math.max(0, paidAmount);
+    const finalFulfilled = isFulfilled || (finalPaid > 0 && finalPaid >= plannedVal);
+    const nextStatus = finalFulfilled ? 'Fulfilled' : finalPaid > 0 ? 'Partial' : 'Planned';
 
     setLocalPlans(prev =>
       prev.map(p =>
-        p.id === plan.id
+        p.id === id
           ? {
-            ...p,
-            isFulfilled: nextFulfilled,
-            status: nextFulfilled ? 'Fulfilled' : 'Planned',
-            paidAmount: nextFulfilled ? plannedVal : 0
-          }
+              ...p,
+              isFulfilled: finalFulfilled,
+              paidAmount: finalPaid,
+              status: nextStatus
+            }
           : p
       )
     );
 
-    if (onTogglePlanStatus) {
-      onTogglePlanStatus(
-        {
-          ...plan,
-          isFulfilled: nextFulfilled,
-          status: nextFulfilled ? 'Fulfilled' : 'Planned',
-          paidAmount: nextFulfilled ? plannedVal : 0
-        },
-        e
-      );
+    if (onSaveFulfillment) {
+      onSaveFulfillment(id, finalFulfilled, finalPaid, target);
+    } else if (onTogglePlanStatus && target) {
+      onTogglePlanStatus({
+        ...target,
+        isFulfilled: finalFulfilled,
+        paidAmount: finalPaid,
+        status: nextStatus
+      });
     }
+
+    setInternalFulfillPlan(null);
+  };
+
+  // 1-Click Toggle Item Fulfillment Status
+  const handleToggleItem = (plan: PlannedExpense, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    handleFulfillItem(plan, e);
   };
 
   // Toggle All items in a Month Column
@@ -392,10 +419,7 @@ export default function PlannedExpensesGlanceTable({
 
   return (
     <div className="glance-schedule-wrapper">
-      {/* ── 1. Hero KPI Banner ──────────────────────────────────────────────── */}
 
-
-      {/* ── 2. Glance Toolbar ───────────────────────────────────────────────── */}
       <GlanceToolbar
         viewMode={viewMode}
         setViewMode={setViewMode}
@@ -416,7 +440,6 @@ export default function PlannedExpensesGlanceTable({
         onRefresh={onRefresh}
       />
 
-      {/* ── 3. Single Glance Matrix Board ───────────────────────────────────── */}
       {viewMode === 'matrix' && (
         <div className="glance-matrix-container" ref={containerRef}>
           <div className={`glance-columns-track ${filteredColumns.length === 0 ? 'glance-columns-track-full' : ''}`}>
@@ -436,6 +459,7 @@ export default function PlannedExpensesGlanceTable({
                   isCurrent={col.isCurrent}
                   cardRef={col.isCurrent ? currentMonthCardRef : null}
                   onToggleItem={handleToggleItem}
+                  onFulfillItem={handleFulfillItem}
                   onToggleColumn={handleToggleColumn}
                   onDeleteItem={handleDeleteItem}
                   onSelectMonth={onSelectMonth}
@@ -446,7 +470,6 @@ export default function PlannedExpensesGlanceTable({
         </div>
       )}
 
-      {/* ── 4. Add Plan Modal ───────────────────────────────────────────────── */}
       {isAddModalOpen && (
         <GlanceAddModal
           calendarYear={calendarYear}
@@ -465,13 +488,21 @@ export default function PlannedExpensesGlanceTable({
         />
       )}
 
-      {/* ── 5. Delete Confirmation Modal ────────────────────────────────────── */}
       {deleteConfirmPlan && (
         <GlanceDeleteModal
           plan={deleteConfirmPlan}
           calendarYear={calendarYear}
           onConfirm={confirmDelete}
           onCancel={() => setDeleteConfirmPlan(null)}
+        />
+      )}
+
+      {internalFulfillPlan && (
+        <FulfillPaymentModal
+          isOpen={Boolean(internalFulfillPlan)}
+          onClose={() => setInternalFulfillPlan(null)}
+          plan={internalFulfillPlan}
+          onSave={handleSaveInternalFulfillment}
         />
       )}
     </div>

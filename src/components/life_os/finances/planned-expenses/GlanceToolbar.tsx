@@ -137,7 +137,7 @@ export default function GlanceToolbar({
           onClick={onAddPlan}
           className="btn btn-primary btn-sm glance-hero-add-btn"
         >
-          <Plus size={15} /> + Add Expense
+          <Plus size={15} /> Add Expense
         </button>
 
         {/* Refresh Button */}
