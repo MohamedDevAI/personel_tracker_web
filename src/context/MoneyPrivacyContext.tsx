@@ -1,12 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 interface MoneyPrivacyContextType {
   isMoneyHidden: boolean;
   toggleHideMoney: () => void;
   mask: (formattedValue: string) => string;
 }
-
-const STORAGE_KEY = 'pt_hide_money_balances';
 
 const MoneyPrivacyContext = createContext<MoneyPrivacyContextType>({
   isMoneyHidden: false,
@@ -15,21 +13,7 @@ const MoneyPrivacyContext = createContext<MoneyPrivacyContextType>({
 });
 
 export const MoneyPrivacyProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isMoneyHidden, setIsMoneyHidden] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem(STORAGE_KEY) === 'true';
-    } catch {
-      return false;
-    }
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, String(isMoneyHidden));
-    } catch (e) {
-      console.warn('Unable to persist money privacy setting', e);
-    }
-  }, [isMoneyHidden]);
+  const [isMoneyHidden, setIsMoneyHidden] = useState<boolean>(false);
 
   const toggleHideMoney = () => {
     setIsMoneyHidden((prev) => !prev);

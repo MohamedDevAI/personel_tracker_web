@@ -82,6 +82,31 @@ describe('plannedExpenseSync', () => {
       const match = findLinkedTransaction(samplePlan, txs);
       expect(match?.id).toBe('tx-3');
     });
+
+    it('does NOT match another planned expense transaction with the same title', () => {
+      const otherPlanSameTitle: PlannedExpense = {
+        ...samplePlan,
+        id: 'pe-second-plan-456',
+        title: 'New Laptop',
+        plannedAmount: 300,
+      };
+
+      const txs: Transaction[] = [
+        {
+          id: 'tx-1-belonging-to-first-plan',
+          date: '2026-10-01',
+          description: 'New Laptop [PE-pe-test-123]',
+          amount: 1500,
+          type: 'Debit',
+          category: 'Equipment',
+          plannedExpenseId: 'pe-test-123',
+        },
+      ];
+
+      // Second plan should NOT steal first plan's transaction
+      const match = findLinkedTransaction(otherPlanSameTitle, txs);
+      expect(match).toBeUndefined();
+    });
   });
 
   describe('syncPlanToTransactions', () => {

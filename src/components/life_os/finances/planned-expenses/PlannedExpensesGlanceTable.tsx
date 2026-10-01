@@ -41,7 +41,7 @@ export interface GlanceColumn {
 }
 
 export default function PlannedExpensesGlanceTable({
-  plans: initialPlans = [],
+  plans = [],
   isLoading = false,
   selectedYear: _selectedYear = getCurrentYear(),
   onTogglePlanStatus,
@@ -57,8 +57,7 @@ export default function PlannedExpensesGlanceTable({
   const calendarMonthShort = getCurrentMonth();
   const calendarMonthIdx = MONTH_NAMES.indexOf(calendarMonthShort as any);
 
-  // Local state for interactive fallback / instant UI response
-  const [localPlans, setLocalPlans] = useState<PlannedExpense[]>(initialPlans);
+  // View & filter states driven directly by Server API data
   const [viewMode, setViewMode] = useState<GlanceViewMode>('matrix');
   const [statusFilter, setStatusFilter] = useState<GlanceStatusFilter>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
@@ -67,11 +66,6 @@ export default function PlannedExpensesGlanceTable({
   // DOM Refs for auto-scroll landing on current month
   const containerRef = useRef<HTMLDivElement>(null);
   const currentMonthCardRef = useRef<HTMLDivElement>(null);
-
-  // Synchronize localPlans when initialPlans updates
-  useEffect(() => {
-    setLocalPlans(initialPlans);
-  }, [initialPlans]);
 
   // Modal States
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -83,14 +77,14 @@ export default function PlannedExpensesGlanceTable({
   const [deleteConfirmPlan, setDeleteConfirmPlan] = useState<PlannedExpense | null>(null);
   const [internalFulfillPlan, setInternalFulfillPlan] = useState<PlannedExpense | null>(null);
 
-  // Unique Categories
+  // Unique Categories directly derived from Server plans
   const uniqueCategories = useMemo(() => {
     const set = new Set<string>();
-    localPlans.forEach(p => {
+    plans.forEach(p => {
       if (p.category) set.add(p.category.trim());
     });
     return Array.from(set).sort((a, b) => a.localeCompare(b));
-  }, [localPlans]);
+  }, [plans]);
 
   // Fulfillment Click Handler (delegates to parent modal or local fallback)
   const handleFulfillItem = (plan: PlannedExpense, e?: React.MouseEvent) => {
@@ -102,30 +96,18 @@ export default function PlannedExpensesGlanceTable({
     }
   };
 
-  // Local save fulfillment handler for instant UI updates & backend sync
+  // Save fulfillment handler delegates directly to backend server sync
   const handleSaveInternalFulfillment = (
     id: string,
     isFulfilled: boolean,
     paidAmount: number
   ) => {
-    const target = localPlans.find(p => p.id === id);
+    const target = plans.find(p => p.id === id);
     const plannedVal = target?.plannedAmount || 0;
     const finalPaid = Math.max(0, paidAmount);
-    const finalFulfilled = isFulfilled || (finalPaid > 0 && finalPaid >= plannedVal);
+    const isUnderpaid = finalPaid > 0 && plannedVal > 0 && finalPaid < plannedVal;
+    const finalFulfilled = isUnderpaid ? false : (isFulfilled || (finalPaid >= plannedVal && plannedVal > 0));
     const nextStatus = finalFulfilled ? 'Fulfilled' : finalPaid > 0 ? 'Partial' : 'Planned';
-
-    setLocalPlans(prev =>
-      prev.map(p =>
-        p.id === id
-          ? {
-              ...p,
-              isFulfilled: finalFulfilled,
-              paidAmount: finalPaid,
-              status: nextStatus
-            }
-          : p
-      )
-    );
 
     if (onSaveFulfillment) {
       onSaveFulfillment(id, finalFulfilled, finalPaid, target);
@@ -147,27 +129,31 @@ export default function PlannedExpensesGlanceTable({
     handleFulfillItem(plan, e);
   };
 
-  // Toggle All items in a Month Column
+  // Toggle All items in a Month Column & persist to Server API
   const handleToggleColumn = (monthShort: string, colYear: number, isMonthCompleted: boolean) => {
     const targetFulfilled = !isMonthCompleted;
-    setLocalPlans(prev =>
-      prev.map(p => {
-        const planYear = p.year || calendarYear;
-        const matchesYear = planYear === colYear;
-        const matchesMonth =
-          (p.month || '').toLowerCase().slice(0, 3) === monthShort.toLowerCase().slice(0, 3);
-        if (matchesYear && matchesMonth) {
-          const plannedVal = p.plannedAmount || 0;
-          return {
-            ...p,
-            isFulfilled: targetFulfilled,
-            status: targetFulfilled ? 'Fulfilled' : 'Planned',
-            paidAmount: targetFulfilled ? plannedVal : 0
-          };
-        }
-        return p;
-      })
-    );
+    const matchingItems = plans.filter(p => {
+      const planYear = p.year || calendarYear;
+      const matchesYear = planYear === colYear;
+      const matchesMonth =
+        (p.month || '').toLowerCase().slice(0, 3) === monthShort.toLowerCase().slice(0, 3);
+      return matchesYear && matchesMonth;
+    });
+
+    matchingItems.forEach(p => {
+      const plannedVal = p.plannedAmount || 0;
+      const finalPaid = targetFulfilled ? plannedVal : 0;
+      if (onSaveFulfillment) {
+        onSaveFulfillment(p.id, targetFulfilled, finalPaid, p);
+      } else if (onTogglePlanStatus) {
+        onTogglePlanStatus({
+          ...p,
+          isFulfilled: targetFulfilled,
+          paidAmount: finalPaid,
+          status: targetFulfilled ? 'Fulfilled' : 'Planned'
+        });
+      }
+    });
   };
 
   // Delete Item Handler
@@ -178,7 +164,6 @@ export default function PlannedExpensesGlanceTable({
 
   const confirmDelete = () => {
     if (!deleteConfirmPlan) return;
-    setLocalPlans(prev => prev.filter(p => p.id !== deleteConfirmPlan.id));
     if (onDeletePlan) {
       onDeletePlan(deleteConfirmPlan);
     }
@@ -190,8 +175,7 @@ export default function PlannedExpensesGlanceTable({
     e.preventDefault();
     if (!newTitle.trim() || !newAmount || Number(newAmount) <= 0) return;
 
-    const created: PlannedExpense = {
-      id: `plan-${Date.now()}`,
+    const created: Partial<PlannedExpense> = {
       title: newTitle.trim(),
       month: newMonth,
       year: newYear,
@@ -202,9 +186,8 @@ export default function PlannedExpensesGlanceTable({
       notes: newNotes.trim() || undefined
     };
 
-    setLocalPlans(prev => [...prev, created]);
     if (onAddPlan) {
-      onAddPlan(created);
+      onAddPlan(created as PlannedExpense);
     }
 
     setNewTitle('');
@@ -216,8 +199,8 @@ export default function PlannedExpensesGlanceTable({
   // ── Multi-Month Cross-Year Column Matrix Generation ─────────────────────────
   // Generates timeline ONLY for months that actually have planned expenses data
   const columns: GlanceColumn[] = useMemo(() => {
-    const planYears = Array.from(
-      new Set(localPlans.map(p => p.year || calendarYear))
+    const planYears: number[] = Array.from(
+      new Set(plans.map(p => p.year || calendarYear))
     ).sort((a, b) => a - b);
 
     const minYear = planYears.length > 0 ? Math.min(...planYears) : calendarYear;
@@ -238,7 +221,7 @@ export default function PlannedExpensesGlanceTable({
         const isPast = yr < calendarYear || (yr === calendarYear && idx < calendarMonthIdx);
 
         // Find plans matching this specific month and year
-        const monthItems = localPlans.filter(p => {
+        const monthItems = plans.filter(p => {
           const planYear = p.year || calendarYear;
           const matchesYear = planYear === yr;
           const matchesMonth =
@@ -251,7 +234,10 @@ export default function PlannedExpensesGlanceTable({
           const monthTotal = monthItems.reduce((acc, it) => acc + (it.plannedAmount || 0), 0);
           const isCompleted =
             monthItems.every(
-              it => it.isFulfilled || it.status === 'Fulfilled' || (it.paidAmount ?? 0) >= it.plannedAmount
+              it =>
+                it.status !== 'Pending' &&
+                it.status !== 'Planned' &&
+                (it.isFulfilled || it.status === 'Fulfilled' || (it.paidAmount ?? 0) >= it.plannedAmount)
             );
 
           generated.push({
@@ -273,7 +259,7 @@ export default function PlannedExpensesGlanceTable({
     }
 
     return generated;
-  }, [localPlans, calendarYear, calendarMonthIdx]);
+  }, [plans, calendarYear, calendarMonthIdx]);
 
   // ── Auto-Scroll Landing on Current Month ─────────────────────────────────────
   const scrollToCurrentMonth = (smooth = true) => {
@@ -297,9 +283,14 @@ export default function PlannedExpensesGlanceTable({
 
   // Overall KPI Stats across the entire schedule
   const kpiStats = useMemo(() => {
-    const totalPlanned = localPlans.reduce((acc, p) => acc + (p.plannedAmount || 0), 0);
-    const totalFulfilled = localPlans.reduce((acc, p) => {
-      const isDone = p.isFulfilled || p.status === 'Fulfilled' || (p.paidAmount ?? 0) >= p.plannedAmount;
+    const totalPlanned = plans.reduce((acc, p) => acc + (p.plannedAmount || 0), 0);
+    const isPlanDone = (p: PlannedExpense) => {
+      if (p.status === 'Pending' || p.status === 'Planned') return false;
+      return Boolean(p.isFulfilled) || p.status === 'Fulfilled' || (p.plannedAmount > 0 && (p.paidAmount ?? 0) >= p.plannedAmount);
+    };
+
+    const totalFulfilled = plans.reduce((acc, p) => {
+      const isDone = isPlanDone(p);
       return acc + (isDone ? p.plannedAmount : (p.paidAmount || 0));
     }, 0);
     const totalPending = Math.max(0, totalPlanned - totalFulfilled);
@@ -307,13 +298,11 @@ export default function PlannedExpensesGlanceTable({
     const progressPercent =
       totalPlanned > 0 ? Math.min(100, Math.round((totalFulfilled / totalPlanned) * 100)) : 0;
 
-    const fulfilledItemsCount = localPlans.filter(
-      p => p.isFulfilled || p.status === 'Fulfilled' || (p.paidAmount ?? 0) >= (p.plannedAmount || 0)
-    ).length;
-    const pendingItemsCount = localPlans.length - fulfilledItemsCount;
+    const fulfilledItemsCount = plans.filter(isPlanDone).length;
+    const pendingItemsCount = plans.length - fulfilledItemsCount;
 
     // Current month details
-    const currentMonthPlans = localPlans.filter(p => {
+    const currentMonthPlans = plans.filter(p => {
       const pYear = p.year || calendarYear;
       return (
         pYear === calendarYear &&
@@ -321,14 +310,12 @@ export default function PlannedExpensesGlanceTable({
       );
     });
     const currentMonthTotal = currentMonthPlans.reduce((acc, p) => acc + (p.plannedAmount || 0), 0);
-    const currentMonthFulfilled = currentMonthPlans.filter(
-      p => p.isFulfilled || p.status === 'Fulfilled' || (p.paidAmount ?? 0) >= (p.plannedAmount || 0)
-    ).length;
+    const currentMonthFulfilled = currentMonthPlans.filter(isPlanDone).length;
     const currentMonthPendingCount = currentMonthPlans.length - currentMonthFulfilled;
 
     // Category breakdown & Top Category
     const catMap: Record<string, number> = {};
-    localPlans.forEach(p => {
+    plans.forEach(p => {
       const cat = p.category?.trim() || 'General';
       catMap[cat] = (catMap[cat] || 0) + (p.plannedAmount || 0);
     });
@@ -343,7 +330,7 @@ export default function PlannedExpensesGlanceTable({
         : undefined;
 
     // Next upcoming unfulfilled item
-    const unfulfilledItems = localPlans
+    const unfulfilledItems = plans
       .filter(
         p => !(p.isFulfilled || p.status === 'Fulfilled' || (p.paidAmount ?? 0) >= (p.plannedAmount || 0))
       )
@@ -368,7 +355,7 @@ export default function PlannedExpensesGlanceTable({
         }
         : undefined;
 
-    const nextYearPlans = localPlans.filter(p => (p.year || calendarYear) > calendarYear);
+    const nextYearPlans = plans.filter(p => (p.year || calendarYear) > calendarYear);
     const nextYearTotal = nextYearPlans.reduce((acc, p) => acc + (p.plannedAmount || 0), 0);
 
     return {
@@ -377,7 +364,7 @@ export default function PlannedExpensesGlanceTable({
       totalPending,
       completedMonthsCount,
       totalMonths: columns.length,
-      totalItems: localPlans.length,
+      totalItems: plans.length,
       fulfilledItemsCount,
       pendingItemsCount,
       progressPercent,
@@ -391,7 +378,7 @@ export default function PlannedExpensesGlanceTable({
       nextYearTotal,
       nextYearCount: nextYearPlans.length
     };
-  }, [localPlans, columns, calendarYear, calendarMonthShort]);
+  }, [plans, columns, calendarYear, calendarMonthShort]);
 
   // Filtered Columns for the Single Glance Matrix Track
   const filteredColumns = useMemo(() => {

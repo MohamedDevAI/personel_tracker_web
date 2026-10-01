@@ -55,9 +55,5 @@ export const TASK_CATEGORIES = [
 
 export const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
 
-// ─── Local Storage Keys (UI Preferences) ───────────────────────────────────
 
-export const STORAGE_KEYS = {
-  THEME: 'pt_theme',
-} as const;
 
