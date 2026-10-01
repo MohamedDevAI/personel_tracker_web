@@ -66,6 +66,7 @@ describe('Strategic Goals Editing', () => {
       unit: 'SAR',
     };
 
+    vi.spyOn(apiClient, 'put').mockResolvedValueOnce({ data: updatedGoal } as any);
     vi.spyOn(apiClient, 'post').mockResolvedValueOnce({ data: updatedGoal } as any);
 
     const result = await api.updateGoal(updatedGoal);

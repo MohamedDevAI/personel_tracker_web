@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Wallet, CheckSquare, Target, Flame, Sparkles, StickyNote as StickyNoteIcon } from 'lucide-react';
+import { LayoutDashboard, Wallet, CheckSquare, Target, Flame, StickyNote as StickyNoteIcon } from 'lucide-react';
 import Dashboard from './Dashboard';
 import ExpenseTracker from './ExpenseTracker';
 import TasksView from '../components/life_os/tasks/TasksView';
@@ -34,21 +34,7 @@ export default function LifeOSHub() {
     <div className="productivity-hub-container">
       {/* Life OS Header */}
       <div className="productivity-hub-header">
-        <div className="page-header" style={{ marginBottom: 12 }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-              <span className="badge badge-indigo">
-                <Sparkles size={12} /> Life OS Umbrella
-              </span>
-            </div>
-            <h1 className="page-header-title">
-              Life OS & <span className="gradient-text">Personal Executive Engine</span>
-            </h1>
-            <p className="page-header-subtitle">
-              Central command for personal finances, daily execution, habit routines, strategic goals, and executive performance.
-            </p>
-          </div>
-        </div>
+
 
         {/* Life OS Sub-Navigation Bar */}
         <div className="productivity-nav-tabs-wrapper">
