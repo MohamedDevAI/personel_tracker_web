@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Wallet, CheckSquare, Target, Flame, Sparkles, StickyNote as StickyNoteIcon } from 'lucide-react';
+import { LayoutDashboard, Wallet, CheckSquare, Target, Flame, StickyNote as StickyNoteIcon } from 'lucide-react';
 import Dashboard from './Dashboard';
 import ExpenseTracker from './ExpenseTracker';
 import TasksView from '../components/life_os/tasks/TasksView';
