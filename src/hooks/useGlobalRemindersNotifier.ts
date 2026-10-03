@@ -64,7 +64,7 @@ export function useGlobalRemindersNotifier() {
         particleCount: 50,
         spread: 60,
         origin: { y: 0.3 },
-        colors: ['#10b981', '#34d399', '#6ee7b7'],
+        colors: ['#cd600d', '#df690e', '#f07414'],
       });
     },
   });

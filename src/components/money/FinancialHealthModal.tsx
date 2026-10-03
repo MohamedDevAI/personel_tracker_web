@@ -57,8 +57,8 @@ export default function FinancialHealthModal({
                 width: 42,
                 height: 42,
                 borderRadius: 12,
-                background: 'rgba(16, 185, 129, 0.2)',
-                color: '#34d399',
+                background: 'rgba(186, 54, 242, 0.2)',
+                color: '#900dc8',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -68,7 +68,7 @@ export default function FinancialHealthModal({
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#fff' }}>
+                <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#900cc8' }}>
                   Financial Health Diagnostic
                 </h2>
                 <span className="badge badge-emerald" style={{ fontWeight: 800 }}>
@@ -106,20 +106,20 @@ export default function FinancialHealthModal({
                       textTransform: 'uppercase',
                       padding: '2px 8px',
                       borderRadius: 6,
-                      background: 'rgba(255, 255, 255, 0.08)',
+                      background: 'rgba(186, 54, 242, 0.11)',
                       color: 'var(--text-muted)'
                     }}
                   >
                     {pillar.category}
                   </span>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#fff' }}>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#900cc8' }}>
                     {pillar.title}
                   </h4>
                   <span
                     style={{
                       fontSize: '0.75rem',
                       fontWeight: 700,
-                      color: pillar.isFulfilled ? '#34d399' : '#fbbf24',
+                      color: pillar.isFulfilled ? '#900dc8' : '#9305d0',
                       marginLeft: 'auto'
                     }}
                   >
@@ -140,7 +140,7 @@ export default function FinancialHealthModal({
                   <div
                     style={{
                       fontSize: '0.72rem',
-                      color: pillar.isFulfilled ? '#34d399' : '#fbbf24',
+                      color: pillar.isFulfilled ? '#900dc8' : '#9305d0',
                       display: 'flex',
                       alignItems: 'center',
                       gap: 4
@@ -183,7 +183,7 @@ export default function FinancialHealthModal({
             alignItems: 'center',
             marginTop: 20,
             paddingTop: 16,
-            borderTop: '1px solid rgba(255, 255, 255, 0.08)'
+            borderTop: '1px solid rgba(186, 54, 242, 0.16)'
           }}
         >
           <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>

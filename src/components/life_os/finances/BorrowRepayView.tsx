@@ -1,14 +1,12 @@
-import { HandCoins, CalendarClock, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
+import { CalendarClock, ArrowDownLeft, ArrowUpRight, ArrowLeft, Table2 } from 'lucide-react';
 import { useBorrowRepayData } from './borrow-repay/useBorrowRepayData';
 import BorrowKpiCards from './borrow-repay/BorrowKpiCards';
-import CreditorsGrid from './borrow-repay/CreditorsGrid';
 import CreditLedgerTable from './borrow-repay/CreditLedgerTable';
 import AggregationTable from './borrow-repay/AggregationTable';
 import BorrowRepayModal from './BorrowRepayModal';
 import ConfirmDeleteModal from '../../common/ConfirmDeleteModal';
 import PlannedRepayCreditGlanceView from './planned-repay/PlannedRepayCreditGlanceView';
 import PlannedRepaymentModal from './PlannedRepaymentModal';
-
 
 interface BorrowRepayViewProps {
   initialMonth?: string;
@@ -17,6 +15,15 @@ interface BorrowRepayViewProps {
 
 export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRepayViewProps = {}) {
   const d = useBorrowRepayData(initialMonth, initialYear);
+
+  const handleBackToAggregation = () => {
+    d.setSelectedCreditorFilter('ALL');
+    d.setActiveStep('aggregation');
+  };
+
+  const inspectedSummary = d.selectedCreditorFilter !== 'ALL'
+    ? d.creditorSummaries.find(c => c.creditorName.toLowerCase() === d.selectedCreditorFilter.toLowerCase())
+    : null;
 
   return (
     <div className="borrow-repay-container">
@@ -32,10 +39,18 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
         <div className="borrow-header-buttons">
           {d.activeStep !== 'planned_repayment' ? (
             <>
-              <button onClick={() => d.handleOpenCreditModal('Borrow')} className="btn btn-secondary btn-borrow-action">
-                <ArrowDownLeft size={16} />Log Borrow</button>
-              <button onClick={() => d.handleOpenCreditModal('Repaid')} className="btn btn-primary">
-                <ArrowUpRight size={16} /> Log Repayment</button>
+              <button
+                onClick={() => d.handleOpenCreditModal('Borrow', d.selectedCreditorFilter !== 'ALL' ? d.selectedCreditorFilter : '')}
+                className="btn btn-secondary btn-borrow-action"
+              >
+                <ArrowDownLeft size={16} />Log Borrow
+              </button>
+              <button
+                onClick={() => d.handleOpenCreditModal('Repaid', d.selectedCreditorFilter !== 'ALL' ? d.selectedCreditorFilter : '')}
+                className="btn btn-primary"
+              >
+                <ArrowUpRight size={16} /> Log Repayment
+              </button>
             </>
           ) : (
             <button onClick={() => d.setIsPlannedModalOpen(true)} className="btn btn-primary">
@@ -48,22 +63,13 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
       {/* ── Step Tabs ────────────────────────────────────────────────────────── */}
       <div className="borrow-two-step-tabs">
         <button
-          onClick={() => d.setActiveStep('credit_tracker')}
-          className={`borrow-step-btn ${d.activeStep === 'credit_tracker' ? 'active' : ''}`}
-        >
-          <HandCoins size={16} />
-          <span>Credit Tracker</span>
-          <span className="step-counter">{d.records.length}</span>
-        </button>
-
-        {/* <button
-          onClick={() => d.setActiveStep('aggregation')}
-          className={`borrow-step-btn ${d.activeStep === 'aggregation' ? 'active' : ''}`}
+          onClick={handleBackToAggregation}
+          className={`borrow-step-btn ${d.activeStep !== 'planned_repayment' ? 'active' : ''}`}
         >
           <Table2 size={16} />
-          <span>Step 2: Creditor Aggregations (Table)</span>
-          <span className="step-counter">{d.creditorSummaries.length}</span>
-        </button> */}
+          <span>Credit Tracker</span>
+          <span className="step-counter">{d.creditorSummaries.length} Creditors</span>
+        </button>
 
         <button
           onClick={() => d.setActiveStep('planned_repayment')}
@@ -71,27 +77,190 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
         >
           <CalendarClock size={16} />
           <span>Planned Payback</span>
-          <span className="step-counter" style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.4)' }}>
+          <span className="step-counter" style={{ background: 'rgba(225, 106, 14, 0.2)', color: '#be590c', border: '1px solid rgba(225, 106, 14, 0.4)' }}>
             9 Mos
           </span>
         </button>
       </div>
 
-      {/* ── STEP 1: Credit Tracker ───────────────────────────────────────────── */}
-      {d.activeStep === 'credit_tracker' && (
+      {/* ── MAIN SCREEN: Creditor Aggregations (Only screen shown initially) ── */}
+      {(d.activeStep === 'aggregation' || d.activeStep === 'credit_tracker') && (
         <>
-          <BorrowKpiCards stats={d.stats} formatINR={d.formatINR} variant="tracker" />
+          <BorrowKpiCards stats={d.stats} formatINR={d.formatINR} variant="aggregation" />
 
-          <CreditorsGrid
+          <AggregationTable
+            filteredCreditorSummaries={d.filteredCreditorSummaries}
             creditorSummaries={d.creditorSummaries}
-            selectedCreditorFilter={d.selectedCreditorFilter}
-            filteredRecordsCount={d.filteredRecords.length}
-            onSelectCreditor={name => d.setSelectedCreditorFilter(prev => prev === name ? 'ALL' : name)}
-            onClearFilter={() => d.setSelectedCreditorFilter('ALL')}
-            onGoToAggregation={() => d.setActiveStep('aggregation')}
-            onSettleBalance={name => d.handleOpenCreditModal('Repaid', name)}
+            yearlySummaries={d.yearlySummaries}
+            stats={d.stats}
+            aggSearchQuery={d.aggSearchQuery}
+            aggStatusFilter={d.aggStatusFilter}
+            onAggSearchChange={d.setAggSearchQuery}
+            onAggStatusFilterChange={d.setAggStatusFilter}
+            onInspectCreditor={name => {
+              d.setSelectedCreditorFilter(name);
+              d.setActiveStep('creditor_transactions');
+            }}
+            onInspectYear={year => {
+              d.setSelectedYear(year);
+              d.setSelectedMonth('ALL');
+              d.setSelectedCreditorFilter('ALL');
+              d.setActiveStep('all_transactions');
+            }}
+            onGoToLedger={() => {
+              d.setSelectedCreditorFilter('ALL');
+              d.setActiveStep('all_transactions');
+            }}
             formatINR={d.formatINR}
           />
+        </>
+      )}
+
+      {/* ── INSPECTED CREDITOR TRANSACTIONS SCREEN ─────────────────────────── */}
+      {d.activeStep === 'creditor_transactions' && (
+        <>
+          <div className="inspected-creditor-banner">
+            <div className="inspected-creditor-left">
+              <button
+                type="button"
+                onClick={handleBackToAggregation}
+                className="btn-back-to-agg"
+                title="Return to Aggregation Table"
+              >
+                <ArrowLeft size={15} /> Back to Aggregation Table
+              </button>
+              <div className="inspected-creditor-info">
+                <div className="inspected-creditor-avatar">
+                  {(d.selectedCreditorFilter || '?').charAt(0).toUpperCase()}
+                </div>
+                <div className="inspected-creditor-meta">
+                  <div className="inspected-creditor-name-row">
+                    <h3 className="inspected-creditor-name">{d.selectedCreditorFilter}</h3>
+                    {inspectedSummary && (
+                      <span className={`badge ${
+                        inspectedSummary.status === 'Settled' ? 'badge-emerald' :
+                        inspectedSummary.status === 'Credit Given' ? 'badge-sky' :
+                        inspectedSummary.status === 'Overpaid' ? 'badge-purple' :
+                        'badge-amber'
+                      }`}>
+                        {inspectedSummary.status}
+                      </span>
+                    )}
+                  </div>
+                  {inspectedSummary && (
+                    <div className="inspected-creditor-stats">
+                      <span className="inspected-stat-chip">
+                        Total Borrowed: <strong>₹ {inspectedSummary.totalBorrowed.toLocaleString('en-IN')}</strong>
+                      </span>
+                      <span className="inspected-stat-chip">
+                        Total Repaid: <strong>₹ {inspectedSummary.totalRepaid.toLocaleString('en-IN')}</strong>
+                      </span>
+                      {inspectedSummary.creditGiven && inspectedSummary.creditGiven > 0 ? (
+                        <span className="inspected-stat-chip">
+                          Credit Given: <strong>₹ {inspectedSummary.creditGiven.toLocaleString('en-IN')}</strong>
+                        </span>
+                      ) : null}
+                      <span className={`inspected-stat-chip ${inspectedSummary.netBalance > 0 ? 'due' : 'settled'}`}>
+                        {inspectedSummary.netBalance > 0 ? (
+                          <>Due: <strong style={{ color: '#be590c' }}>₹ {inspectedSummary.netBalance.toLocaleString('en-IN')}</strong></>
+                        ) : inspectedSummary.netBalance === 0 ? (
+                          <strong style={{ color: '#10b981' }}>Cleared (₹0)</strong>
+                        ) : inspectedSummary.status === 'Credit Given' ? (
+                          <>Given: <strong style={{ color: '#e88308' }}>₹ {Math.abs(inspectedSummary.netBalance).toLocaleString('en-IN')}</strong></>
+                        ) : (
+                          <>Overpaid: <strong style={{ color: '#9333ea' }}>₹ {Math.abs(inspectedSummary.netBalance).toLocaleString('en-IN')}</strong></>
+                        )}
+                      </span>
+                      <span className="inspected-stat-chip">
+                        Transactions: <strong>{inspectedSummary.txCount || d.filteredRecords.length}</strong>
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="inspected-creditor-actions">
+              <button
+                type="button"
+                onClick={() => d.handleOpenCreditModal('Borrow', d.selectedCreditorFilter)}
+                className="btn btn-secondary btn-sm"
+              >
+                <ArrowDownLeft size={14} /> Log Borrow
+              </button>
+              <button
+                type="button"
+                onClick={() => d.handleOpenCreditModal('Repaid', d.selectedCreditorFilter)}
+                className="btn btn-primary btn-sm"
+              >
+                <ArrowUpRight size={14} /> Log Repayment
+              </button>
+            </div>
+          </div>
+
+          <CreditLedgerTable
+            filteredRecords={d.filteredRecords}
+            totalRecords={d.records.length}
+            activeFilterTotals={d.activeFilterTotals}
+            searchQuery={d.searchQuery}
+            typeFilter={d.typeFilter}
+            selectedMonth={d.selectedMonth}
+            selectedYear={d.selectedYear}
+            selectedCreditorFilter={d.selectedCreditorFilter}
+            availableYears={d.availableYears}
+            existingCreditors={d.existingCreditors}
+            onSearchChange={d.setSearchQuery}
+            onTypeFilterChange={d.setTypeFilter}
+            onMonthChange={d.setSelectedMonth}
+            onYearChange={d.setSelectedYear}
+            onCreditorFilterChange={d.setSelectedCreditorFilter}
+            onDeleteRecord={d.triggerDeleteCreditRecord}
+            onAddRecord={() => d.handleOpenCreditModal('Borrow', d.selectedCreditorFilter)}
+            onResetFilters={d.resetFilters}
+            onBackToAggregation={handleBackToAggregation}
+            formatINR={d.formatINR}
+          />
+        </>
+      )}
+
+      {/* ── ALL TRANSACTIONS SCREEN (Navigated from Aggregation Footer or Year) ── */}
+      {d.activeStep === 'all_transactions' && (
+        <>
+          <div className="inspected-creditor-banner">
+            <div className="inspected-creditor-left">
+              <button
+                type="button"
+                onClick={handleBackToAggregation}
+                className="btn-back-to-agg"
+                title="Return to Aggregation Table"
+              >
+                <ArrowLeft size={15} /> Back to Aggregation Table
+              </button>
+              <div className="inspected-creditor-meta">
+                <h3 className="inspected-creditor-name">
+                  {d.selectedYear !== 'ALL' ? `Year ${d.selectedYear} Transactions` : 'All Borrow & Repay Transactions'}
+                </h3>
+                <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                  Showing all individual transaction entries
+                </span>
+              </div>
+            </div>
+            <div className="inspected-creditor-actions">
+              <button
+                type="button"
+                onClick={() => d.handleOpenCreditModal('Borrow')}
+                className="btn btn-secondary btn-sm"
+              >
+                <ArrowDownLeft size={14} /> Log Borrow
+              </button>
+              <button
+                type="button"
+                onClick={() => d.handleOpenCreditModal('Repaid')}
+                className="btn btn-primary btn-sm"
+              >
+                <ArrowUpRight size={14} /> Log Repayment
+              </button>
+            </div>
+          </div>
 
           <CreditLedgerTable
             filteredRecords={d.filteredRecords}
@@ -112,28 +281,7 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
             onDeleteRecord={d.triggerDeleteCreditRecord}
             onAddRecord={() => d.handleOpenCreditModal('Borrow')}
             onResetFilters={d.resetFilters}
-            formatINR={d.formatINR}
-          />
-        </>
-      )}
-
-      {/* ── STEP 2: Creditor & Yearly Aggregations ───────────────────────────── */}
-      {d.activeStep === 'aggregation' && (
-        <>
-          <BorrowKpiCards stats={d.stats} formatINR={d.formatINR} variant="aggregation" />
-
-          <AggregationTable
-            filteredCreditorSummaries={d.filteredCreditorSummaries}
-            creditorSummaries={d.creditorSummaries}
-            yearlySummaries={d.yearlySummaries}
-            stats={d.stats}
-            aggSearchQuery={d.aggSearchQuery}
-            aggStatusFilter={d.aggStatusFilter}
-            onAggSearchChange={d.setAggSearchQuery}
-            onAggStatusFilterChange={d.setAggStatusFilter}
-            onInspectCreditor={name => { d.setSelectedCreditorFilter(name); d.setActiveStep('credit_tracker'); }}
-            onInspectYear={year => { d.setSelectedYear(year); d.setSelectedMonth('ALL'); d.setSelectedCreditorFilter('ALL'); d.setActiveStep('credit_tracker'); }}
-            onGoToLedger={() => { d.setSelectedCreditorFilter('ALL'); d.setActiveStep('credit_tracker'); }}
+            onBackToAggregation={handleBackToAggregation}
             formatINR={d.formatINR}
           />
         </>

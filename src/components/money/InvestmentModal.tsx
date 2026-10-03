@@ -271,8 +271,8 @@ export default function InvestmentModal({
                 width: 36,
                 height: 36,
                 borderRadius: 10,
-                background: 'rgba(16, 185, 129, 0.2)',
-                color: '#34d399',
+                background: 'rgba(186, 54, 242, 0.2)',
+                color: '#900dc8',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -281,7 +281,7 @@ export default function InvestmentModal({
               <Coins size={20} />
             </div>
             <div>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff' }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#900cc8' }}>
                 {initialHolding ? 'Edit Investment Holding' : 'Add New Investment'}
               </h2>
               <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
@@ -304,9 +304,9 @@ export default function InvestmentModal({
             style={{
               padding: '10px 14px',
               borderRadius: 10,
-              background: 'rgba(244, 63, 94, 0.15)',
-              border: '1px solid rgba(244, 63, 94, 0.3)',
-              color: '#fb7185',
+              background: 'rgba(189, 46, 250, 0.12)',
+              border: '1px solid rgba(189, 46, 250, 0.35)',
+              color: '#6b677f',
               fontSize: '0.85rem',
               marginBottom: 16
             }}
@@ -624,7 +624,7 @@ export default function InvestmentModal({
               gap: 12,
               marginTop: 24,
               paddingTop: 16,
-              borderTop: '1px solid rgba(255, 255, 255, 0.08)'
+              borderTop: '1px solid rgba(186, 54, 242, 0.16)'
             }}
           >
             <button
@@ -643,7 +643,7 @@ export default function InvestmentModal({
                 display: 'flex',
                 alignItems: 'center',
                 gap: 8,
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                background: 'linear-gradient(135deg, #a80fea 0%, #aa08f0 100%)'
               }}
             >
               <Save size={16} />

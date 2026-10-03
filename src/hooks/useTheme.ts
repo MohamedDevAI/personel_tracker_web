@@ -1,20 +1,19 @@
 /**
- * Hook for managing theme (dark/light) in-app.
+ * Hook for applying the application theme.
+ *
+ * The app ships a single "Sunrise" orange & white light theme, so this hook
+ * simply pins `data-theme="light"` on the document root. Component styles that
+ * still carry `[data-theme='light']` overrides rely on this attribute.
  */
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+
+export const APP_THEME = 'light' as const;
 
 export function useTheme() {
-  const [theme, setTheme] = useState<string>('dark');
-
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
+    document.documentElement.setAttribute('data-theme', APP_THEME);
+  }, []);
 
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
-  };
-
-  return { theme, toggleTheme };
+  return { theme: APP_THEME };
 }
-

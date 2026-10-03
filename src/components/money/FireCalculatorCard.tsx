@@ -54,8 +54,8 @@ export default function FireCalculatorCard({
       <div className="fire-header-row">
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Flame size={19} color="#fbbf24" />
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff' }}>
+            <Flame size={19} color="#9305d0" />
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#900cc8' }}>
               FIRE Number & Freedom Calculator
             </h3>
           </div>
@@ -87,11 +87,11 @@ export default function FireCalculatorCard({
         <form
           onSubmit={handleSaveSettings}
           style={{
-            background: 'rgba(255, 255, 255, 0.04)',
+            background: 'rgba(186, 54, 242, 0.06)',
             padding: 14,
             borderRadius: 12,
             marginBottom: 16,
-            border: '1px solid rgba(255, 255, 255, 0.08)'
+            border: '1px solid rgba(186, 54, 242, 0.16)'
           }}
         >
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-end' }}>
@@ -123,7 +123,7 @@ export default function FireCalculatorCard({
         </div>
         <div className="fire-big-number">
           <span>{mask(formatINR(currentTarget))}</span>
-          <span style={{ fontSize: '1.15rem', color: '#fbbf24', fontWeight: 700 }}>
+          <span style={{ fontSize: '1.15rem', color: '#9305d0', fontWeight: 700 }}>
             ({mask(formatINRCompact(currentTarget))})
           </span>
         </div>
@@ -133,9 +133,9 @@ export default function FireCalculatorCard({
       <div className="fire-progress-container">
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', marginBottom: 6 }}>
           <span style={{ color: 'var(--text-secondary)' }}>
-            Current Net Worth: <strong style={{ color: '#fff' }}>{mask(formatINRCompact(currentNetWorth))}</strong>
+            Current Net Worth: <strong style={{ color: '#900cc8' }}>{mask(formatINRCompact(currentNetWorth))}</strong>
           </span>
-          <span style={{ color: '#34d399', fontWeight: 800 }}>
+          <span style={{ color: '#900dc8', fontWeight: 800 }}>
             {formatPercent(currentProgress, 1)} Reached
           </span>
         </div>
@@ -179,10 +179,10 @@ export default function FireCalculatorCard({
           }}
         >
           <div className="fire-milestone-label">Standard (25x)</div>
-          <div className="fire-milestone-val" style={{ color: '#34d399' }}>
+          <div className="fire-milestone-val" style={{ color: '#900dc8' }}>
             {mask(formatINRCompact(standardFireTarget))}
           </div>
-          <div style={{ fontSize: '0.68rem', color: '#34d399' }}>4% Rule Standard</div>
+          <div style={{ fontSize: '0.68rem', color: '#900dc8' }}>4% Rule Standard</div>
         </div>
 
         <div

@@ -86,34 +86,34 @@ export default function StockDetailScreen({
 
   let verdict = 'BUY / ACCUMULATE';
   let confidence = stock.confidence || 88;
-  let verdictColor = '#34d399';
-  let verdictBg = 'rgba(16, 185, 129, 0.15)';
-  let verdictBorder = 'rgba(52, 211, 153, 0.35)';
+  let verdictColor = '#a910eb';
+  let verdictBg = 'rgba(186, 54, 242, 0.15)';
+  let verdictBorder = 'rgba(186, 54, 242, 0.35)';
   let thesis =
     'Robust return ratios (ROE > 18%) coupled with a conservative balance sheet and a defensive competitive moat. Price is sustaining above key moving averages with supportive institutional volume.';
 
   if (pe > 42 || rsi > 72) {
     verdict = 'TRIM / TAKE PROFIT';
     confidence = 82;
-    verdictColor = '#fb7185';
-    verdictBg = 'rgba(244, 63, 94, 0.15)';
-    verdictBorder = 'rgba(251, 113, 133, 0.35)';
+    verdictColor = '#6b677f';
+    verdictBg = 'rgba(189, 46, 250, 0.12)';
+    verdictBorder = 'rgba(189, 46, 250, 0.35)';
     thesis =
       'Trading at an elevated P/E relative to historical mean. RSI is entering overbought territory. Recommend booking partial gains or pausing fresh accumulation.';
   } else if (pe < 22 && roe > 16 && de < 1.0) {
     verdict = 'STRONG BUY / CONVICTION PICK';
     confidence = 92;
-    verdictColor = '#34d399';
-    verdictBg = 'rgba(16, 185, 129, 0.2)';
-    verdictBorder = 'rgba(52, 211, 153, 0.45)';
+    verdictColor = '#a910eb';
+    verdictBg = 'rgba(186, 54, 242, 0.2)';
+    verdictBorder = 'rgba(186, 54, 242, 0.45)';
     thesis =
       'High-conviction value compounder. Deep economic moat, superior cash flow generation, and strong earnings visibility provide substantial margin of safety.';
   } else if (returnPct < -8 || de > 2.0) {
     verdict = 'NEUTRAL / HOLD UNDER WATCH';
     confidence = 68;
-    verdictColor = '#fbbf24';
-    verdictBg = 'rgba(245, 158, 11, 0.15)';
-    verdictBorder = 'rgba(251, 191, 36, 0.35)';
+    verdictColor = '#ad06f5';
+    verdictBg = 'rgba(188, 49, 247, 0.15)';
+    verdictBorder = 'rgba(189, 45, 251, 0.35)';
     thesis =
       'Balance sheet debt or near-term sector headwinds require monitoring. Maintain existing weight but avoid aggressive averaging until quarterly clarity emerges.';
   }
@@ -150,7 +150,7 @@ export default function StockDetailScreen({
               {f.sector && <span className="inv-item-sector-badge">{f.sector}</span>}
               {f.moatRating && (
                 <span className="inv-pill-badge">
-                  <ShieldCheck size={12} color="#34d399" /> {f.moatRating} Moat
+                  <ShieldCheck size={12} color="#900dc8" /> {f.moatRating} Moat
                 </span>
               )}
             </div>
@@ -171,10 +171,10 @@ export default function StockDetailScreen({
 
             <div className="inv-hero-return-block">
               <div className="val-label">Unrealized P&L</div>
-              <div className="val-main" style={{ color: isPositive ? '#34d399' : '#fb7185' }}>
+              <div className="val-main" style={{ color: isPositive ? '#900dc8' : '#6b677f' }}>
                 {isPositive ? '+' : ''}{mask(formatPctChange(returnPct))}
               </div>
-              <div className="val-sub" style={{ color: isPositive ? '#34d399' : '#fb7185' }}>
+              <div className="val-sub" style={{ color: isPositive ? '#900dc8' : '#6b677f' }}>
                 Total: {isPositive ? '+' : ''}{mask(formatINR(returnVal))}
               </div>
             </div>
@@ -206,7 +206,7 @@ export default function StockDetailScreen({
             </div>
             <div className="inv-verdict-kpi-item">
               <span className="kpi-label">Market Consensus</span>
-              <span className="kpi-val" style={{ color: '#22d3ee' }}>{bullishPct}% Bullish</span>
+              <span className="kpi-val" style={{ color: '#910cca' }}>{bullishPct}% Bullish</span>
             </div>
           </div>
         </div>
@@ -224,10 +224,10 @@ export default function StockDetailScreen({
               <span className="legend-dot stocks" /> Price: {mask(formatINR(stock.currentPrice))}
             </span>
             <span className="chart-legend-pill">
-              <span className="legend-dot" style={{ background: '#f59e0b' }} /> 50 SMA: {mask(formatINR(t.sma50))}
+              <span className="legend-dot" style={{ background: '#ab0af0' }} /> 50 SMA: {mask(formatINR(t.sma50))}
             </span>
             <span className="chart-legend-pill">
-              <span className="legend-dot" style={{ background: '#a855f7' }} /> 200 SMA: {mask(formatINR(t.sma200))}
+              <span className="legend-dot" style={{ background: '#ac0bf1' }} /> 200 SMA: {mask(formatINR(t.sma200))}
             </span>
           </div>
         </div>
@@ -237,11 +237,11 @@ export default function StockDetailScreen({
             <AreaChart data={chartData} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
               <defs>
                 <linearGradient id="stockPriceGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.0} />
+                  <stop offset="5%" stopColor="#ae0cf4" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#ae0cf4" stopOpacity={0.0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(186, 54, 242, 0.08)" />
               <XAxis dataKey="day" stroke="var(--text-muted)" fontSize={11} tickLine={false} />
               <YAxis
                 stroke="var(--text-muted)"
@@ -252,19 +252,19 @@ export default function StockDetailScreen({
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#0f172a',
-                  border: '1px solid rgba(255,255,255,0.15)',
+                  backgroundColor: '#f9f7fd',
+                  border: '1px solid rgba(186, 54, 242, 0.3)',
                   borderRadius: 10,
                   fontSize: 12,
                 }}
                 formatter={(value: any) => [mask(`₹${Number(value).toFixed(2)}`), 'Price']}
               />
-              <ReferenceLine y={t.sma50} stroke="#f59e0b" strokeDasharray="4 4" label="" />
-              <ReferenceLine y={t.sma200} stroke="#a855f7" strokeDasharray="4 4" label="" />
+              <ReferenceLine y={t.sma50} stroke="#ab0af0" strokeDasharray="4 4" label="" />
+              <ReferenceLine y={t.sma200} stroke="#ac0bf1" strokeDasharray="4 4" label="" />
               <Area
                 type="monotone"
                 dataKey="price"
-                stroke="#3b82f6"
+                stroke="#ae0cf4"
                 strokeWidth={2.5}
                 fillOpacity={1}
                 fill="url(#stockPriceGrad)"
@@ -308,7 +308,7 @@ export default function StockDetailScreen({
           <div className="inv-section-header-row">
             <div>
               <h3 className="inv-section-title">
-                <Building size={18} color="#60a5fa" /> Fundamental Financial Architecture
+                <Building size={18} color="#9406d0" /> Fundamental Financial Architecture
               </h3>
               <p className="inv-section-sub">Valuation multiples, profitability margins, cash flows, and capital structure</p>
             </div>
@@ -318,13 +318,13 @@ export default function StockDetailScreen({
             {/* Valuation Multiples */}
             <div className="inv-detail-metric-card">
               <div className="metric-card-header">
-                <Layers size={18} color="#60a5fa" />
+                <Layers size={18} color="#9406d0" />
                 <h4>Valuation Multiples</h4>
               </div>
               <div className="spec-table">
                 <div className="spec-row">
                   <span className="spec-label">P/E Ratio (Trailing Twelve Months)</span>
-                  <span className="spec-value" style={{ color: pe < 25 ? '#34d399' : '#fbbf24', fontWeight: 700 }}>
+                  <span className="spec-value" style={{ color: pe < 25 ? '#900dc8' : '#9305d0', fontWeight: 700 }}>
                     {pe ? `${pe}x` : '22.4x'}
                   </span>
                 </div>
@@ -340,7 +340,7 @@ export default function StockDetailScreen({
                 </div>
                 <div className="spec-row">
                   <span className="spec-label">Moat Rating</span>
-                  <span className="spec-value" style={{ color: '#34d399', fontWeight: 700 }}>
+                  <span className="spec-value" style={{ color: '#900dc8', fontWeight: 700 }}>
                     {f.moatRating || 'Wide'} Moat
                   </span>
                 </div>
@@ -350,25 +350,25 @@ export default function StockDetailScreen({
             {/* Profitability & Returns */}
             <div className="inv-detail-metric-card">
               <div className="metric-card-header">
-                <TrendingUp size={18} color="#34d399" />
+                <TrendingUp size={18} color="#900dc8" />
                 <h4>Profitability & Capital Efficiency</h4>
               </div>
               <div className="spec-table">
                 <div className="spec-row">
                   <span className="spec-label">Return on Equity (ROE)</span>
-                  <span className="spec-value" style={{ color: roe >= 15 ? '#34d399' : '#fb7185', fontWeight: 700 }}>
+                  <span className="spec-value" style={{ color: roe >= 15 ? '#900dc8' : '#6b677f', fontWeight: 700 }}>
                     {roe}% {roe >= 15 ? '✓ Top Quartile' : ''}
                   </span>
                 </div>
                 <div className="spec-row">
                   <span className="spec-label">Return on Capital Employed (ROCE)</span>
-                  <span className="spec-value" style={{ color: '#34d399', fontWeight: 700 }}>
+                  <span className="spec-value" style={{ color: '#900dc8', fontWeight: 700 }}>
                     {f.roce ? `${f.roce}%` : '18.2%'}
                   </span>
                 </div>
                 <div className="spec-row">
                   <span className="spec-label">Debt-to-Equity (D/E) Ratio</span>
-                  <span className="spec-value" style={{ color: de < 1.0 ? '#34d399' : '#fbbf24' }}>
+                  <span className="spec-value" style={{ color: de < 1.0 ? '#900dc8' : '#9305d0' }}>
                     {de} {de < 1.0 ? '(Conservative Balance Sheet)' : ''}
                   </span>
                 </div>
@@ -384,7 +384,7 @@ export default function StockDetailScreen({
             {/* Ownership & Governance */}
             <div className="inv-detail-metric-card">
               <div className="metric-card-header">
-                <ShieldCheck size={18} color="#a855f7" />
+                <ShieldCheck size={18} color="#9109cb" />
                 <h4>Ownership & Governance</h4>
               </div>
               <div className="spec-table">
@@ -396,13 +396,13 @@ export default function StockDetailScreen({
                 </div>
                 <div className="spec-row">
                   <span className="spec-label">Promoter Holding QoQ Change</span>
-                  <span className="spec-value" style={{ color: (f.promoterHoldingChange || 0) >= 0 ? '#34d399' : '#fb7185' }}>
+                  <span className="spec-value" style={{ color: (f.promoterHoldingChange || 0) >= 0 ? '#900dc8' : '#6b677f' }}>
                     {(f.promoterHoldingChange || 0) >= 0 ? '+' : ''}{f.promoterHoldingChange || 0.0}%
                   </span>
                 </div>
                 <div className="spec-row">
                   <span className="spec-label">Corporate Governance Rating</span>
-                  <span className="spec-value" style={{ color: '#a855f7', fontWeight: 700 }}>
+                  <span className="spec-value" style={{ color: '#9109cb', fontWeight: 700 }}>
                     {f.governanceScore || 8} / 10 (Tier-1 Quality)
                   </span>
                 </div>
@@ -422,7 +422,7 @@ export default function StockDetailScreen({
           <div className="inv-section-header-row">
             <div>
               <h3 className="inv-section-title">
-                <Activity size={18} color="#22d3ee" /> Technical Momentum & Trend Indicators
+                <Activity size={18} color="#910cca" /> Technical Momentum & Trend Indicators
               </h3>
               <p className="inv-section-sub">Algorithmic momentum oscillators, moving averages, and volatility bands</p>
             </div>
@@ -432,7 +432,7 @@ export default function StockDetailScreen({
             {/* RSI Gauge Card */}
             <div className="inv-tech-card">
               <div className="tech-card-title">RSI (14-Day Momentum)</div>
-              <div className="tech-rsi-val" style={{ color: rsi > 70 ? '#fb7185' : rsi < 35 ? '#34d399' : '#22d3ee' }}>
+              <div className="tech-rsi-val" style={{ color: rsi > 70 ? '#6b677f' : rsi < 35 ? '#900dc8' : '#910cca' }}>
                 {rsi.toFixed(1)}
               </div>
               <div className="tech-rsi-label">
@@ -443,7 +443,7 @@ export default function StockDetailScreen({
                   className="tech-progress-fill"
                   style={{
                     width: `${Math.min(100, Math.max(5, rsi))}%`,
-                    background: rsi > 70 ? '#fb7185' : rsi < 35 ? '#34d399' : '#22d3ee'
+                    background: rsi > 70 ? '#f9f7fd' : rsi < 35 ? '#a910eb' : '#ac10f0'
                   }}
                 />
               </div>
@@ -452,13 +452,13 @@ export default function StockDetailScreen({
             {/* MACD Card */}
             <div className="inv-tech-card">
               <div className="tech-card-title">MACD (12, 26, 9)</div>
-              <div className="tech-rsi-val" style={{ color: t.macdHistogram >= 0 ? '#34d399' : '#fb7185' }}>
+              <div className="tech-rsi-val" style={{ color: t.macdHistogram >= 0 ? '#900dc8' : '#6b677f' }}>
                 {t.macdLine >= 0 ? '+' : ''}{t.macdLine.toFixed(2)}
               </div>
               <div className="tech-rsi-label">
                 Signal: {t.macdSignal.toFixed(2)} • Histogram: {t.macdHistogram.toFixed(2)}
               </div>
-              <div className="tech-sub-status" style={{ color: t.macdHistogram >= 0 ? '#34d399' : '#fb7185' }}>
+              <div className="tech-sub-status" style={{ color: t.macdHistogram >= 0 ? '#900dc8' : '#6b677f' }}>
                 {t.macdHistogram >= 0 ? '✓ Bullish MACD Crossover' : 'Bearish Divergence'}
               </div>
             </div>
@@ -466,13 +466,13 @@ export default function StockDetailScreen({
             {/* Moving Averages Alignment */}
             <div className="inv-tech-card">
               <div className="tech-card-title">Moving Averages (50 / 200 SMA)</div>
-              <div className="tech-rsi-val" style={{ color: '#34d399' }}>
+              <div className="tech-rsi-val" style={{ color: '#900dc8' }}>
                 Golden Cross
               </div>
               <div className="tech-rsi-label">
                 50 SMA ({mask(formatINR(t.sma50))}) &gt; 200 SMA ({mask(formatINR(t.sma200))})
               </div>
-              <div className="tech-sub-status" style={{ color: '#34d399' }}>
+              <div className="tech-sub-status" style={{ color: '#900dc8' }}>
                 ✓ Strong Long-Term Structural Uptrend
               </div>
             </div>
@@ -480,7 +480,7 @@ export default function StockDetailScreen({
             {/* Bollinger Bands & Volatility */}
             <div className="inv-tech-card">
               <div className="tech-card-title">Bollinger Bands & Volatility</div>
-              <div className="tech-rsi-val" style={{ color: '#f59e0b' }}>
+              <div className="tech-rsi-val" style={{ color: '#9109cb' }}>
                 ₹{t.bollingerUpper.toFixed(0)} / ₹{t.bollingerLower.toFixed(0)}
               </div>
               <div className="tech-rsi-label">
@@ -500,7 +500,7 @@ export default function StockDetailScreen({
           <div className="inv-section-header-row">
             <div>
               <h3 className="inv-section-title">
-                <PieChart size={18} color="#a855f7" /> Market Sentiment & Institutional Consensus
+                <PieChart size={18} color="#9109cb" /> Market Sentiment & Institutional Consensus
               </h3>
               <p className="inv-section-sub">Aggregated institutional analyst price targets, buy/hold/sell distributions</p>
             </div>
@@ -516,7 +516,7 @@ export default function StockDetailScreen({
                   <div className="sent-bar-track">
                     <div className="sent-bar-fill buy" style={{ width: `${(analystBuys / analystTotal) * 100}%` }} />
                   </div>
-                  <span className="sent-count" style={{ color: '#34d399' }}>{analystBuys} ({Math.round((analystBuys / analystTotal) * 100)}%)</span>
+                  <span className="sent-count" style={{ color: '#900dc8' }}>{analystBuys} ({Math.round((analystBuys / analystTotal) * 100)}%)</span>
                 </div>
 
                 <div className="sentiment-bar-row">
@@ -524,7 +524,7 @@ export default function StockDetailScreen({
                   <div className="sent-bar-track">
                     <div className="sent-bar-fill hold" style={{ width: `${(analystHolds / analystTotal) * 100}%` }} />
                   </div>
-                  <span className="sent-count" style={{ color: '#60a5fa' }}>{analystHolds} ({Math.round((analystHolds / analystTotal) * 100)}%)</span>
+                  <span className="sent-count" style={{ color: '#9406d0' }}>{analystHolds} ({Math.round((analystHolds / analystTotal) * 100)}%)</span>
                 </div>
 
                 <div className="sentiment-bar-row">
@@ -532,7 +532,7 @@ export default function StockDetailScreen({
                   <div className="sent-bar-track">
                     <div className="sent-bar-fill sell" style={{ width: `${(analystSells / analystTotal) * 100}%` }} />
                   </div>
-                  <span className="sent-count" style={{ color: '#fb7185' }}>{analystSells} ({Math.round((analystSells / analystTotal) * 100)}%)</span>
+                  <span className="sent-count" style={{ color: '#6b677f' }}>{analystSells} ({Math.round((analystSells / analystTotal) * 100)}%)</span>
                 </div>
               </div>
             </div>
@@ -542,15 +542,15 @@ export default function StockDetailScreen({
               <h4 className="sentiment-box-title">Key Catalysts & Risk Factors</h4>
               <div className="catalysts-list">
                 <div className="catalyst-item positive">
-                  <CheckCircle2 size={15} color="#34d399" />
+                  <CheckCircle2 size={15} color="#900dc8" />
                   <span>Market leadership with pricing power and high customer retention.</span>
                 </div>
                 <div className="catalyst-item positive">
-                  <CheckCircle2 size={15} color="#34d399" />
+                  <CheckCircle2 size={15} color="#900dc8" />
                   <span>Strong free cash flow reinvested into high-ROIC growth verticals.</span>
                 </div>
                 <div className="catalyst-item negative">
-                  <AlertTriangle size={15} color="#f59e0b" />
+                  <AlertTriangle size={15} color="#9109cb" />
                   <span>Macro sensitivity to interest rate cycles and global raw material costs.</span>
                 </div>
               </div>

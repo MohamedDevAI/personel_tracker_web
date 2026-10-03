@@ -35,10 +35,10 @@ export default function InvestmentAssetAllocationChart({
     .reduce((s, h) => s + h.currentPrice * h.quantity, 0);
 
   const pieData = [
-    { name: 'Stocks (Equities)', key: 'Stocks', value: stocksVal, color: '#6366f1' },
-    { name: 'SIPs & Mutual Funds', key: 'Mutual Funds', value: sipsVal, color: '#10b981' },
-    { name: 'Bonds', key: 'Bonds', value: bondsVal, color: '#06b6d4' },
-    { name: 'Fixed Deposits (FD)', key: 'FDs', value: fdsVal, color: '#fbbf24' },
+    { name: 'Stocks (Equities)', key: 'Stocks', value: stocksVal, color: '#910cca' },
+    { name: 'SIPs & Mutual Funds', key: 'Mutual Funds', value: sipsVal, color: '#900dc8' },
+    { name: 'Bonds', key: 'Bonds', value: bondsVal, color: '#9406d0' },
+    { name: 'Fixed Deposits (FD)', key: 'FDs', value: fdsVal, color: '#9305d0' },
   ];
 
   if (includeCash && cashLiquidity > 0) {
@@ -46,7 +46,7 @@ export default function InvestmentAssetAllocationChart({
       name: 'Liquid Cash',
       key: 'Cash',
       value: cashLiquidity,
-      color: '#38bdf8',
+      color: '#9307cf',
     });
   }
 
@@ -58,7 +58,7 @@ export default function InvestmentAssetAllocationChart({
       <div className="vis-header">
         <div>
           <div className="vis-title">
-            <PieIcon size={18} color="#10b981" />
+            <PieIcon size={18} color="#900dc8" />
             <span>Asset Class Allocation</span>
           </div>
           <div className="vis-subtitle">
@@ -106,7 +106,7 @@ export default function InvestmentAssetAllocationChart({
                         <div className="tooltip-title" style={{ color: item.color }}>
                           {item.name}
                         </div>
-                        <div className="tooltip-item" style={{ fontWeight: 700, color: '#fff' }}>
+                        <div className="tooltip-item" style={{ fontWeight: 700, color: '#900cc8' }}>
                           {formatINR(item.value)}
                         </div>
                         <div className="tooltip-item">
@@ -141,7 +141,7 @@ export default function InvestmentAssetAllocationChart({
                 className="legend-item-row"
                 style={{
                   borderColor: isHovered ? item.color : undefined,
-                  background: isHovered ? 'rgba(255, 255, 255, 0.06)' : undefined,
+                  background: isHovered ? 'rgba(186, 54, 242, 0.08)' : undefined,
                   cursor: 'pointer',
                   transition: 'all 0.2s',
                 }}
@@ -158,7 +158,7 @@ export default function InvestmentAssetAllocationChart({
                   </span>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontWeight: 700, color: '#fff' }}>
+                  <div style={{ fontWeight: 700, color: '#900cc8' }}>
                     {formatINRCompact(item.value)}
                   </div>
                   <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>

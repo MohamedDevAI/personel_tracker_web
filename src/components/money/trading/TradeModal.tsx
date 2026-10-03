@@ -98,7 +98,7 @@ export default function TradeModal({
           <div className="modal-header-with-icon">
             <div
               className="modal-icon-badge"
-              style={{ background: 'rgba(6, 182, 212, 0.15)', color: '#06b6d4' }}
+              style={{ background: 'rgba(188, 47, 249, 0.15)', color: '#9406d0' }}
             >
               <Activity size={20} />
             </div>

@@ -21,7 +21,7 @@ export default function GlanceDeleteModal({
       <div className="glass-panel modal-content-card" style={{ maxWidth: 440 }}>
         <div className="modal-header-row">
           <div className="modal-header-with-icon">
-            <div className="modal-icon-badge" style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444' }}>
+            <div className="modal-icon-badge" style={{ background: 'rgba(110, 101, 94, 0.2)', color: '#524c47' }}>
               <Trash2 size={20} />
             </div>
             <div>
@@ -36,8 +36,8 @@ export default function GlanceDeleteModal({
 
         <div style={{ padding: '16px 0', fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
           Are you sure you want to delete the scheduled repayment for{' '}
-          <strong style={{ color: '#ffffff' }}>{creditorName}</strong> ({formatINR(amount)}) in{' '}
-          <strong style={{ color: '#ffffff' }}>{month}</strong>?
+          <strong style={{ color: '#1c1917' }}>{creditorName}</strong> ({formatINR(amount)}) in{' '}
+          <strong style={{ color: '#1c1917' }}>{month}</strong>?
         </div>
 
         <div className="modal-actions-footer">
@@ -47,7 +47,7 @@ export default function GlanceDeleteModal({
             onClick={onConfirm}
             disabled={isDeleting}
             className="btn btn-danger"
-            style={{ background: '#ef4444', borderColor: '#dc2626', color: '#ffffff', display: 'flex', alignItems: 'center', gap: 6 }}
+            style={{ background: '#7b726b', borderColor: '#615a54', color: '#ffffff', display: 'flex', alignItems: 'center', gap: 6 }}
           >
             {isDeleting ? <RefreshCw size={14} className="spin-icon" /> : <Trash2 size={14} />}
             <span>Yes, Delete</span>

@@ -76,7 +76,7 @@ export default function NetWorthHeroCard({
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 5,
-                border: '1px solid rgba(255, 255, 255, 0.12)'
+                border: '1px solid rgba(186, 54, 242, 0.24)'
               }}
               title={
                 includeCashAndDebt
@@ -113,9 +113,9 @@ export default function NetWorthHeroCard({
           <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: 4 }}>
             {includeCashAndDebt ? (
               <span>
-                Calculated from <strong style={{ color: '#34d399' }}>Portfolio Value</strong> +{' '}
-                <strong style={{ color: '#60a5fa' }}>Liquid Cash</strong> −{' '}
-                <strong style={{ color: '#fb7185' }}>Outstanding Liabilities</strong>
+                Calculated from <strong style={{ color: '#900dc8' }}>Portfolio Value</strong> +{' '}
+                <strong style={{ color: '#9406d0' }}>Liquid Cash</strong> −{' '}
+                <strong style={{ color: '#6b677f' }}>Outstanding Liabilities</strong>
               </span>
             ) : (
               <span>Aggregated market value across FDs, Bonds, Stocks & SIPs</span>
@@ -143,7 +143,7 @@ export default function NetWorthHeroCard({
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              background: 'linear-gradient(135deg, #a80fea 0%, #aa08f0 100%)',
               border: 'none',
               fontWeight: 700
             }}
@@ -158,7 +158,7 @@ export default function NetWorthHeroCard({
       <div className="networth-sub-metrics">
         <div className="hero-sub-metric-box">
           <div className="hero-sub-label">
-            <Layers size={13} color="#60a5fa" />
+            <Layers size={13} color="#9406d0" />
             Total Invested Capital
           </div>
           <div className="hero-sub-value">{mask(formatINR(totalInvested))}</div>
@@ -169,12 +169,12 @@ export default function NetWorthHeroCard({
 
         <div className="hero-sub-metric-box">
           <div className="hero-sub-label">
-            <TrendingUp size={13} color={isGain ? '#34d399' : '#fb7185'} />
+            <TrendingUp size={13} color={isGain ? '#900dc8' : '#6b677f'} />
             Unrealized Returns
           </div>
           <div
             className="hero-sub-value"
-            style={{ color: isGain ? '#34d399' : '#fb7185' }}
+            style={{ color: isGain ? '#900dc8' : '#6b677f' }}
           >
             {mask(`${isGain ? '+' : ''}${formatINR(totalReturn)}`)}
           </div>
@@ -185,10 +185,10 @@ export default function NetWorthHeroCard({
 
         <div className="hero-sub-metric-box">
           <div className="hero-sub-label">
-            <CalendarCheck size={13} color="#34d399" />
+            <CalendarCheck size={13} color="#900dc8" />
             Active Monthly SIPs
           </div>
-          <div className="hero-sub-value" style={{ color: '#34d399' }}>
+          <div className="hero-sub-value" style={{ color: '#900dc8' }}>
             {mask(formatINR(activeSipMonthly))}/mo
           </div>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>
@@ -198,10 +198,10 @@ export default function NetWorthHeroCard({
 
         <div className="hero-sub-metric-box">
           <div className="hero-sub-label">
-            <Wallet size={13} color="#38bdf8" />
+            <Wallet size={13} color="#9307cf" />
             Liquid Cash
           </div>
-          <div className="hero-sub-value" style={{ color: '#38bdf8' }}>
+          <div className="hero-sub-value" style={{ color: '#9307cf' }}>
             {mask(formatINR(cashLiquidity))}
           </div>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>
@@ -211,10 +211,10 @@ export default function NetWorthHeroCard({
 
         <div className="hero-sub-metric-box">
           <div className="hero-sub-label">
-            <CreditCard size={13} color="#fb7185" />
+            <CreditCard size={13} color="#6b677f" />
             Liabilities (Debt)
           </div>
-          <div className="hero-sub-value" style={{ color: '#fb7185' }}>
+          <div className="hero-sub-value" style={{ color: '#6b677f' }}>
             {mask(formatINR(debtLiabilities))}
           </div>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>

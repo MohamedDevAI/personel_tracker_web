@@ -72,7 +72,7 @@ export default function ReminderModal({
         {/* Header */}
         <div className="notes-modal-header">
           <div className="notes-modal-title">
-            <Bell size={20} color="#c084fc" />
+            <Bell size={20} color="#ce3b05" />
             <span>{reminderToEdit ? 'Edit Reminder' : 'Set New Reminder'}</span>
           </div>
           <button type="button" className="sticky-icon-btn" onClick={onClose}>

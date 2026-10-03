@@ -37,7 +37,7 @@ export default function GlanceAddModal({
     <div className="glance-modal-overlay">
       <div className="glance-modal-card glass-panel">
         <h4 className="glance-modal-header">
-          <Plus size={18} color="#34d399" /> Add Planned Expense
+          <Plus size={18} color="#be590c" /> Add Planned Expense
         </h4>
 
         <form onSubmit={onSubmit} className="glance-modal-form">

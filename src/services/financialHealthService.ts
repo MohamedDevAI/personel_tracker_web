@@ -224,20 +224,20 @@ export const computeFinancialHealth = (
 
   // Tier Classification
   let tier: FinancialHealthResult['tier'] = 'High Risk';
-  let tierColor = '#f43f5e';
+  let tierColor = '#6b7280';
   let tierDescription = 'Urgent gaps in safety buffer or liabilities require immediate attention.';
 
   if (totalScore >= 85) {
     tier = 'Elite Fortress';
-    tierColor = '#10b981';
+    tierColor = '#7c3aed';
     tierDescription = 'Your wealth architecture is bulletproof, diversified, and primed for rapid compounding.';
   } else if (totalScore >= 70) {
     tier = 'Strong Compounding';
-    tierColor = '#34d399';
+    tierColor = '#9333ea';
     tierDescription = 'Robust foundations with strong regular investing. Address remaining minor gaps for elite status.';
   } else if (totalScore >= 50) {
     tier = 'Stable with Gaps';
-    tierColor = '#fbbf24';
+    tierColor = '#a855f7';
     tierDescription = 'Core assets are in place, but protective gaps leave you vulnerable to market or life shocks.';
   }
 

@@ -14,16 +14,18 @@ export interface BorrowRepayRecord {
   createdAt?: string;
 }
 
+export type CreditorStatus = 'Outstanding' | 'Settled' | 'Credit Given' | 'Overpaid';
+
 export interface CreditorSummary {
   creditorName: string;
   totalBorrowed: number;
   totalRepaid: number;
   creditGiven?: number;
   txCount?: number;
-  /** Positive = still owe creditor, 0 = settled, negative = credit given to them */
+  /** Positive = still owe creditor, 0 = settled, negative = credit given to them or overpaid */
   netBalance: number;
   lastActivityDate: string;
-  status: 'Outstanding' | 'Settled' | 'Overpaid';
+  status: CreditorStatus;
 }
 
 export type PlannedRepaymentStatus = 'Scheduled' | 'Paid' | 'Pending';

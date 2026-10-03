@@ -6,13 +6,13 @@ import { plannedRepayCreditApi } from '../../../../services/plannedRepayCreditAp
 import { MONTH_NAMES, getCurrentYear } from '../../../../utils/dateHelpers';
 import { useBorrowRepayRecordsQuery, usePlannedRepaymentsQuery } from '../../../../hooks';
 
-export type BorrowRepayStep = 'credit_tracker' | 'aggregation' | 'planned_repayment';
+export type BorrowRepayStep = 'aggregation' | 'creditor_transactions' | 'all_transactions' | 'planned_repayment' | 'credit_tracker';
 
 export function useBorrowRepayData(initialMonth?: string, initialYear?: string) {
   const queryClient = useQueryClient();
 
   // ── Tab/Step state ──────────────────────────────────────────────────────────
-  const [activeStep, setActiveStep] = useState<BorrowRepayStep>('credit_tracker');
+  const [activeStep, setActiveStep] = useState<BorrowRepayStep>('aggregation');
 
   // ── Filter state ────────────────────────────────────────────────────────────
   const [selectedMonth, setSelectedMonth] = useState<string>(() => initialMonth || 'ALL');
@@ -21,7 +21,7 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
   const [typeFilter, setTypeFilter] = useState<'ALL' | BorrowRepayType>('ALL');
   const [selectedCreditorFilter, setSelectedCreditorFilter] = useState<string>('ALL');
   const [aggSearchQuery, setAggSearchQuery] = useState('');
-  const [aggStatusFilter, setAggStatusFilter] = useState<'ALL' | 'Due' | 'Settled' | 'Credit Given'>('ALL');
+  const [aggStatusFilter, setAggStatusFilter] = useState<'ALL' | 'Due' | 'Settled' | 'Credit Given' | 'Overpaid'>('ALL');
   const [plannedStatusFilter, setPlannedStatusFilter] = useState<'ALL' | PlannedRepaymentStatus>('ALL');
 
   // ── Modal state ─────────────────────────────────────────────────────────────
@@ -163,7 +163,8 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
         aggStatusFilter === 'ALL' ||
         (aggStatusFilter === 'Due' && c.netBalance > 0) ||
         (aggStatusFilter === 'Settled' && c.netBalance === 0) ||
-        (aggStatusFilter === 'Credit Given' && c.netBalance < 0);
+        (aggStatusFilter === 'Credit Given' && (c.status === 'Credit Given' || ((c.creditGiven || 0) > 0 && c.netBalance <= 0))) ||
+        (aggStatusFilter === 'Overpaid' && c.status === 'Overpaid');
       return matchesSearch && matchesStatus;
     });
   }, [creditorSummaries, aggSearchQuery, aggStatusFilter]);

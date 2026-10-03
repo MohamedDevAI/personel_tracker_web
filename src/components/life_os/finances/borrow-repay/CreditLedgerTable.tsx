@@ -1,6 +1,6 @@
 import {
   HandCoins, Search, Filter, ArrowDownLeft, ArrowUpRight,
-  Trash2, Calendar, Clock, User, RotateCcw
+  Trash2, Calendar, Clock, User, RotateCcw, ArrowLeft
 } from 'lucide-react';
 import { BorrowRepayRecord, BorrowRepayType } from '../../../../types';
 import { MONTH_NAMES } from '../../../../utils/dateHelpers';
@@ -24,6 +24,7 @@ interface CreditLedgerTableProps {
   onDeleteRecord: (item: BorrowRepayRecord) => void;
   onAddRecord: () => void;
   onResetFilters: () => void;
+  onBackToAggregation?: () => void;
   formatINR: (val: number) => string;
 }
 
@@ -32,7 +33,7 @@ export default function CreditLedgerTable({
   searchQuery, typeFilter, selectedMonth, selectedYear, selectedCreditorFilter,
   availableYears, existingCreditors,
   onSearchChange, onTypeFilterChange, onMonthChange, onYearChange, onCreditorFilterChange,
-  onDeleteRecord, onAddRecord, onResetFilters, formatINR: _formatINR
+  onDeleteRecord, onAddRecord, onResetFilters, onBackToAggregation, formatINR: _formatINR
 }: CreditLedgerTableProps) {
   const hasFilter = selectedMonth !== 'ALL' || selectedYear !== 'ALL' || typeFilter !== 'ALL' ||
     selectedCreditorFilter !== 'ALL' || !!searchQuery;
@@ -42,6 +43,17 @@ export default function CreditLedgerTable({
       {/* Summary Strip */}
       <div className="table-summary-strip">
         <div className="summary-strip-left">
+          {onBackToAggregation && (
+            <button
+              type="button"
+              onClick={onBackToAggregation}
+              className="btn-back-to-agg"
+              style={{ padding: '4px 10px', fontSize: '0.78rem', marginRight: '6px' }}
+              title="Return to Aggregation Table"
+            >
+              <ArrowLeft size={13} /> Back to Aggregations
+            </button>
+          )}
           <HandCoins size={16} />
           <span>
             Showing <strong>{filteredRecords.length}</strong> of <strong>{totalRecords}</strong> transactions
@@ -51,15 +63,15 @@ export default function CreditLedgerTable({
         <div className="summary-strip-right">
           <div className="summary-stat-item">
             <span style={{ color: 'var(--text-muted)' }}>Borrowed:</span>
-            <span style={{ color: '#fbbf24', fontWeight: 700 }}>₹ {activeFilterTotals.borrowed.toLocaleString('en-IN')}</span>
+            <span style={{ color: '#d47304', fontWeight: 700 }}>₹ {activeFilterTotals.borrowed.toLocaleString('en-IN')}</span>
           </div>
           <div className="summary-stat-item">
             <span style={{ color: 'var(--text-muted)' }}>Repaid:</span>
-            <span style={{ color: '#34d399', fontWeight: 700 }}>₹ {activeFilterTotals.repaid.toLocaleString('en-IN')}</span>
+            <span style={{ color: '#be590c', fontWeight: 700 }}>₹ {activeFilterTotals.repaid.toLocaleString('en-IN')}</span>
           </div>
           <div className="summary-stat-item">
             <span style={{ color: 'var(--text-muted)' }}>Net:</span>
-            <span style={{ color: activeFilterTotals.net > 0 ? '#fb7185' : '#34d399', fontWeight: 700 }}>
+            <span style={{ color: activeFilterTotals.net > 0 ? '#58514d' : '#be590c', fontWeight: 700 }}>
               ₹ {activeFilterTotals.net.toLocaleString('en-IN')}
             </span>
           </div>

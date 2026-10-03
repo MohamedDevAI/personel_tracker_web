@@ -3,17 +3,17 @@
    ========================================================= */
 
 .money-screen-root {
-  --money-emerald: #10b981;
-  --money-emerald-glow: rgba(16, 185, 129, 0.25);
-  --money-gold: #fbbf24;
-  --money-gold-glow: rgba(251, 191, 36, 0.25);
-  --money-bg-surface: #0a1210;
-  --money-card-bg: rgba(12, 24, 20, 0.75);
-  --money-border: rgba(16, 185, 129, 0.18);
-  --money-border-hover: rgba(52, 211, 153, 0.4);
+  --money-emerald: #cd600d;
+  --money-emerald-glow: rgba(225, 106, 14, 0.25);
+  --money-gold: #f98705;
+  --money-gold-glow: rgba(251, 151, 36, 0.25);
+  --money-bg-surface: #fffcf9;
+  --money-card-bg: rgba(254, 251, 248, 0.75);
+  --money-border: rgba(225, 106, 14, 0.18);
+  --money-border-hover: rgba(240, 117, 23, 0.4);
 
   min-height: calc(100vh - 120px);
-  background: radial-gradient(circle at 50% -10%, rgba(16, 185, 129, 0.12) 0%, rgba(245, 158, 11, 0.04) 45%, transparent 75%);
+  background: radial-gradient(circle at 50% -10%, rgba(225, 106, 14, 0.12) 0%, rgba(245, 129, 11, 0.04) 45%, transparent 75%);
   padding: 0 16px 40px;
   width: 100%;
   max-width: 100%;
@@ -39,7 +39,7 @@
 }
 
 .money-gold-gradient {
-  background: linear-gradient(135deg, #34d399 0%, #fbbf24 50%, #f59e0b 100%);
+  background: linear-gradient(135deg, #df690e 0%, #f98705 50%, #eb7c0a 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -49,9 +49,9 @@
   font-weight: 800;
   padding: 3px 10px;
   border-radius: 20px;
-  background: rgba(16, 185, 129, 0.18);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.35);
+  background: rgba(225, 106, 14, 0.18);
+  color: #be590c;
+  border: 1px solid rgba(225, 106, 14, 0.35);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -65,7 +65,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(8, 18, 14, 0.85);
+  background: rgba(255, 252, 249, 0.85);
   backdrop-filter: blur(16px);
   border: 1px solid var(--money-border);
   padding: 6px;
@@ -73,7 +73,7 @@
   width: fit-content;
   max-width: 100%;
   overflow-x: auto;
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 10px 30px -10px rgba(124, 45, 18, 0.13);
 }
 
 .money-nav-tab-btn {
@@ -93,15 +93,15 @@
 }
 
 .money-nav-tab-btn:hover {
-  color: #34d399;
-  background: rgba(16, 185, 129, 0.08);
+  color: #be590c;
+  background: rgba(225, 106, 14, 0.08);
 }
 
 .money-nav-tab-btn.active {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(245, 158, 11, 0.18) 100%);
-  color: #ffffff;
-  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
-  border: 1px solid rgba(52, 211, 153, 0.4);
+  background: linear-gradient(135deg, rgba(225, 106, 14, 0.25) 0%, rgba(245, 129, 11, 0.18) 100%);
+  color: #1c1917;
+  box-shadow: 0 4px 16px rgba(225, 106, 14, 0.3);
+  border: 1px solid rgba(240, 117, 23, 0.4);
 }
 
 .money-tab-counter {
@@ -109,15 +109,15 @@
   font-weight: 800;
   padding: 2px 8px;
   border-radius: 20px;
-  background: rgba(16, 185, 129, 0.25);
-  color: #a7f3d0;
-  border: 1px solid rgba(16, 185, 129, 0.35);
+  background: rgba(225, 106, 14, 0.25);
+  color: #d3630d;
+  border: 1px solid rgba(225, 106, 14, 0.35);
 }
 
 .money-tab-counter.alert {
-  background: rgba(245, 158, 11, 0.25);
-  color: #fde047;
-  border-color: rgba(245, 158, 11, 0.4);
+  background: rgba(245, 129, 11, 0.25);
+  color: #da8404;
+  border-color: rgba(245, 129, 11, 0.4);
 }
 
 /* Glass Panels inside Money Screen */

@@ -113,24 +113,24 @@ export default function MutualFundListScreen({
     if (sharpe >= 1.3 && alpha >= 2.0 && expense < 0.8) {
       return {
         label: 'Strong Buy / Top Tier',
-        color: '#34d399',
-        bg: 'rgba(16, 185, 129, 0.15)',
-        border: 'rgba(52, 211, 153, 0.3)',
+        color: '#900dc8',
+        bg: 'rgba(186, 54, 242, 0.15)',
+        border: 'rgba(186, 54, 242, 0.3)',
       };
     }
     if (returnPct >= 10 || sharpe >= 1.0) {
       return {
         label: 'Hold / Consistent',
-        color: '#60a5fa',
-        bg: 'rgba(59, 130, 246, 0.15)',
-        border: 'rgba(96, 165, 250, 0.3)',
+        color: '#9406d0',
+        bg: 'rgba(187, 50, 246, 0.15)',
+        border: 'rgba(188, 48, 248, 0.3)',
       };
     }
     return {
       label: 'Review / Underperforming',
-      color: '#fbbf24',
-      bg: 'rgba(245, 158, 11, 0.15)',
-      border: 'rgba(251, 191, 36, 0.3)',
+      color: '#9305d0',
+      bg: 'rgba(188, 49, 247, 0.15)',
+      border: 'rgba(189, 45, 251, 0.3)',
     };
   };
 
@@ -171,17 +171,17 @@ export default function MutualFundListScreen({
 
           <div className="inv-hstat-card">
             <div className="hstat-label">Total Gain</div>
-            <div className="hstat-val" style={{ color: totalReturn >= 0 ? '#34d399' : '#fb7185' }}>
+            <div className="hstat-val" style={{ color: totalReturn >= 0 ? '#900dc8' : '#6b677f' }}>
               {mask(formatPctChange(totalReturnPct))}
             </div>
-            <div className="hstat-sub" style={{ color: totalReturn >= 0 ? '#34d399' : '#fb7185' }}>
+            <div className="hstat-sub" style={{ color: totalReturn >= 0 ? '#900dc8' : '#6b677f' }}>
               ({mask(formatINRCompact(totalReturn))})
             </div>
           </div>
 
           <div className="inv-hstat-card">
             <div className="hstat-label">Monthly SIP Total</div>
-            <div className="hstat-val" style={{ color: '#34d399' }}>{mask(formatINR(totalMonthlySip))}</div>
+            <div className="hstat-val" style={{ color: '#900dc8' }}>{mask(formatINR(totalMonthlySip))}</div>
             <div className="hstat-sub">Active recurring outflow</div>
           </div>
         </div>
@@ -290,10 +290,10 @@ export default function MutualFundListScreen({
 
                   <div className="inv-metric-cell">
                     <div className="cell-label">Total Gain / Loss</div>
-                    <div className="cell-val" style={{ color: isPositive ? '#34d399' : '#fb7185' }}>
+                    <div className="cell-val" style={{ color: isPositive ? '#900dc8' : '#6b677f' }}>
                       {mask(formatPctChange(returnPct))}
                     </div>
-                    <div className="cell-sub" style={{ color: isPositive ? '#34d399' : '#fb7185' }}>
+                    <div className="cell-sub" style={{ color: isPositive ? '#900dc8' : '#6b677f' }}>
                       ({mask(formatINR(returnVal))})
                     </div>
                   </div>

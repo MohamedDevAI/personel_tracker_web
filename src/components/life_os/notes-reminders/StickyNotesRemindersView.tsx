@@ -72,7 +72,7 @@ export default function StickyNotesRemindersView() {
           particleCount: 45,
           spread: 55,
           origin: { y: 0.8 },
-          colors: ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0'],
+          colors: ['#cd600d', '#df690e', '#f07414', '#f17f28'],
         });
       }
     },
@@ -267,7 +267,7 @@ export default function StickyNotesRemindersView() {
           <div className="aio-column">
             <div className="sticky-section-title-wrap">
               <h3 className="sticky-section-title">
-                <StickyNoteIcon size={18} color="#fbbf24" />
+                <StickyNoteIcon size={18} color="#d47304" />
                 <span>Stationery Board</span>
               </h3>
               <span className="sticky-section-badge">{filteredNotes.length} notes</span>
@@ -318,7 +318,7 @@ export default function StickyNotesRemindersView() {
           <div className="aio-column">
             <div className="sticky-section-title-wrap">
               <h3 className="sticky-section-title">
-                <Bell size={18} color="#c084fc" />
+                <Bell size={18} color="#ce3b05" />
                 <span>Reminders Schedule</span>
               </h3>
               <span className="sticky-section-badge">
@@ -457,7 +457,7 @@ export default function StickyNotesRemindersView() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div className="sticky-section-title-wrap">
                 <h3 className="sticky-section-title">
-                  <Pin size={16} color="#fbbf24" fill="#fbbf24" />
+                  <Pin size={16} color="#d47304" fill="#f98705" />
                   <span>Pinned Notes</span>
                 </h3>
                 <span className="sticky-section-badge">{pinnedNotes.length}</span>

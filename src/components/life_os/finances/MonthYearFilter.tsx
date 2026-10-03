@@ -40,7 +40,7 @@ export default function MonthYearFilter({
         {/* Year Controls */}
         <div className="month-filter-year-nav">
           <div className="year-indicator-chip">
-            <Calendar size={16} color="#6366f1" />
+            <Calendar size={16} color="#d35c0d" />
             <span className="year-indicator-text">YEAR:</span>
           </div>
 

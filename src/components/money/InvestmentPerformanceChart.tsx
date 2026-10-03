@@ -70,10 +70,10 @@ export default function InvestmentPerformanceChart({
 
   // Category comparison bar data
   const categories = [
-    { label: 'Stocks', match: ['Stocks'], color: '#6366f1' },
-    { label: 'SIPs & MFs', match: ['Mutual Funds', 'SIPs'], color: '#10b981' },
-    { label: 'Bonds', match: ['Bonds'], color: '#06b6d4' },
-    { label: 'FDs', match: ['FDs'], color: '#fbbf24' }
+    { label: 'Stocks', match: ['Stocks'], color: '#910cca' },
+    { label: 'SIPs & MFs', match: ['Mutual Funds', 'SIPs'], color: '#900dc8' },
+    { label: 'Bonds', match: ['Bonds'], color: '#9406d0' },
+    { label: 'FDs', match: ['FDs'], color: '#9305d0' }
   ];
 
   const barData = categories.map((cat) => {
@@ -93,7 +93,7 @@ export default function InvestmentPerformanceChart({
       <div className="vis-header">
         <div>
           <div className="vis-title">
-            <TrendingUp size={18} color="#34d399" />
+            <TrendingUp size={18} color="#900dc8" />
             <span>Investment Performance & Growth</span>
           </div>
           <div className="vis-subtitle">
@@ -104,7 +104,7 @@ export default function InvestmentPerformanceChart({
         </div>
 
         {/* View Toggle */}
-        <div style={{ display: 'flex', gap: 6, background: 'rgba(255, 255, 255, 0.04)', padding: 3, borderRadius: 10 }}>
+        <div style={{ display: 'flex', gap: 6, background: 'rgba(186, 54, 242, 0.06)', padding: 3, borderRadius: 10 }}>
           <button
             onClick={() => setViewMode('trend')}
             className={`btn-glass ${viewMode === 'trend' ? 'active' : ''}`}
@@ -112,9 +112,9 @@ export default function InvestmentPerformanceChart({
               padding: '4px 10px',
               fontSize: '0.75rem',
               borderRadius: 8,
-              background: viewMode === 'trend' ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
-              color: viewMode === 'trend' ? '#34d399' : 'var(--text-secondary)',
-              border: viewMode === 'trend' ? '1px solid rgba(16, 185, 129, 0.4)' : 'none',
+              background: viewMode === 'trend' ? 'rgba(186, 54, 242, 0.2)' : 'transparent',
+              color: viewMode === 'trend' ? '#900dc8' : 'var(--text-secondary)',
+              border: viewMode === 'trend' ? '1px solid rgba(186, 54, 242, 0.4)' : 'none',
               display: 'flex',
               alignItems: 'center',
               gap: 4
@@ -131,9 +131,9 @@ export default function InvestmentPerformanceChart({
               padding: '4px 10px',
               fontSize: '0.75rem',
               borderRadius: 8,
-              background: viewMode === 'bar' ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
-              color: viewMode === 'bar' ? '#34d399' : 'var(--text-secondary)',
-              border: viewMode === 'bar' ? '1px solid rgba(16, 185, 129, 0.4)' : 'none',
+              background: viewMode === 'bar' ? 'rgba(186, 54, 242, 0.2)' : 'transparent',
+              color: viewMode === 'bar' ? '#900dc8' : 'var(--text-secondary)',
+              border: viewMode === 'bar' ? '1px solid rgba(186, 54, 242, 0.4)' : 'none',
               display: 'flex',
               alignItems: 'center',
               gap: 4
@@ -151,18 +151,18 @@ export default function InvestmentPerformanceChart({
             <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
               <defs>
                 <linearGradient id="currentValGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
+                  <stop offset="5%" stopColor="#a80fea" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#a80fea" stopOpacity={0.0} />
                 </linearGradient>
                 <linearGradient id="investedGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0.0} />
+                  <stop offset="5%" stopColor="#ad11f0" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="#ad11f0" stopOpacity={0.0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.05)" />
-              <XAxis dataKey="day" stroke="#64748b" fontSize={11} tickLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(186, 54, 242, 0.07)" />
+              <XAxis dataKey="day" stroke="#706c83" fontSize={11} tickLine={false} />
               <YAxis
-                stroke="#64748b"
+                stroke="#706c83"
                 fontSize={11}
                 tickFormatter={(val) => formatINRCompact(val)}
                 tickLine={false}
@@ -176,13 +176,13 @@ export default function InvestmentPerformanceChart({
                     return (
                       <div className="money-custom-tooltip">
                         <div className="tooltip-title">{label}</div>
-                        <div className="tooltip-item" style={{ color: '#34d399', fontWeight: 700 }}>
+                        <div className="tooltip-item" style={{ color: '#900dc8', fontWeight: 700 }}>
                           Current Value: {formatINR(curr || 0)}
                         </div>
-                        <div className="tooltip-item" style={{ color: '#818cf8' }}>
+                        <div className="tooltip-item" style={{ color: '#920bcb' }}>
                           Invested Basis: {formatINR(inv || 0)}
                         </div>
-                        <div className="tooltip-item" style={{ color: gain >= 0 ? '#34d399' : '#fb7185' }}>
+                        <div className="tooltip-item" style={{ color: gain >= 0 ? '#900dc8' : '#6b677f' }}>
                           Net Gain: {gain >= 0 ? '+' : ''}
                           {formatINR(gain)}
                         </div>
@@ -196,7 +196,7 @@ export default function InvestmentPerformanceChart({
                 type="monotone"
                 dataKey="currentValue"
                 name="Current Portfolio Value"
-                stroke="#10b981"
+                stroke="#a80fea"
                 strokeWidth={2.5}
                 fillOpacity={1}
                 fill="url(#currentValGrad)"
@@ -205,7 +205,7 @@ export default function InvestmentPerformanceChart({
                 type="monotone"
                 dataKey="invested"
                 name="Invested Capital"
-                stroke="#6366f1"
+                stroke="#ad11f0"
                 strokeWidth={1.5}
                 strokeDasharray="4 4"
                 fillOpacity={1}
@@ -214,10 +214,10 @@ export default function InvestmentPerformanceChart({
             </AreaChart>
           ) : (
             <BarChart data={barData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.05)" />
-              <XAxis dataKey="category" stroke="#64748b" fontSize={11} tickLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(186, 54, 242, 0.07)" />
+              <XAxis dataKey="category" stroke="#706c83" fontSize={11} tickLine={false} />
               <YAxis
-                stroke="#64748b"
+                stroke="#706c83"
                 fontSize={11}
                 tickFormatter={(val) => formatINRCompact(val)}
                 tickLine={false}
@@ -231,10 +231,10 @@ export default function InvestmentPerformanceChart({
                     return (
                       <div className="money-custom-tooltip">
                         <div className="tooltip-title">{label}</div>
-                        <div className="tooltip-item" style={{ color: '#818cf8' }}>
+                        <div className="tooltip-item" style={{ color: '#920bcb' }}>
                           Invested: {formatINR(inv || 0)}
                         </div>
-                        <div className="tooltip-item" style={{ color: '#34d399', fontWeight: 700 }}>
+                        <div className="tooltip-item" style={{ color: '#900dc8', fontWeight: 700 }}>
                           Current Value: {formatINR(cur || 0)}
                         </div>
                         <div className="tooltip-item">
@@ -251,8 +251,8 @@ export default function InvestmentPerformanceChart({
                 wrapperStyle={{ fontSize: '0.78rem', paddingTop: '8px' }}
                 formatter={(value) => <span style={{ color: 'var(--text-secondary)' }}>{value}</span>}
               />
-              <Bar dataKey="Invested" name="Invested Capital" fill="#6366f1" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="Current" name="Current Value" fill="#10b981" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Invested" name="Invested Capital" fill="#ad11f0" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Current" name="Current Value" fill="#a80fea" radius={[4, 4, 0, 0]} />
             </BarChart>
           )}
         </ResponsiveContainer>

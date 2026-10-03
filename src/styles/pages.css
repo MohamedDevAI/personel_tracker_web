@@ -93,19 +93,19 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  color: #10b981;
+  color: #b6550c;
 }
 
 .dashboard-cashflow-out {
   display: flex;
   align-items: center;
   gap: 4px;
-  color: #f43f5e;
+  color: #524c47;
 }
 
 .dashboard-progress-track {
   height: 6px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(249, 115, 22, 0.12);
   border-radius: 999px;
   overflow: hidden;
   margin-top: 8px;
@@ -156,7 +156,7 @@
 
 .dashboard-burn-rate-track {
   height: 8px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(249, 115, 22, 0.09);
   border-radius: 999px;
   overflow: hidden;
   display: flex;
@@ -168,7 +168,7 @@
   justify-content: space-between;
   padding: 10px 14px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(249, 115, 22, 0.04);
   border: 1px solid var(--border-subtle);
 }
 
@@ -189,11 +189,11 @@
 }
 
 .dashboard-tx-income {
-  color: #10b981;
+  color: #b6550c;
 }
 
 .dashboard-tx-expense {
-  color: #f43f5e;
+  color: #524c47;
 }
 
 .dashboard-goal-row {
@@ -222,7 +222,7 @@
 
 .dashboard-goal-track {
   height: 7px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(249, 115, 22, 0.09);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -270,11 +270,11 @@
 }
 
 .dashboard-task-item.pending {
-  background: rgba(99, 102, 241, 0.05);
+  background: rgba(242, 129, 54, 0.05);
 }
 
 .dashboard-task-item.completed {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(249, 115, 22, 0.04);
 }
 
 .dashboard-task-title {
@@ -307,17 +307,17 @@
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(249, 115, 22, 0.04);
   border: 1px solid var(--border-subtle);
 }
 
 .habit-row-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(249, 115, 22, 0.08);
 }
 
 .habit-row-item.done {
-  background: rgba(16, 185, 129, 0.08);
-  border-color: rgba(16, 185, 129, 0.25);
+  background: rgba(225, 106, 14, 0.08);
+  border-color: rgba(225, 106, 14, 0.25);
 }
 
 .habit-info-group {
@@ -355,7 +355,7 @@
 }
 
 .habit-streak-count.active {
-  color: #fbbf24;
+  color: #d47304;
 }
 
 /* Habits Page Specific */
@@ -390,14 +390,14 @@
   gap: 6px;
   padding: 6px 12px;
   border-radius: 12px;
-  background: rgba(245, 158, 11, 0.12);
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: rgba(245, 129, 11, 0.12);
+  border: 1px solid rgba(245, 129, 11, 0.3);
 }
 
 .habit-streak-pill-val {
   font-size: 1rem;
   font-weight: 800;
-  color: #fbbf24;
+  color: #d47304;
   font-family: var(--font-display);
 }
 
@@ -431,17 +431,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: #1c1917;
   transition: var(--transition-smooth);
 }
 
 .habit-heatmap-box.completed {
   background: var(--emerald-gradient);
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 0 10px rgba(225, 106, 14, 0.3);
 }
 
 .habit-heatmap-box.missed {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(249, 115, 22, 0.08);
 }
 
 .habit-heatmap-dayname {
@@ -457,16 +457,16 @@
 }
 
 .habit-toggle-btn.done {
-  background: rgba(16, 185, 129, 0.15);
-  border-color: rgba(16, 185, 129, 0.4);
-  color: #34d399;
+  background: rgba(225, 106, 14, 0.15);
+  border-color: rgba(225, 106, 14, 0.4);
+  color: #be590c;
 }
 
 .habit-day-bubbles {
   display: flex;
   justify-content: space-between;
   gap: 6px;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(249, 115, 22, 0.06);
   padding: 8px 12px;
   border-radius: 12px;
   border: 1px solid var(--border-subtle);
@@ -493,12 +493,12 @@
 }
 
 .habit-bubble-dot.completed {
-  background: #10b981;
-  color: #fff;
+  background: #cd600d;
+  color: #ffffff;
 }
 
 .habit-bubble-dot.missed {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(249, 115, 22, 0.08);
   color: var(--text-muted);
 }
 
@@ -549,7 +549,7 @@
 
 .goal-progress-track {
   height: 8px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(249, 115, 22, 0.09);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -588,7 +588,7 @@
 }
 
 .goal-progress-pct.done {
-  color: #10b981;
+  color: #b6550c;
 }
 
 .goal-progress-fill.done {
@@ -610,7 +610,7 @@
 }
 
 .habit-consistency-val {
-  color: #10b981;
+  color: #b6550c;
   font-weight: 600;
 }
 
@@ -637,7 +637,7 @@
 }
 
 .task-card-row:hover {
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(249, 115, 22, 0.33);
 }
 
 .task-left-group {
@@ -718,11 +718,11 @@
 }
 
 .task-row-card.completed {
-  background: rgba(255, 255, 255, 0.01);
+  background: rgba(249, 115, 22, 0.04);
 }
 
 .task-row-card.pending {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(249, 115, 22, 0.05);
 }
 
 .task-row-left {
@@ -761,7 +761,7 @@
 .task-delete-btn {
   width: 30px;
   height: 30px;
-  color: #f43f5e;
+  color: #524c47;
 }
 
 .tasks-empty-state {
@@ -774,7 +774,7 @@
 .modal-overlay-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(41, 22, 10, 0.45);
   backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
@@ -849,8 +849,8 @@
   flex-direction: column;
   align-items: center;
   gap: 18px;
-  border: 1px solid rgba(244, 63, 94, 0.25);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(244, 63, 94, 0.15);
+  border: 1px solid rgba(110, 101, 94, 0.25);
+  box-shadow: 0 20px 50px rgba(124, 45, 18, 0.13), 0 0 30px rgba(110, 101, 94, 0.15);
   animation: confirmPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -867,9 +867,9 @@
   width: 58px;
   height: 58px;
   border-radius: 50%;
-  background: rgba(244, 63, 94, 0.15);
-  color: #fb7185;
-  border: 1px solid rgba(244, 63, 94, 0.3);
+  background: rgba(110, 101, 94, 0.15);
+  color: #58514d;
+  border: 1px solid rgba(110, 101, 94, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -885,7 +885,7 @@
 .confirm-modal-title {
   font-size: 1.25rem;
   font-weight: 800;
-  color: #ffffff;
+  color: #1c1917;
 }
 
 .confirm-modal-message {
@@ -897,11 +897,11 @@
 
 .confirm-modal-item-preview {
   font-size: 0.82rem;
-  color: #fbbf24;
-  background: rgba(0, 0, 0, 0.35);
+  color: #d47304;
+  background: rgba(249, 115, 22, 0.11);
   padding: 6px 14px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(249, 115, 22, 0.13);
   max-width: 320px;
   white-space: nowrap;
   overflow: hidden;
@@ -925,7 +925,7 @@
 }
 
 .btn-danger-solid {
-  background: linear-gradient(135deg, #f43f5e, #e11d48);
+  background: linear-gradient(135deg, #7b726b, #5f5853);
   color: #ffffff;
   border: none;
   font-weight: 700;
@@ -938,13 +938,13 @@
   justify-content: center;
   gap: 8px;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 14px rgba(244, 63, 94, 0.3);
+  box-shadow: 0 4px 14px rgba(110, 101, 94, 0.3);
 }
 
 .btn-danger-solid:hover {
-  background: linear-gradient(135deg, #e11d48, #be123c);
+  background: linear-gradient(135deg, #5f5853, #524c47);
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(244, 63, 94, 0.45);
+  box-shadow: 0 6px 18px rgba(110, 101, 94, 0.45);
 }
 
 

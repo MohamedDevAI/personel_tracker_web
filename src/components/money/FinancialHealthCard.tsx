@@ -27,10 +27,10 @@ export default function FinancialHealthCard({
   };
 
   const getRingColor = () => {
-    if (totalScore >= 85) return '#10b981';
-    if (totalScore >= 70) return '#34d399';
-    if (totalScore >= 50) return '#fbbf24';
-    return '#f43f5e';
+    if (totalScore >= 85) return '#a80fea';
+    if (totalScore >= 70) return '#a910eb';
+    if (totalScore >= 50) return '#ad06f5';
+    return '#6b677f';
   };
 
   return (
@@ -40,7 +40,7 @@ export default function FinancialHealthCard({
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <ShieldCheck size={18} color={getRingColor()} />
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff' }}>
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#900cc8' }}>
               Financial Health Score
             </h3>
           </div>
@@ -91,11 +91,11 @@ export default function FinancialHealthCard({
             {tierDescription}
           </div>
           <div style={{ display: 'flex', gap: 14, marginTop: 8, fontSize: '0.78rem' }}>
-            <span style={{ color: '#34d399', fontWeight: 700 }}>
+            <span style={{ color: '#900dc8', fontWeight: 700 }}>
               ✓ {achievedCount} Pillars Secured
             </span>
             {gapsCount > 0 && (
-              <span style={{ color: '#fbbf24', fontWeight: 700 }}>
+              <span style={{ color: '#9305d0', fontWeight: 700 }}>
                 ⚠️ {gapsCount} Open Gap{gapsCount === 1 ? '' : 's'}
               </span>
             )}
@@ -111,8 +111,8 @@ export default function FinancialHealthCard({
               width: 32,
               height: 32,
               borderRadius: 8,
-              background: gapsCount > 0 ? 'rgba(251, 191, 36, 0.15)' : 'rgba(16, 185, 129, 0.15)',
-              color: gapsCount > 0 ? '#fbbf24' : '#34d399',
+              background: gapsCount > 0 ? 'rgba(189, 45, 251, 0.15)' : 'rgba(186, 54, 242, 0.15)',
+              color: gapsCount > 0 ? '#9305d0' : '#900dc8',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -128,7 +128,7 @@ export default function FinancialHealthCard({
             <div
               style={{
                 fontSize: '0.82rem',
-                color: '#fff',
+                color: '#900cc8',
                 fontWeight: 600,
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
@@ -150,8 +150,8 @@ export default function FinancialHealthCard({
             display: 'flex',
             alignItems: 'center',
             gap: 4,
-            background: gapsCount > 0 ? 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)' : undefined,
-            color: gapsCount > 0 ? '#000' : undefined,
+            background: gapsCount > 0 ? 'linear-gradient(135deg, #ad06f5 0%, #ac07f3 100%)' : undefined,
+            color: gapsCount > 0 ? '#000000' : undefined,
             fontWeight: 700,
             border: 'none'
           }}

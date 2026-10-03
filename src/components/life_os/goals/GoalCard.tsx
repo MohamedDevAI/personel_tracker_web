@@ -76,7 +76,7 @@ export default function GoalCard({ goal, onUpdateProgress, onDelete, onEdit }: G
             }`}
           >
             {deadlineInfo.isAchieved ? (
-              <CheckCircle2 size={13} color="#34d399" />
+              <CheckCircle2 size={13} color="#be590c" />
             ) : (
               <Clock size={13} />
             )}
@@ -167,7 +167,7 @@ export default function GoalCard({ goal, onUpdateProgress, onDelete, onEdit }: G
               style={{
                 fontSize: '0.78rem',
                 fontWeight: 700,
-                color: '#34d399',
+                color: '#be590c',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 4,

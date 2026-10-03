@@ -72,7 +72,7 @@ export default function StickyNoteModal({
         {/* Header */}
         <div className="notes-modal-header">
           <div className="notes-modal-title">
-            <StickyNoteIcon size={20} color="#fbbf24" />
+            <StickyNoteIcon size={20} color="#d47304" />
             <span>{noteToEdit ? 'Edit Sticky Note' : 'Create New Sticky Note'}</span>
           </div>
           <button type="button" className="sticky-icon-btn" onClick={onClose}>
@@ -150,7 +150,7 @@ export default function StickyNoteModal({
                 onChange={(e) => setIsPinned(e.target.checked)}
                 style={{ cursor: 'pointer' }}
               />
-              <Pin size={13} style={{ color: isPinned ? '#fbbf24' : 'inherit' }} />
+              <Pin size={13} style={{ color: isPinned ? '#d47304' : 'inherit' }} />
               <span>Pin this note to the top of the canvas</span>
             </label>
           </div>

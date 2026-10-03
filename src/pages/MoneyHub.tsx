@@ -266,7 +266,7 @@ function MoneyHubInner() {
             onClick={() => setIsDiagnosticOpen(true)}
             title="Click to view Financial Health Diagnostic"
           >
-            <ShieldCheck size={14} color="#10b981" />
+            <ShieldCheck size={14} color="#7c3aed" />
             <span>Health Score: {healthResult.totalScore}/100</span>
           </span>
         </div>

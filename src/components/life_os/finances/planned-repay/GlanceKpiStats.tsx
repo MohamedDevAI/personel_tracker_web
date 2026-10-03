@@ -46,10 +46,10 @@ export default function GlanceKpiStats({
 
         {/* Next-Month Recovered (conditional) */}
         {rolloverStats.countRecovered > 0 && (
-          <div className="glance-stat-box" style={{ borderColor: 'rgba(99, 102, 241, 0.4)', background: 'rgba(99, 102, 241, 0.08)' }}>
-            <span className="glance-stat-label" style={{ color: '#a5b4fc' }}>NEXT-MONTH RECOVERED</span>
-            <span className="glance-stat-value" style={{ color: '#818cf8' }}>{formatINR(rolloverStats.recoveredOriginalTotal)}</span>
-            <span className="glance-stat-sub" style={{ color: '#c7d2fe' }}>
+          <div className="glance-stat-box" style={{ borderColor: 'rgba(242, 129, 54, 0.4)', background: 'rgba(242, 129, 54, 0.08)' }}>
+            <span className="glance-stat-label" style={{ color: '#b83b06' }}>NEXT-MONTH RECOVERED</span>
+            <span className="glance-stat-value" style={{ color: '#ae3b0a' }}>{formatINR(rolloverStats.recoveredOriginalTotal)}</span>
+            <span className="glance-stat-sub" style={{ color: '#c03c04' }}>
               {rolloverStats.countRecovered} debt(s) paid in next month
             </span>
           </div>

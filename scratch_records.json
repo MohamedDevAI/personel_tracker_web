@@ -1,0 +1,1765 @@
+﻿{
+    "value":  [
+                  {
+                      "id":  "6aa51238e31474f441310f73",
+                      "creditorName":  "Basith Brother",
+                      "date":  "2024-01-12",
+                      "type":  "Repaid",
+                      "amount":  1000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-01-12T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f79",
+                      "creditorName":  "Basith Brother",
+                      "date":  "2024-10-20",
+                      "type":  "Borrow",
+                      "amount":  3500.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-10-20T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f7d",
+                      "creditorName":  "Basith Brother",
+                      "date":  "2026-04-01",
+                      "type":  "Repaid",
+                      "amount":  8000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-04-01T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f81",
+                      "creditorName":  "Buhari",
+                      "date":  "2026-05-19",
+                      "type":  "Repaid",
+                      "amount":  4000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-05-19T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f9e",
+                      "creditorName":  "Credit Card Penalty",
+                      "date":  "2024-01-09",
+                      "type":  "Borrow",
+                      "amount":  1250.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-01-09T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f9f",
+                      "creditorName":  "Credit Card Penalty",
+                      "date":  "2024-10-07",
+                      "type":  "Repaid",
+                      "amount":  1250.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-10-07T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fcf",
+                      "creditorName":  "Karur Vysya bank",
+                      "date":  "",
+                      "type":  "Borrow",
+                      "amount":  25000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T08:50:00.791Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fd6",
+                      "creditorName":  "Mahadheer",
+                      "date":  "2025-01-13",
+                      "type":  "Borrow",
+                      "amount":  1000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-01-13T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fe2",
+                      "creditorName":  "Palestine",
+                      "date":  "",
+                      "type":  "Repaid",
+                      "amount":  2500.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T08:50:00.791Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fe7",
+                      "creditorName":  "Paris",
+                      "date":  "2024-11-10",
+                      "type":  "Borrow",
+                      "amount":  6200.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-11-10T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310ffc",
+                      "creditorName":  "Vidyasagar",
+                      "date":  "2025-01-25",
+                      "type":  "Borrow",
+                      "amount":  500.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-01-25T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441311000",
+                      "creditorName":  "Vidyasagar",
+                      "date":  "2025-05-22",
+                      "type":  "Borrow",
+                      "amount":  2500.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-05-22T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f60",
+                      "creditorName":  "Akash",
+                      "date":  "2024-02-12",
+                      "type":  "Repaid",
+                      "amount":  100.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-02-12T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f63",
+                      "creditorName":  "Akash",
+                      "date":  "2025-01-31",
+                      "type":  "Repaid",
+                      "amount":  700.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-01-31T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f69",
+                      "creditorName":  "Arun Anna",
+                      "date":  "2024-01-09",
+                      "type":  "Borrow",
+                      "amount":  1540.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-01-09T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f6f",
+                      "creditorName":  "Asfaq",
+                      "date":  "2025-06-19",
+                      "type":  "Borrow",
+                      "amount":  5000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-06-19T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f78",
+                      "creditorName":  "Basith Brother",
+                      "date":  "2024-09-30",
+                      "type":  "Repaid",
+                      "amount":  5500.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-09-30T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fd0",
+                      "creditorName":  "lazy pay",
+                      "date":  "2024-01-12",
+                      "type":  "Repaid",
+                      "amount":  195.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-01-12T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fd8",
+                      "creditorName":  "Mahadheer",
+                      "date":  "2025-12-24",
+                      "type":  "Borrow",
+                      "amount":  2400.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-12-24T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441311005",
+                      "creditorName":  "Yasar",
+                      "date":  "2025-09-07",
+                      "type":  "Borrow",
+                      "amount":  9000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-09-07T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f80",
+                      "creditorName":  "Buhari",
+                      "date":  "2025-04-01",
+                      "type":  "Borrow",
+                      "amount":  2000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-04-01T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fb0",
+                      "creditorName":  "Dad",
+                      "date":  "2026-03-01",
+                      "type":  "Repaid",
+                      "amount":  6000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-03-01T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fb5",
+                      "creditorName":  "Deen",
+                      "date":  "2022-06-11",
+                      "type":  "Borrow",
+                      "amount":  5000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2022-06-11T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fc4",
+                      "creditorName":  "Harish",
+                      "date":  "2026-03-02",
+                      "type":  "Repaid",
+                      "amount":  4000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-03-02T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fd7",
+                      "creditorName":  "Mahadheer",
+                      "date":  "2025-01-31",
+                      "type":  "Repaid",
+                      "amount":  1000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-01-31T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fda",
+                      "creditorName":  "Mom",
+                      "date":  "",
+                      "type":  "Borrow",
+                      "amount":  10000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T08:50:00.791Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fde",
+                      "creditorName":  "MoneyView Penalty",
+                      "date":  "2024-01-09",
+                      "type":  "Borrow",
+                      "amount":  7613.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-01-09T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441311008",
+                      "creditorName":  "Credit Card Penalty",
+                      "date":  "2026-08-16",
+                      "type":  "Borrow",
+                      "amount":  50.38,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-08-16T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f61",
+                      "creditorName":  "Akash",
+                      "date":  "2024-11-27",
+                      "type":  "Borrow",
+                      "amount":  100.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-11-27T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f7e",
+                      "creditorName":  "Basith Brother",
+                      "date":  "2026-08-04",
+                      "type":  "Borrow",
+                      "amount":  -10000.0,
+                      "currency":  "INR",
+                      "notes":  "Credit given to them (I gave them a credit)",
+                      "createdAt":  "2026-08-04T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f9d",
+                      "creditorName":  "Credit Card Penalty",
+                      "date":  "2026-06-16",
+                      "type":  "Borrow",
+                      "amount":  1514.25,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-06-16T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fab",
+                      "creditorName":  "Credit Card Penalty",
+                      "date":  "",
+                      "type":  "Borrow",
+                      "amount":  1410.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T08:50:00.791Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310faf",
+                      "creditorName":  "Dad",
+                      "date":  "2026-01-20",
+                      "type":  "Borrow",
+                      "amount":  30000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-01-20T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fbd",
+                      "creditorName":  "Fazeeth",
+                      "date":  "2025-04-01",
+                      "type":  "Borrow",
+                      "amount":  10000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-04-01T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fd1",
+                      "creditorName":  "lazy pay",
+                      "date":  "2024-09-11",
+                      "type":  "Borrow",
+                      "amount":  558.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-09-11T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310ff9",
+                      "creditorName":  "Vidyasagar",
+                      "date":  "2024-09-30",
+                      "type":  "Repaid",
+                      "amount":  3000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-09-30T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fff",
+                      "creditorName":  "Vidyasagar",
+                      "date":  "2025-04-09",
+                      "type":  "Repaid",
+                      "amount":  1000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-04-09T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f64",
+                      "creditorName":  "Akbar",
+                      "date":  "2024-05-10",
+                      "type":  "Borrow",
+                      "amount":  2000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-05-10T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f6c",
+                      "creditorName":  "Arun Anna",
+                      "date":  "2024-10-30",
+                      "type":  "Repaid",
+                      "amount":  177.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-10-30T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f70",
+                      "creditorName":  "Asif Gani",
+                      "date":  "2026-01-04",
+                      "type":  "Borrow",
+                      "amount":  2000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-01-04T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fa3",
+                      "creditorName":  "Credit Card Penalty",
+                      "date":  "2026-01-03",
+                      "type":  "Repaid",
+                      "amount":  4771.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-01-03T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fa8",
+                      "creditorName":  "Credit Card Penalty",
+                      "date":  "2026-02-23",
+                      "type":  "Repaid",
+                      "amount":  1243.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-02-23T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310faa",
+                      "creditorName":  "Credit Card Penalty",
+                      "date":  "2026-06-02",
+                      "type":  "Repaid",
+                      "amount":  7382.2,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-06-02T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fb1",
+                      "creditorName":  "Dad",
+                      "date":  "2026-03-03",
+                      "type":  "Repaid",
+                      "amount":  4000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-03-03T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fdc",
+                      "creditorName":  "MoneyView",
+                      "date":  "2024-01-09",
+                      "type":  "Borrow",
+                      "amount":  100000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-01-09T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fe0",
+                      "creditorName":  "MoneyView Penalty",
+                      "date":  "2024-10-30",
+                      "type":  "Repaid",
+                      "amount":  3747.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-10-30T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fe1",
+                      "creditorName":  "Palestine",
+                      "date":  "",
+                      "type":  "Borrow",
+                      "amount":  5000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T08:50:00.791Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310ff3",
+                      "creditorName":  "Radhe",
+                      "date":  "2025-03-01",
+                      "type":  "Borrow",
+                      "amount":  350.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-03-01T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310ff4",
+                      "creditorName":  "Radhe",
+                      "date":  "2025-03-30",
+                      "type":  "Repaid",
+                      "amount":  350.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-03-30T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f6d",
+                      "creditorName":  "Arun Anna",
+                      "date":  "2025-01-18",
+                      "type":  "Borrow",
+                      "amount":  1500.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-01-18T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f6e",
+                      "creditorName":  "Arun Anna",
+                      "date":  "2025-01-31",
+                      "type":  "Repaid",
+                      "amount":  1500.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-01-31T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f76",
+                      "creditorName":  "Basith Brother",
+                      "date":  "2024-09-20",
+                      "type":  "Borrow",
+                      "amount":  5000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-09-20T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f82",
+                      "creditorName":  "Check bounce Penalty",
+                      "date":  "2024-11-23",
+                      "type":  "Borrow",
+                      "amount":  560.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-11-23T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fa0",
+                      "creditorName":  "Credit Card Penalty",
+                      "date":  "2024-11-16",
+                      "type":  "Borrow",
+                      "amount":  1750.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-11-16T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fa2",
+                      "creditorName":  "Credit Card Penalty",
+                      "date":  "2025-12-15",
+                      "type":  "Borrow",
+                      "amount":  4771.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-12-15T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fd5",
+                      "creditorName":  "Mahadheer",
+                      "date":  "2024-11-30",
+                      "type":  "Repaid",
+                      "amount":  5000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-11-30T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fac",
+                      "creditorName":  "Credit Card Penalty",
+                      "date":  "2026-06-16",
+                      "type":  "Borrow",
+                      "amount":  1074.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-06-16T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fc3",
+                      "creditorName":  "Harish",
+                      "date":  "2025-06-16",
+                      "type":  "Borrow",
+                      "amount":  4000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-06-16T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fe5",
+                      "creditorName":  "Paris",
+                      "date":  "2024-09-30",
+                      "type":  "Repaid",
+                      "amount":  700.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-09-30T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fe9",
+                      "creditorName":  "Paris",
+                      "date":  "2024-12-07",
+                      "type":  "Borrow",
+                      "amount":  5800.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-12-07T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fed",
+                      "creditorName":  "Paris",
+                      "date":  "2026-04-02",
+                      "type":  "Repaid",
+                      "amount":  500.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-04-02T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f6b",
+                      "creditorName":  "Arun Anna",
+                      "date":  "2024-09-30",
+                      "type":  "Repaid",
+                      "amount":  1540.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-09-30T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f7a",
+                      "creditorName":  "Basith Brother",
+                      "date":  "2024-11-21",
+                      "type":  "Borrow",
+                      "amount":  1000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-11-21T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fc1",
+                      "creditorName":  "Gokul",
+                      "date":  "2024-12-01",
+                      "type":  "Repaid",
+                      "amount":  104.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-12-01T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fdf",
+                      "creditorName":  "MoneyView Penalty",
+                      "date":  "2024-01-09",
+                      "type":  "Repaid",
+                      "amount":  3866.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-01-09T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fea",
+                      "creditorName":  "Paris",
+                      "date":  "2025-01-03",
+                      "type":  "Repaid",
+                      "amount":  8100.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-01-03T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310ff0",
+                      "creditorName":  "PG",
+                      "date":  "2024-11-21",
+                      "type":  "Repaid",
+                      "amount":  1000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-11-21T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310ff2",
+                      "creditorName":  "Radhe",
+                      "date":  "2025-01-31",
+                      "type":  "Repaid",
+                      "amount":  200.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-01-31T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310ff5",
+                      "creditorName":  "Ring",
+                      "date":  "2023-01-12",
+                      "type":  "Borrow",
+                      "amount":  18498.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2023-01-12T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441311002",
+                      "creditorName":  "Vignesh",
+                      "date":  "2023-11-22",
+                      "type":  "Borrow",
+                      "amount":  7853.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2023-11-22T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f68",
+                      "creditorName":  "Alwin",
+                      "date":  "2024-09-30",
+                      "type":  "Repaid",
+                      "amount":  190.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-09-30T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f77",
+                      "creditorName":  "Basith Brother",
+                      "date":  "2024-09-30",
+                      "type":  "Repaid",
+                      "amount":  3000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-09-30T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f7f",
+                      "creditorName":  "Buhari",
+                      "date":  "2023-05-30",
+                      "type":  "Borrow",
+                      "amount":  2000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2023-05-30T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fc0",
+                      "creditorName":  "Gokul",
+                      "date":  "2024-11-27",
+                      "type":  "Borrow",
+                      "amount":  104.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-11-27T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fc5",
+                      "creditorName":  "Ijas",
+                      "date":  "2023-09-21",
+                      "type":  "Borrow",
+                      "amount":  7000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2023-09-21T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fc7",
+                      "creditorName":  "Ijas",
+                      "date":  "2026-02-01",
+                      "type":  "Repaid",
+                      "amount":  8000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-02-01T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fca",
+                      "creditorName":  "Ijas",
+                      "date":  "2026-04-11",
+                      "type":  "Borrow",
+                      "amount":  2000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-04-11T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fd3",
+                      "creditorName":  "lazy pay",
+                      "date":  "2024-11-30",
+                      "type":  "Repaid",
+                      "amount":  558.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-11-30T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fee",
+                      "creditorName":  "PG",
+                      "date":  "2024-11-13",
+                      "type":  "Borrow",
+                      "amount":  1500.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-11-13T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310ff8",
+                      "creditorName":  "Vidyasagar",
+                      "date":  "2024-01-12",
+                      "type":  "Repaid",
+                      "amount":  500.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-01-12T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441311003",
+                      "creditorName":  "Vignesh",
+                      "date":  "2024-10-09",
+                      "type":  "Repaid",
+                      "amount":  4000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-10-09T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f6a",
+                      "creditorName":  "Arun Anna",
+                      "date":  "2024-02-09",
+                      "type":  "Borrow",
+                      "amount":  177.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-02-09T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f7c",
+                      "creditorName":  "Basith Brother",
+                      "date":  "2025-06-20",
+                      "type":  "Borrow",
+                      "amount":  2000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-06-20T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fa1",
+                      "creditorName":  "Credit Card Penalty",
+                      "date":  "2024-12-01",
+                      "type":  "Repaid",
+                      "amount":  1750.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-12-01T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fb3",
+                      "creditorName":  "Dad",
+                      "date":  "2026-04-02",
+                      "type":  "Repaid",
+                      "amount":  5000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-04-02T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fc2",
+                      "creditorName":  "Halid",
+                      "date":  "2026-07-11",
+                      "type":  "Borrow",
+                      "amount":  -15000.0,
+                      "currency":  "INR",
+                      "notes":  "Credit given to them (I gave them a credit)",
+                      "createdAt":  "2026-07-11T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fc6",
+                      "creditorName":  "Ijas",
+                      "date":  "2025-12-03",
+                      "type":  "Borrow",
+                      "amount":  1000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-12-03T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fd2",
+                      "creditorName":  "lazy pay",
+                      "date":  "2024-11-22",
+                      "type":  "Borrow",
+                      "amount":  195.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-11-22T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fd4",
+                      "creditorName":  "Mahadheer",
+                      "date":  "2024-05-10",
+                      "type":  "Borrow",
+                      "amount":  5000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-05-10T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fd9",
+                      "creditorName":  "Minni",
+                      "date":  "2022-06-11",
+                      "type":  "Borrow",
+                      "amount":  5000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2022-06-11T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fae",
+                      "creditorName":  "Credit Card Penalty",
+                      "date":  "2026-08-04",
+                      "type":  "Repaid",
+                      "amount":  1514.25,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-08-04T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fcd",
+                      "creditorName":  "Ijas kpm",
+                      "date":  "2024-06-17",
+                      "type":  "Borrow",
+                      "amount":  500.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-06-17T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fce",
+                      "creditorName":  "Ijas kpm",
+                      "date":  "2025-06-21",
+                      "type":  "Borrow",
+                      "amount":  2000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-06-21T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fe4",
+                      "creditorName":  "Paris",
+                      "date":  "2024-01-12",
+                      "type":  "Repaid",
+                      "amount":  6900.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-01-12T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f7b",
+                      "creditorName":  "Basith Brother",
+                      "date":  "2025-05-12",
+                      "type":  "Borrow",
+                      "amount":  1000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-05-12T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f83",
+                      "creditorName":  "Check bounce Penalty",
+                      "date":  "2024-11-23",
+                      "type":  "Repaid",
+                      "amount":  560.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-11-23T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fa9",
+                      "creditorName":  "Credit Card Penalty",
+                      "date":  "2026-06-02",
+                      "type":  "Borrow",
+                      "amount":  7382.2,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-06-02T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fb4",
+                      "creditorName":  "Dad",
+                      "date":  "2026-05-07",
+                      "type":  "Repaid",
+                      "amount":  10000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-05-07T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fbe",
+                      "creditorName":  "Fazeeth",
+                      "date":  "2026-06-02",
+                      "type":  "Repaid",
+                      "amount":  10000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-06-02T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fdd",
+                      "creditorName":  "MoneyView",
+                      "date":  "2024-10-20",
+                      "type":  "Repaid",
+                      "amount":  100000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-10-20T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fe3",
+                      "creditorName":  "Paris",
+                      "date":  "2022-06-11",
+                      "type":  "Borrow",
+                      "amount":  3000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2022-06-11T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310feb",
+                      "creditorName":  "Paris",
+                      "date":  "2026-01-01",
+                      "type":  "Repaid",
+                      "amount":  1000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-01-01T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fef",
+                      "creditorName":  "PG",
+                      "date":  "2024-11-13",
+                      "type":  "Repaid",
+                      "amount":  500.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-11-13T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310ff6",
+                      "creditorName":  "Ring",
+                      "date":  "2026-02-01",
+                      "type":  "Repaid",
+                      "amount":  12000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-02-01T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310ff7",
+                      "creditorName":  "Ring",
+                      "date":  "2026-03-01",
+                      "type":  "Repaid",
+                      "amount":  6498.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-03-01T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441311006",
+                      "creditorName":  "Yasar",
+                      "date":  "2026-04-02",
+                      "type":  "Repaid",
+                      "amount":  9000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-04-02T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f65",
+                      "creditorName":  "Akbar",
+                      "date":  "2024-08-11",
+                      "type":  "Borrow",
+                      "amount":  2000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-08-11T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f66",
+                      "creditorName":  "Akbar",
+                      "date":  "2025-01-05",
+                      "type":  "Repaid",
+                      "amount":  4000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-01-05T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f71",
+                      "creditorName":  "Asif Gani",
+                      "date":  "2026-02-01",
+                      "type":  "Repaid",
+                      "amount":  2000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-02-01T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fa5",
+                      "creditorName":  "Credit Card Penalty",
+                      "date":  "2026-01-16",
+                      "type":  "Borrow",
+                      "amount":  900.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-01-16T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fa6",
+                      "creditorName":  "Credit Card Penalty",
+                      "date":  "2026-02-17",
+                      "type":  "Borrow",
+                      "amount":  1243.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-02-17T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fcb",
+                      "creditorName":  "Ijas",
+                      "date":  "2026-05-07",
+                      "type":  "Repaid",
+                      "amount":  2000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-05-07T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fec",
+                      "creditorName":  "Paris",
+                      "date":  "2026-03-03",
+                      "type":  "Repaid",
+                      "amount":  500.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-03-03T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441311001",
+                      "creditorName":  "Vidyasagar",
+                      "date":  "2025-06-18",
+                      "type":  "Repaid",
+                      "amount":  2500.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-06-18T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441311004",
+                      "creditorName":  "Vignesh",
+                      "date":  "2025-03-07",
+                      "type":  "Repaid",
+                      "amount":  3000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-03-07T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441311007",
+                      "creditorName":  "Credit Card Penalty",
+                      "date":  "2026-08-16",
+                      "type":  "Borrow",
+                      "amount":  279.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-08-16T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f44131100b",
+                      "creditorName":  "Credit Card Penalty",
+                      "date":  "2026-09-06",
+                      "type":  "Repaid",
+                      "amount":  329.38,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-06T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f62",
+                      "creditorName":  "Akash",
+                      "date":  "2025-01-10",
+                      "type":  "Borrow",
+                      "amount":  700.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-01-10T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f67",
+                      "creditorName":  "Alwin",
+                      "date":  "2024-07-25",
+                      "type":  "Borrow",
+                      "amount":  190.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-07-25T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fad",
+                      "creditorName":  "Credit Card Penalty",
+                      "date":  "2026-07-02",
+                      "type":  "Repaid",
+                      "amount":  1074.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-07-02T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fbf",
+                      "creditorName":  "Finance peer",
+                      "date":  "2021-02-02",
+                      "type":  "Borrow",
+                      "amount":  4220.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2021-02-02T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fdb",
+                      "creditorName":  "Mom",
+                      "date":  "",
+                      "type":  "Borrow",
+                      "amount":  70000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T08:50:00.791Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f72",
+                      "creditorName":  "Basith Brother",
+                      "date":  "2023-03-17",
+                      "type":  "Borrow",
+                      "amount":  5000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2023-03-17T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f75",
+                      "creditorName":  "Basith Brother",
+                      "date":  "2024-03-30",
+                      "type":  "Repaid",
+                      "amount":  2500.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-03-30T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fa4",
+                      "creditorName":  "Credit Card Penalty",
+                      "date":  "2026-01-04",
+                      "type":  "Repaid",
+                      "amount":  1410.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-01-04T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fc9",
+                      "creditorName":  "Ijas",
+                      "date":  "2026-04-01",
+                      "type":  "Repaid",
+                      "amount":  2000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-04-01T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fcc",
+                      "creditorName":  "Ijas kpm",
+                      "date":  "2024-02-16",
+                      "type":  "Borrow",
+                      "amount":  1000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-02-16T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310ff1",
+                      "creditorName":  "Radhe",
+                      "date":  "2025-01-11",
+                      "type":  "Borrow",
+                      "amount":  200.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-01-11T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310ffa",
+                      "creditorName":  "Vidyasagar",
+                      "date":  "2024-10-20",
+                      "type":  "Borrow",
+                      "amount":  3500.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-10-20T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310ffd",
+                      "creditorName":  "Vidyasagar",
+                      "date":  "2025-02-25",
+                      "type":  "Borrow",
+                      "amount":  3000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-02-25T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310ffe",
+                      "creditorName":  "Vidyasagar",
+                      "date":  "2025-03-10",
+                      "type":  "Repaid",
+                      "amount":  2000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-03-10T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310f74",
+                      "creditorName":  "Basith Brother",
+                      "date":  "2024-02-20",
+                      "type":  "Borrow",
+                      "amount":  2500.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-02-20T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fa7",
+                      "creditorName":  "Credit Card Penalty",
+                      "date":  "2026-02-17",
+                      "type":  "Repaid",
+                      "amount":  900.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-02-17T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fb2",
+                      "creditorName":  "Dad",
+                      "date":  "2026-04-01",
+                      "type":  "Repaid",
+                      "amount":  5000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-04-01T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fc8",
+                      "creditorName":  "Ijas",
+                      "date":  "2026-03-24",
+                      "type":  "Borrow",
+                      "amount":  2000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-03-24T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fe6",
+                      "creditorName":  "Paris",
+                      "date":  "2024-10-15",
+                      "type":  "Borrow",
+                      "amount":  2000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-10-15T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310fe8",
+                      "creditorName":  "Paris",
+                      "date":  "2024-11-26",
+                      "type":  "Borrow",
+                      "amount":  700.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2024-11-26T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa51238e31474f441310ffb",
+                      "creditorName":  "Vidyasagar",
+                      "date":  "2025-01-01",
+                      "type":  "Repaid",
+                      "amount":  500.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2025-01-01T10:00:00.000Z"
+                  },
+                  {
+                      "id":  "6aa54b90aa10d179c029a710",
+                      "creditorName":  "Credit Card",
+                      "date":  "2024-01-09",
+                      "type":  "Borrow",
+                      "amount":  45000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T12:54:40.643Z"
+                  },
+                  {
+                      "id":  "6aa54c0faa10d179c029a711",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-01-25",
+                      "type":  "Borrow",
+                      "amount":  3450.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T12:56:47.299Z"
+                  },
+                  {
+                      "id":  "6aa54c3baa10d179c029a712",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-02-02",
+                      "type":  "Borrow",
+                      "amount":  2291.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T12:57:31.059Z"
+                  },
+                  {
+                      "id":  "6aa54c53aa10d179c029a713",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-03-06",
+                      "type":  "Borrow",
+                      "amount":  10207.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T12:57:55.875Z"
+                  },
+                  {
+                      "id":  "6aa54c67aa10d179c029a714",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-04-01",
+                      "type":  "Borrow",
+                      "amount":  10300.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T12:58:15.154Z"
+                  },
+                  {
+                      "id":  "6aa54c98aa10d179c029a715",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-04-02",
+                      "type":  "Borrow",
+                      "amount":  10313.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T12:59:04.939Z"
+                  },
+                  {
+                      "id":  "6aa54caeaa10d179c029a716",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-04-02",
+                      "type":  "Borrow",
+                      "amount":  4248.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T12:59:26.180Z"
+                  },
+                  {
+                      "id":  "6aa54cd1aa10d179c029a717",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-04-16",
+                      "type":  "Borrow",
+                      "amount":  2917.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T13:00:01.981Z"
+                  },
+                  {
+                      "id":  "6aa54cffaa10d179c029a718",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-05-07",
+                      "type":  "Borrow",
+                      "amount":  22886.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T13:00:47.101Z"
+                  },
+                  {
+                      "id":  "6aa54d18aa10d179c029a719",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-05-16",
+                      "type":  "Borrow",
+                      "amount":  2643.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T13:01:12.869Z"
+                  },
+                  {
+                      "id":  "6aa54d30aa10d179c029a71a",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-06-02",
+                      "type":  "Borrow",
+                      "amount":  12500.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T13:01:36.373Z"
+                  },
+                  {
+                      "id":  "6aa54d4baa10d179c029a71b",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-06-03",
+                      "type":  "Borrow",
+                      "amount":  2291.21,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T13:02:03.574Z"
+                  },
+                  {
+                      "id":  "6aa54d63aa10d179c029a71c",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-06-13",
+                      "type":  "Borrow",
+                      "amount":  489.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T13:02:27.926Z"
+                  },
+                  {
+                      "id":  "6aa54dc1aa10d179c029a71d",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-08-04",
+                      "type":  "Borrow",
+                      "amount":  2293.62,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T13:04:01.776Z"
+                  },
+                  {
+                      "id":  "6aa54dd7aa10d179c029a71e",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-08-04",
+                      "type":  "Borrow",
+                      "amount":  27988.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T13:04:23.734Z"
+                  },
+                  {
+                      "id":  "6aa54df2aa10d179c029a71f",
+                      "creditorName":  "Credit Card",
+                      "date":  "2023-01-01",
+                      "type":  "Borrow",
+                      "amount":  13390.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T13:04:50.631Z"
+                  },
+                  {
+                      "id":  "6aa54e84aa10d179c029a720",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-01-03",
+                      "type":  "Repaid",
+                      "amount":  26029.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T13:07:16.688Z"
+                  },
+                  {
+                      "id":  "6aa54e9daa10d179c029a721",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-02-01",
+                      "type":  "Repaid",
+                      "amount":  1780.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T13:07:41.304Z"
+                  },
+                  {
+                      "id":  "6aa54eb4aa10d179c029a722",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-03-01",
+                      "type":  "Repaid",
+                      "amount":  7045.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T13:08:04.984Z"
+                  },
+                  {
+                      "id":  "6aa54ecdaa10d179c029a723",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-03-06",
+                      "type":  "Repaid",
+                      "amount":  7050.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T13:08:29.113Z"
+                  },
+                  {
+                      "id":  "6aa54ee0aa10d179c029a724",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-03-31",
+                      "type":  "Repaid",
+                      "amount":  17120.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T13:08:48.672Z"
+                  },
+                  {
+                      "id":  "6aa54ef7aa10d179c029a725",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-05-04",
+                      "type":  "Repaid",
+                      "amount":  28800.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T13:09:11.961Z"
+                  },
+                  {
+                      "id":  "6aa54f08aa10d179c029a726",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-06-01",
+                      "type":  "Repaid",
+                      "amount":  26460.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T13:09:28.265Z"
+                  },
+                  {
+                      "id":  "6aa54f2eaa10d179c029a727",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-07-02",
+                      "type":  "Repaid",
+                      "amount":  36165.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T13:10:06.874Z"
+                  },
+                  {
+                      "id":  "6aa54f8eaa10d179c029a72a",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-09-06",
+                      "type":  "Repaid",
+                      "amount":  30281.62,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T13:11:42.010Z"
+                  },
+                  {
+                      "id":  "6aa550e4aa10d179c029a72b",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-07-02",
+                      "type":  "Borrow",
+                      "amount":  36165.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T13:17:24.789Z"
+                  },
+                  {
+                      "id":  "6aa5514daa10d179c029a72c",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-07-02",
+                      "type":  "Repaid",
+                      "amount":  28641.21,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-12T13:19:09.294Z"
+                  },
+                  {
+                      "id":  "6aa63875aa10d179c029a72d",
+                      "creditorName":  "Divya",
+                      "date":  "2023-09-27",
+                      "type":  "Borrow",
+                      "amount":  2000.0,
+                      "currency":  "INR",
+                      "notes":  "Personal Short loan",
+                      "createdAt":  "2026-09-13T05:45:25.456Z"
+                  },
+                  {
+                      "id":  "6aa63925aa10d179c029a72e",
+                      "creditorName":  "Divya",
+                      "date":  "2024-04-20",
+                      "type":  "Borrow",
+                      "amount":  3600.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-13T05:48:21.832Z"
+                  },
+                  {
+                      "id":  "6aa63955aa10d179c029a72f",
+                      "creditorName":  "Divya",
+                      "date":  "2024-11-13",
+                      "type":  "Borrow",
+                      "amount":  1000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-13T05:49:09.793Z"
+                  },
+                  {
+                      "id":  "6aa6399caa10d179c029a730",
+                      "creditorName":  "Divya",
+                      "date":  "2025-01-01",
+                      "type":  "Repaid",
+                      "amount":  1000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-13T05:50:20.321Z"
+                  },
+                  {
+                      "id":  "6aa639b7aa10d179c029a731",
+                      "creditorName":  "Divya",
+                      "date":  "2025-02-01",
+                      "type":  "Repaid",
+                      "amount":  1600.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-13T05:50:47.747Z"
+                  },
+                  {
+                      "id":  "6aa639d9aa10d179c029a732",
+                      "creditorName":  "Divya",
+                      "date":  "2025-05-01",
+                      "type":  "Repaid",
+                      "amount":  2000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-13T05:51:21.354Z"
+                  },
+                  {
+                      "id":  "6aa63a66aa10d179c029a734",
+                      "creditorName":  "Divya",
+                      "date":  "2026-03-01",
+                      "type":  "Repaid",
+                      "amount":  4000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-13T05:53:42.980Z"
+                  },
+                  {
+                      "id":  "6aaa7bfd0a5de94c8777b69a",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-09-16",
+                      "type":  "Borrow",
+                      "amount":  7139.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-09-16T11:22:37.810Z"
+                  },
+                  {
+                      "id":  "6ab3872a810d525f6750907a",
+                      "creditorName":  "Buhari",
+                      "date":  "2026-09-21",
+                      "type":  "Repaid",
+                      "amount":  3000.0,
+                      "currency":  "INR",
+                      "notes":  "Credit Given",
+                      "createdAt":  "2026-09-23T08:00:42.371Z"
+                  },
+                  {
+                      "id":  "6abe4e2c0df0f076f8938a67",
+                      "creditorName":  "Credit Card",
+                      "date":  "2026-10-01",
+                      "type":  "Repaid",
+                      "amount":  7139.0,
+                      "currency":  "INR",
+                      "notes":  "Full Payment",
+                      "createdAt":  "2026-10-01T12:12:28.596Z"
+                  },
+                  {
+                      "id":  "6abe4f170df0f076f8938a69",
+                      "creditorName":  "Buhari",
+                      "date":  "2026-10-01",
+                      "type":  "Borrow",
+                      "amount":  3000.0,
+                      "currency":  "INR",
+                      "notes":  "",
+                      "createdAt":  "2026-10-01T12:16:23.786Z"
+                  }
+              ],
+    "Count":  176
+}

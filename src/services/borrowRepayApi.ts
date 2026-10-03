@@ -95,8 +95,15 @@ export const borrowRepayApi = {
       // Net balance: positive means we owe them; negative means we gave them credit / overpaid
       const netBalance = data.totalBorrowed - data.totalRepaid - data.creditGiven;
       let status: CreditorSummary['status'] = 'Settled';
-      if (netBalance > 0) status = 'Outstanding';
-      else if (netBalance < 0) status = 'Overpaid';
+      if (netBalance > 0) {
+        status = 'Outstanding';
+      } else if (netBalance < 0) {
+        if (data.creditGiven > 0) {
+          status = 'Credit Given';
+        } else {
+          status = 'Overpaid';
+        }
+      }
 
       const sortedDates = data.dates.sort();
       const lastActivityDate = sortedDates[sortedDates.length - 1] || 'N/A';
@@ -155,14 +162,20 @@ export const borrowRepayApi = {
       .filter(s => s.netBalance > 0)
       .reduce((acc, s) => acc + s.netBalance, 0);
 
+    const totalOverpaid = summaries
+      .filter(s => s.status === 'Overpaid')
+      .reduce((acc, s) => acc + Math.abs(s.netBalance), 0);
+
     return {
       totalBorrowed,
       totalRepaid,
       totalCreditGiven,
       netOutstanding,
+      totalOverpaid,
       activeCreditorsCount: summaries.filter(s => s.netBalance > 0).length,
       settledCreditorsCount: summaries.filter(s => s.netBalance === 0).length,
-      creditGivenCreditorsCount: summaries.filter(s => s.netBalance < 0).length,
+      creditGivenCreditorsCount: summaries.filter(s => s.status === 'Credit Given' || (s.creditGiven && s.creditGiven > 0)).length,
+      overpaidCreditorsCount: summaries.filter(s => s.status === 'Overpaid').length,
       totalCreditorsCount: summaries.length,
       totalTransactions: list.length,
     };

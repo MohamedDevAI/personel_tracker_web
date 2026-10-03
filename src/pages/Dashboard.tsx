@@ -81,10 +81,10 @@ export default function Dashboard() {
 
         <div className="page-header-actions">
           <button onClick={() => navigate('/life-os/habits')} className="btn btn-secondary">
-            <Flame size={14} color="#f59e0b" /> Daily Habits
+            <Flame size={14} color="#cb6b08" /> Daily Habits
           </button>
           <button onClick={() => navigate('/life-os/finances')} className="btn btn-secondary">
-            <TrendingUp size={14} color="#10b981" /> Financial Ledger
+            <TrendingUp size={14} color="#b6550c" /> Financial Ledger
           </button>
         </div>
       </div>
@@ -114,7 +114,7 @@ export default function Dashboard() {
         <div className="glass-panel dashboard-kpi-card">
           <div className="dashboard-kpi-top">
             <span className="dashboard-kpi-label">HABIT MOMENTUM</span>
-            <span className="badge badge-amber"><Flame size={12} fill="#f59e0b" /> Active</span>
+            <span className="badge badge-amber"><Flame size={12} fill="#eb7c0a" /> Active</span>
           </div>
           <div className="dashboard-kpi-value">
             {maxStreak} <span className="dashboard-kpi-unit">Days Streak</span>
@@ -162,7 +162,7 @@ export default function Dashboard() {
               >
                 <div className="habit-info-group">
                   {habit.completedToday ? (
-                    <CheckCircle2 size={20} color="#10b981" />
+                    <CheckCircle2 size={20} color="#b6550c" />
                   ) : (
                     <Circle size={20} color="var(--text-muted)" />
                   )}
@@ -177,7 +177,7 @@ export default function Dashboard() {
                 </div>
 
                 <div className="habit-streak-display">
-                  <Flame size={14} color={habit.streak > 5 ? '#f59e0b' : 'var(--text-muted)'} fill={habit.streak > 5 ? '#f59e0b' : 'none'} />
+                  <Flame size={14} color={habit.streak > 5 ? '#cb6b08' : 'var(--text-muted)'} fill={habit.streak > 5 ? '#eb7c0a' : 'none'} />
                   <span className={`habit-streak-count ${habit.streak > 5 ? 'active' : ''}`}>
                     {habit.streak}d
                   </span>

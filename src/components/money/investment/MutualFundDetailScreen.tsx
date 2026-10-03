@@ -61,24 +61,24 @@ export default function MutualFundDetailScreen({
   const cagr5yr = metrics.cagr5yr || 19.8;
 
   let verdictTitle = 'STRONG BUY • TOP TIER PERFORMER';
-  let verdictColor = '#34d399';
-  let verdictBg = 'rgba(16, 185, 129, 0.15)';
-  let verdictBorder = 'rgba(52, 211, 153, 0.35)';
+  let verdictColor = '#a910eb';
+  let verdictBg = 'rgba(186, 54, 242, 0.15)';
+  let verdictBorder = 'rgba(186, 54, 242, 0.35)';
   let verdictRationale =
     'This fund demonstrates top-quartile alpha generation with excellent downside protection. The fund manager has an established multi-year track record and expense ratio is competitive.';
 
   if (sharpe < 1.0 || returnPct < 0) {
     verdictTitle = 'REVIEW • UNDERPERFORMING PEERS';
-    verdictColor = '#fbbf24';
-    verdictBg = 'rgba(245, 158, 11, 0.15)';
-    verdictBorder = 'rgba(251, 191, 36, 0.35)';
+    verdictColor = '#ad06f5';
+    verdictBg = 'rgba(188, 49, 247, 0.15)';
+    verdictBorder = 'rgba(189, 45, 251, 0.35)';
     verdictRationale =
       'Risk-adjusted returns lag the benchmark index. Consider monitoring for 2 quarters before redirecting systematic allocations toward peer category leaders.';
   } else if (sharpe < 1.3) {
     verdictTitle = 'HOLD • CONSISTENT COMPOUNDER';
-    verdictColor = '#60a5fa';
-    verdictBg = 'rgba(59, 130, 246, 0.15)';
-    verdictBorder = 'rgba(96, 165, 250, 0.35)';
+    verdictColor = '#b00af7';
+    verdictBg = 'rgba(187, 50, 246, 0.15)';
+    verdictBorder = 'rgba(188, 48, 248, 0.35)';
     verdictRationale =
       'Solid core holding with low tracking error. The fund delivers stable beta and matches expected benchmark category returns with reasonable costs.';
   }
@@ -128,10 +128,10 @@ export default function MutualFundDetailScreen({
 
             <div className="inv-hero-return-block">
               <div className="val-label">All-Time Returns</div>
-              <div className="val-main" style={{ color: isPositive ? '#34d399' : '#fb7185' }}>
+              <div className="val-main" style={{ color: isPositive ? '#900dc8' : '#6b677f' }}>
                 {isPositive ? '+' : ''}{mask(formatPctChange(returnPct))}
               </div>
-              <div className="val-sub" style={{ color: isPositive ? '#34d399' : '#fb7185' }}>
+              <div className="val-sub" style={{ color: isPositive ? '#900dc8' : '#6b677f' }}>
                 Gain: {isPositive ? '+' : ''}{mask(formatINR(returnVal))}
               </div>
             </div>
@@ -159,11 +159,11 @@ export default function MutualFundDetailScreen({
           <div className="inv-verdict-banner-right">
             <div className="inv-verdict-kpi-item">
               <span className="kpi-label">Sharpe Ratio</span>
-              <span className="kpi-val" style={{ color: '#34d399' }}>{sharpe.toFixed(2)}</span>
+              <span className="kpi-val" style={{ color: '#900dc8' }}>{sharpe.toFixed(2)}</span>
             </div>
             <div className="inv-verdict-kpi-item">
               <span className="kpi-label">Alpha vs Index</span>
-              <span className="kpi-val" style={{ color: '#22d3ee' }}>+{alpha.toFixed(1)}%</span>
+              <span className="kpi-val" style={{ color: '#910cca' }}>+{alpha.toFixed(1)}%</span>
             </div>
           </div>
         </div>
@@ -188,11 +188,11 @@ export default function MutualFundDetailScreen({
             <AreaChart data={chartData} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
               <defs>
                 <linearGradient id="mfNavGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
+                  <stop offset="5%" stopColor="#a80fea" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#a80fea" stopOpacity={0.0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(186, 54, 242, 0.08)" />
               <XAxis dataKey="day" stroke="var(--text-muted)" fontSize={11} tickLine={false} />
               <YAxis
                 stroke="var(--text-muted)"
@@ -203,8 +203,8 @@ export default function MutualFundDetailScreen({
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#0f172a',
-                  border: '1px solid rgba(255,255,255,0.15)',
+                  backgroundColor: '#f9f7fd',
+                  border: '1px solid rgba(186, 54, 242, 0.3)',
                   borderRadius: 10,
                   fontSize: 12,
                 }}
@@ -213,7 +213,7 @@ export default function MutualFundDetailScreen({
               <Area
                 type="monotone"
                 dataKey="nav"
-                stroke="#10b981"
+                stroke="#a80fea"
                 strokeWidth={2.5}
                 fillOpacity={1}
                 fill="url(#mfNavGrad)"
@@ -228,7 +228,7 @@ export default function MutualFundDetailScreen({
         {/* 1. Performance & CAGR Card */}
         <div className="inv-detail-metric-card">
           <div className="metric-card-header">
-            <TrendingUp size={18} color="#34d399" />
+            <TrendingUp size={18} color="#900dc8" />
             <h4>Trailing Annualized Returns (CAGR)</h4>
           </div>
 
@@ -258,26 +258,26 @@ export default function MutualFundDetailScreen({
         {/* 2. Risk-Adjusted Ratios Card */}
         <div className="inv-detail-metric-card">
           <div className="metric-card-header">
-            <ShieldCheck size={18} color="#60a5fa" />
+            <ShieldCheck size={18} color="#9406d0" />
             <h4>Risk-Adjusted Performance Ratios</h4>
           </div>
 
           <div className="metric-tiles-row">
             <div className="sub-tile">
               <span className="sub-tile-label">Sharpe Ratio</span>
-              <span className="sub-tile-val" style={{ color: '#34d399' }}>{sharpe.toFixed(2)}</span>
+              <span className="sub-tile-val" style={{ color: '#900dc8' }}>{sharpe.toFixed(2)}</span>
               <span className="sub-tile-note">Excess return / total volatility</span>
             </div>
 
             <div className="sub-tile">
               <span className="sub-tile-label">Sortino Ratio</span>
-              <span className="sub-tile-val" style={{ color: '#34d399' }}>{sortino.toFixed(2)}</span>
+              <span className="sub-tile-val" style={{ color: '#900dc8' }}>{sortino.toFixed(2)}</span>
               <span className="sub-tile-note">Downside risk protection</span>
             </div>
 
             <div className="sub-tile">
               <span className="sub-tile-label">Beta (Market Volatility)</span>
-              <span className="sub-tile-val" style={{ color: '#22d3ee' }}>
+              <span className="sub-tile-val" style={{ color: '#910cca' }}>
                 {metrics.beta ? metrics.beta.toFixed(2) : '0.85'}
               </span>
               <span className="sub-tile-note">&lt; 1.0 means lower drawdown</span>
@@ -288,14 +288,14 @@ export default function MutualFundDetailScreen({
         {/* 3. Operational & Cost Structure */}
         <div className="inv-detail-metric-card">
           <div className="metric-card-header">
-            <Layers size={18} color="#f59e0b" />
+            <Layers size={18} color="#9109cb" />
             <h4>Expense Ratio & Operational Specs</h4>
           </div>
 
           <div className="spec-table">
             <div className="spec-row">
               <span className="spec-label">Total Expense Ratio (TER)</span>
-              <span className="spec-value" style={{ color: expenseRatio < 1.0 ? '#34d399' : '#fbbf24' }}>
+              <span className="spec-value" style={{ color: expenseRatio < 1.0 ? '#900dc8' : '#9305d0' }}>
                 {expenseRatio.toFixed(2)}% p.a.
               </span>
             </div>
@@ -311,7 +311,7 @@ export default function MutualFundDetailScreen({
             </div>
             <div className="spec-row">
               <span className="spec-label">Alpha over Benchmark</span>
-              <span className="spec-value" style={{ color: '#34d399', fontWeight: 700 }}>
+              <span className="spec-value" style={{ color: '#900dc8', fontWeight: 700 }}>
                 +{alpha.toFixed(1)}% Outperformance
               </span>
             </div>
@@ -321,14 +321,14 @@ export default function MutualFundDetailScreen({
         {/* 4. Manager & SIP Blueprint */}
         <div className="inv-detail-metric-card">
           <div className="metric-card-header">
-            <UserCheck size={18} color="#a855f7" />
+            <UserCheck size={18} color="#9109cb" />
             <h4>Fund Management & Systematic SIP Blueprint</h4>
           </div>
 
           <div className="spec-table">
             <div className="spec-row">
               <span className="spec-label">Lead Fund Manager Tenure</span>
-              <span className="spec-value" style={{ color: '#a855f7', fontWeight: 700 }}>
+              <span className="spec-value" style={{ color: '#9109cb', fontWeight: 700 }}>
                 {tenure} Years with Fund
               </span>
             </div>
@@ -338,7 +338,7 @@ export default function MutualFundDetailScreen({
             </div>
             <div className="spec-row">
               <span className="spec-label">Active Monthly SIP</span>
-              <span className="spec-value" style={{ color: '#34d399', fontWeight: 700 }}>
+              <span className="spec-value" style={{ color: '#900dc8', fontWeight: 700 }}>
                 {metrics.sipActive ? (
                   <>
                     <CheckCircle2 size={13} style={{ display: 'inline', marginRight: 4 }} />
