@@ -1,11 +1,15 @@
 /**
  * Financial Health Score Diagnostic & FIRE Freedom Service
  * All figures computed in Indian Rupee (INR ₹)
+ *
+ * Backend Target:
+ *   Database: MongoDB
+ *   Collection: financial_health
+ *   Base path: /api/financial_health
  */
 
 import { InvestmentHolding } from '../interface';
-
-
+import apiClient from './apiClient';
 
 export interface HealthPillar {
   id: string;
@@ -54,15 +58,42 @@ export interface FireCalculationResult {
   monthlyInvestment: number;
 }
 
-const DEFAULT_FIRE_SETTINGS: FireSettings = {
+export interface FinancialHealthRecord {
+  id?: string;
+  userId?: string;
+  answers: Record<string, boolean>;
+  fireSettings: FireSettings;
+  totalScore?: number;
+  maxScore?: number;
+  tier?: FinancialHealthResult['tier'];
+  tierColor?: string;
+  tierDescription?: string;
+  achievedCount?: number;
+  gapsCount?: number;
+  nextBestAction?: string;
+  pillars?: HealthPillar[];
+  fireCalculations?: Partial<FireCalculationResult>;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export const DEFAULT_FIRE_SETTINGS: FireSettings = {
   monthlyExpenses: 60000, // ₹60,000 / month
   multiplier: 25,
   expectedAnnualReturn: 11, // 11% CAGR
 };
 
-// ─── In-Memory Store Helpers ──────────────────────────────────────────────────
-let inMemoryHealthAnswers: Record<string, boolean> = {};
+// ─── In-Memory / Local Cache (for instant UI response and resilient fallback) ─────
+let inMemoryHealthAnswers: Record<string, boolean> = {
+  emergency_fund: false,
+  debt_free: false,
+  sip_discipline: false,
+  insurance_cover: false,
+  asset_diversification: false,
+  nominee_safety: false,
+};
 let inMemoryFireSettings: FireSettings = { ...DEFAULT_FIRE_SETTINGS };
+let inMemoryRecordId: string | undefined = undefined;
 
 export const getStoredHealthAnswers = (): Record<string, boolean> => {
   return { ...inMemoryHealthAnswers };
@@ -88,9 +119,10 @@ export const computeFinancialHealth = (
   cashLiquidity: number,
   debtLiabilities: number,
   activeSipMonthly: number,
-  monthlyExpenses: number = 60000
+  monthlyExpenses: number = 60000,
+  answersOverride?: Record<string, boolean>
 ): FinancialHealthResult => {
-  const userAnswers = getStoredHealthAnswers();
+  const userAnswers = answersOverride || getStoredHealthAnswers();
 
   // 1. Emergency Fund Calculation:
   // Liquid cash + FD value >= 6 * monthlyExpenses
@@ -316,4 +348,223 @@ export const calculateFireNumbers = (
     targetYear,
     monthlyInvestment,
   };
+};
+
+// ─── Database & API Service (`financial_health` collection) ─────────────────
+
+const ENDPOINT = '/financial_health';
+
+export const financialHealthApi = {
+  /**
+   * Fetch the latest Financial Health record from MongoDB collection `financial_health`.
+   */
+  getHealthRecord: async (): Promise<FinancialHealthRecord> => {
+    try {
+      const { data } = await apiClient.get<FinancialHealthRecord>(ENDPOINT);
+      if (data) {
+        if (data.id) inMemoryRecordId = data.id;
+        if (data.answers) {
+          inMemoryHealthAnswers = { ...inMemoryHealthAnswers, ...data.answers };
+        }
+        if (data.fireSettings) {
+          inMemoryFireSettings = {
+            ...inMemoryFireSettings,
+            monthlyExpenses: Number(data.fireSettings.monthlyExpenses || inMemoryFireSettings.monthlyExpenses),
+            multiplier: Number(data.fireSettings.multiplier || inMemoryFireSettings.multiplier),
+            expectedAnnualReturn: Number(data.fireSettings.expectedAnnualReturn || inMemoryFireSettings.expectedAnnualReturn),
+          };
+        }
+        return data;
+      }
+    } catch (error) {
+      console.warn('[financialHealthApi] GET failed, using fallback:', error);
+    }
+
+    return {
+      id: inMemoryRecordId,
+      userId: 'default_user',
+      answers: { ...inMemoryHealthAnswers },
+      fireSettings: { ...inMemoryFireSettings },
+      totalScore: 0,
+      maxScore: 100,
+      tier: 'High Risk',
+      tierColor: '#6b7280',
+      tierDescription: 'Initial assessment required to compute financial fortress rating.',
+      achievedCount: 0,
+      gapsCount: 6,
+      nextBestAction: 'Complete financial diagnostic survey.',
+      pillars: [],
+      fireCalculations: {},
+    };
+  },
+
+  /**
+   * Save / Upsert complete Financial Health record in MongoDB collection `financial_health`.
+   */
+  saveHealthRecord: async (record: Partial<FinancialHealthRecord>): Promise<FinancialHealthRecord> => {
+    const payload: FinancialHealthRecord = {
+      id: record.id || inMemoryRecordId,
+      userId: record.userId || 'default_user',
+      answers: record.answers || inMemoryHealthAnswers,
+      fireSettings: record.fireSettings || inMemoryFireSettings,
+      totalScore: record.totalScore ?? 0,
+      maxScore: record.maxScore ?? 100,
+      tier: record.tier || 'High Risk',
+      tierColor: record.tierColor || '#6b7280',
+      tierDescription: record.tierDescription || '',
+      achievedCount: record.achievedCount ?? 0,
+      gapsCount: record.gapsCount ?? 6,
+      nextBestAction: record.nextBestAction || '',
+      pillars: record.pillars || [],
+      fireCalculations: record.fireCalculations || {},
+      updatedAt: new Date().toISOString(),
+    };
+
+    try {
+      const { data } = await apiClient.post<FinancialHealthRecord>(ENDPOINT, payload);
+      if (data?.id) inMemoryRecordId = data.id;
+      if (data?.answers) inMemoryHealthAnswers = { ...data.answers };
+      if (data?.fireSettings) inMemoryFireSettings = { ...data.fireSettings };
+      return data || payload;
+    } catch (error) {
+      console.warn('[financialHealthApi] POST failed, cached locally:', error);
+      return payload;
+    }
+  },
+
+  /**
+   * Toggle or update a specific health pillar answer and save to MongoDB `financial_health`.
+   */
+  updateHealthAnswer: async (
+    pillarId: string,
+    fulfilled: boolean,
+    context?: {
+      holdings: InvestmentHolding[];
+      cashLiquidity: number;
+      debtLiabilities: number;
+      activeSipMonthly: number;
+    }
+  ): Promise<FinancialHealthRecord> => {
+    inMemoryHealthAnswers[pillarId] = fulfilled;
+
+    if (context) {
+      return financialHealthApi.syncAndPersist({
+        holdings: context.holdings,
+        cashLiquidity: context.cashLiquidity,
+        debtLiabilities: context.debtLiabilities,
+        activeSipMonthly: context.activeSipMonthly,
+        answersOverride: { [pillarId]: fulfilled },
+      });
+    }
+
+    try {
+      const { data } = await apiClient.patch<FinancialHealthRecord>(`${ENDPOINT}/answers`, {
+        [pillarId]: fulfilled,
+      });
+      return data;
+    } catch {
+      return financialHealthApi.saveHealthRecord({
+        answers: { ...inMemoryHealthAnswers },
+      });
+    }
+  },
+
+  /**
+   * Update FIRE calculator settings and save to MongoDB `financial_health`.
+   */
+  updateFireSettings: async (
+    settings: Partial<FireSettings>,
+    context?: {
+      holdings: InvestmentHolding[];
+      cashLiquidity: number;
+      debtLiabilities: number;
+      activeSipMonthly: number;
+    }
+  ): Promise<FinancialHealthRecord> => {
+    inMemoryFireSettings = { ...inMemoryFireSettings, ...settings };
+
+    if (context) {
+      return financialHealthApi.syncAndPersist({
+        holdings: context.holdings,
+        cashLiquidity: context.cashLiquidity,
+        debtLiabilities: context.debtLiabilities,
+        activeSipMonthly: context.activeSipMonthly,
+        fireSettingsOverride: settings,
+      });
+    }
+
+    try {
+      const { data } = await apiClient.patch<FinancialHealthRecord>(`${ENDPOINT}/fire-settings`, settings);
+      return data;
+    } catch {
+      return financialHealthApi.saveHealthRecord({
+        fireSettings: { ...inMemoryFireSettings },
+      });
+    }
+  },
+
+  /**
+   * Compute all diagnostic pillars & FIRE metrics with live data and persist to MongoDB `financial_health`.
+   */
+  syncAndPersist: async (params: {
+    holdings: InvestmentHolding[];
+    cashLiquidity: number;
+    debtLiabilities: number;
+    activeSipMonthly: number;
+    fireSettingsOverride?: Partial<FireSettings>;
+    answersOverride?: Record<string, boolean>;
+  }): Promise<FinancialHealthRecord> => {
+    const mergedAnswers = {
+      ...inMemoryHealthAnswers,
+      ...(params.answersOverride || {}),
+    };
+    inMemoryHealthAnswers = mergedAnswers;
+
+    const mergedSettings = {
+      ...inMemoryFireSettings,
+      ...(params.fireSettingsOverride || {}),
+    };
+    inMemoryFireSettings = mergedSettings;
+
+    const healthResult = computeFinancialHealth(
+      params.holdings,
+      params.cashLiquidity,
+      params.debtLiabilities,
+      params.activeSipMonthly,
+      mergedSettings.monthlyExpenses,
+      mergedAnswers
+    );
+
+    const portfolioVal = params.holdings.reduce(
+      (sum, h) => sum + h.currentPrice * h.quantity,
+      0
+    );
+    const netWorth = portfolioVal + params.cashLiquidity - params.debtLiabilities;
+
+    const fireResult = calculateFireNumbers(
+      netWorth,
+      params.activeSipMonthly,
+      mergedSettings
+    );
+
+    const recordPayload: FinancialHealthRecord = {
+      id: inMemoryRecordId,
+      userId: 'default_user',
+      answers: mergedAnswers,
+      fireSettings: mergedSettings,
+      totalScore: healthResult.totalScore,
+      maxScore: healthResult.maxScore,
+      tier: healthResult.tier,
+      tierColor: healthResult.tierColor,
+      tierDescription: healthResult.tierDescription,
+      achievedCount: healthResult.achievedCount,
+      gapsCount: healthResult.gapsCount,
+      nextBestAction: healthResult.nextBestAction,
+      pillars: healthResult.pillars,
+      fireCalculations: fireResult,
+      updatedAt: new Date().toISOString(),
+    };
+
+    return financialHealthApi.saveHealthRecord(recordPayload);
+  },
 };

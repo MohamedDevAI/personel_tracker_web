@@ -1,12 +1,12 @@
-import { 
-  Plus, 
-  Trash2, 
-  ArrowUpRight, 
-  ArrowDownRight, 
-  Calendar, 
-  CreditCard, 
-  Building2, 
-  Coins 
+import {
+  Plus,
+  Trash2,
+  ArrowUpRight,
+  ArrowDownRight,
+  Calendar,
+  CreditCard,
+  Building2,
+  Coins
 } from 'lucide-react';
 import { Category, Transaction, TransactionType } from '../../../types';
 import { formatCurrency } from './financeConstants';
@@ -30,7 +30,7 @@ export default function TransactionTable({
   onDeleteTransaction,
   onOpenAddModal
 }: TransactionTableProps) {
-  
+
   const resolveCategory = (item: Transaction) => {
     if (categories && categories.length > 0) {
       const match = categories.find(c =>
@@ -68,7 +68,7 @@ export default function TransactionTable({
           <p className="finance-empty-desc">
             There are no financial logs matching your current filter. You can add a transaction for this month right away.
           </p>
-          <button 
+          <button
             onClick={() => onOpenAddModal('Credit')}
             className="btn btn-primary"
           >
@@ -83,6 +83,7 @@ export default function TransactionTable({
                 <th>DATE & MONTH</th>
                 <th>DESCRIPTION</th>
                 <th>CATEGORY</th>
+
                 <th>PAYMENT METHOD</th>
                 <th className="th-right">AMOUNT (SAR)</th>
                 <th className="th-center">ACTION</th>
@@ -131,8 +132,8 @@ export default function TransactionTable({
                       {(() => {
                         const matched = resolveCategory(item);
                         const catName = matched ? matched.name : (item.category || item.categoryName || 'General');
-                        const catIsCredit = matched 
-                          ? String(matched.type).toUpperCase() === 'CREDIT' 
+                        const catIsCredit = matched
+                          ? String(matched.type).toUpperCase() === 'CREDIT'
                           : isCredit;
                         return (
                           <span className={catIsCredit ? "badge badge-emerald" : "badge badge-indigo"}>
@@ -159,7 +160,7 @@ export default function TransactionTable({
                     <td className="tx-delete-action">
                       <button
                         onClick={() => itemId && onDeleteTransaction(itemId)}
-                        className="btn-icon tx-delete-btn" 
+                        className="btn-icon tx-delete-btn"
                         title="Delete transaction"
                       >
                         <Trash2 size={14} />

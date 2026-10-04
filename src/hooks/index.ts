@@ -19,3 +19,4 @@ export * from './useTheme';
 export * from './useTradesQuery';
 export * from './useTransactionFilters';
 export * from './useTransactionsQuery';
+export * from './useFinancialHealthQuery';

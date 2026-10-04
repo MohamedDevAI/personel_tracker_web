@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   ShieldCheck,
   CircleDollarSign,
@@ -16,12 +16,17 @@ import { useExpensesQuery } from '../hooks/useExpensesQuery';
 import { useBorrowRepayRecordsQuery } from '../hooks/useBorrowRepayQueries';
 import { useTradesQuery } from '../hooks/useTradesQuery';
 import {
+  useFinancialHealthQuery,
+  useUpdateHealthAnswerMutation,
+  useUpdateFireSettingsMutation,
+} from '../hooks/useFinancialHealthQuery';
+import {
   computeFinancialHealth,
   calculateFireNumbers,
+  financialHealthApi,
   getStoredFireSettings,
-  saveFireSettings,
-  saveHealthAnswer,
-  FireSettings
+  getStoredHealthAnswers,
+  FireSettings,
 } from '../services/financialHealthService';
 import { MoneyPrivacyProvider, useMoneyPrivacy } from '../context/MoneyPrivacyContext';
 
@@ -76,8 +81,6 @@ function MoneyHubInner() {
 
   // Modal State for Diagnostic Health Questions
   const [isDiagnosticOpen, setIsDiagnosticOpen] = useState(false);
-  const [, setHealthStateNonce] = useState(0);
-  const [, setFireSettingsNonce] = useState(0);
 
   // Modal State for Trading
   const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
@@ -101,6 +104,14 @@ function MoneyHubInner() {
     data: trades = [],
     refetch: refetchTrades,
   } = useTradesQuery();
+
+  // Fetch Financial Health Document from MongoDB collection `financial_health`
+  const {
+    data: healthRecord,
+    refetch: refetchHealthRecord,
+  } = useFinancialHealthQuery();
+  const updateHealthAnswerMutation = useUpdateHealthAnswerMutation();
+  const updateFireSettingsMutation = useUpdateFireSettingsMutation();
 
   // Compute Liquid Cash Balance
   const totalIncome = (expenses || [])
@@ -126,39 +137,77 @@ function MoneyHubInner() {
 
   // Compute Portfolio Level Stats
   const portfolioStats = investmentApi.computePortfolioStats(holdings);
+  const activeSipMonthly = portfolioStats.monthlySipTotal || 0;
 
   // Total Comprehensive Net Worth: Portfolio + Cash - Liabilities
   const totalNetWorth =
     portfolioStats.currentValue + cashLiquidity - debtLiabilities;
 
+  // Derive Answers & FIRE Settings from DB Record (with local fallback)
+  const effectiveAnswers = healthRecord?.answers || getStoredHealthAnswers();
+  const effectiveFireSettings: FireSettings = healthRecord?.fireSettings
+    ? {
+        monthlyExpenses: Number(healthRecord.fireSettings.monthlyExpenses || 60000),
+        multiplier: Number(healthRecord.fireSettings.multiplier || 25),
+        expectedAnnualReturn: Number(healthRecord.fireSettings.expectedAnnualReturn || 11),
+      }
+    : getStoredFireSettings();
+
   // Financial Health & FIRE Computations
-  const fireSettings = getStoredFireSettings();
   const healthResult = computeFinancialHealth(
     holdings,
     cashLiquidity,
     debtLiabilities,
-    portfolioStats.monthlySipTotal || 0,
-    fireSettings.monthlyExpenses
+    activeSipMonthly,
+    effectiveFireSettings.monthlyExpenses,
+    effectiveAnswers
   );
 
   const fireResult = calculateFireNumbers(
     totalNetWorth,
-    portfolioStats.monthlySipTotal || 0,
-    fireSettings
+    activeSipMonthly,
+    effectiveFireSettings
   );
+
+  // Auto-sync computed diagnostic aspects to DB collection `financial_health`
+  useEffect(() => {
+    financialHealthApi.syncAndPersist({
+      holdings,
+      cashLiquidity,
+      debtLiabilities,
+      activeSipMonthly,
+      fireSettingsOverride: effectiveFireSettings,
+      answersOverride: effectiveAnswers,
+    });
+  }, [holdings.length, cashLiquidity, debtLiabilities, activeSipMonthly]);
 
   // Trading Stats
   const tradingStats = tradingService.computeTradingStats(trades);
   const openTradesCount = trades.filter((t) => t.status === 'OPEN').length;
 
   const handleTogglePillar = (pillarId: string, newState: boolean) => {
-    saveHealthAnswer(pillarId, newState);
-    setHealthStateNonce((n) => n + 1);
+    updateHealthAnswerMutation.mutate({
+      pillarId,
+      fulfilled: newState,
+      context: {
+        holdings,
+        cashLiquidity,
+        debtLiabilities,
+        activeSipMonthly,
+      },
+    });
   };
 
   const handleUpdateFireSettings = (newSettings: Partial<FireSettings>) => {
-    saveFireSettings(newSettings);
-    setFireSettingsNonce((n) => n + 1);
+    updateFireSettingsMutation.mutate({
+      settings: newSettings,
+      context: {
+        holdings,
+        cashLiquidity,
+        debtLiabilities,
+        activeSipMonthly,
+      },
+    });
   };
 
   // Handlers for Holding Actions
@@ -196,7 +245,7 @@ function MoneyHubInner() {
   };
 
   const handleRefresh = async () => {
-    await Promise.all([refetchHoldings(), refetchTrades()]);
+    await Promise.all([refetchHoldings(), refetchTrades(), refetchHealthRecord()]);
   };
 
   // Handlers for Trading Actions

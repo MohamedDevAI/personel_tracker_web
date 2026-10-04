@@ -43,4 +43,7 @@ export const QUERY_KEYS = {
 
   // System
   BACKEND_HEALTH: ['backendHealth'] as const,
+
+  // Financial Health & FIRE Freedom
+  FINANCIAL_HEALTH: ['financialHealth'] as const,
 } as const;
