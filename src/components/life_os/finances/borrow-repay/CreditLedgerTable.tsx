@@ -120,6 +120,7 @@ export default function CreditLedgerTable({
               <option value="ALL">All Types</option>
               <option value="Borrow">Borrow (+INR)</option>
               <option value="Repaid">Repaid (-INR)</option>
+              <option value="Credit Given">Credit Given (Lent)</option>
             </select>
           </div>
 
@@ -164,6 +165,7 @@ export default function CreditLedgerTable({
             ) : (
               filteredRecords.map(item => {
                 const isBorrow = item.type === 'Borrow';
+                const isCreditGiven = item.type === 'Credit Given' || (isBorrow && Number(item.amount) < 0);
                 return (
                   <tr key={item.id} className="borrow-row">
                     <td className="td-creditor">
@@ -179,16 +181,16 @@ export default function CreditLedgerTable({
                       </div>
                     </td>
                     <td className="td-type">
-                      <span className={`badge ${isBorrow ? 'badge-borrow' : 'badge-repaid'}`}>
-                        {isBorrow ? <ArrowDownLeft size={12} /> : <ArrowUpRight size={12} />}
-                        {item.type}
+                      <span className={`badge ${isCreditGiven ? 'badge-sky' : isBorrow ? 'badge-borrow' : 'badge-repaid'}`}>
+                        {isCreditGiven ? <HandCoins size={12} /> : isBorrow ? <ArrowDownLeft size={12} /> : <ArrowUpRight size={12} />}
+                        {isCreditGiven ? 'Credit Given' : item.type}
                       </span>
                     </td>
-                    <td className={`td-amount ${isBorrow ? (Number(item.amount) < 0 ? 'repaid-amt' : 'borrow-amt') : 'repaid-amt'}`}>
-                      {isBorrow
-                        ? Number(item.amount) < 0
-                          ? `-₹ ${Math.abs(Number(item.amount)).toLocaleString('en-IN')} (Credit Given)`
-                          : `+₹ ${Number(item.amount).toLocaleString('en-IN')}`
+                    <td className={`td-amount ${isCreditGiven ? 'amount-credit-given-col' : isBorrow ? 'borrow-amt' : 'repaid-amt'}`}>
+                      {isCreditGiven
+                        ? `₹ ${Math.abs(Number(item.amount)).toLocaleString('en-IN')} (Given)`
+                        : isBorrow
+                        ? `+₹ ${Number(item.amount).toLocaleString('en-IN')}`
                         : `-₹ ${Number(item.amount).toLocaleString('en-IN')}`}
                     </td>
                     <td className="td-notes"><span className="notes-text">{item.notes || '—'}</span></td>

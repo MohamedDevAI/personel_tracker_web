@@ -66,12 +66,16 @@ export default function BorrowRepayModal({
         {/* Header */}
         <div className="modal-header-row">
           <div className="modal-header-with-icon">
-            <div className={`modal-icon-badge ${form.type === 'Borrow' ? 'borrow' : 'repaid'}`}>
+            <div className={`modal-icon-badge ${form.type === 'Borrow' ? 'borrow' : form.type === 'Credit Given' ? 'credit-given' : 'repaid'}`}>
               <HandCoins size={20} />
             </div>
             <div>
               <h3 className="modal-title-main">
-                {form.type === 'Borrow' ? 'Log Borrowed Money' : 'Log Debt Repayment'}
+                {form.type === 'Borrow'
+                  ? 'Log Borrowed Money'
+                  : form.type === 'Credit Given'
+                  ? 'Log Credit Given (Money Lent)'
+                  : 'Log Debt Repayment'}
               </h3>
               <div className="modal-subtitle-schema">Currency: Indian Rupee (INR ₹)</div>
             </div>
@@ -83,15 +87,15 @@ export default function BorrowRepayModal({
 
         <form onSubmit={handleSubmit} className="modal-form-vertical">
           
-          {/* Type Toggle: Borrow vs Repaid */}
-          <div className="borrow-type-toggle-grid">
+          {/* Type Toggle: Borrow vs Repaid vs Credit Given */}
+          <div className="borrow-type-toggle-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
             <button
               type="button"
               onClick={() => setForm(prev => ({ ...prev, type: 'Borrow' }))}
               className={`borrow-type-btn ${form.type === 'Borrow' ? 'active-borrow' : ''}`}
             >
               <ArrowDownLeft size={16} />
-              <span>Borrow (Money Received)</span>
+              <span>Borrow (Received)</span>
             </button>
             <button
               type="button"
@@ -99,7 +103,15 @@ export default function BorrowRepayModal({
               className={`borrow-type-btn ${form.type === 'Repaid' ? 'active-repaid' : ''}`}
             >
               <ArrowUpRight size={16} />
-              <span>Repaid (Money Returned)</span>
+              <span>Repaid (Returned)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setForm(prev => ({ ...prev, type: 'Credit Given' }))}
+              className={`borrow-type-btn ${form.type === 'Credit Given' ? 'active-credit' : ''}`}
+            >
+              <HandCoins size={16} />
+              <span>Credit Given (Lent)</span>
             </button>
           </div>
 
@@ -175,9 +187,22 @@ export default function BorrowRepayModal({
             </button>
             <button 
               type="submit" 
-              className={`btn ${form.type === 'Borrow' ? 'btn-primary' : 'btn-emerald-solid'}`}
+              className={`btn ${
+                form.type === 'Borrow'
+                  ? 'btn-primary'
+                  : form.type === 'Credit Given'
+                  ? 'btn-credit-given-action'
+                  : 'btn-emerald-solid'
+              }`}
+              style={form.type === 'Credit Given' ? {
+                background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
+                color: '#ffffff',
+                border: 'none',
+                boxShadow: '0 4px 14px rgba(234, 88, 12, 0.35)',
+                fontWeight: 600
+              } : undefined}
             >
-              Save {form.type === 'Borrow' ? 'Borrow Record' : 'Repayment'}
+              Save {form.type === 'Borrow' ? 'Borrow Record' : form.type === 'Credit Given' ? 'Credit Record' : 'Repayment'}
             </button>
           </div>
 

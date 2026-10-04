@@ -3048,7 +3048,7 @@
 }
 
 /* ==========================================================================
-   MASTER MONEY OS PURPLE CANVAS & CRISP WHITE CARDS SYSTEM
+   MASTER MONEY OS PURPLE CANVAS & SLEEK OBSIDIAN BLACK CARDS SYSTEM
    ========================================================================== */
 
 .money-screen-root {
@@ -3109,13 +3109,13 @@
   color: #ffffff !important;
 }
 
-/* Sub-Tab Navigation Bar (Frosted White on Purple Canvas) */
+/* Sub-Tab Navigation Bar (Frosted on Purple Canvas) */
 .money-screen-root .money-main-tabs-bar,
 .money-screen-root .money-nav-tabs-bar {
-  background: rgba(255, 255, 255, 0.22) !important;
+  background: rgba(18, 14, 36, 0.65) !important;
   backdrop-filter: blur(14px) saturate(140%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.45) !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid rgba(168, 85, 247, 0.25) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
   border-radius: 16px !important;
   padding: 6px !important;
   margin-bottom: 24px !important;
@@ -3123,7 +3123,7 @@
 
 .money-screen-root .money-main-tab-btn,
 .money-screen-root .money-nav-tab-btn {
-  color: rgba(255, 255, 255, 0.95) !important;
+  color: rgba(255, 255, 255, 0.8) !important;
   font-weight: 700 !important;
   border-radius: 12px !important;
   border: none !important;
@@ -3132,24 +3132,24 @@
 
 .money-screen-root .money-main-tab-btn:hover,
 .money-screen-root .money-nav-tab-btn:hover {
-  background: rgba(255, 255, 255, 0.18) !important;
+  background: rgba(168, 85, 247, 0.18) !important;
   color: #ffffff !important;
 }
 
 .money-screen-root .money-main-tab-btn.active,
 .money-screen-root .money-nav-tab-btn.active {
-  background: #ffffff !important;
-  color: #7c3aed !important;
+  background: #0b0914 !important;
+  color: #c084fc !important;
   font-weight: 800 !important;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15) !important;
-  border: none !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid rgba(168, 85, 247, 0.4) !important;
 }
 
 .money-screen-root .money-tab-counter,
 .money-screen-root .money-tab-count-pill {
-  background: rgba(255, 255, 255, 0.3) !important;
+  background: rgba(168, 85, 247, 0.2) !important;
   color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  border: 1px solid rgba(168, 85, 247, 0.35) !important;
   font-weight: 800 !important;
 }
 
@@ -3163,7 +3163,7 @@
 }
 
 /* ─────────────────────────────────────────────────────────────
-   ALL CARDS INSIDE MONEY OS ARE PURE CRISP WHITE
+   ALL CARDS INSIDE MONEY OS ARE SLEEK OBSIDIAN BLACK
    ───────────────────────────────────────────────────────────── */
 .money-screen-root .networth-hero-card,
 .money-screen-root .asset-cat-card,
@@ -3179,6 +3179,10 @@
 .money-screen-root .summary-card,
 .money-screen-root .inv-summary-hero,
 .money-screen-root .inv-metric-tile,
+.money-screen-root .inv-split-section,
+.money-screen-root .inv-entry-card,
+.money-screen-root .inv-flagged-section,
+.money-screen-root .inv-flagged-item-card,
 .money-screen-root .inv-allocation-card,
 .money-screen-root .mf-portfolio-card,
 .money-screen-root .equity-desk-card,
@@ -3187,24 +3191,25 @@
 .money-screen-root .inv-list-item-row,
 .money-screen-root .trading-header-kpi-card,
 .money-screen-root .trading-chart-card {
-  background: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.95) !important;
-  box-shadow: 0 14px 40px -10px rgba(76, 29, 149, 0.28), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  background: #0b0914 !important;
+  border: 1px solid rgba(168, 85, 247, 0.18) !important;
+  box-shadow: 0 14px 40px -10px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4) !important;
   border-radius: 20px !important;
-  color: #1e1b4b !important;
+  color: #f8fafc !important;
 }
 
 .money-screen-root .networth-hero-card:hover,
 .money-screen-root .asset-cat-card:hover,
 .money-screen-root .trading-kpi-box:hover,
 .money-screen-root .inv-metric-tile:hover,
-.money-screen-root .mf-portfolio-card:hover,
-.money-screen-root .equity-desk-card:hover {
+.money-screen-root .inv-entry-card:hover,
+.money-screen-root .inv-flagged-item-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 20px 48px -10px rgba(76, 29, 149, 0.35) !important;
+  border-color: rgba(168, 85, 247, 0.45) !important;
+  box-shadow: 0 20px 48px -10px rgba(124, 58, 237, 0.25) !important;
 }
 
-/* Card Titles & Values inside White Cards */
+/* Card Titles & Values inside Obsidian Cards */
 .money-screen-root .networth-hero-card h1,
 .money-screen-root .networth-hero-card h2,
 .money-screen-root .networth-hero-card h3,
@@ -3213,6 +3218,9 @@
 .money-screen-root .asset-cat-card h3,
 .money-screen-root .inv-hero-title,
 .money-screen-root .inv-card-title,
+.money-screen-root .inv-entry-title,
+.money-screen-root .inv-section-title,
+.money-screen-root .inv-flagged-name,
 .money-screen-root .networth-main-val,
 .money-screen-root .cat-card-value,
 .money-screen-root .kpi-main-val,
@@ -3220,19 +3228,36 @@
 .money-screen-root .inv-tile-val,
 .money-screen-root .hstat-val,
 .money-screen-root .trading-kpi-val {
-  color: #1e1b4b !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+.money-screen-root .inv-entry-stat-box,
+.money-screen-root .inv-flagged-reason-box {
+  background: #161226 !important;
+  border: 1px solid rgba(168, 85, 247, 0.22) !important;
+  border-radius: 12px !important;
+}
+
+.money-screen-root .inv-entry-stat-box .stat-label {
+  color: #94a3b8 !important;
+  font-weight: 600 !important;
+}
+
+.money-screen-root .inv-entry-stat-box .stat-value {
+  color: #ffffff !important;
   font-weight: 800 !important;
 }
 
 .money-screen-root .networth-badge-pill,
 .money-screen-root .badge-purple {
-  background: #f5f3ff !important;
-  color: #6d28d9 !important;
-  border: 1px solid #ddd6fe !important;
+  background: rgba(168, 85, 247, 0.18) !important;
+  color: #c084fc !important;
+  border: 1px solid rgba(168, 85, 247, 0.35) !important;
   font-weight: 700 !important;
 }
 
-/* Action Buttons inside White Cards in Money OS */
+/* Action Buttons inside Cards in Money OS */
 .money-screen-root .glass-panel .btn-primary,
 .money-screen-root .networth-hero-card .btn-primary,
 .money-screen-root .btn-primary {
@@ -3253,70 +3278,74 @@
 .money-screen-root .glass-panel .btn-secondary,
 .money-screen-root .networth-hero-card .btn-secondary,
 .money-screen-root .btn-secondary {
-  background: #ffffff !important;
-  color: #6d28d9 !important;
-  border: 1px solid #ddd6fe !important;
+  background: #161226 !important;
+  color: #c084fc !important;
+  border: 1px solid rgba(168, 85, 247, 0.35) !important;
   font-weight: 700 !important;
 }
 
 .money-screen-root .glass-panel .btn-secondary:hover,
 .money-screen-root .networth-hero-card .btn-secondary:hover,
 .money-screen-root .btn-secondary:hover {
-  background: #f5f3ff !important;
-  border-color: #c084fc !important;
-  color: #5b21b6 !important;
+  background: #221a3a !important;
+  border-color: #a855f7 !important;
+  color: #ffffff !important;
 }
 
 /* Tables inside Money OS */
 .money-screen-root table {
-  background: #ffffff !important;
+  background: #0b0914 !important;
   border-collapse: separate !important;
 }
 
 .money-screen-root thead th {
-  background: #f5f3ff !important;
-  color: #5b21b6 !important;
+  background: #161226 !important;
+  color: #c084fc !important;
   font-weight: 700 !important;
-  border-bottom: 2px solid #ddd6fe !important;
+  border-bottom: 2px solid rgba(168, 85, 247, 0.25) !important;
   padding: 14px 18px !important;
 }
 
 .money-screen-root tbody tr {
-  background: #ffffff !important;
-  border-bottom: 1px solid #f3e8ff !important;
-  color: #1e1b4b !important;
+  background: #0b0914 !important;
+  border-bottom: 1px solid rgba(168, 85, 247, 0.12) !important;
+  color: #f1f5f9 !important;
   transition: background 0.15s ease;
 }
 
 .money-screen-root tbody tr:hover {
-  background: #faf5ff !important;
+  background: #1a1530 !important;
 }
 
 .money-screen-root tbody td {
   padding: 14px 18px !important;
-  color: #1e1b4b !important;
+  color: #f1f5f9 !important;
 }
 
 /* Forms & Inputs in Money OS */
 .money-screen-root input,
 .money-screen-root select {
-  background: #ffffff !important;
-  border: 1px solid #ddd6fe !important;
-  color: #1e1b4b !important;
+  background: #120e24 !important;
+  border: 1px solid rgba(168, 85, 247, 0.3) !important;
+  color: #ffffff !important;
 }
 
 .money-screen-root input:focus,
 .money-screen-root select:focus {
-  border-color: #7c3aed !important;
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2) !important;
+  border-color: #a855f7 !important;
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.25) !important;
+}
+
+.money-screen-root input::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
 }
 
 /* Modal Windows in Money OS */
 .money-modal-overlay .modal-container,
 .money-modal-container {
-  background: #ffffff !important;
-  color: #1e1b4b !important;
-  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.4) !important;
-  border: 1px solid rgba(124, 58, 237, 0.25) !important;
+  background: #0b0914 !important;
+  color: #f8fafc !important;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85) !important;
+  border: 1px solid rgba(168, 85, 247, 0.35) !important;
   border-radius: 24px !important;
 }

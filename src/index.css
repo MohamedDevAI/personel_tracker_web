@@ -1,16 +1,16 @@
 :root {
   /* ======================================================================
-     Global Signature Theme: Vivid Orange Background & Crisp White Surfaces
+     Global Signature Theme: Black Obsidian Canvas & Electric Orange Designs
      ====================================================================== */
-  color-scheme: light;
+  color-scheme: dark;
 
   /* Surfaces */
-  --bg-primary: #ea580c;
-  --bg-secondary: #c2410c;
-  --bg-card: #ffffff;
-  --bg-card-hover: #ffffff;
-  --bg-glass: rgba(255, 255, 255, 0.95);
-  --bg-surface: #ffffff;
+  --bg-primary: #000000;
+  --bg-secondary: #0c0906;
+  --bg-card: #120e0a;
+  --bg-card-hover: #19130d;
+  --bg-glass: rgba(18, 14, 10, 0.9);
+  --bg-surface: #120e0a;
 
   /* Brand orange scale */
   --orange-50: #fff7ed;
@@ -25,32 +25,32 @@
   --orange-900: #7c2d12;
 
   /* Accents & Gradients */
-  --accent-primary: #ea580c;
-  --accent-secondary: #f97316;
+  --accent-primary: #f97316;
+  --accent-secondary: #ea580c;
   --accent-cyan: #fb923c;
-  --accent-emerald: #ea580c;
+  --accent-emerald: #f97316;
   --accent-amber: #f59e0b;
-  --accent-rose: #57534e;
-  --accent-gradient: linear-gradient(135deg, #ffa53a 0%, #f97316 45%, #ea580c 100%);
-  --cyan-gradient: linear-gradient(135deg, #ffffff 0%, #ffedd5 100%);
-  --emerald-gradient: linear-gradient(135deg, #ffffff 0%, #ffedd5 100%);
+  --accent-rose: #a8a29e;
+  --accent-gradient: linear-gradient(135deg, #fb923c 0%, #f97316 45%, #ea580c 100%);
+  --cyan-gradient: linear-gradient(135deg, #fed7aa 0%, #f97316 100%);
+  --emerald-gradient: linear-gradient(135deg, #fed7aa 0%, #ea580c 100%);
   --rose-gradient: linear-gradient(135deg, #78716c 0%, #44403c 100%);
-  --gold-gradient: linear-gradient(135deg, #ffffff 0%, #ffedd5 100%);
+  --gold-gradient: linear-gradient(135deg, #fff7ed 0%, #fdba74 100%);
 
   /* Borders & Glows */
-  --border-subtle: rgba(255, 255, 255, 0.35);
-  --border-card: rgba(249, 115, 22, 0.16);
-  --border-focus: #ea580c;
-  --glow-primary: 0 8px 24px rgba(234, 88, 12, 0.35);
-  --glow-white: 0 8px 25px rgba(255, 255, 255, 0.4);
-  --card-shadow: 0 12px 36px -10px rgba(124, 45, 18, 0.22), 0 2px 8px rgba(0, 0, 0, 0.04);
+  --border-subtle: rgba(249, 115, 22, 0.22);
+  --border-card: rgba(249, 115, 22, 0.25);
+  --border-focus: #f97316;
+  --glow-primary: 0 8px 24px rgba(249, 115, 22, 0.4);
+  --glow-white: 0 8px 25px rgba(249, 115, 22, 0.2);
+  --card-shadow: 0 12px 36px -10px rgba(0, 0, 0, 0.8), 0 2px 8px rgba(249, 115, 22, 0.08);
 
   /* Typography */
   --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  --text-primary: #1c1917;
-  --text-secondary: #57534e;
-  --text-muted: #78716c;
+  --text-primary: #ffffff;
+  --text-secondary: #e7e5e4;
+  --text-muted: #a8a29e;
   --text-on-orange: #ffffff;
 
   /* Layout */
@@ -69,20 +69,21 @@
 }
 
 ::selection {
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(249, 115, 22, 0.4);
   color: #ffffff;
 }
 
 /* ======================================================================
-   WHOLE APP ORANGE BACKGROUND (WITH ATMOSPHERIC RADIANT ORBS)
+   WHOLE APP BLACK OBSIDIAN BACKGROUND (WITH WARM ORANGE RADIANT ORBS)
    ====================================================================== */
 body {
   font-family: var(--font-body);
-  background-color: #ea580c;
+  background-color: #000000;
   background-image:
-    radial-gradient(1000px 550px at 15% 10%, rgba(255, 255, 255, 0.22) 0%, transparent 60%),
-    radial-gradient(1200px 650px at 85% 85%, rgba(194, 65, 12, 0.5) 0%, transparent 65%),
-    linear-gradient(155deg, #f97316 0%, #ea580c 45%, #c2410c 100%);
+    radial-gradient(1100px 600px at 15% 10%, rgba(249, 115, 22, 0.15) 0%, transparent 60%),
+    radial-gradient(1300px 700px at 85% 85%, rgba(234, 88, 12, 0.12) 0%, transparent 65%),
+    radial-gradient(800px 500px at 50% 50%, rgba(194, 65, 12, 0.05) 0%, transparent 70%),
+    linear-gradient(180deg, #050403 0%, #000000 100%);
   background-attachment: fixed;
   color: #ffffff;
   min-height: 100vh;
@@ -92,7 +93,7 @@ body {
   position: relative;
 }
 
-/* Floating sunrise ambient glow effects */
+/* Floating warm ambient glow effects */
 body::before {
   content: '';
   position: fixed;
@@ -100,7 +101,7 @@ body::before {
   left: 20%;
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.16) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(249, 115, 22, 0.15) 0%, transparent 70%);
   z-index: -1;
   pointer-events: none;
   animation: floatOrb 18s ease-in-out infinite alternate;
@@ -113,7 +114,7 @@ body::after {
   right: 12%;
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(255, 237, 213, 0.18) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(234, 88, 12, 0.12) 0%, transparent 70%);
   z-index: -1;
   pointer-events: none;
   animation: floatOrb 22s ease-in-out infinite alternate-reverse;
@@ -169,7 +170,7 @@ h1, h2, h3, h4, h5, h6 {
   color: #ffffff;
 }
 
-/* Titles inside white cards should be rich dark ink */
+/* Titles inside cards should be clean crisp white */
 .glass-panel h1,
 .glass-panel h2,
 .glass-panel h3,
@@ -192,43 +193,49 @@ h1, h2, h3, h4, h5, h6 {
 .dashboard-kpi-card h1,
 .dashboard-kpi-card h2,
 .dashboard-kpi-card h3 {
-  color: #1c1917;
+  color: #ffffff !important;
 }
 
-/* Page Subtitles on Orange Background */
+/* Page Subtitles on Canvas */
 .page-header-subtitle,
 .dashboard-subtitle,
 .productivity-hub-subtitle,
 .money-header-subtitle,
 .finances-header-subtitle,
 .page-header-date {
-  color: rgba(255, 255, 255, 0.92);
+  color: rgba(255, 255, 255, 0.78);
 }
 
 /* Title gradient spans */
 .gradient-text,
 .emerald-gradient-text,
-.cyan-gradient-text,
-.money-gold-gradient,
-.money-purple-gradient {
-  background: linear-gradient(135deg, #ffffff 0%, #ffedd5 100%);
+.cyan-gradient-text {
+  background: linear-gradient(135deg, #fed7aa 0%, #f97316 50%, #ea580c 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-/* Inside white cards, gradients are vibrant orange */
+.money-gold-gradient,
+.money-purple-gradient {
+  background: linear-gradient(135deg, #ffffff 0%, #e9d5ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Inside cards, gradients are vibrant electric orange */
 .glass-panel .gradient-text,
 .glass-panel .emerald-gradient-text,
 .modal-container .gradient-text {
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 /* ======================================================================
-   CRISP WHITE CARDS & SURFACES ACROSS ENTIRE APP
+   BLACK OBSIDIAN CARDS & SURFACES ACROSS LIFE OS
    ====================================================================== */
 .glass-panel,
 .dashboard-kpi-card,
@@ -258,13 +265,13 @@ h1, h2, h3, h4, h5, h6 {
 .goals-toolbar-container,
 .habits-clean-slate,
 .reminders-card {
-  background: #ffffff !important;
+  background: #120e0a !important;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(249, 115, 22, 0.22) !important;
   border-radius: var(--border-radius-lg);
-  box-shadow: 0 12px 36px -10px rgba(124, 45, 18, 0.22), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
-  color: #1c1917 !important;
+  box-shadow: 0 12px 36px -10px rgba(0, 0, 0, 0.8), 0 2px 8px rgba(249, 115, 22, 0.06) !important;
+  color: #ffffff !important;
   transition: var(--transition-smooth);
 }
 
@@ -274,12 +281,12 @@ h1, h2, h3, h4, h5, h6 {
 .creditor-card:hover,
 .asset-cat-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 18px 45px -10px rgba(124, 45, 18, 0.3) !important;
-  border-color: #ffffff !important;
+  box-shadow: 0 18px 45px -10px rgba(0, 0, 0, 0.9), 0 0 24px rgba(249, 115, 22, 0.22) !important;
+  border-color: rgba(249, 115, 22, 0.45) !important;
 }
 
 /* ======================================================================
-   BUTTONS (WHITE ON ORANGE BACKGROUND, ORANGE INSIDE CARDS)
+   BUTTONS (VIBRANT ORANGE ACCENTS ON DARK OBSIDIAN SURFACES)
    ====================================================================== */
 .btn {
   display: inline-flex;
@@ -296,23 +303,23 @@ h1, h2, h3, h4, h5, h6 {
   text-decoration: none;
 }
 
-/* Buttons directly on the orange page background (Life OS) */
+/* Buttons directly on the page background (Life OS) */
 .page-header-actions .btn-primary,
 .finances-header-actions .btn-primary,
 .borrow-header-buttons .btn-primary {
-  background: #ffffff !important;
-  color: #ea580c !important;
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+  color: #ffffff !important;
   font-weight: 800 !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16) !important;
-  border: none !important;
+  box-shadow: 0 4px 16px rgba(234, 88, 12, 0.45) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
 }
 
 .page-header-actions .btn-primary:hover,
 .finances-header-actions .btn-primary:hover,
 .borrow-header-buttons .btn-primary:hover {
-  background: #fffaf5 !important;
+  background: linear-gradient(135deg, #fb923c 0%, #f97316 100%) !important;
   transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22) !important;
+  box-shadow: 0 8px 24px rgba(234, 88, 12, 0.6) !important;
 }
 
 /* Buttons directly on the purple page background (Money OS) */
@@ -335,30 +342,35 @@ html[data-app="money"] .money-header-actions .btn-primary:hover {
 
 .page-header-actions .btn-secondary,
 .finances-header-actions .btn-secondary,
-.money-header-actions .btn-secondary,
 .borrow-header-buttons .btn-secondary {
-  background: rgba(255, 255, 255, 0.22) !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.55) !important;
+  background: #18120b !important;
+  color: #fed7aa !important;
+  border: 1px solid rgba(249, 115, 22, 0.3) !important;
   backdrop-filter: blur(8px) !important;
 }
 
 .page-header-actions .btn-secondary:hover,
 .finances-header-actions .btn-secondary:hover,
-.money-header-actions .btn-secondary:hover,
 .borrow-header-buttons .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.35) !important;
+  background: #241a10 !important;
   color: #ffffff !important;
-  border-color: #ffffff !important;
+  border-color: #f97316 !important;
   transform: translateY(-2px);
 }
 
-/* Standard Buttons inside White Cards (Life OS) */
+html[data-app="money"] .page-header-actions .btn-secondary,
+html[data-app="money"] .money-header-actions .btn-secondary {
+  background: rgba(255, 255, 255, 0.22) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.55) !important;
+}
+
+/* Standard Buttons inside Cards (Life OS) */
 .glass-panel .btn-primary,
 .modal-container .btn-primary,
 .btn-primary {
-  background: var(--accent-gradient);
-  color: #ffffff;
+  background: var(--accent-gradient) !important;
+  color: #ffffff !important;
   box-shadow: 0 4px 16px rgba(234, 88, 12, 0.35);
 }
 
@@ -366,23 +378,23 @@ html[data-app="money"] .money-header-actions .btn-primary:hover {
 .modal-container .btn-primary:hover,
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(234, 88, 12, 0.45);
+  box-shadow: 0 8px 22px rgba(234, 88, 12, 0.5);
 }
 
 .glass-panel .btn-secondary,
 .modal-container .btn-secondary,
 .btn-secondary {
-  background: #ffffff;
-  color: #c2410c;
-  border: 1px solid #fed7aa;
+  background: #18120b !important;
+  color: #fed7aa !important;
+  border: 1px solid rgba(249, 115, 22, 0.3) !important;
 }
 
 .glass-panel .btn-secondary:hover,
 .modal-container .btn-secondary:hover,
 .btn-secondary:hover {
-  background: #fff7ed;
-  border-color: #fb923c;
-  color: #9a3412;
+  background: #241a10 !important;
+  border-color: #f97316 !important;
+  color: #ffffff !important;
   transform: translateY(-1px);
 }
 
@@ -425,15 +437,15 @@ html[data-app="money"] .modal-container .btn-secondary:hover,
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  color: #ea580c;
+  background: #1a140e;
+  border: 1px solid rgba(249, 115, 22, 0.28);
+  color: #fb923c;
   cursor: pointer;
   transition: var(--transition-smooth);
 }
 
 .btn-icon:hover {
-  background: #ea580c;
+  background: #f97316;
   color: #ffffff;
   transform: scale(1.05);
 }
@@ -448,13 +460,27 @@ html[data-app="money"] .btn-icon:hover {
 }
 
 /* ======================================================================
-   ALL SUB-NAV TABS BARS (FROSTED WHITE ON CANVAS)
+   ALL SUB-NAV TABS BARS (OBSIDIAN WITH GLOWING ORANGE PILLS)
    ====================================================================== */
 .productivity-nav-tabs-bar,
 .finance-nav-tabs-bar,
-.money-main-tabs-bar,
-.money-nav-tabs-bar,
 .borrow-two-step-tabs {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: rgba(18, 14, 10, 0.9) !important;
+  backdrop-filter: blur(14px) saturate(140%) !important;
+  border: 1px solid rgba(249, 115, 22, 0.28) !important;
+  padding: 6px !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6) !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+}
+
+.money-main-tabs-bar,
+.money-nav-tabs-bar {
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
@@ -471,9 +497,24 @@ html[data-app="money"] .btn-icon:hover {
 
 .productivity-main-nav-tab,
 .finance-main-nav-tab,
-.money-main-tab-btn,
-.money-nav-tab-btn,
 .borrow-step-btn {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 10px 20px !important;
+  border-radius: 12px !important;
+  border: none !important;
+  background: transparent !important;
+  color: #d6d3d1 !important;
+  font-size: 0.9rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  white-space: nowrap !important;
+}
+
+.money-main-tab-btn,
+.money-nav-tab-btn {
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
@@ -491,21 +532,25 @@ html[data-app="money"] .btn-icon:hover {
 
 .productivity-main-nav-tab:hover,
 .finance-main-nav-tab:hover,
-.money-main-tab-btn:hover,
-.money-nav-tab-btn:hover,
 .borrow-step-btn:hover {
+  background: rgba(249, 115, 22, 0.15) !important;
+  color: #ffffff !important;
+}
+
+.money-main-tab-btn:hover,
+.money-nav-tab-btn:hover {
   background: rgba(255, 255, 255, 0.18) !important;
   color: #ffffff !important;
 }
 
-/* Life OS Active Tab (Orange text on White Pill) */
+/* Life OS Active Tab (Orange Gradient Pill) */
 .productivity-main-nav-tab.active,
 .finance-main-nav-tab.active,
 .borrow-step-btn.active {
-  background: #ffffff !important;
-  color: #ea580c !important;
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+  color: #ffffff !important;
   font-weight: 800 !important;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.45) !important;
   border: none !important;
 }
 
@@ -521,7 +566,16 @@ html[data-app="money"] .btn-icon:hover {
 
 .productivity-nav-pill-counter,
 .finance-nav-pill-counter,
-.step-counter,
+.step-counter {
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  padding: 2px 8px !important;
+  border-radius: 20px !important;
+  background: rgba(249, 115, 22, 0.2) !important;
+  color: #fed7aa !important;
+  border: 1px solid rgba(249, 115, 22, 0.35) !important;
+}
+
 .money-tab-counter {
   font-size: 0.72rem !important;
   font-weight: 800 !important;
@@ -535,9 +589,9 @@ html[data-app="money"] .btn-icon:hover {
 .productivity-main-nav-tab.active .productivity-nav-pill-counter,
 .finance-main-nav-tab.active .finance-nav-pill-counter,
 .borrow-step-btn.active .step-counter {
-  background: #ea580c !important;
+  background: rgba(0, 0, 0, 0.35) !important;
   color: #ffffff !important;
-  border: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
 }
 
 .money-main-tab-btn.active .money-tab-counter,
@@ -563,18 +617,18 @@ html[data-app="money"] .btn-icon:hover {
 .badge-emerald,
 .badge-income,
 .badge-credit {
-  background: #fff7ed;
-  color: #c2410c;
-  border: 1px solid #fdba74;
-  font-weight: 700;
+  background: rgba(249, 115, 22, 0.16) !important;
+  color: #fb923c !important;
+  border: 1px solid rgba(249, 115, 22, 0.35) !important;
+  font-weight: 700 !important;
 }
 
 .badge-debit,
 .badge-expense {
-  background: #f5f5f4;
-  color: #57534e;
-  border: 1px solid #d6d3d1;
-  font-weight: 700;
+  background: #1c1611 !important;
+  color: #d6d3d1 !important;
+  border: 1px solid rgba(249, 115, 22, 0.2) !important;
+  font-weight: 700 !important;
 }
 
 .badge-indigo,
@@ -586,21 +640,21 @@ html[data-app="money"] .btn-icon:hover {
 }
 
 .badge-amber {
-  background: #fffbeb;
-  color: #b45309;
-  border: 1px solid #fcd34d;
+  background: rgba(245, 158, 11, 0.15) !important;
+  color: #fcd34d !important;
+  border: 1px solid rgba(245, 158, 11, 0.35) !important;
 }
 
 /* ======================================================================
-   FORMS & INPUTS INSIDE CARDS
+   FORMS & INPUTS (DARK OBSIDIAN SURFACES WITH ORANGE FOCUS)
    ====================================================================== */
 input, select, textarea {
   width: 100%;
   padding: 10px 14px;
-  background: #ffffff !important;
-  border: 1px solid #fed7aa;
+  background: #16110b !important;
+  border: 1px solid rgba(249, 115, 22, 0.28);
   border-radius: var(--border-radius-md);
-  color: #1c1917;
+  color: #ffffff !important;
   font-family: var(--font-body);
   font-size: 0.9rem;
   transition: var(--transition-smooth);
@@ -608,60 +662,60 @@ input, select, textarea {
 }
 
 input::placeholder, textarea::placeholder {
-  color: #a8a29e;
+  color: #78716c !important;
 }
 
 input:hover, select:hover, textarea:hover {
-  border-color: #fb923c;
+  border-color: #fb923c !important;
 }
 
 input:focus, select:focus, textarea:focus {
-  border-color: #ea580c;
-  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.2);
+  border-color: #f97316 !important;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25) !important;
 }
 
 /* ======================================================================
-   TABLES (CLEAN WHITE BOARDS WITH WARM AMBER-ORANGE ACCENTS)
+   TABLES (DARK OBSIDIAN SURFACES WITH WARM ORANGE ACCENTS)
    ====================================================================== */
 table {
   width: 100%;
-  background: #ffffff !important;
+  background: #120e0a !important;
   border-collapse: separate;
 }
 
 thead th {
-  background: #fff7ed !important;
-  color: #7c2d12 !important;
+  background: #1a140e !important;
+  color: #fb923c !important;
   font-weight: 700 !important;
-  border-bottom: 2px solid #fed7aa !important;
+  border-bottom: 2px solid rgba(249, 115, 22, 0.25) !important;
   padding: 14px 18px !important;
 }
 
 tbody tr {
-  background: #ffffff !important;
-  border-bottom: 1px solid #ffedd5 !important;
-  color: #1c1917 !important;
+  background: #120e0a !important;
+  border-bottom: 1px solid rgba(249, 115, 22, 0.12) !important;
+  color: #f8fafc !important;
   transition: background 0.15s ease;
 }
 
 tbody tr:hover {
-  background: #fffaf5 !important;
+  background: #1c150e !important;
 }
 
 tbody td {
   padding: 14px 18px !important;
-  color: #1c1917 !important;
+  color: #f8fafc !important;
 }
 
 /* ======================================================================
-   MODALS (CLEAN CRISP WHITE MODAL CARDS ON BLURRED BACKDROP)
+   MODALS (DARK OBSIDIAN MODAL CARDS ON BLURRED BACKDROP)
    ====================================================================== */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(41, 22, 10, 0.65) !important;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.82) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   z-index: 100;
   display: flex;
   align-items: center;
@@ -670,11 +724,11 @@ tbody td {
 
 .modal-container,
 .notes-modal-card {
-  background: #ffffff !important;
+  background: #120e0a !important;
   border-radius: 24px !important;
-  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.45) !important;
-  border: 1px solid rgba(249, 115, 22, 0.2) !important;
-  color: #1c1917 !important;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.95), 0 0 30px rgba(249, 115, 22, 0.15) !important;
+  border: 1px solid rgba(249, 115, 22, 0.3) !important;
+  color: #ffffff !important;
 }
 
 /* Scrollbars */
@@ -695,3 +749,119 @@ tbody td {
   background: linear-gradient(180deg, #fb923c, #ea580c);
   background-clip: padding-box;
 }
+
+/* ======================================================================
+   LIFE OS COMPREHENSIVE DARK OBSIDIAN & ELECTRIC ORANGE STYLING
+   ====================================================================== */
+body[data-app="life-os"],
+html[data-app="life-os"] body {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+[data-app="life-os"] .planned-header-title,
+[data-app="life-os"] .planned-kpi-val,
+[data-app="life-os"] .planned-month-highlight,
+[data-app="life-os"] .dashboard-kpi-value,
+[data-app="life-os"] .dashboard-card-title,
+[data-app="life-os"] .card-title,
+[data-app="life-os"] .creditor-name,
+[data-app="life-os"] .creditor-title,
+[data-app="life-os"] .goal-card-title,
+[data-app="life-os"] .habit-name,
+[data-app="life-os"] .sticky-note-title,
+[data-app="life-os"] .notes-kpi-val,
+[data-app="life-os"] .goals-kpi-val,
+[data-app="life-os"] .summary-card-val,
+[data-app="life-os"] .modal-title,
+[data-app="life-os"] .creditor-stat-value,
+[data-app="life-os"] .inspected-creditor-name,
+[data-app="life-os"] .footer-label,
+[data-app="life-os"] .table-header-title,
+[data-app="life-os"] .page-header-title,
+[data-app="life-os"] .finances-header-title,
+[data-app="life-os"] strong {
+  color: #ffffff !important;
+}
+
+[data-app="life-os"] .dashboard-kpi-subtext,
+[data-app="life-os"] .kpi-subtext,
+[data-app="life-os"] .summary-card-sub,
+[data-app="life-os"] .notes-kpi-sub,
+[data-app="life-os"] .goals-kpi-sub,
+[data-app="life-os"] .planned-kpi-meta,
+[data-app="life-os"] .dashboard-card-subtitle,
+[data-app="life-os"] .card-subtitle,
+[data-app="life-os"] .creditor-sub {
+  color: #a8a29e !important;
+}
+
+[data-app="life-os"] .planned-kpi-card,
+[data-app="life-os"] .notes-kpi-card,
+[data-app="life-os"] .goals-kpi-card,
+[data-app="life-os"] .trading-kpi-box,
+[data-app="life-os"] .dashboard-kpi-card,
+[data-app="life-os"] .summary-card,
+[data-app="life-os"] .creditor-card,
+[data-app="life-os"] .planned-card,
+[data-app="life-os"] .goal-card,
+[data-app="life-os"] .habit-card,
+[data-app="life-os"] .month-filter-panel,
+[data-app="life-os"] .glass-panel {
+  background: #120e0a !important;
+  border: 1px solid rgba(249, 115, 22, 0.22) !important;
+  box-shadow: 0 12px 36px -10px rgba(0, 0, 0, 0.8), 0 2px 8px rgba(249, 115, 22, 0.06) !important;
+  color: #ffffff !important;
+}
+
+[data-app="life-os"] .planned-kpi-card:hover,
+[data-app="life-os"] .notes-kpi-card:hover,
+[data-app="life-os"] .goals-kpi-card:hover,
+[data-app="life-os"] .dashboard-kpi-card:hover,
+[data-app="life-os"] .creditor-card:hover,
+[data-app="life-os"] .glass-panel:hover {
+  border-color: rgba(249, 115, 22, 0.45) !important;
+  box-shadow: 0 18px 45px -10px rgba(0, 0, 0, 0.9), 0 0 24px rgba(249, 115, 22, 0.22) !important;
+}
+
+/* Life OS Inputs & Form Controls */
+[data-app="life-os"] input,
+[data-app="life-os"] select,
+[data-app="life-os"] textarea {
+  background: #16110b !important;
+  border: 1px solid rgba(249, 115, 22, 0.28) !important;
+  color: #ffffff !important;
+}
+
+[data-app="life-os"] input:focus,
+[data-app="life-os"] select:focus,
+[data-app="life-os"] textarea:focus {
+  border-color: #f97316 !important;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25) !important;
+}
+
+/* Life OS Tables */
+[data-app="life-os"] table {
+  background: #120e0a !important;
+}
+
+[data-app="life-os"] thead th {
+  background: #1a140e !important;
+  color: #fb923c !important;
+  border-bottom: 2px solid rgba(249, 115, 22, 0.25) !important;
+}
+
+[data-app="life-os"] tbody tr {
+  background: #120e0a !important;
+  border-bottom: 1px solid rgba(249, 115, 22, 0.12) !important;
+  color: #f8fafc !important;
+}
+
+[data-app="life-os"] tbody tr:hover {
+  background: #1c150e !important;
+}
+
+[data-app="life-os"] tbody td {
+  color: #f8fafc !important;
+}
+

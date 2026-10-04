@@ -77,12 +77,10 @@ export const borrowRepayApi = {
       }
       creditorMap[name].txCount += 1;
       const amt = Number(r.amount) || 0;
-      if (r.type === 'Borrow') {
-        if (amt < 0) {
-          creditorMap[name].creditGiven += Math.abs(amt);
-        } else {
-          creditorMap[name].totalBorrowed += amt;
-        }
+      if (r.type === 'Credit Given' || (r.type === 'Borrow' && amt < 0)) {
+        creditorMap[name].creditGiven += Math.abs(amt);
+      } else if (r.type === 'Borrow') {
+        creditorMap[name].totalBorrowed += Math.abs(amt);
       } else {
         creditorMap[name].totalRepaid += Math.abs(amt);
       }
@@ -146,12 +144,10 @@ export const borrowRepayApi = {
     for (const r of list) {
       if (!r || typeof r !== 'object') continue;
       const amt = Number(r.amount) || 0;
-      if (r.type === 'Borrow') {
-        if (amt < 0) {
-          totalCreditGiven += Math.abs(amt);
-        } else {
-          totalBorrowed += amt;
-        }
+      if (r.type === 'Credit Given' || (r.type === 'Borrow' && amt < 0)) {
+        totalCreditGiven += Math.abs(amt);
+      } else if (r.type === 'Borrow') {
+        totalBorrowed += Math.abs(amt);
       } else {
         totalRepaid += Math.abs(amt);
       }

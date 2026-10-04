@@ -14,13 +14,19 @@
   justify-content: space-between;
   gap: 16px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(14, 10, 7, 0.88);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 12px 32px -10px rgba(124, 45, 18, 0.25);
+  border: 1px solid rgba(249, 115, 22, 0.25);
+  box-shadow: 0 12px 32px -10px rgba(0, 0, 0, 0.85);
   border-radius: var(--border-radius-lg);
   transition: all 0.3s ease;
+}
+
+body[data-app="money"] .navbar-header {
+  background: rgba(11, 9, 20, 0.88);
+  border-color: rgba(168, 85, 247, 0.3);
+  box-shadow: 0 12px 32px -10px rgba(0, 0, 0, 0.85);
 }
 
 /* Animated warm orange shimmer accent line along bottom edge */
@@ -86,13 +92,13 @@
   font-weight: 800;
   font-size: 1.2rem;
   letter-spacing: -0.02em;
-  color: #1c1917;
+  color: #ffffff;
 }
 
 .badge-orange {
-  background: rgba(249, 115, 22, 0.12);
-  color: #c2410c;
-  border: 1px solid rgba(249, 115, 22, 0.3);
+  background: rgba(249, 115, 22, 0.18);
+  color: #fb923c;
+  border: 1px solid rgba(249, 115, 22, 0.35);
   font-weight: 700;
 }
 
@@ -102,7 +108,7 @@
 
 .navbar-brand-subtitle {
   font-size: 0.75rem;
-  color: #78716c;
+  color: #a8a29e;
 }
 
 /* Dual Application Switcher Bar */
@@ -116,10 +122,15 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  background: #fff7ed;
+  background: #18120b;
   padding: 5px;
   border-radius: 14px;
-  border: 1px solid #fed7aa;
+  border: 1px solid rgba(249, 115, 22, 0.28);
+}
+
+body[data-app="money"] .app-switcher-tabs {
+  background: #161226;
+  border-color: rgba(168, 85, 247, 0.3);
 }
 
 .app-switcher-btn {
@@ -130,7 +141,7 @@
   border-radius: 10px;
   border: none;
   background: transparent;
-  color: #7c2d12;
+  color: #fed7aa;
   font-weight: 700;
   font-size: 0.88rem;
   text-decoration: none;
@@ -138,8 +149,17 @@
 }
 
 .app-switcher-btn:hover {
-  color: #c2410c;
-  background: rgba(249, 115, 22, 0.1);
+  color: #ffffff;
+  background: rgba(249, 115, 22, 0.18);
+}
+
+body[data-app="money"] .app-switcher-btn {
+  color: #ddd6fe;
+}
+
+body[data-app="money"] .app-switcher-btn:hover {
+  color: #ffffff;
+  background: rgba(168, 85, 247, 0.18);
 }
 
 .app-switcher-btn.active-life-os {
@@ -173,15 +193,15 @@
 }
 
 .navbar-status-connected {
-  background: rgba(249, 115, 22, 0.1);
-  color: #c2410c;
-  border: 1px solid rgba(249, 115, 22, 0.3);
+  background: rgba(249, 115, 22, 0.15);
+  color: #fb923c;
+  border: 1px solid rgba(249, 115, 22, 0.35);
 }
 
 .navbar-status-local {
-  background: rgba(120, 113, 108, 0.1);
-  color: #57534e;
-  border: 1px solid rgba(120, 113, 108, 0.28);
+  background: rgba(120, 113, 108, 0.18);
+  color: #d6d3d1;
+  border: 1px solid rgba(120, 113, 108, 0.35);
 }
 
 .navbar-status-label {

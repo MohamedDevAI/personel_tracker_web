@@ -1,6 +1,6 @@
 // ─── Borrow & Repay (Debt & Creditor Tracker) Interfaces ─────────────────────
 
-export type BorrowRepayType = 'Borrow' | 'Repaid';
+export type BorrowRepayType = 'Borrow' | 'Repaid' | 'Credit Given';
 
 export interface BorrowRepayRecord {
   id: string;
