@@ -1,4 +1,5 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import LifeOSHub from './pages/LifeOSHub';
 import MoneyHub from './pages/MoneyHub';
@@ -13,17 +14,25 @@ import './App.css';
  * App is the root component of the Personal Tracker.
  *
  * It sets up:
- * - The persistent Navbar (theme toggle + backend status)
+ * - The persistent Navbar (backend status + reminders)
  * - Two top-level application hubs:
- *   - Life OS: tasks, habits, goals, overview
- *   - Money OS: transactions, borrow-repay, investments
+ *   - Life OS: tasks, habits, goals, overview (Orange & White Theme)
+ *   - Money OS: transactions, borrow-repay, investments (Purple & White Theme)
  * - Legacy redirect routes for backwards compatibility
  * - Global Pinned Sticky Notes dock (active on all screens when pinned)
  * - Global Real-time Reminder Notifier (alerts on any screen when due)
  */
 export default function App() {
-  const { theme, toggleTheme } = useTheme();
+  useTheme();
   const backendStatus = useBackendHealth();
+  const location = useLocation();
+  const isMoneyApp = location.pathname.startsWith('/money');
+
+  useEffect(() => {
+    const appKey = isMoneyApp ? 'money' : 'life-os';
+    document.documentElement.setAttribute('data-app', appKey);
+    document.body.setAttribute('data-app', appKey);
+  }, [isMoneyApp]);
 
   // Global Real-time Reminders Notifier across all screens
   const {
@@ -37,11 +46,9 @@ export default function App() {
   const activeRemindersCount = reminders.filter((r) => !r.isCompleted).length;
 
   return (
-    <div className="app-wrapper">
+    <div className="app-wrapper" data-app={isMoneyApp ? 'money' : 'life-os'}>
       <Navbar
         backendStatus={backendStatus}
-        theme={theme}
-        toggleTheme={toggleTheme}
         activeRemindersCount={activeRemindersCount}
       />
 

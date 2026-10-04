@@ -6,13 +6,13 @@ import { plannedRepayCreditApi } from '../../../../services/plannedRepayCreditAp
 import { MONTH_NAMES, getCurrentYear } from '../../../../utils/dateHelpers';
 import { useBorrowRepayRecordsQuery, usePlannedRepaymentsQuery } from '../../../../hooks';
 
-export type BorrowRepayStep = 'credit_tracker' | 'aggregation' | 'planned_repayment';
+export type BorrowRepayStep = 'aggregation' | 'creditor_transactions' | 'all_transactions' | 'planned_repayment' | 'credit_tracker';
 
 export function useBorrowRepayData(initialMonth?: string, initialYear?: string) {
   const queryClient = useQueryClient();
 
   // ── Tab/Step state ──────────────────────────────────────────────────────────
-  const [activeStep, setActiveStep] = useState<BorrowRepayStep>('credit_tracker');
+  const [activeStep, setActiveStep] = useState<BorrowRepayStep>('aggregation');
 
   // ── Filter state ────────────────────────────────────────────────────────────
   const [selectedMonth, setSelectedMonth] = useState<string>(() => initialMonth || 'ALL');
@@ -21,7 +21,7 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
   const [typeFilter, setTypeFilter] = useState<'ALL' | BorrowRepayType>('ALL');
   const [selectedCreditorFilter, setSelectedCreditorFilter] = useState<string>('ALL');
   const [aggSearchQuery, setAggSearchQuery] = useState('');
-  const [aggStatusFilter, setAggStatusFilter] = useState<'ALL' | 'Due' | 'Settled' | 'Credit Given'>('ALL');
+  const [aggStatusFilter, setAggStatusFilter] = useState<'ALL' | 'Due' | 'Settled' | 'Credit Given' | 'Overpaid'>('ALL');
   const [plannedStatusFilter, setPlannedStatusFilter] = useState<'ALL' | PlannedRepaymentStatus>('ALL');
 
   // ── Modal state ─────────────────────────────────────────────────────────────
@@ -147,11 +147,14 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
   const activeFilterTotals = useMemo(() => {
     let borrowed = 0, repaid = 0, creditGiven = 0;
     filteredRecords.forEach(r => {
-      const amt = Number(r.amount) || 0;
-      if (r.type === 'Borrow') {
-        if (amt < 0) creditGiven += Math.abs(amt);
-        else borrowed += amt;
-      } else { repaid += Math.abs(amt); }
+      const amt = Math.abs(Number(r.amount) || 0);
+      if (r.type === 'Credit Given' || (r.type === 'Borrow' && Number(r.amount) < 0)) {
+        creditGiven += amt;
+      } else if (r.type === 'Borrow') {
+        borrowed += amt;
+      } else {
+        repaid += amt;
+      }
     });
     return { borrowed, repaid, creditGiven, net: borrowed - repaid - creditGiven };
   }, [filteredRecords]);
@@ -163,7 +166,8 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
         aggStatusFilter === 'ALL' ||
         (aggStatusFilter === 'Due' && c.netBalance > 0) ||
         (aggStatusFilter === 'Settled' && c.netBalance === 0) ||
-        (aggStatusFilter === 'Credit Given' && c.netBalance < 0);
+        (aggStatusFilter === 'Credit Given' && (c.status === 'Credit Given' || ((c.creditGiven || 0) > 0 && c.netBalance <= 0))) ||
+        (aggStatusFilter === 'Overpaid' && c.status === 'Overpaid');
       return matchesSearch && matchesStatus;
     });
   }, [creditorSummaries, aggSearchQuery, aggStatusFilter]);
@@ -175,11 +179,14 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
       if (!year) return;
       if (!yearMap[year]) yearMap[year] = { year, totalBorrowed: 0, totalRepaid: 0, creditGiven: 0, txCount: 0 };
       yearMap[year].txCount += 1;
-      const amt = Number(r.amount) || 0;
-      if (r.type === 'Borrow') {
-        if (amt < 0) yearMap[year].creditGiven += Math.abs(amt);
-        else yearMap[year].totalBorrowed += amt;
-      } else { yearMap[year].totalRepaid += Math.abs(amt); }
+      const amt = Math.abs(Number(r.amount) || 0);
+      if (r.type === 'Credit Given' || (r.type === 'Borrow' && Number(r.amount) < 0)) {
+        yearMap[year].creditGiven += amt;
+      } else if (r.type === 'Borrow') {
+        yearMap[year].totalBorrowed += amt;
+      } else {
+        yearMap[year].totalRepaid += amt;
+      }
     });
     return Object.values(yearMap).sort((a, b) => b.year.localeCompare(a.year));
   }, [records]);

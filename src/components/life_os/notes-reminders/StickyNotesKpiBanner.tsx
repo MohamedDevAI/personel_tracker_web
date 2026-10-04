@@ -54,7 +54,7 @@ export default function StickyNotesKpiBanner({ notes, reminders }: StickyNotesKp
         </div>
         <div className="notes-kpi-info">
           <span className="notes-kpi-label">Overdue Alerts</span>
-          <span className="notes-kpi-value" style={{ color: overdueCount > 0 ? '#fb7185' : undefined }}>
+          <span className="notes-kpi-value" style={{ color: overdueCount > 0 ? '#58514d' : undefined }}>
             {overdueCount}
           </span>
           <span className="notes-kpi-sub">
@@ -70,7 +70,7 @@ export default function StickyNotesKpiBanner({ notes, reminders }: StickyNotesKp
         </div>
         <div className="notes-kpi-info">
           <span className="notes-kpi-label">Completed Reminders</span>
-          <span className="notes-kpi-value" style={{ color: '#34d399' }}>
+          <span className="notes-kpi-value" style={{ color: '#be590c' }}>
             {completedCount}
           </span>
           <span className="notes-kpi-sub">

@@ -128,7 +128,7 @@ export default function GoalModal({ isOpen, onClose, onSubmit, initialGoal }: Go
           <div className="modal-header-with-icon">
             <div
               className="modal-icon-badge planned"
-              style={{ background: 'rgba(99, 102, 241, 0.15)', color: '#6366f1' }}
+              style={{ background: 'rgba(242, 129, 54, 0.15)', color: '#d35c0d' }}
             >
               {isEditing ? <Edit3 size={20} /> : <Target size={20} />}
             </div>
@@ -246,7 +246,7 @@ export default function GoalModal({ isOpen, onClose, onSubmit, initialGoal }: Go
             <div className="form-group-custom">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <label className="modal-field-label">Completion Progress</label>
-                <span style={{ fontSize: '0.82rem', fontWeight: 700, color: formData.progress >= 100 ? '#34d399' : '#818cf8' }}>
+                <span style={{ fontSize: '0.82rem', fontWeight: 700, color: formData.progress >= 100 ? '#be590c' : '#ae3b0a' }}>
                   {formData.progress}%
                 </span>
               </div>
@@ -260,7 +260,7 @@ export default function GoalModal({ isOpen, onClose, onSubmit, initialGoal }: Go
                   onChange={(e) => handleProgressChange(Number(e.target.value))}
                   style={{
                     flex: 1,
-                    accentColor: '#6366f1',
+                    accentColor: '#f1721e',
                     cursor: 'pointer',
                   }}
                 />

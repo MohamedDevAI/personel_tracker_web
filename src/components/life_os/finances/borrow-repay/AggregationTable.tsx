@@ -28,12 +28,17 @@ interface AggregationTableProps {
     totalRepaid: number;
     totalCreditGiven?: number;
     netOutstanding: number;
+    totalOverpaid?: number;
     totalTransactions?: number;
+    activeCreditorsCount?: number;
+    settledCreditorsCount?: number;
+    creditGivenCreditorsCount?: number;
+    overpaidCreditorsCount?: number;
   };
   aggSearchQuery: string;
-  aggStatusFilter: 'ALL' | 'Due' | 'Settled' | 'Credit Given';
+  aggStatusFilter: 'ALL' | 'Due' | 'Settled' | 'Credit Given' | 'Overpaid';
   onAggSearchChange: (v: string) => void;
-  onAggStatusFilterChange: (v: 'ALL' | 'Due' | 'Settled' | 'Credit Given') => void;
+  onAggStatusFilterChange: (v: 'ALL' | 'Due' | 'Settled' | 'Credit Given' | 'Overpaid') => void;
   onInspectCreditor: (name: string) => void;
   onInspectYear: (year: string) => void;
   onGoToLedger: () => void;
@@ -45,21 +50,25 @@ export default function AggregationTable({
   stats, aggSearchQuery, aggStatusFilter,
   onAggSearchChange, onAggStatusFilterChange, onInspectCreditor, onInspectYear, onGoToLedger, formatINR: _formatINR
 }: AggregationTableProps) {
-  const STATUS_PILLS: { label: 'ALL' | 'Due' | 'Settled' | 'Credit Given'; color: string }[] = [
-    { label: 'ALL',          color: 'pill-all' },
-    { label: 'Due',          color: 'pill-due' },
-    { label: 'Settled',      color: 'pill-settled' },
-    { label: 'Credit Given', color: 'pill-credit' },
-  ];
-
-  const countForStatus = (status: 'ALL' | 'Due' | 'Settled' | 'Credit Given') => {
+  const countForStatus = (status: 'ALL' | 'Due' | 'Settled' | 'Credit Given' | 'Overpaid') => {
     if (status === 'ALL') return creditorSummaries.length;
     return creditorSummaries.filter(c =>
       status === 'Due'          ? c.netBalance > 0 :
       status === 'Settled'      ? c.netBalance === 0 :
-                                  c.netBalance < 0
+      status === 'Credit Given' ? (c.status === 'Credit Given' || ((c.creditGiven || 0) > 0 && c.netBalance <= 0)) :
+                                  c.status === 'Overpaid'
     ).length;
   };
+
+  const hasOverpaid = countForStatus('Overpaid') > 0;
+
+  const STATUS_PILLS: { label: 'ALL' | 'Due' | 'Settled' | 'Credit Given' | 'Overpaid'; color: string }[] = [
+    { label: 'ALL',          color: 'pill-all' },
+    { label: 'Due',          color: 'pill-due' },
+    { label: 'Settled',      color: 'pill-settled' },
+    { label: 'Credit Given', color: 'pill-credit' },
+    ...(hasOverpaid ? [{ label: 'Overpaid' as const, color: 'pill-overpaid' }] : []),
+  ];
   return (
     <>
       {/* Search + Status Filter Toolbar */}
@@ -95,9 +104,11 @@ export default function AggregationTable({
           <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
             Showing <strong>{filteredCreditorSummaries.length}</strong> of <strong>{creditorSummaries.length}</strong> creditors
           </span>
-          <button type="button" onClick={onGoToLedger} className="btn-table-filter-inspect">
-            ← Back to Ledger &amp; Grid
-          </button>
+          {onGoToLedger && (
+            <button type="button" onClick={onGoToLedger} className="btn-table-filter-inspect" title="View all transaction entries">
+              View All Transactions ({stats.totalTransactions || 0}) →
+            </button>
+          )}
         </div>
       </div>
 
@@ -128,7 +139,8 @@ export default function AggregationTable({
               filteredCreditorSummaries.map(c => {
                 const isDue = c.netBalance > 0;
                 const isSettled = c.netBalance === 0;
-                const isCreditGiven = c.netBalance < 0;
+                const isCreditGiven = c.status === 'Credit Given';
+                const isOverpaid = c.status === 'Overpaid';
                 return (
                   <tr
                     key={c.creditorName}
@@ -150,14 +162,20 @@ export default function AggregationTable({
                     <td className="amount-credit-given-col">
                       {c.creditGiven && c.creditGiven > 0 ? `₹ ${c.creditGiven.toLocaleString('en-IN')}` : '—'}
                     </td>
-                    <td className={`net-balance-col ${isDue ? 'due' : isSettled ? 'settled' : 'credit-given'}`}>
+                    <td className={`net-balance-col ${isDue ? 'due' : isSettled ? 'settled' : isCreditGiven ? 'credit-given' : 'overpaid'}`}>
                       {isDue ? `Due: ₹ ${c.netBalance.toLocaleString('en-IN')}`
                         : isSettled ? 'Cleared (₹0)'
-                        : `Given: ₹ ${Math.abs(c.netBalance).toLocaleString('en-IN')}`}
+                        : isCreditGiven ? `Given: ₹ ${Math.abs(c.netBalance).toLocaleString('en-IN')}`
+                        : `Overpaid: ₹ ${Math.abs(c.netBalance).toLocaleString('en-IN')}`}
                     </td>
                     <td className="tx-count-col">{c.txCount || '—'}</td>
                     <td className="text-align-center">
-                      <span className={`badge ${isSettled ? 'badge-emerald' : isCreditGiven ? 'badge-sky' : 'badge-amber'}`}>
+                      <span className={`badge ${
+                        isSettled ? 'badge-emerald' :
+                        isCreditGiven ? 'badge-sky' :
+                        isOverpaid ? 'badge-purple' :
+                        'badge-amber'
+                      }`}>
                         {c.status}
                       </span>
                     </td>
@@ -188,12 +206,21 @@ export default function AggregationTable({
               <td className="amount-borrowed-col">₹ {stats.totalBorrowed.toLocaleString('en-IN')}</td>
               <td className="amount-repaid-col">₹ {stats.totalRepaid.toLocaleString('en-IN')}</td>
               <td className="amount-credit-given-col">₹ {(stats.totalCreditGiven || 0).toLocaleString('en-IN')}</td>
-              <td className="net-balance-col due">₹ {stats.netOutstanding.toLocaleString('en-IN')}</td>
+              <td className="net-balance-col due" title={`Total Due: ₹${stats.netOutstanding.toLocaleString('en-IN')}${stats.totalOverpaid ? ` | Overpaid: ₹${stats.totalOverpaid.toLocaleString('en-IN')}` : ''}`}>
+                Due: ₹ {stats.netOutstanding.toLocaleString('en-IN')}
+                {stats.totalOverpaid && stats.totalOverpaid > 0 ? (
+                  <div style={{ fontSize: '0.72rem', color: '#9333ea', fontWeight: 600, marginTop: 2 }}>
+                    Overpaid: ₹ {stats.totalOverpaid.toLocaleString('en-IN')}
+                  </div>
+                ) : null}
+              </td>
               <td className="tx-count-col">{stats.totalTransactions}</td>
               <td colSpan={3} className="text-align-center">
-                <button type="button" onClick={onGoToLedger} className="btn-clear-all-filters">
-                  View All in Ledger →
-                </button>
+                {onGoToLedger && (
+                  <button type="button" onClick={onGoToLedger} className="btn-clear-all-filters">
+                    View All Transactions ({stats.totalTransactions || 0}) →
+                  </button>
+                )}
               </td>
             </tr>
           </tfoot>
@@ -232,7 +259,7 @@ export default function AggregationTable({
                       onClick={() => onInspectYear(y.year)}
                       title={`Click to view all transactions for ${y.year}`}
                     >
-                      <td><strong style={{ color: '#ffffff', fontSize: '0.95rem' }}>{y.year}</strong></td>
+                      <td><strong style={{ color: '#1c1917', fontSize: '0.95rem' }}>{y.year}</strong></td>
                       <td className="tx-count-col">{y.txCount}</td>
                       <td className="amount-borrowed-col">
                         {y.totalBorrowed > 0 ? `₹ ${y.totalBorrowed.toLocaleString('en-IN')}` : '—'}

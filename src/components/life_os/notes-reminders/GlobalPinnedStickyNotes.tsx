@@ -93,7 +93,7 @@ export default function GlobalPinnedStickyNotes() {
           title="Click to view your pinned sticky notes across pages"
         >
           <div className="pinned-pill-pin-wrap">
-            <Pin size={15} fill="#fbbf24" color="#fbbf24" />
+            <Pin size={15} fill="#f98705" color="#d47304" />
           </div>
           <span className="pinned-pill-title">Pinned Notes</span>
           <span className="pinned-pill-counter">{pinnedNotes.length}</span>
@@ -105,7 +105,7 @@ export default function GlobalPinnedStickyNotes() {
           {/* Tray Header Bar */}
           <div className="global-pinned-tray-header">
             <div className="global-pinned-header-left">
-              <Pin size={15} fill="#fbbf24" color="#fbbf24" />
+              <Pin size={15} fill="#f98705" color="#d47304" />
               <span className="global-pinned-title">Pinned Sticky Notes</span>
               <span className="pinned-pill-counter">{pinnedNotes.length}</span>
             </div>
@@ -171,7 +171,7 @@ export default function GlobalPinnedStickyNotes() {
                           }
                           title={isEditing ? 'Save edits' : 'Edit note content'}
                         >
-                          {isEditing ? <Check size={12} color="#34d399" /> : <Edit3 size={12} />}
+                          {isEditing ? <Check size={12} color="#be590c" /> : <Edit3 size={12} />}
                         </button>
                       )}
 

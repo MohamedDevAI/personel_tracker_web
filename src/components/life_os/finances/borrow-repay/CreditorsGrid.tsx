@@ -71,7 +71,12 @@ export default function CreditorsGrid({
             >
               <div className="creditor-chip-top">
                 <span className="creditor-chip-name">{c.creditorName}</span>
-                <span className={`badge ${c.status === 'Settled' ? 'badge-emerald' : 'badge-amber'}`}>
+                <span className={`badge ${
+                  c.status === 'Settled' ? 'badge-emerald' :
+                  c.status === 'Credit Given' ? 'badge-sky' :
+                  c.status === 'Overpaid' ? 'badge-purple' :
+                  'badge-amber'
+                }`}>
                   {c.status}
                 </span>
               </div>
@@ -79,9 +84,15 @@ export default function CreditorsGrid({
                 {c.netBalance > 0 ? (
                   <span className="balance-due">Due: {formatINR(c.netBalance)}</span>
                 ) : c.netBalance < 0 ? (
-                  <span className="balance-overpaid" style={{ color: '#38bdf8', fontWeight: 600 }}>
-                    Credit Given: {formatINR(Math.abs(c.netBalance))}
-                  </span>
+                  c.status === 'Credit Given' ? (
+                    <span className="balance-overpaid" style={{ color: '#e88308', fontWeight: 600 }}>
+                      Credit Given: {formatINR(Math.abs(c.netBalance))}
+                    </span>
+                  ) : (
+                    <span className="balance-overpaid" style={{ color: '#9333ea', fontWeight: 600 }}>
+                      Overpaid: {formatINR(Math.abs(c.netBalance))}
+                    </span>
+                  )
                 ) : (
                   <span className="balance-cleared">Fully Cleared (₹0)</span>
                 )}

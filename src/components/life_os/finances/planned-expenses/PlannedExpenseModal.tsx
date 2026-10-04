@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Target, X, CheckCircle2, Clock } from 'lucide-react';
+import { Target, X } from 'lucide-react';
 import { Category, PlannedExpense, PlannedExpenseStatus } from '../../../../types';
 import { MONTH_NAMES, getCurrentMonth, getCurrentYear } from '../../../../utils/dateHelpers';
 
@@ -74,24 +74,6 @@ export default function PlannedExpenseModal({
   }, [isOpen, initialPlan, initialMonth, initialYear, defaultCategory]);
 
   if (!isOpen) return null;
-
-  const plannedNum = Math.max(0, parseFloat(form.plannedAmount) || 0);
-  const paidNum = Math.max(0, parseFloat(form.paidAmount) || 0);
-  const remaining = Math.max(0, plannedNum - (form.isFulfilled ? plannedNum : paidNum));
-
-  const handleToggleFulfilled = (fulfilled: boolean) => {
-    setForm(prev => {
-      let newPaid = prev.paidAmount;
-      if (fulfilled && (!newPaid || parseFloat(newPaid) === 0)) {
-        newPaid = prev.plannedAmount;
-      }
-      return {
-        ...prev,
-        isFulfilled: fulfilled,
-        paidAmount: newPaid
-      };
-    });
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -230,62 +212,6 @@ export default function PlannedExpenseModal({
             </div>
           </div>
 
-          {/* Fulfillment Option */}
-          <div className="fulfill-section-box">
-            <label className="form-label-custom">Is this expense fulfilled?</label>
-            <div className="fulfill-toggle-buttons">
-              <button
-                type="button"
-                onClick={() => handleToggleFulfilled(false)}
-                className={`fulfill-toggle-btn ${!form.isFulfilled ? 'active-no' : ''}`}
-              >
-                <Clock size={16} />
-                <span>No, Not Fulfilled</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleToggleFulfilled(true)}
-                className={`fulfill-toggle-btn ${form.isFulfilled ? 'active-yes' : ''}`}
-              >
-                <CheckCircle2 size={16} />
-                <span>Yes, Complete / Fulfilled</span>
-              </button>
-            </div>
-
-            {/* Amount Paid Section */}
-            <div className="fulfill-partial-input-wrap">
-              <div className="fulfill-paid-label-row">
-                <label className="form-label-custom">
-                  {form.isFulfilled ? 'Actual Amount Paid (SAR)' : 'Amount Paid So Far (SAR)'}
-                </label>
-                {paidNum > plannedNum ? (
-                  <span className="fulfill-extra-hint">
-                    +SAR {(paidNum - plannedNum).toFixed(2)} Extra (Over Budget)
-                  </span>
-                ) : remaining > 0 ? (
-                  <span className="fulfill-remaining-hint">
-                    Remaining: <strong>SAR {remaining.toFixed(2)}</strong>
-                  </span>
-                ) : (
-                  <span className="fulfill-remaining-hint text-emerald">
-                    ✓ Full Budget Paid
-                  </span>
-                )}
-              </div>
-              <div className="currency-input-wrap">
-                <span className="currency-symbol-prefix">SAR</span>
-                <input
-                  type="number"
-                  step="any"
-                  min="0"
-                  value={form.paidAmount}
-                  onChange={e => setForm(prev => ({ ...prev, paidAmount: e.target.value }))}
-                  placeholder="0.00"
-                  className={`form-input-custom input-with-prefix ${paidNum > plannedNum ? 'input-overpaid' : ''}`}
-                />
-              </div>
-            </div>
-          </div>
 
           {/* Due Date (Optional) */}
           <div className="form-group-custom">

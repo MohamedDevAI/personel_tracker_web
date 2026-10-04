@@ -1,6 +1,6 @@
 import {
   HandCoins, Search, Filter, ArrowDownLeft, ArrowUpRight,
-  Trash2, Calendar, Clock, User, RotateCcw
+  Trash2, Calendar, Clock, User, RotateCcw, ArrowLeft
 } from 'lucide-react';
 import { BorrowRepayRecord, BorrowRepayType } from '../../../../types';
 import { MONTH_NAMES } from '../../../../utils/dateHelpers';
@@ -24,6 +24,7 @@ interface CreditLedgerTableProps {
   onDeleteRecord: (item: BorrowRepayRecord) => void;
   onAddRecord: () => void;
   onResetFilters: () => void;
+  onBackToAggregation?: () => void;
   formatINR: (val: number) => string;
 }
 
@@ -32,7 +33,7 @@ export default function CreditLedgerTable({
   searchQuery, typeFilter, selectedMonth, selectedYear, selectedCreditorFilter,
   availableYears, existingCreditors,
   onSearchChange, onTypeFilterChange, onMonthChange, onYearChange, onCreditorFilterChange,
-  onDeleteRecord, onAddRecord, onResetFilters, formatINR: _formatINR
+  onDeleteRecord, onAddRecord, onResetFilters, onBackToAggregation, formatINR: _formatINR
 }: CreditLedgerTableProps) {
   const hasFilter = selectedMonth !== 'ALL' || selectedYear !== 'ALL' || typeFilter !== 'ALL' ||
     selectedCreditorFilter !== 'ALL' || !!searchQuery;
@@ -42,6 +43,17 @@ export default function CreditLedgerTable({
       {/* Summary Strip */}
       <div className="table-summary-strip">
         <div className="summary-strip-left">
+          {onBackToAggregation && (
+            <button
+              type="button"
+              onClick={onBackToAggregation}
+              className="btn-back-to-agg"
+              style={{ padding: '4px 10px', fontSize: '0.78rem', marginRight: '6px' }}
+              title="Return to Aggregation Table"
+            >
+              <ArrowLeft size={13} /> Back to Aggregations
+            </button>
+          )}
           <HandCoins size={16} />
           <span>
             Showing <strong>{filteredRecords.length}</strong> of <strong>{totalRecords}</strong> transactions
@@ -51,15 +63,15 @@ export default function CreditLedgerTable({
         <div className="summary-strip-right">
           <div className="summary-stat-item">
             <span style={{ color: 'var(--text-muted)' }}>Borrowed:</span>
-            <span style={{ color: '#fbbf24', fontWeight: 700 }}>₹ {activeFilterTotals.borrowed.toLocaleString('en-IN')}</span>
+            <span style={{ color: '#d47304', fontWeight: 700 }}>₹ {activeFilterTotals.borrowed.toLocaleString('en-IN')}</span>
           </div>
           <div className="summary-stat-item">
             <span style={{ color: 'var(--text-muted)' }}>Repaid:</span>
-            <span style={{ color: '#34d399', fontWeight: 700 }}>₹ {activeFilterTotals.repaid.toLocaleString('en-IN')}</span>
+            <span style={{ color: '#be590c', fontWeight: 700 }}>₹ {activeFilterTotals.repaid.toLocaleString('en-IN')}</span>
           </div>
           <div className="summary-stat-item">
             <span style={{ color: 'var(--text-muted)' }}>Net:</span>
-            <span style={{ color: activeFilterTotals.net > 0 ? '#fb7185' : '#34d399', fontWeight: 700 }}>
+            <span style={{ color: activeFilterTotals.net > 0 ? '#58514d' : '#be590c', fontWeight: 700 }}>
               ₹ {activeFilterTotals.net.toLocaleString('en-IN')}
             </span>
           </div>
@@ -108,6 +120,7 @@ export default function CreditLedgerTable({
               <option value="ALL">All Types</option>
               <option value="Borrow">Borrow (+INR)</option>
               <option value="Repaid">Repaid (-INR)</option>
+              <option value="Credit Given">Credit Given (Lent)</option>
             </select>
           </div>
 
@@ -152,6 +165,7 @@ export default function CreditLedgerTable({
             ) : (
               filteredRecords.map(item => {
                 const isBorrow = item.type === 'Borrow';
+                const isCreditGiven = item.type === 'Credit Given' || (isBorrow && Number(item.amount) < 0);
                 return (
                   <tr key={item.id} className="borrow-row">
                     <td className="td-creditor">
@@ -167,16 +181,16 @@ export default function CreditLedgerTable({
                       </div>
                     </td>
                     <td className="td-type">
-                      <span className={`badge ${isBorrow ? 'badge-borrow' : 'badge-repaid'}`}>
-                        {isBorrow ? <ArrowDownLeft size={12} /> : <ArrowUpRight size={12} />}
-                        {item.type}
+                      <span className={`badge ${isCreditGiven ? 'badge-sky' : isBorrow ? 'badge-borrow' : 'badge-repaid'}`}>
+                        {isCreditGiven ? <HandCoins size={12} /> : isBorrow ? <ArrowDownLeft size={12} /> : <ArrowUpRight size={12} />}
+                        {isCreditGiven ? 'Credit Given' : item.type}
                       </span>
                     </td>
-                    <td className={`td-amount ${isBorrow ? (Number(item.amount) < 0 ? 'repaid-amt' : 'borrow-amt') : 'repaid-amt'}`}>
-                      {isBorrow
-                        ? Number(item.amount) < 0
-                          ? `-₹ ${Math.abs(Number(item.amount)).toLocaleString('en-IN')} (Credit Given)`
-                          : `+₹ ${Number(item.amount).toLocaleString('en-IN')}`
+                    <td className={`td-amount ${isCreditGiven ? 'amount-credit-given-col' : isBorrow ? 'borrow-amt' : 'repaid-amt'}`}>
+                      {isCreditGiven
+                        ? `₹ ${Math.abs(Number(item.amount)).toLocaleString('en-IN')} (Given)`
+                        : isBorrow
+                        ? `+₹ ${Number(item.amount).toLocaleString('en-IN')}`
                         : `-₹ ${Number(item.amount).toLocaleString('en-IN')}`}
                     </td>
                     <td className="td-notes"><span className="notes-text">{item.notes || '—'}</span></td>

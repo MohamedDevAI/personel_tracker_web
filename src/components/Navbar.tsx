@@ -1,16 +1,14 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { Sparkles, Coins, Database, Moon, Sun, Bell } from 'lucide-react';
+import { Sparkles, Coins, Database, Bell } from 'lucide-react';
 import type { BackendHealth } from '../types';
 import './Navbar.css';
 
 interface NavbarProps {
   backendStatus: BackendHealth;
-  theme: string;
-  toggleTheme: () => void;
   activeRemindersCount?: number;
 }
 
-export default function Navbar({ backendStatus, theme, toggleTheme, activeRemindersCount = 0 }: NavbarProps) {
+export default function Navbar({ backendStatus, activeRemindersCount = 0 }: NavbarProps) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -25,14 +23,14 @@ export default function Navbar({ backendStatus, theme, toggleTheme, activeRemind
         style={{ cursor: 'pointer' }}
       >
         <div className={`navbar-brand-icon ${isMoneyApp ? 'money-brand-icon' : ''}`}>
-          {isMoneyApp ? <Coins size={22} color="#fbbf24" /> : <Sparkles size={22} color="#ffffff" />}
+          {isMoneyApp ? <Coins size={22} color="#ffffff" /> : <Sparkles size={22} color="#ffffff" />}
         </div>
         <div>
           <div className="navbar-brand-title-wrap">
             <span className="navbar-brand-title">
               {isMoneyApp ? (
                 <>
-                  Money <span className="money-gold-gradient">OS</span>
+                  Money <span className="gradient-text">OS</span>
                 </>
               ) : (
                 <>
@@ -40,7 +38,7 @@ export default function Navbar({ backendStatus, theme, toggleTheme, activeRemind
                 </>
               )}
             </span>
-            <span className={`badge ${isMoneyApp ? 'badge-amber' : 'badge-indigo'} navbar-pro-badge`}>
+            <span className="badge badge-orange navbar-pro-badge">
               {isMoneyApp ? 'MONEY APP' : 'LIFE OS APP'}
             </span>
           </div>
@@ -117,15 +115,11 @@ export default function Navbar({ backendStatus, theme, toggleTheme, activeRemind
                 width: 8,
                 height: 8,
                 borderRadius: '50%',
-                background: '#f43f5e',
-                boxShadow: '0 0 8px #f43f5e',
+                background: '#7b726b',
+                boxShadow: '0 0 8px #7b726b',
               }}
             />
           )}
-        </button>
-
-        <button onClick={toggleTheme} className="btn-icon" title="Toggle Theme">
-          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
         </button>
       </div>
     </header>

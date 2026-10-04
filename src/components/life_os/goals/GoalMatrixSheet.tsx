@@ -106,7 +106,7 @@ export default function GoalMatrixSheet({
                         <span
                           style={{
                             fontWeight: 700,
-                            color: isAchieved ? '#34d399' : '#a5b4fc',
+                            color: isAchieved ? '#be590c' : '#b83b06',
                           }}
                         >
                           {goal.progress}%

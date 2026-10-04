@@ -125,14 +125,14 @@ export default function HoldingsTable({
   const getCategoryIcon = (cat: InvestmentCategory) => {
     switch (cat) {
       case 'Stocks':
-        return <LineChart size={16} color="#818cf8" />;
+        return <LineChart size={16} color="#920bcb" />;
       case 'Mutual Funds':
       case 'SIPs':
-        return <Repeat size={16} color="#34d399" />;
+        return <Repeat size={16} color="#900dc8" />;
       case 'Bonds':
-        return <ShieldAlert size={16} color="#22d3ee" />;
+        return <ShieldAlert size={16} color="#910cca" />;
       case 'FDs':
-        return <Building2 size={16} color="#fbbf24" />;
+        return <Building2 size={16} color="#9305d0" />;
       default:
         return <Layers size={16} />;
     }
@@ -180,7 +180,7 @@ export default function HoldingsTable({
                   fontSize: '0.7rem',
                   padding: '1px 6px',
                   borderRadius: 10,
-                  background: 'rgba(255, 255, 255, 0.08)'
+                  background: 'rgba(186, 54, 242, 0.11)'
                 }}
               >
                 {tab.count}
@@ -289,7 +289,7 @@ export default function HoldingsTable({
                             width: 34,
                             height: 34,
                             borderRadius: 10,
-                            background: 'rgba(255, 255, 255, 0.05)',
+                            background: 'rgba(186, 54, 242, 0.07)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center'
@@ -298,7 +298,7 @@ export default function HoldingsTable({
                           {getCategoryIcon(holding.category)}
                         </div>
                         <div>
-                          <div style={{ fontWeight: 700, color: '#ffffff' }}>
+                          <div style={{ fontWeight: 700, color: '#900cc8' }}>
                             {holding.name}
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
@@ -336,7 +336,7 @@ export default function HoldingsTable({
                       {(holding.category === 'Mutual Funds' || holding.category === 'SIPs') && (
                         <div style={{ fontSize: '0.78rem' }}>
                           {holding.mutualFundMetrics?.sipAmount ? (
-                            <span style={{ color: '#34d399', fontWeight: 600 }}>
+                            <span style={{ color: '#900dc8', fontWeight: 600 }}>
                               SIP: {mask(formatINR(holding.mutualFundMetrics.sipAmount))}/mo
                             </span>
                           ) : (
@@ -352,7 +352,7 @@ export default function HoldingsTable({
 
                       {holding.category === 'Bonds' && (
                         <div style={{ fontSize: '0.78rem' }}>
-                          <span style={{ color: '#22d3ee', fontWeight: 600 }}>
+                          <span style={{ color: '#910cca', fontWeight: 600 }}>
                             {holding.bondMetrics?.couponRate
                               ? `${holding.bondMetrics.couponRate}% Coupon`
                               : 'Bond'}
@@ -367,7 +367,7 @@ export default function HoldingsTable({
 
                       {holding.category === 'FDs' && (
                         <div style={{ fontSize: '0.78rem' }}>
-                          <span style={{ color: '#fbbf24', fontWeight: 600 }}>
+                          <span style={{ color: '#9305d0', fontWeight: 600 }}>
                             {holding.fdMetrics?.interestRate || 6.5}% p.a.
                           </span>
                           {holding.fdMetrics?.bankName && (
@@ -391,7 +391,7 @@ export default function HoldingsTable({
                           {mask(formatINR(holding.buyPrice))}
                         </span>
                         <span style={{ margin: '0 4px', color: 'var(--text-muted)' }}>→</span>
-                        <span style={{ fontWeight: 700, color: '#ffffff' }}>
+                        <span style={{ fontWeight: 700, color: '#900cc8' }}>
                           {mask(formatINR(holding.currentPrice))}
                         </span>
                       </div>
@@ -406,7 +406,7 @@ export default function HoldingsTable({
 
                     {/* Current Value */}
                     <td>
-                      <div style={{ fontWeight: 700, color: '#ffffff' }}>
+                      <div style={{ fontWeight: 700, color: '#900cc8' }}>
                         {mask(formatINR(current))}
                       </div>
                     </td>
@@ -422,8 +422,8 @@ export default function HoldingsTable({
                           borderRadius: 6,
                           fontSize: '0.78rem',
                           fontWeight: 700,
-                          background: isGain ? 'rgba(16, 185, 129, 0.15)' : 'rgba(244, 63, 94, 0.15)',
-                          color: isGain ? '#34d399' : '#fb7185'
+                          background: isGain ? 'rgba(186, 54, 242, 0.15)' : 'rgba(189, 46, 250, 0.12)',
+                          color: isGain ? '#900dc8' : '#6b677f'
                         }}
                       >
                         {isGain ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
@@ -459,7 +459,7 @@ export default function HoldingsTable({
                 <td colSpan={9} style={{ textAlign: 'center', padding: '48px 20px' }}>
                   <div style={{ color: 'var(--text-muted)', marginBottom: 12 }}>
                     No holdings found in{' '}
-                    <strong style={{ color: '#fff' }}>{selectedCategory}</strong>
+                    <strong style={{ color: '#900cc8' }}>{selectedCategory}</strong>
                   </div>
                   <button
                     onClick={() =>

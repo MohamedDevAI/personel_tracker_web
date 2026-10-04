@@ -86,15 +86,15 @@ export default function TradingPerformanceChart({ trades }: TradingPerformanceCh
             <AreaChart data={equityData} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
               <defs>
                 <linearGradient id="pnlGradGreen" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
+                  <stop offset="5%" stopColor="#a80fea" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#a80fea" stopOpacity={0.0} />
                 </linearGradient>
                 <linearGradient id="pnlGradRed" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="#f43f5e" stopOpacity={0.0} />
+                  <stop offset="5%" stopColor="#6b677f" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#6b677f" stopOpacity={0.0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.05)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(186, 54, 242, 0.07)" />
               <XAxis
                 dataKey="date"
                 stroke="var(--text-muted)"
@@ -107,7 +107,7 @@ export default function TradingPerformanceChart({ trades }: TradingPerformanceCh
                 tickFormatter={(val) => mask(formatINRCompact(val))}
                 tickLine={false}
               />
-              <ReferenceLine y={0} stroke="rgba(255, 255, 255, 0.2)" strokeDasharray="4 4" />
+              <ReferenceLine y={0} stroke="rgba(186, 54, 242, 0.15)" strokeDasharray="4 4" />
               <Tooltip
                 content={({ active, payload }) => {
                   if (active && payload && payload.length) {
@@ -129,7 +129,7 @@ export default function TradingPerformanceChart({ trades }: TradingPerformanceCh
               <Area
                 type="monotone"
                 dataKey="pnl"
-                stroke={isOverallProfitable ? '#10b981' : '#f43f5e'}
+                stroke={isOverallProfitable ? '#a80fea' : '#6b677f'}
                 strokeWidth={2.5}
                 fill={isOverallProfitable ? 'url(#pnlGradGreen)' : 'url(#pnlGradRed)'}
               />
@@ -138,7 +138,7 @@ export default function TradingPerformanceChart({ trades }: TradingPerformanceCh
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={tradePnlData} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.05)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(186, 54, 242, 0.07)" />
               <XAxis dataKey="symbol" stroke="var(--text-muted)" fontSize={11} tickLine={false} />
               <YAxis
                 stroke="var(--text-muted)"
@@ -146,7 +146,7 @@ export default function TradingPerformanceChart({ trades }: TradingPerformanceCh
                 tickFormatter={(val) => mask(formatINRCompact(val))}
                 tickLine={false}
               />
-              <ReferenceLine y={0} stroke="rgba(255, 255, 255, 0.2)" />
+              <ReferenceLine y={0} stroke="rgba(186, 54, 242, 0.15)" />
               <Tooltip
                 content={({ active, payload }) => {
                   if (active && payload && payload.length) {
@@ -169,11 +169,11 @@ export default function TradingPerformanceChart({ trades }: TradingPerformanceCh
               <Bar
                 dataKey="pnl"
                 radius={[4, 4, 0, 0]}
-                fill="#10b981"
+                fill="#a80fea"
                 shape={(props: any) => {
                   const { fill: _fill, x, y, width, height } = props;
                   const isPositive = props.payload.pnl >= 0;
-                  const barColor = isPositive ? '#10b981' : '#f43f5e';
+                  const barColor = isPositive ? '#a80fea' : '#6b677f';
                   return <rect x={x} y={y} width={width} height={height} fill={barColor} rx={3} />;
                 }}
               />

@@ -10,6 +10,8 @@ interface BorrowKpiCardsProps {
     totalCreditorsCount: number;
     totalCreditGiven?: number;
     creditGivenCreditorsCount?: number;
+    overpaidCreditorsCount?: number;
+    totalOverpaid?: number;
     totalTransactions?: number;
   };
   formatINR: (val: number) => string;
@@ -46,17 +48,19 @@ export default function BorrowKpiCards({ stats, formatINR, variant = 'tracker' }
 
       {/* Credit Given (aggregation only) */}
       {variant === 'aggregation' && (
-        <div className="borrow-kpi-card" style={{ borderColor: 'rgba(56, 189, 248, 0.3)' }}>
+        <div className="borrow-kpi-card" style={{ borderColor: 'rgba(248, 158, 48, 0.3)' }}>
           <div className="borrow-kpi-header">
             <span className="borrow-kpi-label">CREDIT GIVEN</span>
-            <div className="borrow-kpi-icon" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8' }}>
+            <div className="borrow-kpi-icon" style={{ background: 'rgba(248, 158, 48, 0.15)', color: '#e88308' }}>
               <HandCoins size={16} />
             </div>
           </div>
-          <div className="borrow-kpi-val" style={{ color: '#38bdf8' }}>
+          <div className="borrow-kpi-val" style={{ color: '#e88308' }}>
             {formatINR(stats.totalCreditGiven || 0)}
           </div>
-          <div className="borrow-kpi-meta">{stats.creditGivenCreditorsCount} creditor(s) received credit</div>
+          <div className="borrow-kpi-meta">
+            {stats.creditGivenCreditorsCount || 0} creditor(s) received credit
+          </div>
         </div>
       )}
 
@@ -71,7 +75,11 @@ export default function BorrowKpiCards({ stats, formatINR, variant = 'tracker' }
         </div>
         <div className="borrow-kpi-meta">
           {variant === 'aggregation'
-            ? `${stats.activeCreditorsCount} pending / ${stats.settledCreditorsCount} settled`
+            ? `${stats.activeCreditorsCount} pending / ${stats.settledCreditorsCount} settled${
+                (stats.creditGivenCreditorsCount || 0) > 0 ? ` / ${stats.creditGivenCreditorsCount} credit given` : ''
+              }${
+                (stats.overpaidCreditorsCount || 0) > 0 ? ` / ${stats.overpaidCreditorsCount} overpaid` : ''
+              }`
             : stats.netOutstanding > 0
               ? `${stats.activeCreditorsCount} creditor(s) pending settlement`
               : 'All borrowed money fully settled!'}

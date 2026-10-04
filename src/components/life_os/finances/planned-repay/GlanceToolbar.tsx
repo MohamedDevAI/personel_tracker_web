@@ -62,7 +62,7 @@ export default function GlanceToolbar({
               type="button"
               onClick={() => onStatusFilterChange('RolloverRecovered')}
               className={`glance-pill ${statusFilter === 'RolloverRecovered' ? 'active' : ''}`}
-              style={{ borderColor: 'rgba(99, 102, 241, 0.4)', color: '#818cf8' }}
+              style={{ borderColor: 'rgba(242, 129, 54, 0.4)', color: '#ae3b0a' }}
               title="Filter months where unfulfilled debts got fulfilled in next month"
             >
               <Link2 size={13} /> Next-Month Fulfilled ({rolloverCount})

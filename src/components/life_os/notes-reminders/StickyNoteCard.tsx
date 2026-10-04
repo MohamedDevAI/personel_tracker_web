@@ -47,7 +47,7 @@ export default function StickyNoteCard({
             }}
             title={note.isPinned ? 'Unpin note' : 'Pin note to top'}
           >
-            <Pin size={15} fill={note.isPinned ? '#fbbf24' : 'none'} />
+            <Pin size={15} fill={note.isPinned ? '#f98705' : 'none'} />
           </button>
 
           {/* Edit Button */}
@@ -103,9 +103,9 @@ export default function StickyNoteCard({
             <span
               className="sticky-tag-chip"
               style={{
-                background: linkedReminder.isCompleted ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                color: linkedReminder.isCompleted ? '#34d399' : '#fbbf24',
-                borderColor: linkedReminder.isCompleted ? 'rgba(16, 185, 129, 0.3)' : 'rgba(245, 158, 11, 0.3)',
+                background: linkedReminder.isCompleted ? 'rgba(225, 106, 14, 0.15)' : 'rgba(245, 129, 11, 0.15)',
+                color: linkedReminder.isCompleted ? '#be590c' : '#d47304',
+                borderColor: linkedReminder.isCompleted ? 'rgba(225, 106, 14, 0.3)' : 'rgba(245, 129, 11, 0.3)',
               }}
               title={`Reminder: ${linkedReminder.dueDate} ${linkedReminder.dueTime || ''}`}
             >
@@ -126,18 +126,18 @@ export default function StickyNoteCard({
                 style={{
                   background:
                     c === 'yellow'
-                      ? '#facc15'
+                      ? '#f48a05'
                       : c === 'green'
-                      ? '#34d399'
+                      ? '#df690e'
                       : c === 'blue'
-                      ? '#38bdf8'
+                      ? '#f79926'
                       : c === 'purple'
-                      ? '#c084fc'
+                      ? '#f94d0e'
                       : c === 'pink'
-                      ? '#f472b6'
+                      ? '#f2512c'
                       : c === 'orange'
-                      ? '#fb923c'
-                      : '#94a3b8',
+                      ? '#fa770c'
+                      : '#7c716a',
                 }}
                 onClick={(e) => {
                   e.stopPropagation();

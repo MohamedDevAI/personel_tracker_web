@@ -76,7 +76,7 @@ export default function NetWorthHeroCard({
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 5,
-                border: '1px solid rgba(255, 255, 255, 0.12)'
+                border: '1px solid rgba(186, 54, 242, 0.24)'
               }}
               title={
                 includeCashAndDebt
@@ -110,11 +110,11 @@ export default function NetWorthHeroCard({
             </span>
           </div>
 
-          <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: 4 }}>
+          <div style={{ color: '#c4b5fd', fontSize: '0.85rem', marginTop: 4 }}>
             {includeCashAndDebt ? (
               <span>
-                Calculated from <strong style={{ color: '#34d399' }}>Portfolio Value</strong> +{' '}
-                <strong style={{ color: '#60a5fa' }}>Liquid Cash</strong> −{' '}
+                Calculated from <strong style={{ color: '#c084fc' }}>Portfolio Value</strong> +{' '}
+                <strong style={{ color: '#38bdf8' }}>Liquid Cash</strong> −{' '}
                 <strong style={{ color: '#fb7185' }}>Outstanding Liabilities</strong>
               </span>
             ) : (
@@ -143,7 +143,7 @@ export default function NetWorthHeroCard({
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              background: 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)',
               border: 'none',
               fontWeight: 700
             }}
@@ -158,11 +158,11 @@ export default function NetWorthHeroCard({
       <div className="networth-sub-metrics">
         <div className="hero-sub-metric-box">
           <div className="hero-sub-label">
-            <Layers size={13} color="#60a5fa" />
+            <Layers size={13} color="#a855f7" />
             Total Invested Capital
           </div>
           <div className="hero-sub-value">{mask(formatINR(totalInvested))}</div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>
+          <div style={{ fontSize: '0.75rem', color: '#a78bfa', marginTop: 4 }}>
             Purchase cost basis
           </div>
         </div>
@@ -178,20 +178,20 @@ export default function NetWorthHeroCard({
           >
             {mask(`${isGain ? '+' : ''}${formatINR(totalReturn)}`)}
           </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>
+          <div style={{ fontSize: '0.75rem', color: '#a78bfa', marginTop: 4 }}>
             All-time net gain/loss
           </div>
         </div>
 
         <div className="hero-sub-metric-box">
           <div className="hero-sub-label">
-            <CalendarCheck size={13} color="#34d399" />
+            <CalendarCheck size={13} color="#c084fc" />
             Active Monthly SIPs
           </div>
-          <div className="hero-sub-value" style={{ color: '#34d399' }}>
+          <div className="hero-sub-value" style={{ color: '#c084fc' }}>
             {mask(formatINR(activeSipMonthly))}/mo
           </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>
+          <div style={{ fontSize: '0.75rem', color: '#a78bfa', marginTop: 4 }}>
             Recurring monthly investment
           </div>
         </div>
@@ -204,7 +204,7 @@ export default function NetWorthHeroCard({
           <div className="hero-sub-value" style={{ color: '#38bdf8' }}>
             {mask(formatINR(cashLiquidity))}
           </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>
+          <div style={{ fontSize: '0.75rem', color: '#a78bfa', marginTop: 4 }}>
             Ledger cash on hand
           </div>
         </div>
@@ -217,7 +217,7 @@ export default function NetWorthHeroCard({
           <div className="hero-sub-value" style={{ color: '#fb7185' }}>
             {mask(formatINR(debtLiabilities))}
           </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>
+          <div style={{ fontSize: '0.75rem', color: '#a78bfa', marginTop: 4 }}>
             Borrowings payable
           </div>
         </div>

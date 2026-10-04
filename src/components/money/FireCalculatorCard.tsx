@@ -54,27 +54,19 @@ export default function FireCalculatorCard({
       <div className="fire-header-row">
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Flame size={19} color="#fbbf24" />
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff' }}>
+            <Flame size={19} color="#a855f7" />
+            <h3 className="fire-card-title">
               FIRE Number & Freedom Calculator
             </h3>
           </div>
-          <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>
+          <p className="fire-card-subtitle">
             Financial Independence target & compounding runway in Indian Rupee (INR ₹)
           </p>
         </div>
 
         <button
           onClick={() => setShowSettings(!showSettings)}
-          className="btn-glass"
-          style={{
-            fontSize: '0.75rem',
-            padding: '4px 10px',
-            borderRadius: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 5
-          }}
+          className="btn-glass fire-adjust-btn"
           title="Customize monthly expenses and assumptions"
         >
           <Sliders size={13} />
@@ -86,17 +78,11 @@ export default function FireCalculatorCard({
       {showSettings ? (
         <form
           onSubmit={handleSaveSettings}
-          style={{
-            background: 'rgba(255, 255, 255, 0.04)',
-            padding: 14,
-            borderRadius: 12,
-            marginBottom: 16,
-            border: '1px solid rgba(255, 255, 255, 0.08)'
-          }}
+          className="fire-settings-form"
         >
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-end' }}>
             <div style={{ flex: 1, minWidth: 160 }}>
-              <label style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700 }}>
+              <label style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: '#a78bfa', fontWeight: 700 }}>
                 Estimated Monthly Expense (₹)
               </label>
               <input
@@ -118,12 +104,12 @@ export default function FireCalculatorCard({
 
       {/* Main Target Display */}
       <div>
-        <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700 }}>
+        <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#a78bfa', fontWeight: 700 }}>
           Target Freedom Corpus ({multiplier}x Annual Expense)
         </div>
         <div className="fire-big-number">
           <span>{mask(formatINR(currentTarget))}</span>
-          <span style={{ fontSize: '1.15rem', color: '#fbbf24', fontWeight: 700 }}>
+          <span className="fire-compact-tag">
             ({mask(formatINRCompact(currentTarget))})
           </span>
         </div>
@@ -132,10 +118,10 @@ export default function FireCalculatorCard({
       {/* Progress Bar */}
       <div className="fire-progress-container">
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', marginBottom: 6 }}>
-          <span style={{ color: 'var(--text-secondary)' }}>
-            Current Net Worth: <strong style={{ color: '#fff' }}>{mask(formatINRCompact(currentNetWorth))}</strong>
+          <span style={{ color: '#d8b4fe' }}>
+            Current Net Worth: <strong style={{ color: '#ffffff' }}>{mask(formatINRCompact(currentNetWorth))}</strong>
           </span>
-          <span style={{ color: '#34d399', fontWeight: 800 }}>
+          <span style={{ color: '#c084fc', fontWeight: 800 }}>
             {formatPercent(currentProgress, 1)} Reached
           </span>
         </div>
@@ -147,7 +133,7 @@ export default function FireCalculatorCard({
           />
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 4 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: '#a78bfa', marginTop: 4 }}>
           <span>Shortfall: {mask(formatINR(Math.max(0, currentTarget - currentNetWorth)))}</span>
           <span>
             {yearsToFire > 0
@@ -168,7 +154,7 @@ export default function FireCalculatorCard({
         >
           <div className="fire-milestone-label">Lean FIRE (20x)</div>
           <div className="fire-milestone-val">{mask(formatINRCompact(leanFireTarget))}</div>
-          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Essential only</div>
+          <div className="fire-milestone-sub">Essential only</div>
         </div>
 
         <div
@@ -179,10 +165,10 @@ export default function FireCalculatorCard({
           }}
         >
           <div className="fire-milestone-label">Standard (25x)</div>
-          <div className="fire-milestone-val" style={{ color: '#34d399' }}>
+          <div className="fire-milestone-val">
             {mask(formatINRCompact(standardFireTarget))}
           </div>
-          <div style={{ fontSize: '0.68rem', color: '#34d399' }}>4% Rule Standard</div>
+          <div className="fire-milestone-sub fire-highlight-sub">4% Rule Standard</div>
         </div>
 
         <div
@@ -194,7 +180,7 @@ export default function FireCalculatorCard({
         >
           <div className="fire-milestone-label">Fat FIRE (33x)</div>
           <div className="fire-milestone-val">{mask(formatINRCompact(fatFireTarget))}</div>
-          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Luxury & Travel</div>
+          <div className="fire-milestone-sub">Luxury & Travel</div>
         </div>
       </div>
     </div>

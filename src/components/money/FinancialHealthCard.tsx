@@ -27,10 +27,10 @@ export default function FinancialHealthCard({
   };
 
   const getRingColor = () => {
-    if (totalScore >= 85) return '#10b981';
-    if (totalScore >= 70) return '#34d399';
-    if (totalScore >= 50) return '#fbbf24';
-    return '#f43f5e';
+    if (totalScore >= 85) return '#c084fc';
+    if (totalScore >= 70) return '#a855f7';
+    if (totalScore >= 50) return '#8b5cf6';
+    return '#fb7185';
   };
 
   return (
@@ -39,27 +39,19 @@ export default function FinancialHealthCard({
       <div className="health-card-header">
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <ShieldCheck size={18} color={getRingColor()} />
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff' }}>
+            <ShieldCheck size={19} color={getRingColor()} />
+            <h3 className="health-card-title">
               Financial Health Score
             </h3>
           </div>
-          <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>
+          <p className="health-card-subtitle">
             Diagnostic audit across 6 safety, debt, and wealth pillars
           </p>
         </div>
 
         <button
           onClick={onOpenDiagnostic}
-          className="btn-glass"
-          style={{
-            fontSize: '0.75rem',
-            padding: '4px 10px',
-            borderRadius: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 5
-          }}
+          className="btn-glass health-audit-btn"
           title="Open complete diagnostic assessment"
         >
           <HelpCircle size={13} />
@@ -73,7 +65,7 @@ export default function FinancialHealthCard({
           className="score-radial-wrap"
           style={{
             borderColor: getRingColor(),
-            boxShadow: `0 0 25px ${getRingColor()}33`
+            boxShadow: `0 0 25px ${getRingColor()}40`
           }}
         >
           <span className="score-number" style={{ color: getRingColor() }}>
@@ -87,7 +79,7 @@ export default function FinancialHealthCard({
             <Award size={13} />
             <span>{tier}</span>
           </div>
-          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+          <div className="health-tier-desc">
             {tierDescription}
           </div>
           <div style={{ display: 'flex', gap: 14, marginTop: 8, fontSize: '0.78rem' }}>
@@ -107,34 +99,19 @@ export default function FinancialHealthCard({
       <div className="health-gap-banner">
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0 }}>
           <div
+            className="gap-banner-icon-box"
             style={{
-              width: 32,
-              height: 32,
-              borderRadius: 8,
-              background: gapsCount > 0 ? 'rgba(251, 191, 36, 0.15)' : 'rgba(16, 185, 129, 0.15)',
-              color: gapsCount > 0 ? '#fbbf24' : '#34d399',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0
+              background: gapsCount > 0 ? 'rgba(251, 191, 36, 0.15)' : 'rgba(168, 85, 247, 0.15)',
+              color: gapsCount > 0 ? '#fbbf24' : '#c084fc',
             }}
           >
             {gapsCount > 0 ? <AlertTriangle size={16} /> : <Sparkles size={16} />}
           </div>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>
+            <div style={{ fontSize: '0.72rem', color: '#a78bfa', textTransform: 'uppercase', fontWeight: 700 }}>
               {gapsCount > 0 ? 'Priority Gap to Fill' : 'Status'}
             </div>
-            <div
-              style={{
-                fontSize: '0.82rem',
-                color: '#fff',
-                fontWeight: 600,
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
-              }}
-            >
+            <div className="gap-action-text">
               {nextBestAction}
             </div>
           </div>
@@ -142,19 +119,7 @@ export default function FinancialHealthCard({
 
         <button
           onClick={onOpenDiagnostic}
-          className="btn-primary"
-          style={{
-            fontSize: '0.75rem',
-            padding: '6px 12px',
-            whiteSpace: 'nowrap',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 4,
-            background: gapsCount > 0 ? 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)' : undefined,
-            color: gapsCount > 0 ? '#000' : undefined,
-            fontWeight: 700,
-            border: 'none'
-          }}
+          className="btn-primary gap-action-btn"
         >
           <span>{gapsCount > 0 ? 'Fill Gaps' : 'Review'}</span>
           <ChevronRight size={13} />

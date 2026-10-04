@@ -2,22 +2,22 @@ import { Transaction } from '../../../types';
 import { MONTH_NAMES, getCurrentYear, getCurrentMonth } from '../../../utils/dateHelpers';
 
 export const CATEGORY_PALETTE = [
-  '#6366f1', // Indigo
-  '#06b6d4', // Cyan
-  '#f43f5e', // Rose
-  '#10b981', // Emerald
-  '#f59e0b', // Amber
-  '#8b5cf6', // Violet
-  '#ec4899', // Pink
-  '#3b82f6', // Blue
-  '#14b8a6', // Teal
-  '#eab308', // Yellow
-  '#f97316', // Orange
-  '#a855f7', // Purple
-  '#0ea5e9', // Sky
-  '#84cc16', // Lime
-  '#d946ef', // Fuchsia
-  '#64748b'  // Slate
+  '#f97316', // Orange 500
+  '#9a3412', // Orange 800
+  '#fdba74', // Orange 300
+  '#57534e', // Stone 600
+  '#f59e0b', // Amber 500
+  '#c2410c', // Orange 700
+  '#fed7aa', // Orange 200
+  '#78350f', // Amber 900
+  '#fb923c', // Orange 400
+  '#a8a29e', // Stone 400
+  '#ea580c', // Orange 600
+  '#fcd34d', // Amber 300
+  '#7c2d12', // Orange 900
+  '#d97706', // Amber 600
+  '#ffedd5', // Orange 100
+  '#292524'  // Stone 800
 ];
 
 export const PAYMENT_METHODS = ['Account', 'Card', 'Cash', 'Transfer', 'UPI'] as const;

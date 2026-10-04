@@ -106,7 +106,7 @@ export default function CategoryBreakdownCards({
           <span>Invested: {mask(formatINRCompact(stocksStats.invested))}</span>
           <span
             style={{
-              color: stocksStats.returnPct >= 0 ? '#34d399' : '#fb7185',
+              color: stocksStats.returnPct >= 0 ? '#900dc8' : '#6b677f',
               fontWeight: 700,
               display: 'flex',
               alignItems: 'center',
@@ -149,10 +149,10 @@ export default function CategoryBreakdownCards({
         <div className="asset-cat-val">{mask(formatINR(sipsStats.currentValue))}</div>
 
         <div className="asset-cat-meta-row">
-          <span>Monthly SIP: <strong style={{ color: '#34d399' }}>{mask(formatINR(monthlySip))}</strong></span>
+          <span>Monthly SIP: <strong style={{ color: '#900dc8' }}>{mask(formatINR(monthlySip))}</strong></span>
           <span
             style={{
-              color: sipsStats.returnPct >= 0 ? '#34d399' : '#fb7185',
+              color: sipsStats.returnPct >= 0 ? '#900dc8' : '#6b677f',
               fontWeight: 700,
               display: 'flex',
               alignItems: 'center',
@@ -191,10 +191,10 @@ export default function CategoryBreakdownCards({
         <div className="asset-cat-val">{mask(formatINR(bondsStats.currentValue))}</div>
 
         <div className="asset-cat-meta-row">
-          <span>Avg Yield (YTM): <strong style={{ color: '#22d3ee' }}>{avgBondYtm.toFixed(2)}%</strong></span>
+          <span>Avg Yield (YTM): <strong style={{ color: '#910cca' }}>{avgBondYtm.toFixed(2)}%</strong></span>
           <span
             style={{
-              color: bondsStats.returnPct >= 0 ? '#34d399' : '#fb7185',
+              color: bondsStats.returnPct >= 0 ? '#900dc8' : '#6b677f',
               fontWeight: 700
             }}
           >
@@ -229,8 +229,8 @@ export default function CategoryBreakdownCards({
         <div className="asset-cat-val">{mask(formatINR(fdsStats.currentValue))}</div>
 
         <div className="asset-cat-meta-row">
-          <span>Avg Interest: <strong style={{ color: '#fbbf24' }}>{avgFdRate.toFixed(1)}% p.a.</strong></span>
-          <span style={{ color: '#34d399', fontWeight: 700 }}>
+          <span>Avg Interest: <strong style={{ color: '#9305d0' }}>{avgFdRate.toFixed(1)}% p.a.</strong></span>
+          <span style={{ color: '#900dc8', fontWeight: 700 }}>
             {mask(formatPctChange(fdsStats.returnPct))}
           </span>
         </div>
