@@ -126,25 +126,27 @@ body::after {
 }
 
 /* ======================================================================
-   MONEY OS: VIBRANT ROYAL PURPLE BACKGROUND & AMBIENT VIOLET ORBS
+   MONEY OS: BLACK OBSIDIAN BACKGROUND & RADIANT VIOLET ORBS
    ====================================================================== */
 body[data-app="money"],
 html[data-app="money"] body {
-  background-color: #6d28d9 !important;
+  background-color: #000000 !important;
   background-image:
-    radial-gradient(1000px 550px at 15% 10%, rgba(255, 255, 255, 0.24) 0%, transparent 60%),
-    radial-gradient(1200px 650px at 85% 85%, rgba(76, 29, 149, 0.65) 0%, transparent 65%),
-    linear-gradient(155deg, #8b5cf6 0%, #7c3aed 45%, #5b21b6 100%) !important;
+    radial-gradient(1100px 600px at 15% 10%, rgba(168, 85, 247, 0.15) 0%, transparent 60%),
+    radial-gradient(1300px 700px at 85% 85%, rgba(124, 58, 237, 0.12) 0%, transparent 65%),
+    radial-gradient(800px 500px at 50% 50%, rgba(147, 51, 234, 0.05) 0%, transparent 70%),
+    linear-gradient(180deg, #050308 0%, #000000 100%) !important;
+  color: #ffffff !important;
 }
 
 body[data-app="money"]::before,
 html[data-app="money"] body::before {
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%) !important;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.16) 0%, transparent 70%) !important;
 }
 
 body[data-app="money"]::after,
 html[data-app="money"] body::after {
-  background: radial-gradient(circle, rgba(221, 214, 254, 0.22) 0%, transparent 70%) !important;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.12) 0%, transparent 70%) !important;
 }
 
 html[data-app="money"] ::selection {
@@ -322,22 +324,21 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 8px 24px rgba(234, 88, 12, 0.6) !important;
 }
 
-/* Buttons directly on the purple page background (Money OS) */
+/* Buttons directly on the page background (Money OS) */
 html[data-app="money"] .page-header-actions .btn-primary,
 html[data-app="money"] .money-header-actions .btn-primary {
-  background: #ffffff !important;
-  color: #7c3aed !important;
+  background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%) !important;
+  color: #ffffff !important;
   font-weight: 800 !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16) !important;
-  border: none !important;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.45) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
 }
 
 html[data-app="money"] .page-header-actions .btn-primary:hover,
 html[data-app="money"] .money-header-actions .btn-primary:hover {
-  background: #faf5ff !important;
-  color: #6d28d9 !important;
+  background: linear-gradient(135deg, #c084fc 0%, #a855f7 100%) !important;
   transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22) !important;
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.6) !important;
 }
 
 .page-header-actions .btn-secondary,
@@ -360,9 +361,18 @@ html[data-app="money"] .money-header-actions .btn-primary:hover {
 
 html[data-app="money"] .page-header-actions .btn-secondary,
 html[data-app="money"] .money-header-actions .btn-secondary {
-  background: rgba(255, 255, 255, 0.22) !important;
+  background: #140f22 !important;
+  color: #ddd6fe !important;
+  border: 1px solid rgba(168, 85, 247, 0.3) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+html[data-app="money"] .page-header-actions .btn-secondary:hover,
+html[data-app="money"] .money-header-actions .btn-secondary:hover {
+  background: #23193a !important;
   color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.55) !important;
+  border-color: #a855f7 !important;
+  transform: translateY(-2px);
 }
 
 /* Standard Buttons inside Cards (Life OS) */
@@ -417,17 +427,17 @@ html[data-app="money"] .modal-container .btn-primary:hover,
 html[data-app="money"] .glass-panel .btn-secondary,
 html[data-app="money"] .modal-container .btn-secondary,
 .money-screen-root .btn-secondary {
-  background: #ffffff !important;
-  color: #6d28d9 !important;
-  border: 1px solid #ddd6fe !important;
+  background: #140f22 !important;
+  color: #ddd6fe !important;
+  border: 1px solid rgba(168, 85, 247, 0.3) !important;
 }
 
 html[data-app="money"] .glass-panel .btn-secondary:hover,
 html[data-app="money"] .modal-container .btn-secondary:hover,
 .money-screen-root .btn-secondary:hover {
-  background: #f5f3ff !important;
-  border-color: #c084fc !important;
-  color: #5b21b6 !important;
+  background: #23193a !important;
+  border-color: #a855f7 !important;
+  color: #ffffff !important;
 }
 
 .btn-icon {
@@ -451,11 +461,13 @@ html[data-app="money"] .modal-container .btn-secondary:hover,
 }
 
 html[data-app="money"] .btn-icon {
-  color: #7c3aed;
+  background: #140f22;
+  border: 1px solid rgba(168, 85, 247, 0.28);
+  color: #c084fc;
 }
 
 html[data-app="money"] .btn-icon:hover {
-  background: #7c3aed;
+  background: #a855f7;
   color: #ffffff;
 }
 
@@ -484,12 +496,12 @@ html[data-app="money"] .btn-icon:hover {
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
-  background: rgba(255, 255, 255, 0.22) !important;
+  background: rgba(14, 10, 24, 0.9) !important;
   backdrop-filter: blur(14px) saturate(140%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  border: 1px solid rgba(168, 85, 247, 0.28) !important;
   padding: 6px !important;
   border-radius: 16px !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7) !important;
   width: fit-content !important;
   max-width: 100% !important;
   overflow-x: auto !important;
@@ -522,7 +534,7 @@ html[data-app="money"] .btn-icon:hover {
   border-radius: 12px !important;
   border: none !important;
   background: transparent !important;
-  color: rgba(255, 255, 255, 0.95) !important;
+  color: #d8b4fe !important;
   font-size: 0.9rem !important;
   font-weight: 700 !important;
   cursor: pointer !important;
@@ -539,7 +551,7 @@ html[data-app="money"] .btn-icon:hover {
 
 .money-main-tab-btn:hover,
 .money-nav-tab-btn:hover {
-  background: rgba(255, 255, 255, 0.18) !important;
+  background: rgba(168, 85, 247, 0.15) !important;
   color: #ffffff !important;
 }
 
@@ -554,13 +566,13 @@ html[data-app="money"] .btn-icon:hover {
   border: none !important;
 }
 
-/* Money OS Active Tab (Purple text on White Pill) */
+/* Money OS Active Tab (Purple Gradient Pill) */
 .money-main-tab-btn.active,
 .money-nav-tab-btn.active {
-  background: #ffffff !important;
-  color: #7c3aed !important;
+  background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%) !important;
+  color: #ffffff !important;
   font-weight: 800 !important;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.45) !important;
   border: none !important;
 }
 
@@ -581,9 +593,9 @@ html[data-app="money"] .btn-icon:hover {
   font-weight: 800 !important;
   padding: 2px 8px !important;
   border-radius: 20px !important;
-  background: rgba(255, 255, 255, 0.3) !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  background: rgba(168, 85, 247, 0.2) !important;
+  color: #e9d5ff !important;
+  border: 1px solid rgba(168, 85, 247, 0.35) !important;
 }
 
 .productivity-main-nav-tab.active .productivity-nav-pill-counter,
@@ -596,9 +608,9 @@ html[data-app="money"] .btn-icon:hover {
 
 .money-main-tab-btn.active .money-tab-counter,
 .money-nav-tab-btn.active .money-tab-counter {
-  background: #7c3aed !important;
+  background: rgba(0, 0, 0, 0.35) !important;
   color: #ffffff !important;
-  border: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
 }
 
 /* ======================================================================
@@ -862,6 +874,122 @@ html[data-app="life-os"] body {
 }
 
 [data-app="life-os"] tbody td {
+  color: #f8fafc !important;
+}
+
+/* ======================================================================
+   MONEY OS COMPREHENSIVE DARK OBSIDIAN & ROYAL VIOLET STYLING
+   ====================================================================== */
+body[data-app="money"],
+html[data-app="money"] body {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+[data-app="money"] .networth-title,
+[data-app="money"] .networth-main-val,
+[data-app="money"] .money-title-text,
+[data-app="money"] .cat-card-value,
+[data-app="money"] .kpi-main-val,
+[data-app="money"] .trading-kpi-val,
+[data-app="money"] .inv-hero-title,
+[data-app="money"] .inv-hero-stat-val,
+[data-app="money"] .inv-tile-val,
+[data-app="money"] .inv-card-title,
+[data-app="money"] .inv-entry-title,
+[data-app="money"] .fire-kpi-val,
+[data-app="money"] .health-stat-val,
+[data-app="money"] .modal-title,
+[data-app="money"] strong {
+  color: #ffffff !important;
+}
+
+[data-app="money"] .networth-sub,
+[data-app="money"] .cat-card-sub,
+[data-app="money"] .kpi-subtext,
+[data-app="money"] .trading-kpi-sub,
+[data-app="money"] .inv-tile-sub,
+[data-app="money"] .page-header-subtitle,
+[data-app="money"] .inv-entry-stat-box .stat-label {
+  color: #c4b5fd !important;
+}
+
+[data-app="money"] .networth-hero-card,
+[data-app="money"] .asset-cat-card,
+[data-app="money"] .holdings-table-container,
+[data-app="money"] .stock-detail-card,
+[data-app="money"] .mf-detail-card,
+[data-app="money"] .trading-positions-card,
+[data-app="money"] .trading-kpi-box,
+[data-app="money"] .fire-calc-card,
+[data-app="money"] .health-diag-card,
+[data-app="money"] .dashboard-kpi-card,
+[data-app="money"] .summary-card,
+[data-app="money"] .inv-metric-tile,
+[data-app="money"] .inv-entry-card,
+[data-app="money"] .inv-flagged-item-card,
+[data-app="money"] .inv-allocation-card,
+[data-app="money"] .mf-portfolio-card,
+[data-app="money"] .equity-desk-card,
+[data-app="money"] .inv-watchlist-card,
+[data-app="money"] .trading-chart-card,
+[data-app="money"] .glass-panel {
+  background: #0f0a1c !important;
+  border: 1px solid rgba(168, 85, 247, 0.22) !important;
+  box-shadow: 0 14px 40px -10px rgba(0, 0, 0, 0.85), 0 2px 8px rgba(168, 85, 247, 0.08) !important;
+  color: #ffffff !important;
+}
+
+[data-app="money"] .networth-hero-card:hover,
+[data-app="money"] .asset-cat-card:hover,
+[data-app="money"] .trading-kpi-box:hover,
+[data-app="money"] .inv-metric-tile:hover,
+[data-app="money"] .inv-entry-card:hover,
+[data-app="money"] .inv-flagged-item-card:hover,
+[data-app="money"] .dashboard-kpi-card:hover,
+[data-app="money"] .glass-panel:hover {
+  border-color: rgba(168, 85, 247, 0.5) !important;
+  box-shadow: 0 20px 48px -10px rgba(0, 0, 0, 0.95), 0 0 24px rgba(168, 85, 247, 0.25) !important;
+}
+
+/* Money OS Inputs & Form Controls */
+[data-app="money"] input,
+[data-app="money"] select,
+[data-app="money"] textarea {
+  background: #140d24 !important;
+  border: 1px solid rgba(168, 85, 247, 0.3) !important;
+  color: #ffffff !important;
+}
+
+[data-app="money"] input:focus,
+[data-app="money"] select:focus,
+[data-app="money"] textarea:focus {
+  border-color: #a855f7 !important;
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.25) !important;
+}
+
+/* Money OS Tables */
+[data-app="money"] table {
+  background: #0f0a1c !important;
+}
+
+[data-app="money"] thead th {
+  background: #19102e !important;
+  color: #c084fc !important;
+  border-bottom: 2px solid rgba(168, 85, 247, 0.25) !important;
+}
+
+[data-app="money"] tbody tr {
+  background: #0f0a1c !important;
+  border-bottom: 1px solid rgba(168, 85, 247, 0.12) !important;
+  color: #f8fafc !important;
+}
+
+[data-app="money"] tbody tr:hover {
+  background: #1b1233 !important;
+}
+
+[data-app="money"] tbody td {
   color: #f8fafc !important;
 }
 
