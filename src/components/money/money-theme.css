@@ -3170,6 +3170,9 @@
    ALL CARDS INSIDE MONEY OS ARE SLEEK OBSIDIAN BLACK
    ───────────────────────────────────────────────────────────── */
 .money-screen-root .networth-hero-card,
+.money-screen-root .health-card-root,
+.money-screen-root .fire-card-root,
+.money-screen-root .vis-card,
 .money-screen-root .asset-cat-card,
 .money-screen-root .holdings-table-container,
 .money-screen-root .stock-detail-card,
@@ -3195,31 +3198,38 @@
 .money-screen-root .inv-list-item-row,
 .money-screen-root .trading-header-kpi-card,
 .money-screen-root .trading-chart-card {
-  background: #0b0914 !important;
-  border: 1px solid rgba(168, 85, 247, 0.18) !important;
-  box-shadow: 0 14px 40px -10px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+  background: #0d0918 !important;
+  border: 1px solid rgba(168, 85, 247, 0.22) !important;
+  box-shadow: 0 16px 45px -10px rgba(0, 0, 0, 0.9), 0 2px 8px rgba(168, 85, 247, 0.08) !important;
   border-radius: 20px !important;
   color: #f8fafc !important;
+  transition: all 0.25s ease !important;
 }
 
 .money-screen-root .networth-hero-card:hover,
+.money-screen-root .health-card-root:hover,
+.money-screen-root .fire-card-root:hover,
+.money-screen-root .vis-card:hover,
 .money-screen-root .asset-cat-card:hover,
 .money-screen-root .trading-kpi-box:hover,
 .money-screen-root .inv-metric-tile:hover,
 .money-screen-root .inv-entry-card:hover,
 .money-screen-root .inv-flagged-item-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(168, 85, 247, 0.45) !important;
-  box-shadow: 0 20px 48px -10px rgba(124, 58, 237, 0.25) !important;
+  border-color: rgba(168, 85, 247, 0.5) !important;
+  box-shadow: 0 22px 50px -10px rgba(0, 0, 0, 0.95), 0 0 24px rgba(168, 85, 247, 0.25) !important;
 }
 
-/* Card Titles & Values inside Obsidian Cards */
+/* Card Titles & Headers */
 .money-screen-root .networth-hero-card h1,
 .money-screen-root .networth-hero-card h2,
 .money-screen-root .networth-hero-card h3,
 .money-screen-root .asset-cat-card h1,
 .money-screen-root .asset-cat-card h2,
 .money-screen-root .asset-cat-card h3,
+.money-screen-root .vis-title,
+.money-screen-root .health-card-title,
+.money-screen-root .fire-card-title,
 .money-screen-root .inv-hero-title,
 .money-screen-root .inv-card-title,
 .money-screen-root .inv-entry-title,
@@ -3231,14 +3241,307 @@
 .money-screen-root .inv-hero-stat-val,
 .money-screen-root .inv-tile-val,
 .money-screen-root .hstat-val,
-.money-screen-root .trading-kpi-val {
+.money-screen-root .trading-kpi-val,
+.money-screen-root .fire-big-number,
+.money-screen-root .score-number {
   color: #ffffff !important;
   font-weight: 800 !important;
 }
 
+.money-screen-root .vis-subtitle,
+.money-screen-root .health-card-subtitle,
+.money-screen-root .fire-card-subtitle,
+.money-screen-root .health-tier-desc,
+.money-screen-root .cat-card-sub {
+  color: #c4b5fd !important;
+}
+
+/* Inner Nested Metric Boxes */
+.money-screen-root .hero-sub-metric-box {
+  background: #140d24 !important;
+  border: 1px solid rgba(168, 85, 247, 0.2) !important;
+  border-radius: 14px !important;
+  padding: 14px 18px !important;
+  transition: all 0.2s ease !important;
+}
+
+.money-screen-root .hero-sub-metric-box:hover {
+  background: #1c1233 !important;
+  border-color: rgba(168, 85, 247, 0.45) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6) !important;
+}
+
+.money-screen-root .hero-sub-label {
+  color: #c4b5fd !important;
+  font-weight: 700 !important;
+}
+
+.money-screen-root .hero-sub-value {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+/* Health Score Card Inner Elements */
+.money-screen-root .score-radial-wrap {
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.22) 0%, rgba(13, 9, 24, 0.95) 80%) !important;
+  border-color: #a855f7 !important;
+}
+
+.money-screen-root .score-total-denom {
+  color: #a78bfa !important;
+  font-weight: 700 !important;
+}
+
+.money-screen-root .health-gap-banner {
+  background: #140d24 !important;
+  border: 1px solid rgba(168, 85, 247, 0.22) !important;
+  border-radius: 14px !important;
+  padding: 12px 16px !important;
+}
+
+.money-screen-root .gap-action-text {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.money-screen-root .gap-action-btn {
+  background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%) !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.4) !important;
+  border: none !important;
+}
+
+.money-screen-root .gap-action-btn:hover {
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.6) !important;
+  transform: translateY(-1px);
+}
+
+.money-screen-root .health-audit-btn,
+.money-screen-root .fire-adjust-btn {
+  background: #161226 !important;
+  color: #c084fc !important;
+  border: 1px solid rgba(168, 85, 247, 0.35) !important;
+  border-radius: 20px !important;
+  font-weight: 700 !important;
+  transition: all 0.2s ease !important;
+}
+
+.money-screen-root .health-audit-btn:hover,
+.money-screen-root .fire-adjust-btn:hover {
+  background: #241b3f !important;
+  color: #ffffff !important;
+  border-color: #a855f7 !important;
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.35) !important;
+}
+
+/* FIRE Card Inner Elements */
+.money-screen-root .fire-compact-tag {
+  color: #c084fc !important;
+  font-weight: 800 !important;
+  font-size: 1.15rem !important;
+}
+
+.money-screen-root .fire-progress-track {
+  background: #18112c !important;
+  border: 1px solid rgba(168, 85, 247, 0.25) !important;
+  height: 12px !important;
+  border-radius: 999px !important;
+}
+
+.money-screen-root .fire-progress-fill {
+  background: linear-gradient(90deg, #a855f7 0%, #c084fc 100%) !important;
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.6) !important;
+  border-radius: 999px !important;
+}
+
+.money-screen-root .fire-milestone-box {
+  background: #140d24 !important;
+  border: 1px solid rgba(168, 85, 247, 0.2) !important;
+  border-radius: 12px !important;
+  padding: 10px !important;
+  transition: all 0.2s ease !important;
+}
+
+.money-screen-root .fire-milestone-box:hover {
+  background: #1c1233 !important;
+  border-color: rgba(168, 85, 247, 0.45) !important;
+}
+
+.money-screen-root .fire-milestone-box.active {
+  background: rgba(168, 85, 247, 0.16) !important;
+  border-color: #a855f7 !important;
+  box-shadow: 0 0 18px rgba(168, 85, 247, 0.3) !important;
+}
+
+.money-screen-root .fire-milestone-label {
+  color: #c4b5fd !important;
+  font-weight: 700 !important;
+}
+
+.money-screen-root .fire-milestone-val {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+.money-screen-root .fire-milestone-sub {
+  color: #a78bfa !important;
+}
+
+.money-screen-root .fire-highlight-sub {
+  color: #c084fc !important;
+  font-weight: 800 !important;
+}
+
+.money-screen-root .fire-settings-form {
+  background: #140d24 !important;
+  padding: 14px !important;
+  border-radius: 14px !important;
+  margin-bottom: 16px !important;
+  border: 1px solid rgba(168, 85, 247, 0.25) !important;
+}
+
+/* Charts & Donut Elements */
+.money-screen-root .empty-allocation-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px 0;
+  width: 100%;
+  min-height: 240px;
+}
+
+.money-screen-root .empty-donut-ring {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  border: 10px solid #160e28;
+  border-top-color: #a855f7;
+  border-right-color: #38bdf8;
+  border-bottom-color: #34d399;
+  border-left-color: #fbbf24;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 24px rgba(168, 85, 247, 0.25);
+  animation: spinSlow 30s linear infinite;
+}
+
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.money-screen-root .empty-donut-center {
+  text-align: center;
+  pointer-events: none;
+  animation: spinReverse 30s linear infinite;
+}
+
+@keyframes spinReverse {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.money-screen-root .donut-center-label {
+  color: #a78bfa !important;
+  font-size: 0.72rem !important;
+  text-transform: uppercase !important;
+  font-weight: 700 !important;
+}
+
+.money-screen-root .donut-center-val {
+  color: #ffffff !important;
+  font-size: 1.5rem !important;
+  font-weight: 800 !important;
+}
+
+.money-screen-root .empty-allocation-hint {
+  color: #c4b5fd !important;
+  font-size: 0.82rem !important;
+  text-align: center !important;
+  line-height: 1.4 !important;
+}
+
+.money-screen-root .legend-item-row {
+  background: #140d24 !important;
+  border: 1px solid rgba(168, 85, 247, 0.18) !important;
+  border-radius: 10px !important;
+  padding: 8px 12px !important;
+  transition: all 0.2s ease !important;
+}
+
+.money-screen-root .legend-item-row:hover {
+  background: #1c1332 !important;
+  border-color: rgba(168, 85, 247, 0.45) !important;
+}
+
+.money-screen-root .chart-view-toggle-wrap {
+  display: flex;
+  gap: 6px;
+  background: #140d24;
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.money-screen-root .chart-toggle-btn {
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #c4b5fd;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.money-screen-root .chart-toggle-btn.active {
+  background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.45) !important;
+}
+
+.money-screen-root .money-custom-tooltip {
+  background: #0f0a1c !important;
+  border: 1px solid rgba(168, 85, 247, 0.45) !important;
+  border-radius: 12px !important;
+  padding: 10px 14px !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.85) !important;
+  color: #ffffff !important;
+}
+
+.money-screen-root .money-custom-tooltip .tooltip-title {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  font-size: 0.85rem !important;
+  margin-bottom: 4px !important;
+}
+
+.money-screen-root .money-custom-tooltip .tooltip-item {
+  color: #c4b5fd !important;
+  font-size: 0.78rem !important;
+}
+
 .money-screen-root .inv-entry-stat-box,
 .money-screen-root .inv-flagged-reason-box {
-  background: #161226 !important;
+  background: #140d24 !important;
   border: 1px solid rgba(168, 85, 247, 0.22) !important;
   border-radius: 12px !important;
 }

@@ -915,6 +915,9 @@ html[data-app="money"] body {
 }
 
 [data-app="money"] .networth-hero-card,
+[data-app="money"] .health-card-root,
+[data-app="money"] .fire-card-root,
+[data-app="money"] .vis-card,
 [data-app="money"] .asset-cat-card,
 [data-app="money"] .holdings-table-container,
 [data-app="money"] .stock-detail-card,
@@ -934,13 +937,17 @@ html[data-app="money"] body {
 [data-app="money"] .inv-watchlist-card,
 [data-app="money"] .trading-chart-card,
 [data-app="money"] .glass-panel {
-  background: #0f0a1c !important;
+  background: #0d0918 !important;
   border: 1px solid rgba(168, 85, 247, 0.22) !important;
-  box-shadow: 0 14px 40px -10px rgba(0, 0, 0, 0.85), 0 2px 8px rgba(168, 85, 247, 0.08) !important;
+  box-shadow: 0 16px 45px -10px rgba(0, 0, 0, 0.9), 0 2px 8px rgba(168, 85, 247, 0.08) !important;
   color: #ffffff !important;
+  border-radius: 20px !important;
 }
 
 [data-app="money"] .networth-hero-card:hover,
+[data-app="money"] .health-card-root:hover,
+[data-app="money"] .fire-card-root:hover,
+[data-app="money"] .vis-card:hover,
 [data-app="money"] .asset-cat-card:hover,
 [data-app="money"] .trading-kpi-box:hover,
 [data-app="money"] .inv-metric-tile:hover,
@@ -949,7 +956,36 @@ html[data-app="money"] body {
 [data-app="money"] .dashboard-kpi-card:hover,
 [data-app="money"] .glass-panel:hover {
   border-color: rgba(168, 85, 247, 0.5) !important;
-  box-shadow: 0 20px 48px -10px rgba(0, 0, 0, 0.95), 0 0 24px rgba(168, 85, 247, 0.25) !important;
+  box-shadow: 0 22px 50px -10px rgba(0, 0, 0, 0.95), 0 0 24px rgba(168, 85, 247, 0.25) !important;
+}
+
+[data-app="money"] .hero-sub-metric-box,
+[data-app="money"] .fire-milestone-box,
+[data-app="money"] .health-gap-banner,
+[data-app="money"] .legend-item-row {
+  background: #140d24 !important;
+  border: 1px solid rgba(168, 85, 247, 0.2) !important;
+  color: #ffffff !important;
+}
+
+[data-app="money"] .hero-sub-metric-box:hover,
+[data-app="money"] .fire-milestone-box:hover,
+[data-app="money"] .legend-item-row:hover {
+  background: #1c1233 !important;
+  border-color: rgba(168, 85, 247, 0.45) !important;
+}
+
+[data-app="money"] .vis-title,
+[data-app="money"] .health-card-title,
+[data-app="money"] .fire-card-title {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+[data-app="money"] .vis-subtitle,
+[data-app="money"] .health-card-subtitle,
+[data-app="money"] .fire-card-subtitle {
+  color: #c4b5fd !important;
 }
 
 /* Money OS Inputs & Form Controls */
