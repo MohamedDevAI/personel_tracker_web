@@ -57,8 +57,8 @@ export default function FinancialHealthModal({
                 width: 42,
                 height: 42,
                 borderRadius: 12,
-                background: 'rgba(186, 54, 242, 0.2)',
-                color: '#900dc8',
+                background: 'rgba(168, 85, 247, 0.2)',
+                color: '#c084fc',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -68,14 +68,14 @@ export default function FinancialHealthModal({
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#900cc8' }}>
+                <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#ffffff' }}>
                   Financial Health Diagnostic
                 </h2>
-                <span className="badge badge-emerald" style={{ fontWeight: 800 }}>
+                <span className="badge badge-purple" style={{ fontWeight: 800 }}>
                   {totalScore} / {maxScore} Pts
                 </span>
               </div>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              <p style={{ fontSize: '0.8rem', color: '#c4b5fd', marginTop: 2 }}>
                 Answer or check off gaps below to dynamically increase your score.
               </p>
             </div>
@@ -84,7 +84,7 @@ export default function FinancialHealthModal({
           <button
             onClick={onClose}
             className="btn-icon"
-            style={{ border: 'none', background: 'transparent', color: 'var(--text-muted)' }}
+            style={{ border: 'none', background: 'transparent', color: '#c4b5fd' }}
           >
             <X size={20} />
           </button>
@@ -98,7 +98,7 @@ export default function FinancialHealthModal({
               className={`diagnostic-pillar-card ${pillar.isFulfilled ? 'fulfilled' : ''}`}
             >
               <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                   <span
                     style={{
                       fontSize: '0.7rem',
@@ -106,20 +106,20 @@ export default function FinancialHealthModal({
                       textTransform: 'uppercase',
                       padding: '2px 8px',
                       borderRadius: 6,
-                      background: 'rgba(186, 54, 242, 0.11)',
-                      color: 'var(--text-muted)'
+                      background: 'rgba(168, 85, 247, 0.2)',
+                      color: '#c084fc'
                     }}
                   >
                     {pillar.category}
                   </span>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#900cc8' }}>
+                  <h4 style={{ fontSize: '0.98rem', fontWeight: 700, color: '#ffffff' }}>
                     {pillar.title}
                   </h4>
                   <span
                     style={{
                       fontSize: '0.75rem',
                       fontWeight: 700,
-                      color: pillar.isFulfilled ? '#900dc8' : '#9305d0',
+                      color: pillar.isFulfilled ? '#34d399' : '#c084fc',
                       marginLeft: 'auto'
                     }}
                   >
@@ -127,12 +127,12 @@ export default function FinancialHealthModal({
                   </span>
                 </div>
 
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)', marginBottom: 6 }}>
+                <p style={{ fontSize: '0.85rem', color: '#f8fafc', marginBottom: 6, lineHeight: 1.45 }}>
                   {pillar.question}
                 </p>
 
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: 6 }}>
-                  <strong style={{ color: 'var(--text-secondary)' }}>Why it matters: </strong>
+                <div style={{ fontSize: '0.75rem', color: '#a78bfa', marginBottom: 6 }}>
+                  <strong style={{ color: '#c4b5fd' }}>Why it matters: </strong>
                   {pillar.whyItMatters}
                 </div>
 
@@ -140,7 +140,7 @@ export default function FinancialHealthModal({
                   <div
                     style={{
                       fontSize: '0.72rem',
-                      color: pillar.isFulfilled ? '#900dc8' : '#9305d0',
+                      color: pillar.isFulfilled ? '#34d399' : '#fbbf24',
                       display: 'flex',
                       alignItems: 'center',
                       gap: 4
@@ -183,13 +183,24 @@ export default function FinancialHealthModal({
             alignItems: 'center',
             marginTop: 20,
             paddingTop: 16,
-            borderTop: '1px solid rgba(186, 54, 242, 0.16)'
+            borderTop: '1px solid rgba(168, 85, 247, 0.2)'
           }}
         >
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+          <div style={{ fontSize: '0.8rem', color: '#a78bfa' }}>
             Score updates live and saves to your local profile.
           </div>
-          <button onClick={onClose} className="btn-primary" style={{ padding: '8px 20px' }}>
+          <button
+            onClick={onClose}
+            className="btn-primary"
+            style={{
+              padding: '8px 22px',
+              background: 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)',
+              color: '#ffffff',
+              fontWeight: 800,
+              border: 'none',
+              boxShadow: '0 4px 14px rgba(124, 58, 237, 0.4)'
+            }}
+          >
             Done
           </button>
         </div>

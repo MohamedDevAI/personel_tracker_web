@@ -1029,3 +1029,51 @@ html[data-app="money"] body {
   color: #f8fafc !important;
 }
 
+/* Money OS Modals & Diagnostics */
+[data-app="money"] .investment-modal-overlay {
+  background: rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+[data-app="money"] .investment-modal-content {
+  background: #0f0a1c !important;
+  border: 1px solid rgba(168, 85, 247, 0.35) !important;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.95), 0 0 35px rgba(168, 85, 247, 0.22) !important;
+  color: #ffffff !important;
+}
+
+[data-app="money"] .diagnostic-pillar-card {
+  background: #140d24 !important;
+  border: 1px solid rgba(168, 85, 247, 0.22) !important;
+}
+
+[data-app="money"] .diagnostic-pillar-card.fulfilled {
+  border-color: rgba(52, 211, 153, 0.4) !important;
+  background: rgba(52, 211, 153, 0.08) !important;
+}
+
+[data-app="money"] .diagnostic-pillar-card:hover {
+  border-color: rgba(168, 85, 247, 0.45) !important;
+  background: #1c1233 !important;
+}
+
+[data-app="money"] .pillar-action-toggle {
+  background: #18112c !important;
+  border: 1px solid rgba(168, 85, 247, 0.3) !important;
+  color: #c4b5fd !important;
+}
+
+[data-app="money"] .pillar-action-toggle:hover {
+  color: #ffffff !important;
+  background: #251842 !important;
+  border-color: #a855f7 !important;
+}
+
+[data-app="money"] .pillar-action-toggle.done {
+  background: rgba(52, 211, 153, 0.2) !important;
+  border-color: #34d399 !important;
+  color: #34d399 !important;
+}
+
+

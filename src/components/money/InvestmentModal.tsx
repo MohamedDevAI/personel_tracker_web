@@ -271,8 +271,8 @@ export default function InvestmentModal({
                 width: 36,
                 height: 36,
                 borderRadius: 10,
-                background: 'rgba(186, 54, 242, 0.2)',
-                color: '#900dc8',
+                background: 'rgba(168, 85, 247, 0.2)',
+                color: '#c084fc',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -281,10 +281,10 @@ export default function InvestmentModal({
               <Coins size={20} />
             </div>
             <div>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#900cc8' }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ffffff' }}>
                 {initialHolding ? 'Edit Investment Holding' : 'Add New Investment'}
               </h2>
-              <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+              <p style={{ fontSize: '0.78rem', color: '#c4b5fd' }}>
                 Track and visualize your FD, Bonds, Stocks, or SIPs
               </p>
             </div>
@@ -293,7 +293,7 @@ export default function InvestmentModal({
           <button
             onClick={onClose}
             className="btn-icon"
-            style={{ border: 'none', background: 'transparent', color: 'var(--text-muted)' }}
+            style={{ border: 'none', background: 'transparent', color: '#c4b5fd' }}
           >
             <X size={20} />
           </button>
@@ -643,7 +643,10 @@ export default function InvestmentModal({
                 display: 'flex',
                 alignItems: 'center',
                 gap: 8,
-                background: 'linear-gradient(135deg, #a80fea 0%, #aa08f0 100%)'
+                background: 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)',
+                color: '#ffffff',
+                border: 'none',
+                fontWeight: 700
               }}
             >
               <Save size={16} />
