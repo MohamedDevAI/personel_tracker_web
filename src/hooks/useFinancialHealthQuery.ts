@@ -22,17 +22,10 @@ export function useUpdateHealthAnswerMutation() {
     mutationFn: ({
       pillarId,
       fulfilled,
-      context,
     }: {
       pillarId: string;
       fulfilled: boolean;
-      context?: {
-        holdings: InvestmentHolding[];
-        cashLiquidity: number;
-        debtLiabilities: number;
-        activeSipMonthly: number;
-      };
-    }) => financialHealthApi.updateHealthAnswer(pillarId, fulfilled, context),
+    }) => financialHealthApi.updateHealthAnswer(pillarId, fulfilled),
     onSuccess: (data) => {
       queryClient.setQueryData(QUERY_KEYS.FINANCIAL_HEALTH, data);
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.FINANCIAL_HEALTH });
@@ -46,19 +39,29 @@ export function useUpdateFireSettingsMutation() {
   return useMutation({
     mutationFn: ({
       settings,
-      context,
     }: {
       settings: Partial<FireSettings>;
-      context?: {
-        holdings: InvestmentHolding[];
-        cashLiquidity: number;
-        debtLiabilities: number;
-        activeSipMonthly: number;
-      };
-    }) => financialHealthApi.updateFireSettings(settings, context),
+    }) => financialHealthApi.updateFireSettings(settings),
     onSuccess: (data) => {
       queryClient.setQueryData(QUERY_KEYS.FINANCIAL_HEALTH, data);
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.FINANCIAL_HEALTH });
+    },
+  });
+}
+
+export function useSyncFinancialHealthMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: {
+      holdings: InvestmentHolding[];
+      cashLiquidity: number;
+      debtLiabilities: number;
+      activeSipMonthly: number;
+      portfolioValue: number;
+    }) => financialHealthApi.syncFinancialHealth(params),
+    onSuccess: (data) => {
+      queryClient.setQueryData(QUERY_KEYS.FINANCIAL_HEALTH, data);
     },
   });
 }

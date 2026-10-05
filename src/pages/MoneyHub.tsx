@@ -19,13 +19,11 @@ import {
   useFinancialHealthQuery,
   useUpdateHealthAnswerMutation,
   useUpdateFireSettingsMutation,
+  useSyncFinancialHealthMutation,
 } from '../hooks/useFinancialHealthQuery';
 import {
-  computeFinancialHealth,
-  calculateFireNumbers,
-  financialHealthApi,
-  getStoredFireSettings,
-  getStoredHealthAnswers,
+  extractFinancialHealthResult,
+  extractFireCalculationResult,
   FireSettings,
 } from '../services/financialHealthService';
 import { MoneyPrivacyProvider, useMoneyPrivacy } from '../context/MoneyPrivacyContext';
@@ -105,13 +103,14 @@ function MoneyHubInner() {
     refetch: refetchTrades,
   } = useTradesQuery();
 
-  // Fetch Financial Health Document from MongoDB collection `financial_health`
+  // Fetch Financial Health Document with Pillars directly from MongoDB collection `financial_health`
   const {
     data: healthRecord,
     refetch: refetchHealthRecord,
   } = useFinancialHealthQuery();
   const updateHealthAnswerMutation = useUpdateHealthAnswerMutation();
   const updateFireSettingsMutation = useUpdateFireSettingsMutation();
+  const syncHealthMutation = useSyncFinancialHealthMutation();
 
   // Compute Liquid Cash Balance
   const totalIncome = (expenses || [])
@@ -143,43 +142,20 @@ function MoneyHubInner() {
   const totalNetWorth =
     portfolioStats.currentValue + cashLiquidity - debtLiabilities;
 
-  // Derive Answers & FIRE Settings from DB Record (with local fallback)
-  const effectiveAnswers = healthRecord?.answers || getStoredHealthAnswers();
-  const effectiveFireSettings: FireSettings = healthRecord?.fireSettings
-    ? {
-        monthlyExpenses: Number(healthRecord.fireSettings.monthlyExpenses || 60000),
-        multiplier: Number(healthRecord.fireSettings.multiplier || 25),
-        expectedAnnualReturn: Number(healthRecord.fireSettings.expectedAnnualReturn || 11),
-      }
-    : getStoredFireSettings();
+  // Financial Health & FIRE Aspects sourced directly from MongoDB collection `financial_health`
+  const healthResult = extractFinancialHealthResult(healthRecord);
+  const fireResult = extractFireCalculationResult(healthRecord);
 
-  // Financial Health & FIRE Computations
-  const healthResult = computeFinancialHealth(
-    holdings,
-    cashLiquidity,
-    debtLiabilities,
-    activeSipMonthly,
-    effectiveFireSettings.monthlyExpenses,
-    effectiveAnswers
-  );
-
-  const fireResult = calculateFireNumbers(
-    totalNetWorth,
-    activeSipMonthly,
-    effectiveFireSettings
-  );
-
-  // Auto-sync computed diagnostic aspects to DB collection `financial_health`
+  // Synchronize live financial telemetry with the DB collection `financial_health`
   useEffect(() => {
-    financialHealthApi.syncAndPersist({
+    syncHealthMutation.mutate({
       holdings,
       cashLiquidity,
       debtLiabilities,
       activeSipMonthly,
-      fireSettingsOverride: effectiveFireSettings,
-      answersOverride: effectiveAnswers,
+      portfolioValue: portfolioStats.currentValue,
     });
-  }, [holdings.length, cashLiquidity, debtLiabilities, activeSipMonthly]);
+  }, [holdings.length, cashLiquidity, debtLiabilities, activeSipMonthly, portfolioStats.currentValue]);
 
   // Trading Stats
   const tradingStats = tradingService.computeTradingStats(trades);
@@ -189,24 +165,12 @@ function MoneyHubInner() {
     updateHealthAnswerMutation.mutate({
       pillarId,
       fulfilled: newState,
-      context: {
-        holdings,
-        cashLiquidity,
-        debtLiabilities,
-        activeSipMonthly,
-      },
     });
   };
 
   const handleUpdateFireSettings = (newSettings: Partial<FireSettings>) => {
     updateFireSettingsMutation.mutate({
       settings: newSettings,
-      context: {
-        holdings,
-        cashLiquidity,
-        debtLiabilities,
-        activeSipMonthly,
-      },
     });
   };
 
