@@ -3,8 +3,6 @@
  * Previously scattered across financeConstants.ts, BorrowRepayView.tsx, and expenseApi.ts.
  */
 
-import type { Transaction } from '../types';
-
 // ─── Month Names ──────────────────────────────────────────────────────────────
 
 export const MONTH_NAMES = [
@@ -38,7 +36,7 @@ export const getMonthName = (index: number): MonthName => {
  * Parse a Transaction's date fields into a normalized { year, month } object.
  * Handles multiple backend date formats: "YYYY-MM-DD", ISO 8601, or pre-set `month` field.
  */
-export const parseTxDate = (tx: Transaction): { year: number; month: string } => {
+export const parseTxDate = (tx: { date?: string; transactionDate?: string; month?: string }): { year: number; month: string } => {
   let year = getCurrentYear();
   let month = tx.month || getCurrentMonth();
 

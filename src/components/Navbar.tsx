@@ -1,5 +1,5 @@
-import { NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { Sparkles, Coins, Database, Bell } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { Sparkles, Database, Bell, LayoutDashboard, Target, Flame, StickyNote } from 'lucide-react';
 import type { BackendHealth } from '../types';
 import './Navbar.css';
 
@@ -10,68 +10,74 @@ interface NavbarProps {
 
 export default function Navbar({ backendStatus, activeRemindersCount = 0 }: NavbarProps) {
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const isMoneyApp = location.pathname.startsWith('/money');
 
   return (
-    <header className={`glass-panel navbar-header ${isMoneyApp ? 'is-money-app' : ''}`}>
-      {/* Dynamic App Brand */}
+    <header className="glass-panel navbar-header">
+      {/* Brand */}
       <div
         className="navbar-brand"
-        onClick={() => navigate(isMoneyApp ? '/money' : '/life-os')}
+        onClick={() => navigate('/life-os/overview')}
         style={{ cursor: 'pointer' }}
       >
-        <div className={`navbar-brand-icon ${isMoneyApp ? 'money-brand-icon' : ''}`}>
-          {isMoneyApp ? <Coins size={22} color="#ffffff" /> : <Sparkles size={22} color="#ffffff" />}
+        <div className="navbar-brand-icon">
+          <Sparkles size={22} color="#ffffff" />
         </div>
         <div>
           <div className="navbar-brand-title-wrap">
             <span className="navbar-brand-title">
-              {isMoneyApp ? (
-                <>
-                  Money <span className="gradient-text">OS</span>
-                </>
-              ) : (
-                <>
-                  Life <span className="gradient-text">OS</span>
-                </>
-              )}
+              Life <span className="gradient-text">OS</span>
             </span>
             <span className="badge badge-orange navbar-pro-badge">
-              {isMoneyApp ? 'MONEY APP' : 'LIFE OS APP'}
+              LIFE OS APP
             </span>
           </div>
           <div className="navbar-brand-subtitle">
-            {isMoneyApp ? 'Wealth Management & Financial Suite' : 'Executive Finances, Goals & Habit Engine'}
+            Executive Goals, Habits & Productivity Engine
           </div>
         </div>
       </div>
 
-      {/* Dual Application Switcher Bar */}
+      {/* Life OS Sub-Navigation Bar */}
       <div className="app-switcher-container">
         <div className="app-switcher-tabs">
           <NavLink
-            to="/life-os"
+            to="/life-os/overview"
             className={({ isActive }) =>
-              `app-switcher-btn ${isActive || location.pathname === '/' || location.pathname.startsWith('/productivity')
-                ? 'active-life-os'
-                : ''
-              }`
+              `app-switcher-btn ${isActive ? 'active-life-os' : ''}`
             }
           >
-            <Sparkles size={15} />
-            <span>Life OS</span>
+            <LayoutDashboard size={15} />
+            <span>Overview</span>
           </NavLink>
 
           <NavLink
-            to="/money"
+            to="/life-os/goals"
             className={({ isActive }) =>
-              `app-switcher-btn ${isActive || location.pathname.startsWith('/finances') ? 'active-money-os' : ''}`
+              `app-switcher-btn ${isActive ? 'active-life-os' : ''}`
             }
           >
-            <Coins size={15} />
-            <span>Money</span>
+            <Target size={15} />
+            <span>Goals</span>
+          </NavLink>
+
+          <NavLink
+            to="/life-os/habits"
+            className={({ isActive }) =>
+              `app-switcher-btn ${isActive ? 'active-life-os' : ''}`
+            }
+          >
+            <Flame size={15} />
+            <span>Habits</span>
+          </NavLink>
+
+          <NavLink
+            to="/life-os/notes"
+            className={({ isActive }) =>
+              `app-switcher-btn ${isActive ? 'active-life-os' : ''}`
+            }
+          >
+            <StickyNote size={15} />
+            <span>Notes</span>
           </NavLink>
         </div>
       </div>
@@ -84,16 +90,18 @@ export default function Navbar({ backendStatus, activeRemindersCount = 0 }: Navb
               ? 'Spring Boot & MongoDB Atlas connected'
               : 'Connecting to Spring Boot Server API...'
           }
-          className={`navbar-status-badge ${backendStatus.connected ? 'navbar-status-connected' : 'navbar-status-local'
-            }`}
+          className={`navbar-status-badge ${
+            backendStatus.connected ? 'navbar-status-connected' : 'navbar-status-local'
+          }`}
         >
           <Database size={13} />
           <span className="navbar-status-label">
             {backendStatus.connected ? 'Server: Live' : 'Server: Connecting'}
           </span>
           <span
-            className={`navbar-status-dot ${backendStatus.connected ? 'navbar-status-dot-connected' : 'navbar-status-dot-local'
-              }`}
+            className={`navbar-status-dot ${
+              backendStatus.connected ? 'navbar-status-dot-connected' : 'navbar-status-dot-local'
+            }`}
           />
         </div>
 
@@ -115,14 +123,13 @@ export default function Navbar({ backendStatus, activeRemindersCount = 0 }: Navb
                 width: 8,
                 height: 8,
                 borderRadius: '50%',
-                background: '#7b726b',
-                boxShadow: '0 0 8px #7b726b',
+                background: '#cb6b08',
+                boxShadow: '0 0 8px #cb6b08',
               }}
             />
           )}
         </button>
       </div>
     </header>
-
   );
 }

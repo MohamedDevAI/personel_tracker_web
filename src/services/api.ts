@@ -1,9 +1,9 @@
 /**
- * Core API service for Dashboard data (habits, goals, tasks, expenses).
+ * Core API service for Life OS Dashboard data (habits, goals, tasks).
  * Directly communicates with Spring Boot backend via apiClient.
  */
 
-import { BackendHealth, Expense, Goal, Habit, TaskItem } from '../interface';
+import { BackendHealth, Goal, Habit, TaskItem } from '../interface';
 import apiClient from './apiClient';
 
 // ─── Backend Health Check ─────────────────────────────────────────────────────
@@ -26,28 +26,6 @@ export const checkBackendHealth = async (): Promise<BackendHealth> => {
 // ─── API Methods ──────────────────────────────────────────────────────────────
 
 export const api = {
-  // ── Expenses ──────────────────────────────────────────────────────────────
-
-  getExpenses: async (): Promise<Expense[]> => {
-    try {
-      const { data } = await apiClient.get<Expense[]>('/expenses', { timeout: 6000 });
-      if (Array.isArray(data)) return data;
-    } catch (e) {
-      console.warn('Failed to fetch expenses from API:', e);
-    }
-    return [];
-  },
-
-  createExpense: async (expense: Omit<Expense, 'id'>): Promise<Expense> => {
-    const { data } = await apiClient.post<Expense>('/expenses', expense);
-    return data;
-  },
-
-  deleteExpense: async (id: string): Promise<boolean> => {
-    await apiClient.delete(`/expenses/${id}`);
-    return true;
-  },
-
   // ── Habits ────────────────────────────────────────────────────────────────
 
   getHabits: async (): Promise<Habit[]> => {
@@ -107,13 +85,11 @@ export const api = {
   },
 
   updateGoal: async (goal: Goal): Promise<Goal> => {
-    // Spring Boot Mongo controller typically uses PUT /goals/{id} or POST /goals
     try {
       const { data } = await apiClient.put<Goal>(`/goals/${goal.id}`, goal);
       if (data) return data;
     } catch (err: any) {
       if (err?.response?.status === 404 || err?.response?.status === 405) {
-        // Fallback to POST /goals (Spring Data Mongo save updates if ID is present)
         const { data } = await apiClient.post<Goal>('/goals', goal);
         if (data) return data;
       } else {
