@@ -1,0 +1,500 @@
+import { useState, useMemo } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { expenseApi } from '../services/expenseApi';
+import { MONTH_NAMES, getCurrentYear, getCurrentMonth } from '../utils/dateHelpers';
+import { Plus, Tag, ArrowDownRight, Search } from 'lucide-react';
+
+import { parseTxDate } from '../components/life_os/finances/financeConstants';
+import MonthYearFilter from '../components/life_os/finances/MonthYearFilter';
+import FinanceSummaryCards from '../components/life_os/finances/FinanceSummaryCards';
+import TransactionTable from '../components/life_os/finances/TransactionTable';
+import OutflowBreakdownCard from '../components/life_os/finances/OutflowBreakdownCard';
+import TransactionModal from '../components/life_os/finances/TransactionModal';
+import CategoryModal from '../components/life_os/finances/CategoryModal';
+import FinanceTabsHeader, { FinanceTabKey } from '../components/life_os/finances/FinanceTabsHeader';
+import BorrowRepayView from '../components/life_os/finances/BorrowRepayView';
+import PlannedExpensesView from '../components/life_os/finances/planned-expenses/PlannedExpensesView';
+import { borrowRepayApi } from '../services/borrowRepayApi';
+
+import ConfirmDeleteModal from '../components/common/ConfirmDeleteModal';
+import '../components/life_os/finances/finances.css';
+import { TransactionType } from '../interface';
+import { useBorrowRepayRecordsQuery } from '../hooks/useBorrowRepayQueries';
+import { useCategoriesQuery, usePlannedExpensesQuery, useTransactionsQuery } from '../hooks';
+
+export default function ExpenseTracker() {
+  const queryClient = useQueryClient();
+
+  // Top-level Finance Hub Tab
+  const [financeMainTab, setFinanceMainTab] = useState<FinanceTabKey>('ledger');
+
+  // Queries
+  const { data: transactions = [], isLoading: isTxsLoading } = useTransactionsQuery();
+  const { data: categories = [] } = useCategoriesQuery();
+  const { data: borrowRecords = [] } = useBorrowRepayRecordsQuery();
+
+  // Dynamic pill counters for sub-tabs
+  const outstandingDebtCount = useMemo(() => {
+    return borrowRepayApi.getCreditorSummaries(borrowRecords).filter(s => s.netBalance > 0).length;
+  }, [borrowRecords]);
+
+  const { data: plannedExpenses = [] } = usePlannedExpensesQuery('ALL');
+
+  const activePlansCount = useMemo(() => {
+    return plannedExpenses.filter(p => p.status === 'Planned').length;
+  }, [plannedExpenses]);
+
+
+
+  const [selectedYear, setSelectedYear] = useState<number>(() => getCurrentYear());
+  const [selectedMonth, setSelectedMonth] = useState<string>(() => getCurrentMonth()); // 'All' or 'Jan'..'Dec'
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [typeFilter, setTypeFilter] = useState<'ALL' | 'Credit' | 'Debit'>('ALL');
+  const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
+
+  // Modal States
+  const [showTransactionModal, setShowTransactionModal] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [modalType, setModalType] = useState<TransactionType>('Credit');
+
+  // Deletion Confirmation Dialog State (Yes / No)
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    isOpen: boolean;
+    type: 'transaction' | 'category';
+    id: string;
+    itemName: string;
+  }>({
+    isOpen: false,
+    type: 'transaction',
+    id: '',
+    itemName: ''
+  });
+
+  // Mutations
+  const addTransactionMutation = useMutation({
+    mutationFn: expenseApi.createTransaction,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardSummary'] });
+    },
+    onError: (err: any) => {
+      console.error('Failed to create transaction:', err);
+      alert('Failed to save transaction: ' + (err.response?.data?.message || err.message));
+    }
+  });
+
+  const deleteTransactionMutation = useMutation({
+    mutationFn: expenseApi.deleteTransaction,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardSummary'] });
+    }
+  });
+
+  const addCategoryMutation = useMutation({
+    mutationFn: expenseApi.createCategory,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+    }
+  });
+
+  const deleteCategoryMutation = useMutation({
+    mutationFn: expenseApi.deleteCategory,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+    }
+  });
+
+  const promptDeleteTransaction = (id: string) => {
+    const tx = transactions.find(t => (t.id || t._id) === id);
+    setDeleteConfirm({
+      isOpen: true,
+      type: 'transaction',
+      id,
+      itemName: tx ? `${tx.description || tx.category} (SAR ${tx.amount})` : 'Selected Transaction'
+    });
+  };
+
+
+  const handleExecuteDelete = () => {
+    if (deleteConfirm.type === 'transaction') {
+      deleteTransactionMutation.mutate(deleteConfirm.id);
+    } else {
+      deleteCategoryMutation.mutate(deleteConfirm.id);
+    }
+    setDeleteConfirm(prev => ({ ...prev, isOpen: false }));
+  };
+
+  // Unique available years
+  const availableYears = useMemo(() => {
+    const currentYr = getCurrentYear();
+    const years = new Set<number>([currentYr]);
+    transactions.forEach(t => {
+      const { year } = parseTxDate(t);
+      if (!isNaN(year) && year > 1900 && year < 2100) {
+        years.add(year);
+      }
+    });
+    return Array.from(years).sort((a, b) => b - a);
+  }, [transactions]);
+
+  // Counts per month for selected year
+  const monthlyTransactionCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    MONTH_NAMES.forEach(m => { counts[m] = 0; });
+    transactions.forEach(tx => {
+      const { year, month } = parseTxDate(tx);
+      if (year === selectedYear) {
+        if (counts[month] !== undefined) {
+          counts[month]++;
+        }
+      }
+    });
+    return counts;
+  }, [transactions, selectedYear]);
+
+  // Total transactions for selected year
+  const totalTransactionsForYear = useMemo(() => {
+    return transactions.filter(t => parseTxDate(t).year === selectedYear).length;
+  }, [transactions, selectedYear]);
+
+  // Filtered transactions for active month & year
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter(tx => {
+      const { year, month } = parseTxDate(tx);
+      if (year !== selectedYear) return false;
+
+      if (selectedMonth !== 'All' && month.toLowerCase() !== selectedMonth.toLowerCase()) {
+        return false;
+      }
+
+      if (typeFilter !== 'ALL') {
+        const isCredit = String(tx.type).toUpperCase() === 'CREDIT';
+        if (typeFilter === 'Credit' && !isCredit) return false;
+        if (typeFilter === 'Debit' && isCredit) return false;
+      }
+
+      if (categoryFilter !== 'ALL') {
+        const cat = (tx.category || tx.categoryName || '').toLowerCase();
+        if (cat !== categoryFilter.toLowerCase()) return false;
+      }
+
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const descMatch = (tx.description || tx.note || '').toLowerCase().includes(q);
+        const catMatch = (tx.category || tx.categoryName || '').toLowerCase().includes(q);
+        const payMatch = (tx.paymentMethod || '').toLowerCase().includes(q);
+        if (!descMatch && !catMatch && !payMatch) return false;
+      }
+
+      return true;
+    });
+  }, [transactions, selectedYear, selectedMonth, typeFilter, categoryFilter, searchQuery]);
+
+  // Dynamic monthly financial stats
+  const monthlyStats = useMemo(() => {
+    let credit = 0;
+    let debit = 0;
+    const catMap: Record<string, number> = {};
+
+    filteredTransactions.forEach(tx => {
+      const amt = Math.abs(Number(tx.amount || tx.amountSar || 0));
+      const isCredit = String(tx.type).toUpperCase() === 'CREDIT';
+      if (isCredit) {
+        credit += amt;
+      } else {
+        debit += amt;
+        const cat = tx.category || tx.categoryName || 'Other';
+        catMap[cat] = (catMap[cat] || 0) + amt;
+      }
+    });
+
+    const pieData = Object.keys(catMap)
+      .map(cat => ({
+        name: cat,
+        value: catMap[cat]
+      }))
+      .sort((a, b) => b.value - a.value);
+
+    return {
+      totalCredit: credit,
+      totalDebit: debit,
+      netBalance: credit - debit,
+      count: filteredTransactions.length,
+      pieData
+    };
+  }, [filteredTransactions]);
+
+  // Month navigation
+  const handlePrevMonth = () => {
+    if (selectedMonth === 'All') {
+      setSelectedMonth('Dec');
+    } else {
+      const idx = MONTH_NAMES.indexOf(selectedMonth as any);
+      if (idx > 0) {
+        setSelectedMonth(MONTH_NAMES[idx - 1]);
+      } else {
+        setSelectedMonth(MONTH_NAMES[11]);
+        setSelectedYear(prev => prev - 1);
+      }
+    }
+  };
+
+  const handleNextMonth = () => {
+    if (selectedMonth === 'All') {
+      setSelectedMonth('Jan');
+    } else {
+      const idx = MONTH_NAMES.indexOf(selectedMonth as any);
+      if (idx < 11) {
+        setSelectedMonth(MONTH_NAMES[idx + 1]);
+      } else {
+        setSelectedMonth(MONTH_NAMES[0]);
+        setSelectedYear(prev => prev + 1);
+      }
+    }
+  };
+
+  // Open transaction modal
+  const handleOpenAddModal = (forceType: TransactionType = 'Credit') => {
+    setModalType(forceType);
+    setShowTransactionModal(true);
+  };
+
+  // Default date for modal based on selection
+  const modalDefaultDate = useMemo(() => {
+    const now = new Date();
+    const currentYr = now.getFullYear();
+    const currentM = MONTH_NAMES[now.getMonth()];
+
+    // If currently browsing current month & year (or 'All' in current year), default to today's exact date!
+    if (
+      selectedYear === currentYr &&
+      (selectedMonth === 'All' || selectedMonth.toLowerCase() === currentM.toLowerCase())
+    ) {
+      return now.toISOString().split('T')[0];
+    }
+
+    const monthIdx = selectedMonth !== 'All' ? MONTH_NAMES.indexOf(selectedMonth as any) : now.getMonth();
+    const safeMonthIdx = monthIdx >= 0 ? monthIdx : now.getMonth();
+    const monthNum = String(safeMonthIdx + 1).padStart(2, '0');
+    return `${selectedYear}-${monthNum}-01`;
+  }, [selectedMonth, selectedYear]);
+
+  const modalDefaultMonth = useMemo(() => {
+    const now = new Date();
+    const monthIdx = selectedMonth !== 'All' ? MONTH_NAMES.indexOf(selectedMonth as any) : now.getMonth();
+    return MONTH_NAMES[monthIdx >= 0 ? monthIdx : now.getMonth()];
+  }, [selectedMonth]);
+
+  return (
+    <div className="finances-container">
+
+      {/* Page Header */}
+      <div className="finances-header">
+        <div className="finances-header-info">
+          <div className="finances-header-badge-row">
+            <span className="finances-records-count">
+              Total Transactions: {transactions.length}
+            </span>
+          </div>
+          <h1 className="finances-header-title">
+            Personal <span className="emerald-gradient-text">Finance Hub</span>
+          </h1>
+          <p className="finances-header-subtitle">
+            Track expenses, plan monthly budgets, manage money borrowed & repaid, and inspect combined financial intelligence.
+          </p>
+        </div>
+
+        <div className="finances-header-actions">
+          {financeMainTab === 'ledger' && (
+            <>
+              <button onClick={() => setShowCategoryModal(true)} className="btn btn-secondary">
+                <Tag size={16} /> Add Category
+              </button>
+              <button
+                onClick={() => handleOpenAddModal('Debit')}
+                className="btn btn-secondary btn-log-expense"
+              >
+                <ArrowDownRight size={16} /> Log Expense
+              </button>
+              <button onClick={() => handleOpenAddModal('Credit')} className="btn btn-primary">
+                <Plus size={16} /> Log Transaction
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* 4-Tab Finance Hub Sub-Navigation Bar */}
+      <FinanceTabsHeader
+        activeTab={financeMainTab}
+        onSelectTab={setFinanceMainTab}
+        outstandingDebtCount={outstandingDebtCount}
+        activePlansCount={activePlansCount}
+      />
+
+      {/* View 1: Expense Tracked (Monthly Financial Ledger) */}
+      {financeMainTab === 'ledger' && (
+        <>
+          {/* Year & Month Filter Toolbar */}
+          <MonthYearFilter
+            selectedYear={selectedYear}
+            setSelectedYear={setSelectedYear}
+            selectedMonth={selectedMonth}
+            setSelectedMonth={setSelectedMonth}
+            availableYears={availableYears}
+            monthlyTransactionCounts={monthlyTransactionCounts}
+            totalTransactionsForYear={totalTransactionsForYear}
+            onPrevMonth={handlePrevMonth}
+            onNextMonth={handleNextMonth}
+          />
+
+          {/* Dynamic Monthly KPI Cards */}
+          <FinanceSummaryCards
+            selectedMonth={selectedMonth}
+            selectedYear={selectedYear}
+            totalCredit={monthlyStats.totalCredit}
+            totalDebit={monthlyStats.totalDebit}
+            netBalance={monthlyStats.netBalance}
+            transactionCount={monthlyStats.count}
+          />
+
+          {/* Main Grid: Transactions / Categories on Left, Outflow Breakdown on Right */}
+          <div className="finances-main-grid">
+
+            {/* Left Column: Persistent Tab Switcher + Equal-Height Scrollable Tables */}
+            <div className="finances-left-column">
+
+              {/* Persistent View Switcher & Toolbar */}
+              <div className="finances-table-toolbar">
+
+                {/* View switcher tabs (Always visible!) */}
+                <div className="btn btn-primary ">
+                  Transactions List ({filteredTransactions.length})
+                </div>
+
+                {/* Filter toolbar if transactions tab, or Add Category if categories tab */}
+                {(
+                  <div className="finances-toolbar-actions">
+                    <div className="finances-search-box">
+                      <Search size={14} className="finances-search-icon" />
+                      <input
+                        type="text"
+                        placeholder="Search note, category..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="finances-search-input"
+                      />
+                    </div>
+
+                    <select
+                      value={typeFilter}
+                      onChange={(e) => setTypeFilter(e.target.value as any)}
+                      className="finances-type-select"
+                    >
+                      <option value="ALL">All Types</option>
+                      <option value="Credit">Credit (+)</option>
+                      <option value="Debit">Debit (-)</option>
+                    </select>
+
+                    <select
+                      value={categoryFilter}
+                      onChange={(e) => setCategoryFilter(e.target.value)}
+                      className="finances-type-select"
+                    >
+                      <option value="ALL">All Categories</option>
+                      {categories.map(c => (
+                        <option key={c.id || c._id || c.name} value={c.name}>{c.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
+
+              {/* Table Component with 90vh height and internal scrolling */}
+              <TransactionTable
+                  transactions={filteredTransactions}
+                  categories={categories}
+                  isLoading={isTxsLoading}
+                  selectedMonth={selectedMonth}
+                  selectedYear={selectedYear}
+                  onDeleteTransaction={promptDeleteTransaction}
+                  onOpenAddModal={handleOpenAddModal}
+                />
+            </div>
+
+            {/* Right Column: Donut Chart & Ranked Categories (Height matches 90vh) */}
+            <div className="finances-analytics-col">
+              <div className="finances-analytics-header">
+                <span className="finances-analytics-title">
+                  SPENDING ANALYTICS
+                </span>
+              </div>
+              <OutflowBreakdownCard
+                selectedMonth={selectedMonth}
+                selectedYear={selectedYear}
+                totalDebit={monthlyStats.totalDebit}
+                pieData={monthlyStats.pieData}
+                onOpenAddModal={handleOpenAddModal}
+              />
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* View 2: Planned Expenses (Glance Matrix on All, Detailed on specific month) */}
+      {financeMainTab === 'planned' && (
+        <PlannedExpensesView
+          categories={categories}
+          transactions={transactions}
+          initialMonth="All"
+          initialYear={selectedYear}
+        />
+      )}
+
+      {/* View 3: Borrow and Repay (Dedicated Creditor Tracker in INR ₹) */}
+      {financeMainTab === 'borrow_repay' && (
+        <BorrowRepayView />
+      )}
+
+
+      {/* Add Transaction Dialog */}
+      <TransactionModal
+        isOpen={showTransactionModal}
+        onClose={() => setShowTransactionModal(false)}
+        categories={categories}
+        onSubmit={(txData) => {
+          addTransactionMutation.mutate({
+            ...txData,
+            amountSar: txData.amount,
+            note: txData.description,
+            transactionDate: txData.date
+          });
+        }}
+        initialDate={modalDefaultDate}
+        initialMonth={modalDefaultMonth}
+        initialType={modalType}
+      />
+
+      {/* Add Category Dialog */}
+      <CategoryModal
+        isOpen={showCategoryModal}
+        onClose={() => setShowCategoryModal(false)}
+        onSubmit={(catData) => addCategoryMutation.mutate(catData)}
+      />
+
+      {/* Confirm Deletion Dialog (Yes / No Prompt) */}
+      <ConfirmDeleteModal
+        isOpen={deleteConfirm.isOpen}
+        title={deleteConfirm.type === 'transaction' ? 'Delete Transaction' : 'Delete Category'}
+        message="Are you sure you want to delete this data? Please choose Yes to delete or No to cancel."
+        itemName={deleteConfirm.itemName}
+        confirmText="Yes, Delete"
+        cancelText="No, Cancel"
+        onConfirm={handleExecuteDelete}
+        onCancel={() => setDeleteConfirm(prev => ({ ...prev, isOpen: false }))}
+      />
+
+    </div>
+  );
+}

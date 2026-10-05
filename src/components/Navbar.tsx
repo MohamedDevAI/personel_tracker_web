@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Sparkles, Database, Bell, LayoutDashboard, Target, Flame, StickyNote } from 'lucide-react';
+import { Sparkles, Database, Bell, LayoutDashboard, Wallet, Target, Flame, StickyNote } from 'lucide-react';
 import type { BackendHealth } from '../types';
 import './Navbar.css';
 
@@ -48,6 +48,16 @@ export default function Navbar({ backendStatus, activeRemindersCount = 0 }: Navb
           >
             <LayoutDashboard size={15} />
             <span>Overview</span>
+          </NavLink>
+
+          <NavLink
+            to="/life-os/finances"
+            className={({ isActive }) =>
+              `app-switcher-btn ${isActive ? 'active-life-os' : ''}`
+            }
+          >
+            <Wallet size={15} />
+            <span>Finances & Ledger</span>
           </NavLink>
 
           <NavLink

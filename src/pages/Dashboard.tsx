@@ -6,11 +6,13 @@
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  Flame, CheckCircle2, Circle, Calendar, Target, Sparkles,
+  ArrowUpRight, ArrowDownRight, Flame, CheckCircle2, Circle,
+  TrendingUp, Calendar,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { api } from '../services/api';
 import { formatDateLong } from '../utils/formatters';
+import { useExpensesQuery } from '../hooks/useExpensesQuery';
 import { useHabitsQuery } from '../hooks/useHabitsQuery';
 import { useGoalsQuery } from '../hooks/useGoalsQuery';
 
@@ -20,6 +22,7 @@ export default function Dashboard() {
 
   // ── Data Fetching ─────────────────────────────────────────────────────────
 
+  const { data: expenses = [] } = useExpensesQuery();
   const { data: habits = [] } = useHabitsQuery();
   const { data: goals = [] } = useGoalsQuery();
 
@@ -31,6 +34,15 @@ export default function Dashboard() {
   });
 
   // ── Computed Metrics ──────────────────────────────────────────────────────
+
+  const totalIncome = expenses
+    .filter((e) => e.type === 'INCOME')
+    .reduce((sum, e) => sum + Number(e.amount), 0);
+  const totalExpense = expenses
+    .filter((e) => e.type === 'EXPENSE')
+    .reduce((sum, e) => sum + Number(e.amount), 0);
+  const netSavings = totalIncome - totalExpense;
+  const savingsRate = totalIncome > 0 ? ((netSavings / totalIncome) * 100).toFixed(1) : '0';
 
   const maxStreak = habits.length > 0 ? Math.max(...habits.map((h) => h.streak || 0)) : 0;
   const habitsDoneToday = habits.filter((h) => h.completedToday).length;
@@ -63,7 +75,7 @@ export default function Dashboard() {
             Executive <span className="gradient-text">Overview</span>
           </h1>
           <p className="page-header-subtitle">
-            Welcome back! You are maintaining an active {maxStreak}-day streak across your habit routines.
+            Welcome back! You are maintaining an active {maxStreak}-day streak and {savingsRate}% net savings rate.
           </p>
         </div>
 
@@ -71,15 +83,34 @@ export default function Dashboard() {
           <button onClick={() => navigate('/life-os/habits')} className="btn btn-secondary">
             <Flame size={14} color="#cb6b08" /> Daily Habits
           </button>
-          <button onClick={() => navigate('/life-os/goals')} className="btn btn-secondary">
-            <Target size={14} color="#cb6b08" /> Strategic Goals
+          <button onClick={() => navigate('/life-os/finances')} className="btn btn-secondary">
+            <TrendingUp size={14} color="#b6550c" /> Financial Ledger
           </button>
         </div>
       </div>
 
       {/* KPI Metric Cards */}
       <div className="dashboard-kpi-grid">
-        {/* Habit Momentum */}
+        {/* Net Cash Flow */}
+        <div className="glass-panel dashboard-kpi-card">
+          <div className="dashboard-kpi-top">
+            <span className="dashboard-kpi-label">NET CASH FLOW</span>
+            <span className="badge badge-emerald">+{savingsRate}% Saved</span>
+          </div>
+          <div className="dashboard-kpi-value">
+            SAR {netSavings.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+          </div>
+          <div className="dashboard-cashflow-row">
+            <span className="dashboard-cashflow-in">
+              <ArrowUpRight size={14} /> In: SAR {totalIncome.toLocaleString()}
+            </span>
+            <span className="dashboard-cashflow-out">
+              <ArrowDownRight size={14} /> Out: SAR {totalExpense.toLocaleString()}
+            </span>
+          </div>
+        </div>
+
+        {/* Longest Streak */}
         <div className="glass-panel dashboard-kpi-card">
           <div className="dashboard-kpi-top">
             <span className="dashboard-kpi-label">HABIT MOMENTUM</span>
@@ -106,23 +137,9 @@ export default function Dashboard() {
             <div className="dashboard-progress-bar" style={{ width: `${avgGoalProgress}%` }} />
           </div>
         </div>
-
-        {/* Habit Completion Ratio */}
-        <div className="glass-panel dashboard-kpi-card">
-          <div className="dashboard-kpi-top">
-            <span className="dashboard-kpi-label">DAILY COMPLETION</span>
-            <span className="badge badge-emerald"><Sparkles size={12} /> Today</span>
-          </div>
-          <div className="dashboard-kpi-value">
-            {habits.length > 0 ? Math.round((habitsDoneToday / habits.length) * 100) : 0}%
-          </div>
-          <div className="dashboard-kpi-subtext">
-            {habitsDoneToday} done • {habits.length - habitsDoneToday} remaining
-          </div>
-        </div>
       </div>
 
-      {/* Main Grid: Habits & Strategic Goals */}
+      {/* Main Grid: Habits & Cash Flow Breakdown */}
       <div className="dashboard-split-grid">
         {/* Today's Habits Checklist */}
         <div className="glass-panel dashboard-card-section">
@@ -137,7 +154,7 @@ export default function Dashboard() {
           </div>
 
           <div className="habits-list-vertical">
-            {habits.slice(0, 5).map((habit) => (
+            {habits.slice(0, 4).map((habit) => (
               <div
                 key={habit.id}
                 onClick={() => handleHabitCheck(habit.id, habit.completedToday)}
@@ -170,31 +187,81 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Strategic Goals List */}
+        {/* Financial Flow & Recent Ledger */}
         <div className="glass-panel dashboard-card-section">
           <div className="dashboard-card-header">
             <div>
-              <h3 className="dashboard-card-title">Active Goals</h3>
-              <p className="dashboard-card-subtitle">Quarterly milestones & pursuits</p>
+              <h3 className="dashboard-card-title">Financial Cash Flow</h3>
+              <p className="dashboard-card-subtitle">Recent transactions and inflows</p>
             </div>
-            <button onClick={() => navigate('/life-os/goals')} className="btn btn-secondary dashboard-btn-action">
-              View All
+            <button onClick={() => navigate('/life-os/finances')} className="btn btn-secondary dashboard-btn-action">
+              Ledger
             </button>
           </div>
 
-          <div className="dashboard-goals-list">
-            {goals.slice(0, 5).map((goal) => (
-              <div key={goal.id} style={{ marginBottom: 16 }}>
-                <div className="dashboard-goal-row">
-                  <span className="dashboard-goal-title">{goal.title}</span>
-                  <span className="dashboard-goal-pct">{goal.progress}%</span>
+          {/* Cashflow Visual Progress Ratio */}
+          <div className="dashboard-cashflow-container">
+            <div className="dashboard-burn-rate-header">
+              <span>Monthly Burn Rate</span>
+              <span>SAR {totalExpense.toFixed(0)} of SAR {totalIncome.toFixed(0)}</span>
+            </div>
+            <div className="dashboard-burn-rate-track">
+              <div
+                className="burn-rate-expense-bar"
+                style={{
+                  width: `${totalIncome > 0 ? Math.min(100, (totalExpense / totalIncome) * 100) : 0}%`,
+                }}
+              />
+              <div
+                className="burn-rate-savings-bar"
+                style={{
+                  width: `${totalIncome > 0 ? Math.max(0, 100 - (totalExpense / totalIncome) * 100) : 100}%`,
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Transaction items */}
+          <div className="habits-list-vertical">
+            {expenses.slice(0, 4).map((item) => (
+              <div key={item.id} className="dashboard-tx-item">
+                <div>
+                  <div className="dashboard-tx-title">{item.title}</div>
+                  <div className="dashboard-tx-meta">{item.category} • {item.date}</div>
                 </div>
-                <div className="dashboard-goal-track">
-                  <div className="dashboard-progress-bar" style={{ width: `${goal.progress}%` }} />
+                <div className={`dashboard-tx-amount ${item.type === 'INCOME' ? 'dashboard-tx-income' : 'dashboard-tx-expense'}`}>
+                  {item.type === 'INCOME' ? '+' : '-'}SAR {Number(item.amount).toFixed(2)}
                 </div>
               </div>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Strategic Goals */}
+      <div className="glass-panel dashboard-card-section" style={{ marginTop: 24 }}>
+        <div className="dashboard-card-header">
+          <div>
+            <h3 className="dashboard-card-title">Strategic Milestones</h3>
+            <p className="dashboard-card-subtitle">Quarterly and annual pursuits</p>
+          </div>
+          <button onClick={() => navigate('/life-os/goals')} className="btn btn-secondary dashboard-btn-action">
+            Manage
+          </button>
+        </div>
+
+        <div className="dashboard-goals-list">
+          {goals.slice(0, 4).map((goal) => (
+            <div key={goal.id}>
+              <div className="dashboard-goal-row">
+                <span className="dashboard-goal-title">{goal.title}</span>
+                <span className="dashboard-goal-pct">{goal.progress}%</span>
+              </div>
+              <div className="dashboard-goal-track">
+                <div className="dashboard-progress-bar" style={{ width: `${goal.progress}%` }} />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

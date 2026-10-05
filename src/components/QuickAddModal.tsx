@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
-import { X, Flame, Target, CheckSquare, LucideIcon } from 'lucide-react';
-import { Habit, Goal, TaskItem, TaskPriority } from '../interface';
+import { X, Wallet, Flame, Target, CheckSquare, LucideIcon } from 'lucide-react';
+import { Expense, Habit, Goal, TaskItem, ExpenseType, TaskPriority } from '../interface';
 import './QuickAddModal.css';
 
 interface QuickAddModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onAddExpense: (expense: Omit<Expense, 'id'>) => void;
   onAddHabit: (habit: Pick<Habit, 'title' | 'category' | 'targetFrequency'>) => void;
   onAddGoal: (goal: Omit<Goal, 'id'>) => void;
   onAddTask: (task: Omit<TaskItem, 'id' | 'completed'>) => void;
 }
 
-type TabType = 'habit' | 'goal' | 'task';
+type TabType = 'expense' | 'habit' | 'goal' | 'task';
 
 interface TabConfig {
   id: TabType;
@@ -22,19 +23,39 @@ interface TabConfig {
 export default function QuickAddModal({
   isOpen,
   onClose,
+  onAddExpense,
   onAddHabit,
   onAddGoal,
   onAddTask
 }: QuickAddModalProps) {
-  const [tab, setTab] = useState<TabType>('habit');
+  const [tab, setTab] = useState<TabType>('expense');
 
   // Form states
+  const [expTitle, setExpTitle] = useState('');
+  const [expAmount, setExpAmount] = useState('');
+  const [expType, setExpType] = useState<ExpenseType>('EXPENSE');
+
   const [habitTitle, setHabitTitle] = useState('');
   const [goalTitle, setGoalTitle] = useState('');
   const [taskTitle, setTaskTitle] = useState('');
   const [taskPriority, setTaskPriority] = useState<TaskPriority>('HIGH');
 
   if (!isOpen) return null;
+
+  const handleExpenseSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!expTitle || !expAmount) return;
+    onAddExpense({
+      title: expTitle,
+      amount: parseFloat(expAmount),
+      type: expType,
+      category: 'General',
+      date: new Date().toISOString().split('T')[0]
+    });
+    setExpTitle('');
+    setExpAmount('');
+    onClose();
+  };
 
   const handleHabitSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,6 +96,7 @@ export default function QuickAddModal({
   };
 
   const tabs: TabConfig[] = [
+    { id: 'expense', label: 'Cash', icon: Wallet },
     { id: 'habit', label: 'Habit', icon: Flame },
     { id: 'goal', label: 'Goal', icon: Target },
     { id: 'task', label: 'Task', icon: CheckSquare }
@@ -107,6 +129,36 @@ export default function QuickAddModal({
             );
           })}
         </div>
+
+        {/* Form per tab */}
+        {tab === 'expense' && (
+          <form onSubmit={handleExpenseSubmit} className="quickadd-form">
+            <input
+              type="text"
+              placeholder="Expense title (e.g. Flight ticket)"
+              value={expTitle}
+              onChange={e => setExpTitle(e.target.value)}
+              required
+            />
+            <div className="quickadd-grid-2">
+              <input
+                type="number"
+                step="0.01"
+                placeholder="Amount ($)"
+                value={expAmount}
+                onChange={e => setExpAmount(e.target.value)}
+                required
+              />
+              <select value={expType} onChange={e => setExpType(e.target.value as ExpenseType)}>
+                <option value="EXPENSE">Expense (-)</option>
+                <option value="INCOME">Income (+)</option>
+              </select>
+            </div>
+            <button type="submit" className="btn btn-primary quickadd-submit-btn">
+              Log Cash Flow
+            </button>
+          </form>
+        )}
 
         {tab === 'habit' && (
           <form onSubmit={handleHabitSubmit} className="quickadd-form">

@@ -54,6 +54,8 @@ export default function App() {
           <Route path="/life-os/*" element={<LifeOSHub />} />
 
           {/* Direct convenience / legacy redirects */}
+          <Route path="/finances/*" element={<Navigate to="/life-os/finances" replace />} />
+          <Route path="/expenses/*" element={<Navigate to="/life-os/finances" replace />} />
           <Route path="/productivity/*" element={<Navigate to="/life-os/overview" replace />} />
           <Route path="/habits" element={<Navigate to="/life-os/habits" replace />} />
           <Route path="/goals" element={<Navigate to="/life-os/goals" replace />} />
