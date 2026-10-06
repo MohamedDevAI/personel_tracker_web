@@ -1,4 +1,4 @@
-// ─── Central Export for All Application Interfaces ────────────────────────────
+// ─── Central Export for Life OS Application Interfaces ───────────────────────────
 
 export * from './transaction.interface';
 export * from './expense.interface';
@@ -9,6 +9,4 @@ export * from './health.interface';
 export * from './borrowRepay.interface';
 export * from './plannedExpense.interface';
 export * from './plannedRepayCredit.interface';
-export * from './investment.interface';
-export * from './trading.interface';
 export * from './notesReminders.interface';

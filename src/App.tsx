@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import LifeOSHub from './pages/LifeOSHub';
-import MoneyHub from './pages/MoneyHub';
 import GlobalPinnedStickyNotes from './components/life_os/notes-reminders/GlobalPinnedStickyNotes';
 import GlobalReminderAlert from './components/life_os/notes-reminders/GlobalReminderAlert';
 import { useGlobalRemindersNotifier } from './hooks/useGlobalRemindersNotifier';
@@ -11,28 +10,22 @@ import { useBackendHealth } from './hooks/useBackendHealth';
 import './App.css';
 
 /**
- * App is the root component of the Personal Tracker.
+ * App is the root component of the Life OS Personal Tracker.
  *
  * It sets up:
- * - The persistent Navbar (backend status + reminders)
- * - Two top-level application hubs:
- *   - Life OS: tasks, habits, goals, overview (Orange & White Theme)
- *   - Money OS: transactions, borrow-repay, investments (Purple & White Theme)
- * - Legacy redirect routes for backwards compatibility
+ * - Persistent Life OS Navbar (backend status + reminders)
+ * - Life OS hub: tasks, habits, goals, notes & overview (Orange & White Theme)
  * - Global Pinned Sticky Notes dock (active on all screens when pinned)
  * - Global Real-time Reminder Notifier (alerts on any screen when due)
  */
 export default function App() {
   useTheme();
   const backendStatus = useBackendHealth();
-  const location = useLocation();
-  const isMoneyApp = location.pathname.startsWith('/money');
 
   useEffect(() => {
-    const appKey = isMoneyApp ? 'money' : 'life-os';
-    document.documentElement.setAttribute('data-app', appKey);
-    document.body.setAttribute('data-app', appKey);
-  }, [isMoneyApp]);
+    document.documentElement.setAttribute('data-app', 'life-os');
+    document.body.setAttribute('data-app', 'life-os');
+  }, []);
 
   // Global Real-time Reminders Notifier across all screens
   const {
@@ -46,7 +39,7 @@ export default function App() {
   const activeRemindersCount = reminders.filter((r) => !r.isCompleted).length;
 
   return (
-    <div className="app-wrapper" data-app={isMoneyApp ? 'money' : 'life-os'}>
+    <div className="app-wrapper" data-app="life-os">
       <Navbar
         backendStatus={backendStatus}
         activeRemindersCount={activeRemindersCount}
@@ -57,12 +50,12 @@ export default function App() {
           {/* Default: redirect to Life OS overview */}
           <Route path="/" element={<Navigate to="/life-os/overview" replace />} />
 
-          {/* Main application hubs */}
+          {/* Main Life OS hub */}
           <Route path="/life-os/*" element={<LifeOSHub />} />
-          <Route path="/money/*" element={<MoneyHub />} />
 
-          {/* Backwards-compatibility redirects for old URLs */}
-          <Route path="/finances/*" element={<Navigate to="/money" replace />} />
+          {/* Direct convenience / legacy redirects */}
+          <Route path="/finances/*" element={<Navigate to="/life-os/finances" replace />} />
+          <Route path="/expenses/*" element={<Navigate to="/life-os/finances" replace />} />
           <Route path="/productivity/*" element={<Navigate to="/life-os/overview" replace />} />
           <Route path="/habits" element={<Navigate to="/life-os/habits" replace />} />
           <Route path="/goals" element={<Navigate to="/life-os/goals" replace />} />
@@ -89,5 +82,3 @@ export default function App() {
     </div>
   );
 }
-
-
