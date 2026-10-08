@@ -51,11 +51,19 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
   const createRecordMutation = useMutation({
     mutationFn: (record: Omit<BorrowRepayRecord, 'id' | 'createdAt'>) => borrowRepayApi.createRecord(record),
     onSuccess: invalidateAll,
+    onError: (err: any) => {
+      console.error('Failed to create borrow/repay record:', err);
+      alert('Failed to save record: ' + (err.message || 'Unknown error'));
+    },
   });
 
   const deleteRecordMutation = useMutation({
     mutationFn: (id: string) => borrowRepayApi.deleteRecord(id),
     onSuccess: invalidateAll,
+    onError: (err: any) => {
+      console.error('Failed to delete borrow/repay record:', err);
+      alert('Failed to delete record: ' + (err.message || 'Unknown error'));
+    },
   });
 
   const createPlannedMutation = useMutation({
@@ -80,16 +88,28 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
       return borrowRepayApi.createPlannedRepayment(plan);
     },
     onSuccess: invalidateAll,
+    onError: (err: any) => {
+      console.error('Failed to create planned repayment:', err);
+      alert('Failed to create planned repayment: ' + (err.message || 'Unknown error'));
+    },
   });
 
   const deletePlannedMutation = useMutation({
     mutationFn: (id: string) => borrowRepayApi.deletePlannedRepayment(id),
     onSuccess: invalidateAll,
+    onError: (err: any) => {
+      console.error('Failed to delete planned repayment:', err);
+      alert('Failed to delete planned repayment: ' + (err.message || 'Unknown error'));
+    },
   });
 
   const markAsPaidMutation = useMutation({
     mutationFn: (id: string) => borrowRepayApi.markPlannedRepaymentAsPaid(id),
     onSuccess: invalidateAll,
+    onError: (err: any) => {
+      console.error('Failed to mark repayment as paid:', err);
+      alert('Failed to mark repayment as paid: ' + (err.message || 'Unknown error'));
+    },
   });
 
   // ── Derived data ─────────────────────────────────────────────────────────────

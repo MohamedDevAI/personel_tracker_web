@@ -8,7 +8,7 @@
  * 5. Next Month Commitments
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -30,7 +30,7 @@ import { api } from '../services/api';
 import { notesRemindersService } from '../services/notesRemindersService';
 import { borrowRepayApi } from '../services/borrowRepayApi';
 import { formatDateLong } from '../utils/formatters';
-import { MONTH_NAMES, getCurrentYear, getCurrentMonth, getLocalDateISO, parseTxDate } from '../utils/dateHelpers';
+import { MONTH_NAMES, getLocalDateISO, parseTxDate } from '../utils/dateHelpers';
 import {
   useTransactionsQuery,
   useHabitsQuery,
@@ -51,8 +51,18 @@ export default function Dashboard() {
   // Inline quick task title state
   const [quickTaskTitle, setQuickTaskTitle] = useState('');
 
-  const currentYear = getCurrentYear();
-  const currentMonth = getCurrentMonth();
+  // 60-second ticker to ensure reactive rollover across midnight and month boundaries
+  const [currentDate, setCurrentDate] = useState(() => new Date());
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentDate(new Date());
+    }, 60_000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = MONTH_NAMES[currentDate.getMonth()];
+  const todayDateStr = getLocalDateISO(currentDate);
 
   // Compute next month dynamically (e.g., Oct -> Nov)
   const { nextMonth, nextMonthYear } = useMemo(() => {
@@ -75,26 +85,36 @@ export default function Dashboard() {
 
   // 1. Habit Toggle
   const toggleHabitMutation = useMutation({
-    mutationFn: api.toggleHabit,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.HABITS }),
+    mutationFn: ({ id }: { id: string; wasDone: boolean }) => api.toggleHabit(id),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.HABITS });
+      if (!variables.wasDone) {
+        confetti({
+          particleCount: 45,
+          spread: 60,
+          origin: { y: 0.75 },
+          colors: ['#0d9488', '#14b8a6', '#2dd4bf', '#5eead4'],
+        });
+      }
+    },
+    onError: (err: any) => {
+      console.error('Failed to toggle habit:', err);
+      alert('Failed to update habit: ' + (err.message || 'Unknown error'));
+    },
   });
 
   const handleHabitCheck = (id: string, currentlyDone: boolean) => {
-    toggleHabitMutation.mutate(id);
-    if (!currentlyDone) {
-      confetti({
-        particleCount: 45,
-        spread: 60,
-        origin: { y: 0.75 },
-        colors: ['#0d9488', '#14b8a6', '#2dd4bf', '#5eead4'],
-      });
-    }
+    toggleHabitMutation.mutate({ id, wasDone: currentlyDone });
   };
 
   // 2. Task Toggle
   const toggleTaskMutation = useMutation({
     mutationFn: api.toggleTask,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TASKS }),
+    onError: (err: any) => {
+      console.error('Failed to toggle task:', err);
+      alert('Failed to update task: ' + (err.message || 'Unknown error'));
+    },
   });
 
   // 3. Quick Create Task
@@ -109,6 +129,10 @@ export default function Dashboard() {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TASKS });
       setQuickTaskTitle('');
     },
+    onError: (err: any) => {
+      console.error('Failed to create task:', err);
+      alert('Failed to create task: ' + (err.message || 'Unknown error'));
+    },
   });
 
   const handleQuickTaskSubmit = (e: React.FormEvent) => {
@@ -122,6 +146,10 @@ export default function Dashboard() {
     mutationFn: ({ id, isCompleted }: { id: string; isCompleted: boolean }) =>
       notesRemindersService.toggleReminder(id, isCompleted),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REMINDERS }),
+    onError: (err: any) => {
+      console.error('Failed to toggle reminder:', err);
+      alert('Failed to update reminder: ' + (err.message || 'Unknown error'));
+    },
   });
 
   // ── 1. Financial Details At A Glance ─────────────────────────────────────
@@ -176,29 +204,37 @@ export default function Dashboard() {
   }, [filteredTransactions, borrowRecords]);
 
   // ── 2. Today's Reminders ─────────────────────────────────────────────────
-  const todayDateStr = getLocalDateISO();
-
   const todaysReminders = useMemo(() => {
-    // Show active reminders, prioritizing today's due date
-    return [...reminders].sort((a, b) => {
-      if (a.isCompleted !== b.isCompleted) return a.isCompleted ? 1 : -1;
-      const isTodayA = a.dueDate === todayDateStr;
-      const isTodayB = b.dueDate === todayDateStr;
-      if (isTodayA && !isTodayB) return -1;
-      if (!isTodayA && isTodayB) return 1;
-      const dateA = a.dueDate || '';
-      const dateB = b.dueDate || '';
-      return dateA.localeCompare(dateB);
-    });
+    // Show active reminders due today or overdue, and reminders completed today
+    return reminders
+      .filter((r) => {
+        if (!r.dueDate) return false;
+        if (!r.isCompleted && r.dueDate <= todayDateStr) return true;
+        if (r.isCompleted && (r.dueDate === todayDateStr || (r.completedAt && r.completedAt.startsWith(todayDateStr)))) return true;
+        return false;
+      })
+      .sort((a, b) => {
+        if (a.isCompleted !== b.isCompleted) return a.isCompleted ? 1 : -1;
+        const dateA = a.dueDate || '';
+        const dateB = b.dueDate || '';
+        return dateA.localeCompare(dateB);
+      });
   }, [reminders, todayDateStr]);
 
   // ── 3. Today's Tasks ─────────────────────────────────────────────────────
   const todaysTasks = useMemo(() => {
-    return [...tasks].sort((a, b) => {
-      if (a.completed !== b.completed) return a.completed ? 1 : -1;
-      return (b.id || '').localeCompare(a.id || '');
-    });
-  }, [tasks]);
+    // Show tasks pending, or completed today
+    return tasks
+      .filter((t) => {
+        if (!t.completed) return true;
+        if (t.dueDate === todayDateStr) return true;
+        return false;
+      })
+      .sort((a, b) => {
+        if (a.completed !== b.completed) return a.completed ? 1 : -1;
+        return (b.id || '').localeCompare(a.id || '');
+      });
+  }, [tasks, todayDateStr]);
 
   // ── 4. Habits Momentum (Later We change) ──────────────────────────────────
   const habitsTotal = habits.length;
@@ -269,9 +305,11 @@ export default function Dashboard() {
       {/* ── 1. Financial Details At A Single Glance (4 Core Cards) ──────── */}
       <div className="dashboard-kpi-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
         {/* Card 1: How much I Have in My hand */}
-        <div className="glass-panel dashboard-kpi-card" style={{ borderColor: 'rgba(249, 115, 22, 0.35)' }}>
+        <div className="glass-panel dashboard-kpi-card" style={{ borderColor: 'rgba(20, 184, 166, 0.35)' }}>
           <div className="dashboard-kpi-top">
-            <span className="dashboard-kpi-label">IN MY HAND (CASH BALANCE)</span>
+            <span className="dashboard-kpi-label">
+              {timeframe === 'month' ? 'MONTHLY NET CASH FLOW' : 'CASH BALANCE (ALL-TIME LEDGER)'}
+            </span>
             <span className={`badge ${financialGlance.cashInHand >= 0 ? 'badge-emerald' : 'badge-amber'}`}>
               <Wallet size={12} /> {financialGlance.cashInHand >= 0 ? 'Surplus' : 'Deficit'}
             </span>
@@ -283,7 +321,9 @@ export default function Dashboard() {
             SAR {financialGlance.cashInHand.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <div className="dashboard-kpi-subtext">
-            Net liquid funds available ({timeframe === 'month' ? `${currentMonth} ${currentYear}` : 'All-time'})
+            {timeframe === 'month'
+              ? `Net income minus expenses in ${currentMonth} ${currentYear}`
+              : 'Cumulative credit minus debit across entire ledger'}
           </div>
         </div>
 

@@ -146,7 +146,7 @@ export default function PlannedExpensesGlanceTable({
 
     matchingItems.forEach(p => {
       const plannedVal = p.plannedAmount || 0;
-      const finalPaid = targetFulfilled ? plannedVal : 0;
+      const finalPaid = targetFulfilled ? Math.max(plannedVal, Number(p.paidAmount || 0)) : 0;
       if (onSaveFulfillment) {
         onSaveFulfillment(p.id, targetFulfilled, finalPaid, p);
       } else if (onTogglePlanStatus) {

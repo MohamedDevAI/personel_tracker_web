@@ -54,6 +54,38 @@ export function playReminderChime() {
   }
 }
 
+const ALERTED_STORAGE_KEY = 'pt_alerted_reminder_ids';
+
+function getInitialAlertedIds(): Set<string> {
+  if (typeof window === 'undefined') return new Set();
+  try {
+    const raw = sessionStorage.getItem(ALERTED_STORAGE_KEY);
+    if (raw) return new Set(JSON.parse(raw));
+  } catch {}
+  return new Set();
+}
+
+function persistAlertedId(id: string) {
+  if (typeof window === 'undefined') return;
+  try {
+    const raw = sessionStorage.getItem(ALERTED_STORAGE_KEY);
+    const set = new Set<string>(raw ? JSON.parse(raw) : []);
+    set.add(id);
+    sessionStorage.setItem(ALERTED_STORAGE_KEY, JSON.stringify(Array.from(set)));
+  } catch {}
+}
+
+function removeAlertedId(id: string) {
+  if (typeof window === 'undefined') return;
+  try {
+    const raw = sessionStorage.getItem(ALERTED_STORAGE_KEY);
+    if (!raw) return;
+    const set = new Set<string>(JSON.parse(raw));
+    set.delete(id);
+    sessionStorage.setItem(ALERTED_STORAGE_KEY, JSON.stringify(Array.from(set)));
+  } catch {}
+}
+
 export function useGlobalRemindersNotifier() {
   const queryClient = useQueryClient();
 
@@ -61,8 +93,8 @@ export function useGlobalRemindersNotifier() {
 
   const [activeAlert, setActiveAlert] = useState<ReminderItem | null>(null);
 
-  // Keep track of reminders that have already been alerted or dismissed
-  const alertedIdsRef = useRef<Set<string>>(new Set());
+  // Keep track of reminders that have already been alerted or dismissed (persisted in sessionStorage)
+  const alertedIdsRef = useRef<Set<string>>(getInitialAlertedIds());
 
   // Complete mutation
   const completeMutation = useMutation({
@@ -76,6 +108,10 @@ export function useGlobalRemindersNotifier() {
         colors: ['#0d9488', '#14b8a6', '#2dd4bf'],
       });
     },
+    onError: (err: any) => {
+      console.error('Failed to complete reminder:', err);
+      alert('Failed to complete reminder: ' + (err.message || 'Unknown error'));
+    },
   });
 
   // Snooze mutation
@@ -83,6 +119,10 @@ export function useGlobalRemindersNotifier() {
     mutationFn: ({ id, minutes }: { id: string; minutes: number }) =>
       notesRemindersService.snoozeReminderMinutes(id, minutes),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REMINDERS }),
+    onError: (err: any) => {
+      console.error('Failed to snooze reminder:', err);
+      alert('Failed to snooze reminder: ' + (err.message || 'Unknown error'));
+    },
   });
 
   // Check reminders against current clock
@@ -102,6 +142,7 @@ export function useGlobalRemindersNotifier() {
       // If target time is past or now
       if (targetDate.getTime() <= now.getTime()) {
         alertedIdsRef.current.add(r.id);
+        persistAlertedId(r.id);
         setActiveAlert(r);
         playReminderChime();
 
@@ -134,6 +175,21 @@ export function useGlobalRemindersNotifier() {
     }
   }, []);
 
+  // Automatically request notification permission on first user interaction anywhere
+  useEffect(() => {
+    const handleFirstInteraction = () => {
+      requestNotificationPermission();
+      window.removeEventListener('click', handleFirstInteraction);
+      window.removeEventListener('keydown', handleFirstInteraction);
+    };
+    window.addEventListener('click', handleFirstInteraction, { once: true });
+    window.addEventListener('keydown', handleFirstInteraction, { once: true });
+    return () => {
+      window.removeEventListener('click', handleFirstInteraction);
+      window.removeEventListener('keydown', handleFirstInteraction);
+    };
+  }, [requestNotificationPermission]);
+
   const handleComplete = (id: string) => {
     completeMutation.mutate(id);
     setActiveAlert(null);
@@ -143,11 +199,13 @@ export function useGlobalRemindersNotifier() {
     snoozeMutation.mutate({ id, minutes });
     // Remove from alerted set so it will alert again after snooze time elapses
     alertedIdsRef.current.delete(id);
+    removeAlertedId(id);
     setActiveAlert(null);
   };
 
   const handleDismiss = (id: string) => {
     alertedIdsRef.current.add(id);
+    persistAlertedId(id);
     setActiveAlert(null);
   };
 

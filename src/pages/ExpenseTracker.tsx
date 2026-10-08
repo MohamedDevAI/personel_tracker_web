@@ -88,10 +88,15 @@ export default function ExpenseTracker() {
     mutationFn: async (id: string) => {
       const tx = transactions.find(t => (t.id || t._id) === id);
       await expenseApi.deleteTransaction(id);
-      if (tx?.plannedExpenseId) {
+      let peId = tx?.plannedExpenseId;
+      if (!peId && (tx?.description || tx?.note)) {
+        const match = (tx.description || tx.note || '').match(/\[PE-([^\]]+)\]/);
+        if (match) peId = match[1];
+      }
+      if (peId) {
         // Unlink/reset the planned expense if its linked ledger record was deleted
         try {
-          const linkedPlan = plannedExpenses.find(p => p.id === tx.plannedExpenseId);
+          const linkedPlan = plannedExpenses.find(p => p.id === peId);
           if (linkedPlan) {
             await plannedExpenseApi.setFulfillmentAndPayment(
               linkedPlan.id,

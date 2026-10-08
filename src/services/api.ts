@@ -11,15 +11,15 @@ import apiClient from './apiClient';
 export const checkBackendHealth = async (): Promise<BackendHealth> => {
   try {
     const res = await fetch(`${apiClient.defaults.baseURL}/health`, {
-      signal: AbortSignal.timeout(5000),
+      signal: AbortSignal.timeout(8000),
     });
     if (res.ok) {
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       return { connected: true, mode: 'remote', ...data };
     }
-    return { connected: false, mode: 'local' };
+    return { connected: false, mode: 'remote' };
   } catch {
-    return { connected: false, mode: 'local' };
+    return { connected: false, mode: 'remote' };
   }
 };
 

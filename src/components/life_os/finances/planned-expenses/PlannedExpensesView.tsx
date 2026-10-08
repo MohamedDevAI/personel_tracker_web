@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Category, PlannedExpense, PlannedExpenseStatus, Transaction } from '../../../../types';
 import { plannedExpenseApi } from '../../../../services/plannedExpenseApi';
 import { expenseApi } from '../../../../services/expenseApi';
-import { MONTH_NAMES, getCurrentMonth, getCurrentYear } from '../../../../utils/dateHelpers';
+import { MONTH_NAMES, getCurrentMonth, getCurrentYear, parseTxDate } from '../../../../utils/dateHelpers';
 import MonthYearFilter from '../MonthYearFilter';
 import PlannedExpenseModal from './PlannedExpenseModal';
 import FulfillPaymentModal from '../FulfillPaymentModal';
@@ -133,12 +133,8 @@ export default function PlannedExpensesView({
       }
 
       if (savedPlan) {
-        try {
-          const freshTransactions = await expenseApi.getTransactions();
-          await syncPlanToTransactions(savedPlan, freshTransactions);
-        } catch (syncErr) {
-          console.error('Error syncing saved plan to transactions:', syncErr);
-        }
+        const freshTransactions = await expenseApi.getTransactions();
+        await syncPlanToTransactions(savedPlan, freshTransactions);
       }
       return savedPlan;
     },
@@ -170,16 +166,12 @@ export default function PlannedExpensesView({
       const updatedPlan = await plannedExpenseApi.setFulfillmentAndPayment(id, isFulfilled, paidAmount, plan);
       const targetPlan = plan || plans.find(p => p.id === id) || updatedPlan;
       if (targetPlan) {
-        try {
-          const freshTransactions = await expenseApi.getTransactions();
-          await syncPlanToTransactions(
-            { ...targetPlan, isFulfilled, paidAmount },
-            freshTransactions,
-            { isFulfilled, paidAmount }
-          );
-        } catch (syncErr) {
-          console.error('Error syncing fulfilled plan to transactions:', syncErr);
-        }
+        const freshTransactions = await expenseApi.getTransactions();
+        await syncPlanToTransactions(
+          { ...targetPlan, isFulfilled, paidAmount },
+          freshTransactions,
+          { isFulfilled, paidAmount }
+        );
       }
       return updatedPlan;
     },
@@ -198,12 +190,8 @@ export default function PlannedExpensesView({
   const deleteMutation = useMutation({
     mutationFn: async (plan: PlannedExpense) => {
       await plannedExpenseApi.deletePlannedExpense(plan.id);
-      try {
-        const freshTransactions = await expenseApi.getTransactions();
-        await removeLinkedTransactionIfExists(plan, freshTransactions);
-      } catch (syncErr) {
-        console.error('Error removing linked transaction on plan deletion:', syncErr);
-      }
+      const freshTransactions = await expenseApi.getTransactions();
+      await removeLinkedTransactionIfExists(plan, freshTransactions);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PLANNED_EXPENSES() });
@@ -217,19 +205,17 @@ export default function PlannedExpensesView({
     }
   });
 
-  // Compute actual spending by category for the selected month/year from live MongoDB transactions
+  // Compute actual spending by category for the selected month/year using canonical parseTxDate
   const actualCategoryExpenses = useMemo(() => {
     const expenses: Record<string, number> = {};
     for (const tx of transactions) {
       if (String(tx.type).toUpperCase() !== 'CREDIT') {
-        const matchesMonth = selectedMonth === 'All' || tx.month === selectedMonth;
-        let matchesYear = true;
-        if (tx.date) {
-          const d = new Date(tx.date);
-          if (!isNaN(d.getFullYear())) {
-            matchesYear = d.getFullYear() === selectedYear;
-          }
-        }
+        const { year: txYear, month: txMonth } = parseTxDate(tx);
+        const matchesMonth =
+          selectedMonth === 'All' ||
+          txMonth.toLowerCase().slice(0, 3) === selectedMonth.toLowerCase().slice(0, 3);
+        const matchesYear = selectedMonth === 'All' || txYear === selectedYear;
+
         if (matchesMonth && matchesYear) {
           const cat = tx.category || tx.categoryName || 'Other';
           const amt = Math.abs(Number(tx.amount || tx.amountSar || 0));

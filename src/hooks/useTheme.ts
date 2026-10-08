@@ -1,9 +1,7 @@
 /**
  * Hook for applying the application theme.
  *
- * The app ships a single "Sunrise" orange & white light theme, so this hook
- * simply pins `data-theme="light"` on the document root. Component styles that
- * still carry `[data-theme='light']` overrides rely on this attribute.
+ * Configures `data-theme="light"` on the document root for theme attribute selectors.
  */
 
 import { useEffect } from 'react';

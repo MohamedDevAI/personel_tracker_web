@@ -1,7 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { plannedRepayCreditApi } from '../../../../services/plannedRepayCreditApi';
-import { MONTH_NAMES } from '../../../../utils/dateHelpers';
+import { getLocalDateISO, parseDateMonthYear, getMonthIndex } from '../../../../utils/dateHelpers';
+import { formatINR } from '../../../../utils/formatters';
 import type { PlannedRepayCreditItem, PlannedRepayCreditMatrix, BorrowRepayRecord } from '../../../../types';
 import { usePlannedRepayCreditMatrixQuery, QUERY_KEYS } from '../../../../hooks';
 
@@ -38,7 +39,7 @@ export function useGlanceData(actualRecords: BorrowRepayRecord[] = []) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [addForm, setAddForm] = useState({
     creditorName: '',
-    targetDate: '2026-10-01',
+    targetDate: getLocalDateISO(),
     plannedAmount: '',
     status: 'In-Completed' as 'Completed' | 'In-Completed',
     notes: ''
@@ -62,6 +63,10 @@ export function useGlanceData(actualRecords: BorrowRepayRecord[] = []) {
     mutationFn: ({ id, nextStatus }: { id: string; nextStatus: 'Completed' | 'In-Completed' }) =>
       plannedRepayCreditApi.updateStatus(id, nextStatus),
     onSuccess: invalidate,
+    onError: (err: any) => {
+      console.error('Failed to toggle status:', err);
+      alert('Failed to update status: ' + (err.message || 'Unknown error'));
+    },
   });
 
   const createItemMutation = useMutation({
@@ -69,7 +74,11 @@ export function useGlanceData(actualRecords: BorrowRepayRecord[] = []) {
     onSuccess: () => {
       invalidate();
       setIsAddModalOpen(false);
-      setAddForm({ creditorName: '', targetDate: '2026-10-01', plannedAmount: '', status: 'In-Completed', notes: '' });
+      setAddForm({ creditorName: '', targetDate: getLocalDateISO(), plannedAmount: '', status: 'In-Completed', notes: '' });
+    },
+    onError: (err: any) => {
+      console.error('Failed to create planned item:', err);
+      alert('Failed to save planned item: ' + (err.message || 'Unknown error'));
     },
   });
 
@@ -79,26 +88,11 @@ export function useGlanceData(actualRecords: BorrowRepayRecord[] = []) {
       invalidate();
       setDeleteConfirm({ isOpen: false, id: '', creditorName: '', amount: 0, month: '' });
     },
+    onError: (err: any) => {
+      console.error('Failed to delete item:', err);
+      alert('Failed to delete item: ' + (err.message || 'Unknown error'));
+    },
   });
-
-  // ── Helpers ──────────────────────────────────────────────────────────────────
-  const formatINR = (val: number | undefined | null) =>
-    new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format(Number(val) || 0);
-
-  const parseDateMonthYear = (dateStr: string) => {
-    if (!dateStr) return { month: '', year: '' };
-    if (dateStr.includes('/')) {
-      const parts = dateStr.split('/');
-      if (parts.length === 3) {
-        const mIdx = parseInt(parts[0], 10) - 1;
-        const m = mIdx >= 0 && mIdx < 12 ? MONTH_NAMES[mIdx] : '';
-        return { month: m, year: parts[2].trim() };
-      }
-    }
-    const d = new Date(dateStr);
-    if (!isNaN(d.getTime())) return { month: MONTH_NAMES[d.getMonth()], year: String(d.getFullYear()) };
-    return { month: '', year: '' };
-  };
 
   // ── Action Handlers ──────────────────────────────────────────────────────────
   const triggerDeleteItem = (item: PlannedRepayCreditItem, e?: React.MouseEvent) => {
@@ -131,19 +125,22 @@ export function useGlanceData(actualRecords: BorrowRepayRecord[] = []) {
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!addForm.creditorName.trim() || !addForm.plannedAmount || Number(addForm.plannedAmount) <= 0) return;
-    const d = new Date(addForm.targetDate);
-    const mIdx = !isNaN(d.getTime()) ? d.getMonth() + 1 : 10;
-    const mName = !isNaN(d.getTime()) ? `${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}` : 'October 2026';
+    const { month, year } = parseDateMonthYear(addForm.targetDate);
+    const mIdx = month ? getMonthIndex(month) + 1 : 10;
+    const mName = month && year ? `${month} ${year}` : addForm.targetDate;
     createItemMutation.mutate({
-      targetDate: addForm.targetDate, targetMonth: mName, monthIndex: mIdx,
+      targetDate: addForm.targetDate,
+      targetMonth: mName,
+      monthIndex: mIdx,
       creditorName: addForm.creditorName.trim(),
       plannedAmount: Math.abs(parseFloat(addForm.plannedAmount)),
-      status: addForm.status, notes: addForm.notes.trim()
+      status: addForm.status,
+      notes: addForm.notes.trim()
     });
   };
 
   // ── Constraint Engine ────────────────────────────────────────────────────────
-  const checkNextMonthFulfillment = (
+  const checkNextMonthFulfillment = useCallback((
     item: PlannedRepayCreditItem,
     columnIndex: number,
     allColumns: PlannedRepayCreditMatrix['columns']
@@ -203,9 +200,9 @@ export function useGlanceData(actualRecords: BorrowRepayRecord[] = []) {
     }
 
     return { hasCheck: true, isUnfulfilled: true, hasNextMonth: true, nextMonthName, isFulfilledInNextMonth: false, isPartialInNextMonth: false, isFulfilledInLaterMonth: false, actualRepaidInLedger: false, badgeText: `⚠️ Not in ${nextMonthName} (Carried Forward)`, badgeType: 'pending', detailMessage: `This debt was NOT fulfilled in this month nor in next month (${nextMonthName}). Action required.` };
-  };
+  }, [actualRecords]);
 
-  const checkIsPreviousMonthRollover = (
+  const checkIsPreviousMonthRollover = useCallback((
     item: PlannedRepayCreditItem,
     columnIndex: number,
     allColumns: PlannedRepayCreditMatrix['columns']
@@ -217,7 +214,7 @@ export function useGlanceData(actualRecords: BorrowRepayRecord[] = []) {
     const unfulfilledInPrev = prevCol.items.find(it => it.creditorName.trim().toLowerCase() === targetCreditor && it.status !== 'Completed');
     if (unfulfilledInPrev) return { isRollover: true, prevMonthName: prevCol.targetMonth, prevAmount: unfulfilledInPrev.plannedAmount };
     return { isRollover: false, prevMonthName: '', prevAmount: 0 };
-  };
+  }, []);
 
   // ── Computed / Memos ─────────────────────────────────────────────────────────
   const uniqueCreditors = useMemo(() => {
@@ -247,7 +244,7 @@ export function useGlanceData(actualRecords: BorrowRepayRecord[] = []) {
       }
     });
     return { unfulfilledTotal, recoveredInNextTotal, recoveredOriginalTotal, countRecovered, totalUnfulfilledCount };
-  }, [matrix, actualRecords]);
+  }, [matrix, checkNextMonthFulfillment]);
 
   const effectiveFulfilled = (matrix?.totalCompleted ?? 0) + rolloverStats.recoveredOriginalTotal;
   const truePending = (matrix?.totalInCompleted ?? 0) - rolloverStats.recoveredOriginalTotal;
@@ -267,7 +264,7 @@ export function useGlanceData(actualRecords: BorrowRepayRecord[] = []) {
 
       return matchesStatus && matchesCreditor && matchesSearch;
     });
-  }, [matrix, statusFilter, selectedCreditor, searchQuery, actualRecords]);
+  }, [matrix, statusFilter, selectedCreditor, searchQuery, checkNextMonthFulfillment]);
 
   const allFlattenedItems = useMemo(() => {
     if (!matrix?.columns) return [];
@@ -287,7 +284,7 @@ export function useGlanceData(actualRecords: BorrowRepayRecord[] = []) {
       const matchesSearch = !searchQuery.trim() || it.creditorName.toLowerCase().includes(searchQuery.toLowerCase()) || it.targetDate.includes(searchQuery) || it.targetMonth.toLowerCase().includes(searchQuery.toLowerCase()) || (it.notes && it.notes.toLowerCase().includes(searchQuery.toLowerCase()));
       return matchesStatus && matchesCreditor && matchesSearch;
     });
-  }, [matrix, statusFilter, selectedCreditor, searchQuery, actualRecords]);
+  }, [matrix, statusFilter, selectedCreditor, searchQuery, checkNextMonthFulfillment, checkIsPreviousMonthRollover]);
 
   return {
     // State

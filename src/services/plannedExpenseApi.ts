@@ -33,7 +33,7 @@ export const plannedExpenseApi = {
     const paidAmt = isFulfilled
       ? (rawPaid !== undefined ? rawPaid : plannedAmt)
       : (rawPaid ?? 0);
-    const status = isFulfilled ? 'Fulfilled' : (paidAmt > 0 ? 'Partial' : (plan.status || 'Planned'));
+    const status = getPlanStatus({ ...plan, plannedAmount: plannedAmt, paidAmount: paidAmt, isFulfilled });
 
     const payload = {
       ...plan,
@@ -55,7 +55,14 @@ export const plannedExpenseApi = {
     updates: Partial<PlannedExpense>,
     fallbackBase?: PlannedExpense
   ): Promise<PlannedExpense> => {
-    const merged = { ...(fallbackBase || {}), ...updates, id };
+    let base = fallbackBase;
+    if (!base) {
+      try {
+        const all = await plannedExpenseApi.fetchFromDb();
+        base = all.find(p => p.id === id);
+      } catch {}
+    }
+    const merged = { ...(base || {}), ...updates, id };
     const { data } = await apiClient.put<PlannedExpense>(`/finance_planned/${id}`, merged);
     return data;
   },

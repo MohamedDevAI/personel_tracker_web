@@ -9,8 +9,22 @@ import apiClient from './apiClient';
 import { NoteColor, ReminderItem, StickyNote } from '../interface';
 import { getLocalDateISO } from '../utils/dateHelpers';
 
+function getObjectIdTimestamp(idStr: string): string | null {
+  if (idStr && idStr.length === 24 && /^[0-9a-fA-F]{24}$/.test(idStr)) {
+    try {
+      const timestampSeconds = parseInt(idStr.substring(0, 8), 16);
+      return new Date(timestampSeconds * 1000).toISOString();
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 export function normalizeStickyNote(doc: any): StickyNote {
   const id = String(doc.id || doc._id || '');
+  const stableCreatedAt = doc.createdAt || getObjectIdTimestamp(id) || '2026-01-01T00:00:00.000Z';
+  const stableUpdatedAt = doc.updatedAt || stableCreatedAt;
   return {
     id,
     title: doc.title || '',
@@ -18,8 +32,8 @@ export function normalizeStickyNote(doc: any): StickyNote {
     color: (doc.color as NoteColor) || 'yellow',
     isPinned: Boolean(doc.isPinned),
     tags: Array.isArray(doc.tags) ? doc.tags : [],
-    createdAt: doc.createdAt || new Date().toISOString(),
-    updatedAt: doc.updatedAt || new Date().toISOString(),
+    createdAt: stableCreatedAt,
+    updatedAt: stableUpdatedAt,
     reminderId: doc.reminderId ? String(doc.reminderId) : undefined,
   };
 }
@@ -77,9 +91,18 @@ export const notesRemindersService = {
    * Update an existing sticky note in MongoDB collection `sticky_notes`.
    * Endpoint: PUT /api/sticky_notes/{id}
    */
-  async updateNote(id: string, updates: Partial<StickyNote>): Promise<StickyNote> {
+  async updateNote(id: string, updates: Partial<StickyNote>, existingNote?: StickyNote): Promise<StickyNote> {
+    let base = existingNote;
+    if (!base) {
+      try {
+        const { data: note } = await apiClient.get<any>(`/sticky_notes/${id}`);
+        base = normalizeStickyNote(note);
+      } catch {}
+    }
     const payload = {
+      ...(base || {}),
       ...updates,
+      id,
       updatedAt: new Date().toISOString(),
     };
 
@@ -114,7 +137,7 @@ export const notesRemindersService = {
     }
     const { data: note } = await apiClient.get<any>(`/sticky_notes/${id}`);
     const normalized = normalizeStickyNote(note);
-    return this.updateNote(id, { isPinned: !normalized.isPinned });
+    return this.updateNote(id, { isPinned: !normalized.isPinned }, normalized);
   },
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -143,8 +166,21 @@ export const notesRemindersService = {
    * Update an existing reminder in MongoDB collection `remainder`.
    * Endpoint: PUT /api/remainder/{id}
    */
-  async updateReminder(id: string, updates: Partial<ReminderItem>): Promise<ReminderItem> {
-    const response = await apiClient.put<any>(`/remainder/${id}`, updates);
+  async updateReminder(id: string, updates: Partial<ReminderItem>, existingReminder?: ReminderItem): Promise<ReminderItem> {
+    let base = existingReminder;
+    if (!base) {
+      try {
+        const { data: rem } = await apiClient.get<any>(`/remainder/${id}`);
+        base = normalizeReminder(rem);
+      } catch {}
+    }
+    const payload = {
+      ...(base || {}),
+      ...updates,
+      id,
+    };
+
+    const response = await apiClient.put<any>(`/remainder/${id}`, payload);
     return normalizeReminder(response.data);
   },
 
@@ -176,7 +212,7 @@ export const notesRemindersService = {
     return this.updateReminder(id, {
       isCompleted,
       completedAt: isCompleted ? new Date().toISOString() : '',
-    });
+    }, normalized);
   },
 
   /**
@@ -211,13 +247,20 @@ export const notesRemindersService = {
   async snoozeReminder(id: string, days: number = 1): Promise<ReminderItem> {
     const { data: rem } = await apiClient.get<any>(`/remainder/${id}`);
     const normalized = normalizeReminder(rem);
-    const targetDate = new Date(normalized.dueDate || getLocalDateISO());
+    const baseDateStr = normalized.dueDate || getLocalDateISO();
+    const parts = baseDateStr.split('-');
+    let targetDate: Date;
+    if (parts.length === 3) {
+      targetDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+    } else {
+      targetDate = new Date();
+    }
     targetDate.setDate(targetDate.getDate() + days);
     const newDueDate = getLocalDateISO(targetDate);
 
     return this.updateReminder(id, {
       dueDate: newDueDate,
       isCompleted: false,
-    });
+    }, normalized);
   },
 };
