@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { expenseApi } from '../services/expenseApi';
 import { MONTH_NAMES, getCurrentYear, getCurrentMonth } from '../utils/dateHelpers';
-import { Plus, Tag, ArrowDownRight, Search } from 'lucide-react';
+import { Plus, Tag, Search } from 'lucide-react';
 
 import { parseTxDate } from '../components/life_os/finances/financeConstants';
 import MonthYearFilter from '../components/life_os/finances/MonthYearFilter';
@@ -311,12 +311,6 @@ export default function ExpenseTracker() {
               <button onClick={() => setShowCategoryModal(true)} className="btn btn-secondary">
                 <Tag size={16} /> Add Category
               </button>
-              <button
-                onClick={() => handleOpenAddModal('Debit')}
-                className="btn btn-secondary btn-log-expense"
-              >
-                <ArrowDownRight size={16} /> Log Expense
-              </button>
               <button onClick={() => handleOpenAddModal('Credit')} className="btn btn-primary">
                 <Plus size={16} /> Log Transaction
               </button>
@@ -413,14 +407,14 @@ export default function ExpenseTracker() {
 
               {/* Table Component with 90vh height and internal scrolling */}
               <TransactionTable
-                  transactions={filteredTransactions}
-                  categories={categories}
-                  isLoading={isTxsLoading}
-                  selectedMonth={selectedMonth}
-                  selectedYear={selectedYear}
-                  onDeleteTransaction={promptDeleteTransaction}
-                  onOpenAddModal={handleOpenAddModal}
-                />
+                transactions={filteredTransactions}
+                categories={categories}
+                isLoading={isTxsLoading}
+                selectedMonth={selectedMonth}
+                selectedYear={selectedYear}
+                onDeleteTransaction={promptDeleteTransaction}
+                onOpenAddModal={handleOpenAddModal}
+              />
             </div>
 
             {/* Right Column: Donut Chart & Ranked Categories (Height matches 90vh) */}

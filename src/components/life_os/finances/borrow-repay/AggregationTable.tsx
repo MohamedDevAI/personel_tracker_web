@@ -259,7 +259,7 @@ export default function AggregationTable({
                       onClick={() => onInspectYear(y.year)}
                       title={`Click to view all transactions for ${y.year}`}
                     >
-                      <td><strong style={{ color: '#1c1917', fontSize: '0.95rem' }}>{y.year}</strong></td>
+                      <td><strong style={{ color: 'var(--text-primary, #f8fafc)', fontSize: '0.95rem' }}>{y.year}</strong></td>
                       <td className="tx-count-col">{y.txCount}</td>
                       <td className="amount-borrowed-col">
                         {y.totalBorrowed > 0 ? `₹ ${y.totalBorrowed.toLocaleString('en-IN')}` : '—'}

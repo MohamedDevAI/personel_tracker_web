@@ -1,56 +1,56 @@
 :root {
   /* ======================================================================
-     Global Signature Theme: Black Obsidian Canvas & Electric Orange Designs
+     Global Signature Theme: Black Obsidian Canvas & Dimmed Teal Green Designs (Test)
      ====================================================================== */
   color-scheme: dark;
 
-  /* Surfaces */
+  /* Surfaces - Deeper Obsidian Black */
   --bg-primary: #000000;
-  --bg-secondary: #0c0906;
-  --bg-card: #120e0a;
-  --bg-card-hover: #19130d;
-  --bg-glass: rgba(18, 14, 10, 0.9);
-  --bg-surface: #120e0a;
+  --bg-secondary: #020706;
+  --bg-card: #050c0a;
+  --bg-card-hover: #081411;
+  --bg-glass: rgba(5, 12, 10, 0.92);
+  --bg-surface: #050c0a;
 
-  /* Brand orange scale */
-  --orange-50: #fff7ed;
-  --orange-100: #ffedd5;
-  --orange-200: #fed7aa;
-  --orange-300: #fdba74;
-  --orange-400: #fb923c;
-  --orange-500: #f97316;
-  --orange-600: #ea580c;
-  --orange-700: #c2410c;
-  --orange-800: #9a3412;
-  --orange-900: #7c2d12;
+  /* Brand teal green scale (dimmed, elegant executive tones) */
+  --orange-50: #f0fdfa;
+  --orange-100: #ccfbf1;
+  --orange-200: #99f6e4;
+  --orange-300: #5eead4;
+  --orange-400: #2dd4bf;
+  --orange-500: #0d9488;
+  --orange-600: #0f766e;
+  --orange-700: #115e59;
+  --orange-800: #134e4a;
+  --orange-900: #042f2e;
 
-  /* Accents & Gradients */
-  --accent-primary: #f97316;
-  --accent-secondary: #ea580c;
-  --accent-cyan: #fb923c;
-  --accent-emerald: #f97316;
-  --accent-amber: #f59e0b;
-  --accent-rose: #a8a29e;
-  --accent-gradient: linear-gradient(135deg, #fb923c 0%, #f97316 45%, #ea580c 100%);
-  --cyan-gradient: linear-gradient(135deg, #fed7aa 0%, #f97316 100%);
-  --emerald-gradient: linear-gradient(135deg, #fed7aa 0%, #ea580c 100%);
-  --rose-gradient: linear-gradient(135deg, #78716c 0%, #44403c 100%);
-  --gold-gradient: linear-gradient(135deg, #fff7ed 0%, #fdba74 100%);
+  /* Accents & Gradients - Softer, less glaring */
+  --accent-primary: #0d9488;
+  --accent-secondary: #0f766e;
+  --accent-cyan: #14b8a6;
+  --accent-emerald: #0d9488;
+  --accent-amber: #0d9488;
+  --accent-rose: #2dd4bf;
+  --accent-gradient: linear-gradient(135deg, #14b8a6 0%, #0d9488 50%, #0f766e 100%);
+  --cyan-gradient: linear-gradient(135deg, #5eead4 0%, #0d9488 100%);
+  --emerald-gradient: linear-gradient(135deg, #2dd4bf 0%, #0f766e 100%);
+  --rose-gradient: linear-gradient(135deg, #2dd4bf 0%, #115e59 100%);
+  --gold-gradient: linear-gradient(135deg, #e2e8f0 0%, #14b8a6 100%);
 
-  /* Borders & Glows */
-  --border-subtle: rgba(249, 115, 22, 0.22);
-  --border-card: rgba(249, 115, 22, 0.25);
-  --border-focus: #f97316;
-  --glow-primary: 0 8px 24px rgba(249, 115, 22, 0.4);
-  --glow-white: 0 8px 25px rgba(249, 115, 22, 0.2);
-  --card-shadow: 0 12px 36px -10px rgba(0, 0, 0, 0.8), 0 2px 8px rgba(249, 115, 22, 0.08);
+  /* Borders & Glows - Dimmed, subtle edges */
+  --border-subtle: rgba(20, 184, 166, 0.15);
+  --border-card: rgba(20, 184, 166, 0.16);
+  --border-focus: #0d9488;
+  --glow-primary: 0 8px 24px rgba(13, 148, 136, 0.22);
+  --glow-white: 0 8px 25px rgba(13, 148, 136, 0.12);
+  --card-shadow: 0 12px 36px -10px rgba(0, 0, 0, 0.8), 0 2px 8px rgba(13, 148, 136, 0.04);
 
-  /* Typography */
+  /* Typography - Clean neutral readable text instead of glaring cyan */
   --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --text-primary: #ffffff;
-  --text-secondary: #e7e5e4;
-  --text-muted: #a8a29e;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
   --text-on-orange: #ffffff;
 
   /* Layout */
@@ -69,21 +69,36 @@
 }
 
 ::selection {
-  background: rgba(249, 115, 22, 0.4);
+  background: rgba(13, 148, 136, 0.35);
   color: #ffffff;
 }
 
 /* ======================================================================
-   WHOLE APP BLACK OBSIDIAN BACKGROUND (WITH WARM ORANGE RADIANT ORBS)
+   GLOBAL NUMBER INPUT SPINNERS REMOVAL
+   Hides the native up/down stepper arrows on number inputs application-wide
+   ====================================================================== */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield !important;
+  appearance: textfield !important;
+}
+
+/* ======================================================================
+   WHOLE APP BLACK OBSIDIAN BACKGROUND (DIMMED AMBIENT WHISPER ORBS)
    ====================================================================== */
 body {
   font-family: var(--font-body);
   background-color: #000000;
   background-image:
-    radial-gradient(1100px 600px at 15% 10%, rgba(249, 115, 22, 0.15) 0%, transparent 60%),
-    radial-gradient(1300px 700px at 85% 85%, rgba(234, 88, 12, 0.12) 0%, transparent 65%),
-    radial-gradient(800px 500px at 50% 50%, rgba(194, 65, 12, 0.05) 0%, transparent 70%),
-    linear-gradient(180deg, #050403 0%, #000000 100%);
+    radial-gradient(1100px 600px at 15% 10%, rgba(13, 148, 136, 0.07) 0%, transparent 60%),
+    radial-gradient(1300px 700px at 85% 85%, rgba(15, 118, 110, 0.05) 0%, transparent 65%),
+    radial-gradient(800px 500px at 50% 50%, rgba(17, 94, 89, 0.03) 0%, transparent 70%),
+    linear-gradient(180deg, #020706 0%, #000000 100%);
   background-attachment: fixed;
   color: #ffffff;
   min-height: 100vh;
@@ -93,7 +108,7 @@ body {
   position: relative;
 }
 
-/* Floating warm ambient glow effects */
+/* Floating dimmed ambient glow effects */
 body::before {
   content: '';
   position: fixed;
@@ -101,7 +116,7 @@ body::before {
   left: 20%;
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(249, 115, 22, 0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(13, 148, 136, 0.06) 0%, transparent 70%);
   z-index: -1;
   pointer-events: none;
   animation: floatOrb 18s ease-in-out infinite alternate;
@@ -114,7 +129,7 @@ body::after {
   right: 12%;
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(234, 88, 12, 0.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(15, 118, 110, 0.05) 0%, transparent 70%);
   z-index: -1;
   pointer-events: none;
   animation: floatOrb 22s ease-in-out infinite alternate-reverse;
@@ -212,7 +227,7 @@ h1, h2, h3, h4, h5, h6 {
 .gradient-text,
 .emerald-gradient-text,
 .cyan-gradient-text {
-  background: linear-gradient(135deg, #fed7aa 0%, #f97316 50%, #ea580c 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #2dd4bf 55%, #0f766e 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -226,18 +241,18 @@ h1, h2, h3, h4, h5, h6 {
   -webkit-text-fill-color: transparent;
 }
 
-/* Inside cards, gradients are vibrant electric orange */
+/* Inside cards, gradients are refined muted teal green */
 .glass-panel .gradient-text,
 .glass-panel .emerald-gradient-text,
 .modal-container .gradient-text {
-  background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%);
+  background: linear-gradient(135deg, #2dd4bf 0%, #0d9488 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 /* ======================================================================
-   BLACK OBSIDIAN CARDS & SURFACES ACROSS LIFE OS
+   BLACK OBSIDIAN CARDS & SURFACES ACROSS LIFE OS (DIMMED TEAL ACCENTS)
    ====================================================================== */
 .glass-panel,
 .dashboard-kpi-card,
@@ -267,12 +282,12 @@ h1, h2, h3, h4, h5, h6 {
 .goals-toolbar-container,
 .habits-clean-slate,
 .reminders-card {
-  background: #120e0a !important;
+  background: #050c0a !important;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(249, 115, 22, 0.22) !important;
+  border: 1px solid rgba(20, 184, 166, 0.14) !important;
   border-radius: var(--border-radius-lg);
-  box-shadow: 0 12px 36px -10px rgba(0, 0, 0, 0.8), 0 2px 8px rgba(249, 115, 22, 0.06) !important;
+  box-shadow: 0 12px 36px -10px rgba(0, 0, 0, 0.8), 0 2px 8px rgba(13, 148, 136, 0.04) !important;
   color: #ffffff !important;
   transition: var(--transition-smooth);
 }
@@ -283,12 +298,12 @@ h1, h2, h3, h4, h5, h6 {
 .creditor-card:hover,
 .asset-cat-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 18px 45px -10px rgba(0, 0, 0, 0.9), 0 0 24px rgba(249, 115, 22, 0.22) !important;
-  border-color: rgba(249, 115, 22, 0.45) !important;
+  box-shadow: 0 18px 45px -10px rgba(0, 0, 0, 0.9), 0 0 16px rgba(13, 148, 136, 0.15) !important;
+  border-color: rgba(20, 184, 166, 0.35) !important;
 }
 
 /* ======================================================================
-   BUTTONS (VIBRANT ORANGE ACCENTS ON DARK OBSIDIAN SURFACES)
+   BUTTONS (DIMMED TEAL GREEN ACCENTS ON DARK OBSIDIAN SURFACES)
    ====================================================================== */
 .btn {
   display: inline-flex;
@@ -309,19 +324,19 @@ h1, h2, h3, h4, h5, h6 {
 .page-header-actions .btn-primary,
 .finances-header-actions .btn-primary,
 .borrow-header-buttons .btn-primary {
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%) !important;
   color: #ffffff !important;
   font-weight: 800 !important;
-  box-shadow: 0 4px 16px rgba(234, 88, 12, 0.45) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.28) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
 }
 
 .page-header-actions .btn-primary:hover,
 .finances-header-actions .btn-primary:hover,
 .borrow-header-buttons .btn-primary:hover {
-  background: linear-gradient(135deg, #fb923c 0%, #f97316 100%) !important;
+  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%) !important;
   transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 8px 24px rgba(234, 88, 12, 0.6) !important;
+  box-shadow: 0 6px 18px rgba(13, 148, 136, 0.38) !important;
 }
 
 /* Buttons directly on the page background (Money OS) */
@@ -658,13 +673,13 @@ html[data-app="money"] .btn-icon:hover {
 }
 
 /* ======================================================================
-   FORMS & INPUTS (DARK OBSIDIAN SURFACES WITH ORANGE FOCUS)
+   FORMS & INPUTS (DARK OBSIDIAN SURFACES WITH DIMMED TEAL FOCUS)
    ====================================================================== */
 input, select, textarea {
   width: 100%;
   padding: 10px 14px;
-  background: #16110b !important;
-  border: 1px solid rgba(249, 115, 22, 0.28);
+  background: #050d0b !important;
+  border: 1px solid rgba(20, 184, 166, 0.18);
   border-radius: var(--border-radius-md);
   color: #ffffff !important;
   font-family: var(--font-body);
@@ -674,44 +689,45 @@ input, select, textarea {
 }
 
 input::placeholder, textarea::placeholder {
-  color: #78716c !important;
+  color: #64748b !important;
+  opacity: 0.8;
 }
 
 input:hover, select:hover, textarea:hover {
-  border-color: #fb923c !important;
+  border-color: #14b8a6 !important;
 }
 
 input:focus, select:focus, textarea:focus {
-  border-color: #f97316 !important;
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25) !important;
+  border-color: #0d9488 !important;
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.18) !important;
 }
 
 /* ======================================================================
-   TABLES (DARK OBSIDIAN SURFACES WITH WARM ORANGE ACCENTS)
+   TABLES (DARK OBSIDIAN SURFACES WITH DIMMED TEAL ACCENTS)
    ====================================================================== */
 table {
   width: 100%;
-  background: #120e0a !important;
+  background: #050c0a !important;
   border-collapse: separate;
 }
 
 thead th {
-  background: #1a140e !important;
-  color: #fb923c !important;
+  background: #071512 !important;
+  color: #14b8a6 !important;
   font-weight: 700 !important;
-  border-bottom: 2px solid rgba(249, 115, 22, 0.25) !important;
+  border-bottom: 2px solid rgba(20, 184, 166, 0.18) !important;
   padding: 14px 18px !important;
 }
 
 tbody tr {
-  background: #120e0a !important;
-  border-bottom: 1px solid rgba(249, 115, 22, 0.12) !important;
+  background: #050c0a !important;
+  border-bottom: 1px solid rgba(20, 184, 166, 0.08) !important;
   color: #f8fafc !important;
   transition: background 0.15s ease;
 }
 
 tbody tr:hover {
-  background: #1c150e !important;
+  background: #091a16 !important;
 }
 
 tbody td {
@@ -820,9 +836,9 @@ html[data-app="life-os"] body {
 [data-app="life-os"] .habit-card,
 [data-app="life-os"] .month-filter-panel,
 [data-app="life-os"] .glass-panel {
-  background: #120e0a !important;
-  border: 1px solid rgba(249, 115, 22, 0.22) !important;
-  box-shadow: 0 12px 36px -10px rgba(0, 0, 0, 0.8), 0 2px 8px rgba(249, 115, 22, 0.06) !important;
+  background: #050c0a !important;
+  border: 1px solid rgba(20, 184, 166, 0.14) !important;
+  box-shadow: 0 12px 36px -10px rgba(0, 0, 0, 0.8), 0 2px 8px rgba(13, 148, 136, 0.04) !important;
   color: #ffffff !important;
 }
 
@@ -832,45 +848,135 @@ html[data-app="life-os"] body {
 [data-app="life-os"] .dashboard-kpi-card:hover,
 [data-app="life-os"] .creditor-card:hover,
 [data-app="life-os"] .glass-panel:hover {
-  border-color: rgba(249, 115, 22, 0.45) !important;
-  box-shadow: 0 18px 45px -10px rgba(0, 0, 0, 0.9), 0 0 24px rgba(249, 115, 22, 0.22) !important;
+  border-color: rgba(20, 184, 166, 0.35) !important;
+  box-shadow: 0 18px 45px -10px rgba(0, 0, 0, 0.9), 0 0 16px rgba(13, 148, 136, 0.15) !important;
 }
 
 /* Life OS Inputs & Form Controls */
 [data-app="life-os"] input,
 [data-app="life-os"] select,
 [data-app="life-os"] textarea {
-  background: #16110b !important;
-  border: 1px solid rgba(249, 115, 22, 0.28) !important;
+  background: #050d0b !important;
+  border: 1px solid rgba(20, 184, 166, 0.18) !important;
   color: #ffffff !important;
 }
 
 [data-app="life-os"] input:focus,
 [data-app="life-os"] select:focus,
 [data-app="life-os"] textarea:focus {
-  border-color: #f97316 !important;
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25) !important;
+  border-color: #0d9488 !important;
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.18) !important;
+}
+
+/* Life OS Search & Toolbar Filter Wrappers - Single Cohesive Container */
+[data-app="life-os"] .borrow-search-wrapper,
+[data-app="life-os"] .glance-search-wrapper,
+[data-app="life-os"] .goals-search-box,
+[data-app="life-os"] .notes-search-box,
+[data-app="life-os"] .filter-select-wrapper {
+  background: #050d0b !important;
+  border: 1px solid rgba(20, 184, 166, 0.18) !important;
+  border-radius: 10px !important;
+}
+
+[data-app="life-os"] .borrow-search-wrapper:hover,
+[data-app="life-os"] .glance-search-wrapper:hover,
+[data-app="life-os"] .goals-search-box:hover,
+[data-app="life-os"] .notes-search-box:hover,
+[data-app="life-os"] .filter-select-wrapper:hover {
+  border-color: rgba(20, 184, 166, 0.35) !important;
+}
+
+[data-app="life-os"] .borrow-search-wrapper:focus-within,
+[data-app="life-os"] .glance-search-wrapper:focus-within,
+[data-app="life-os"] .goals-search-box:focus-within,
+[data-app="life-os"] .notes-search-box:focus-within,
+[data-app="life-os"] .filter-select-wrapper:focus-within {
+  border-color: #0d9488 !important;
+  background: #071512 !important;
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.18) !important;
+}
+
+/* Life OS Search Wrapper Inner Inputs - Keep 100% transparent with NO nested boxes */
+[data-app="life-os"] .borrow-search-wrapper input,
+[data-app="life-os"] .glance-search-wrapper input,
+[data-app="life-os"] .goals-search-box input,
+[data-app="life-os"] .notes-search-box input,
+[data-app="life-os"] input.borrow-search-input,
+[data-app="life-os"] input.goals-search-input,
+[data-app="life-os"] input.notes-search-input {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+  padding: 0 !important;
+  height: 100% !important;
+}
+
+[data-app="life-os"] .borrow-search-wrapper input:focus,
+[data-app="life-os"] .glance-search-wrapper input:focus,
+[data-app="life-os"] .goals-search-box input:focus,
+[data-app="life-os"] .notes-search-box input:focus,
+[data-app="life-os"] input.borrow-search-input:focus,
+[data-app="life-os"] input.goals-search-input:focus,
+[data-app="life-os"] input.notes-search-input:focus {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Life OS Filter Select Wrapper Inner Selects - Keep 100% transparent with NO nested boxes */
+[data-app="life-os"] .filter-select-wrapper select,
+[data-app="life-os"] select.borrow-select-filter {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+  padding: 0 4px 0 0 !important;
+  height: 100% !important;
+  cursor: pointer !important;
+}
+
+[data-app="life-os"] .filter-select-wrapper select:focus,
+[data-app="life-os"] select.borrow-select-filter:focus {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+[data-app="life-os"] .borrow-search-wrapper svg,
+[data-app="life-os"] .glance-search-wrapper svg,
+[data-app="life-os"] .goals-search-box svg,
+[data-app="life-os"] .notes-search-box svg {
+  color: #14b8a6 !important;
+  flex-shrink: 0 !important;
 }
 
 /* Life OS Tables */
 [data-app="life-os"] table {
-  background: #120e0a !important;
+  background: #050c0a !important;
 }
 
 [data-app="life-os"] thead th {
-  background: #1a140e !important;
-  color: #fb923c !important;
-  border-bottom: 2px solid rgba(249, 115, 22, 0.25) !important;
+  background: #071512 !important;
+  color: #14b8a6 !important;
+  border-bottom: 2px solid rgba(20, 184, 166, 0.18) !important;
 }
 
 [data-app="life-os"] tbody tr {
-  background: #120e0a !important;
-  border-bottom: 1px solid rgba(249, 115, 22, 0.12) !important;
+  background: #050c0a !important;
+  border-bottom: 1px solid rgba(20, 184, 166, 0.08) !important;
   color: #f8fafc !important;
 }
 
 [data-app="life-os"] tbody tr:hover {
-  background: #1c150e !important;
+  background: #091a16 !important;
 }
 
 [data-app="life-os"] tbody td {

@@ -1,7 +1,6 @@
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import type { BorrowRepayRecord } from '../../../../types';
 import { useGlanceData } from './useGlanceData';
-import GlanceKpiStats from './GlanceKpiStats';
 import GlanceToolbar from './GlanceToolbar';
 import GlanceMatrixBoard from './GlanceMatrixBoard';
 import GlanceLedgerTable from './GlanceLedgerTable';
@@ -45,17 +44,7 @@ export default function PlannedRepayCreditGlanceView({
   return (
     <div className="glance-schedule-wrapper">
 
-      {/* ── KPI Stats ──────────────────────────────────────────────────────── */}
-      <GlanceKpiStats
-        totalPlanned={m.totalPlanned}
-        effectiveFulfilled={g.effectiveFulfilled}
-        truePending={g.truePending}
-        completedMonthsCount={m.completedMonthsCount}
-        totalMonths={m.totalMonths}
-        totalItems={m.totalItems}
-        rolloverStats={g.rolloverStats}
-        formatINR={g.formatINR}
-      />
+
 
       {/* ── Toolbar ────────────────────────────────────────────────────────── */}
       <GlanceToolbar

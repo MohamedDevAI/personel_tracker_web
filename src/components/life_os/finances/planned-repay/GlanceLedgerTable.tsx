@@ -60,7 +60,7 @@ export default function GlanceLedgerTable({
               const nextCheck = item.nextCheck;
               return (
                 <tr key={item.id || item._id} className="borrow-row">
-                  <td><strong style={{ color: '#1c1917', fontSize: '0.9rem' }}>{item.monthLabel}</strong></td>
+                  <td><strong style={{ color: 'var(--text-primary, #f8fafc)', fontSize: '0.9rem' }}>{item.monthLabel}</strong></td>
                   <td className="td-date"><span>{item.targetDate}</span></td>
                   <td className="td-creditor">
                     <div className="creditor-avatar-cell">

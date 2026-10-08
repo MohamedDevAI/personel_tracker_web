@@ -4,7 +4,6 @@ import {
   Search,
   Filter,
   LayoutGrid,
-  Plus,
   RefreshCw,
   Target
 } from 'lucide-react';
@@ -26,7 +25,6 @@ interface GlanceToolbarProps {
   completedMonthsCount: number;
   isLoading: boolean;
   onScrollToCurrentMonth: () => void;
-  onAddPlan: () => void;
   onRefresh?: () => void;
 }
 
@@ -46,7 +44,6 @@ export default function GlanceToolbar({
   completedMonthsCount,
   isLoading,
   onScrollToCurrentMonth,
-  onAddPlan,
   onRefresh
 }: GlanceToolbarProps) {
   return (
@@ -130,15 +127,6 @@ export default function GlanceToolbar({
             </select>
           </div>
         )}
-
-        {/* Add Plan Button */}
-        <button
-          type="button"
-          onClick={onAddPlan}
-          className="btn btn-primary btn-sm glance-hero-add-btn"
-        >
-          <Plus size={15} /> Add Expense
-        </button>
 
         {/* Refresh Button */}
         <button

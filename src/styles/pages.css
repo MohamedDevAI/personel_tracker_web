@@ -252,6 +252,206 @@
   height: 100%;
 }
 
+/* Executive Dashboard Timeframe Selector */
+.dashboard-timeframe-selector {
+  display: inline-flex;
+  background: rgba(249, 115, 22, 0.08);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 4px;
+}
+
+.dashboard-timeframe-btn {
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dashboard-timeframe-btn:hover {
+  color: var(--text-primary);
+}
+
+.dashboard-timeframe-btn.active {
+  background: var(--accent-primary);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.35);
+}
+
+/* Category Outflow Bars in Executive Dashboard */
+.dashboard-category-breakdown {
+  margin-top: 18px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dashboard-category-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: space-between;
+}
+
+.dashboard-cat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.dashboard-cat-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+}
+
+.dashboard-cat-name {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.dashboard-cat-value {
+  font-weight: 700;
+  font-family: var(--font-display);
+  color: var(--text-primary);
+}
+
+.dashboard-cat-pct {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  margin-left: 6px;
+}
+
+.dashboard-cat-track {
+  height: 6px;
+  background: rgba(249, 115, 22, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.dashboard-cat-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+/* Commitment & Planned Expense Rows */
+.dashboard-commitments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dashboard-commitment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(249, 115, 22, 0.04);
+  border: 1px solid var(--border-subtle);
+  transition: all 0.2s ease;
+}
+
+.dashboard-commitment-item:hover {
+  background: rgba(249, 115, 22, 0.08);
+}
+
+.dashboard-commitment-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dashboard-commitment-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.dashboard-commitment-meta {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.dashboard-commitment-amount {
+  font-size: 0.92rem;
+  font-weight: 700;
+  font-family: var(--font-display);
+  color: var(--text-primary);
+}
+
+/* Creditors Matrix Glance */
+.dashboard-creditors-strip {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dashboard-creditor-pill-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dashboard-creditor-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(249, 115, 22, 0.06);
+  border: 1px solid var(--border-subtle);
+  font-size: 0.78rem;
+}
+
+.dashboard-creditor-name {
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.dashboard-creditor-balance {
+  font-weight: 700;
+  font-family: var(--font-display);
+  color: #fb923c;
+}
+
+/* Goal Meta Line */
+.dashboard-goal-submeta {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+/* Celebration banner */
+.dashboard-celebration-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(249, 115, 22, 0.12);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  font-size: 0.82rem;
+  color: #fdba74;
+  margin-bottom: 12px;
+}
+
 .dashboard-task-item {
   display: flex;
   align-items: center;
@@ -289,6 +489,69 @@
 
 .badge-priority-sm {
   font-size: 0.68rem;
+}
+
+/* Dashboard Reminder Items */
+.dashboard-reminder-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(249, 115, 22, 0.04);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dashboard-reminder-item:hover {
+  background: rgba(249, 115, 22, 0.08);
+}
+
+.dashboard-reminder-item.completed {
+  opacity: 0.6;
+  background: rgba(249, 115, 22, 0.02);
+}
+
+.dashboard-reminder-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.dashboard-reminder-title.completed {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.dashboard-reminder-meta {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.dashboard-quick-add-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.dashboard-quick-add-input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.dashboard-quick-add-input:focus {
+  border-color: var(--accent-primary);
 }
 
 

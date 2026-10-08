@@ -17,7 +17,7 @@
   font-size: 1.85rem;
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: #1c1917;
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -95,11 +95,7 @@
 }
 
 .planned-month-highlight {
-  color: #1c1917;
-}
-
-[data-theme='light'] .planned-month-highlight {
-  color: #201c19;
+  color: #fb923c;
 }
 
 .planned-breadcrumb-badge {
@@ -153,7 +149,7 @@
   font-size: 1.7rem;
   font-weight: 800;
   font-family: var(--font-display);
-  color: #1c1917;
+  color: var(--text-primary);
 }
 
 .planned-kpi-meta {
@@ -457,7 +453,7 @@
 .glance-hero-title {
   font-size: 1.55rem;
   font-weight: 800;
-  color: #1c1917;
+  color: var(--text-primary);
   margin: 0 0 4px 0;
   letter-spacing: -0.02em;
 }
@@ -558,7 +554,7 @@
 .glance-stat-value {
   font-size: 1.4rem;
   font-weight: 800;
-  color: #1c1917;
+  color: var(--text-primary);
   letter-spacing: -0.02em;
   line-height: 1.2;
 }
@@ -681,7 +677,7 @@
 }
 
 .glance-insight-chip strong {
-  color: #1c1917;
+  color: var(--text-primary);
 }
 .glance-toolbar {
   padding: 12px 18px;
@@ -709,8 +705,8 @@
 
 .glance-view-toggle {
   display: flex;
-  background: rgba(249, 115, 22, 0.08);
-  border: 1px solid rgba(249, 115, 22, 0.18);
+  background: rgba(20, 184, 166, 0.08);
+  border: 1px solid rgba(20, 184, 166, 0.2);
   border-radius: 8px;
   padding: 3px;
   gap: 2px;
@@ -724,7 +720,7 @@
   border-radius: 6px;
   border: none;
   background: transparent;
-  color: var(--text-muted);
+  color: var(--text-secondary, #94a3b8);
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
@@ -732,14 +728,16 @@
 }
 
 .glance-toggle-btn.active {
-  background: rgba(249, 115, 22, 0.16);
-  color: #1c1917;
+  background: rgba(20, 184, 166, 0.22);
+  color: #f0fdfa;
+  border: 1px solid rgba(20, 184, 166, 0.35);
+  box-shadow: 0 2px 8px rgba(20, 184, 166, 0.15);
 }
 
 .glance-jump-current-btn {
-  background: rgba(225, 106, 14, 0.18);
-  color: #be590c;
-  border: 1px solid rgba(225, 106, 14, 0.4);
+  background: rgba(20, 184, 166, 0.12);
+  color: #2dd4bf;
+  border: 1px solid rgba(20, 184, 166, 0.35);
   font-weight: 700;
   display: inline-flex;
   align-items: center;
@@ -752,7 +750,8 @@
 }
 
 .glance-jump-current-btn:hover {
-  background: rgba(225, 106, 14, 0.28);
+  background: rgba(20, 184, 166, 0.22);
+  color: #ffffff;
 }
 
 .glance-status-pills {
@@ -768,9 +767,9 @@
   gap: 5px;
   padding: 5px 10px;
   border-radius: 6px;
-  border: 1px solid rgba(249, 115, 22, 0.22);
-  background: rgba(249, 115, 22, 0.06);
-  color: var(--text-secondary);
+  border: 1px solid rgba(20, 184, 166, 0.2);
+  background: rgba(20, 184, 166, 0.06);
+  color: var(--text-secondary, #94a3b8);
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
@@ -778,26 +777,26 @@
 }
 
 .glance-pill:hover {
-  background: rgba(249, 115, 22, 0.12);
-  color: #1c1917;
+  background: rgba(20, 184, 166, 0.16);
+  color: #ffffff;
 }
 
 .glance-pill.active {
-  background: rgba(249, 115, 22, 0.16);
-  color: #1c1917;
-  border-color: rgba(249, 115, 22, 0.38);
+  background: rgba(20, 184, 166, 0.24);
+  color: #ffffff;
+  border-color: rgba(20, 184, 166, 0.45);
 }
 
 .glance-pill.completed.active {
-  background: rgba(225, 106, 14, 0.2);
-  color: #be590c;
-  border-color: rgba(225, 106, 14, 0.4);
+  background: rgba(20, 184, 166, 0.2);
+  color: #2dd4bf;
+  border-color: rgba(20, 184, 166, 0.45);
 }
 
 .glance-pill.incompleted.active {
-  background: rgba(245, 129, 11, 0.2);
-  color: #d47304;
-  border-color: rgba(245, 129, 11, 0.4);
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.4);
 }
 
 /* ── 6. Horizontal Matrix Board Track ─────────────────────────────────────── */
@@ -807,7 +806,7 @@
   padding-bottom: 14px;
   scroll-behavior: smooth;
   scrollbar-width: thin;
-  scrollbar-color: rgba(225, 106, 14, 0.3) rgba(249, 115, 22, 0.06);
+  scrollbar-color: rgba(20, 184, 166, 0.35) rgba(20, 184, 166, 0.06);
 }
 
 .glance-matrix-container::-webkit-scrollbar {
@@ -815,17 +814,17 @@
 }
 
 .glance-matrix-container::-webkit-scrollbar-track {
-  background: rgba(249, 115, 22, 0.08);
+  background: rgba(20, 184, 166, 0.08);
   border-radius: 6px;
 }
 
 .glance-matrix-container::-webkit-scrollbar-thumb {
-  background: rgba(225, 106, 14, 0.35);
+  background: rgba(20, 184, 166, 0.35);
   border-radius: 6px;
 }
 
 .glance-matrix-container::-webkit-scrollbar-thumb:hover {
-  background: rgba(205, 96, 13, 0.55);
+  background: rgba(13, 148, 136, 0.6);
 }
 
 .glance-columns-track {
@@ -845,42 +844,43 @@
   border-radius: 14px;
   display: flex;
   flex-direction: column;
-  background: rgba(254, 249, 243, 0.7);
-  border: 1px solid rgba(249, 115, 22, 0.22);
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(20, 184, 166, 0.2);
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   overflow: hidden;
 }
 
 .glance-month-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(124, 45, 18, 0.12);
+  box-shadow: 0 8px 24px rgba(20, 184, 166, 0.15);
+  border-color: rgba(20, 184, 166, 0.38);
 }
 
 .glance-month-card.completed-card {
-  border-color: rgba(225, 106, 14, 0.3);
-  background: linear-gradient(180deg, rgba(225, 106, 14, 0.06) 0%, rgba(254, 249, 243, 0.8) 100%);
+  border-color: rgba(20, 184, 166, 0.3);
+  background: linear-gradient(180deg, rgba(20, 184, 166, 0.08) 0%, rgba(15, 23, 42, 0.85) 100%);
 }
 
 .glance-month-card.incompleted-card {
-  border-color: rgba(245, 129, 11, 0.4);
-  background: linear-gradient(180deg, rgba(245, 129, 11, 0.08) 0%, rgba(254, 249, 243, 0.8) 100%);
-  box-shadow: 0 0 15px rgba(245, 129, 11, 0.08);
+  border-color: rgba(20, 184, 166, 0.2);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.85) 0%, rgba(10, 15, 29, 0.95) 100%);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
 }
 
 .glance-month-card.is-current-month {
-  border-color: rgba(223, 105, 14, 0.7) !important;
-  background: linear-gradient(180deg, rgba(225, 106, 14, 0.14) 0%, rgba(254, 249, 243, 0.9) 100%) !important;
-  box-shadow: 0 0 25px rgba(225, 106, 14, 0.22) !important;
+  border-color: rgba(20, 184, 166, 0.75) !important;
+  background: linear-gradient(180deg, rgba(20, 184, 166, 0.16) 0%, rgba(15, 23, 42, 0.92) 100%) !important;
+  box-shadow: 0 0 25px rgba(20, 184, 166, 0.2) !important;
 }
 
 .glance-month-card.is-next-year-month {
-  border-color: rgba(242, 129, 54, 0.35);
+  border-color: rgba(99, 102, 241, 0.35);
 }
 
 /* Month Card Header */
 .glance-card-header {
   padding: 16px 16px 14px;
-  border-bottom: 1px solid rgba(249, 115, 22, 0.18);
+  border-bottom: 1px solid rgba(20, 184, 166, 0.16);
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -901,9 +901,9 @@
 }
 
 .glance-badge-current {
-  background: rgba(225, 106, 14, 0.28);
-  color: #be590c;
-  border: 1px solid rgba(225, 106, 14, 0.5);
+  background: rgba(20, 184, 166, 0.2);
+  color: #2dd4bf;
+  border: 1px solid rgba(20, 184, 166, 0.45);
   font-size: 0.64rem;
   font-weight: 800;
   padding: 2px 7px;
@@ -912,9 +912,9 @@
 }
 
 .glance-badge-next-year {
-  background: rgba(242, 129, 54, 0.2);
-  color: #b83b06;
-  border: 1px solid rgba(242, 129, 54, 0.35);
+  background: rgba(99, 102, 241, 0.18);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.35);
   font-size: 0.64rem;
   font-weight: 700;
   padding: 1px 6px;
@@ -937,7 +937,7 @@
 .glance-month-title {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #1c1917;
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -949,24 +949,25 @@
   font-size: 0.68rem;
   padding: 2px 8px;
   border-radius: 4px;
-  border: 1px solid rgba(249, 115, 22, 0.33);
+  border: 1px solid rgba(20, 184, 166, 0.3);
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  background: rgba(249, 115, 22, 0.08);
-  color: var(--text-secondary);
+  background: rgba(20, 184, 166, 0.08);
+  color: var(--text-secondary, #94a3b8);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .glance-month-details-btn:hover {
-  background: rgba(249, 115, 22, 0.16);
-  color: #1c1917;
+  background: rgba(20, 184, 166, 0.22);
+  color: #ffffff;
+  border-color: rgba(20, 184, 166, 0.5);
 }
 
 .glance-month-total-box {
-  background: rgba(249, 115, 22, 0.09);
-  border: 1px solid rgba(249, 115, 22, 0.18);
+  background: rgba(20, 184, 166, 0.08);
+  border: 1px solid rgba(20, 184, 166, 0.2);
   padding: 8px 12px;
   border-radius: 8px;
   margin-top: 4px;
@@ -985,7 +986,8 @@
 .glance-total-amount {
   font-size: 1.05rem;
   font-weight: 800;
-  color: #1c1917;
+  color: #2dd4bf !important;
+  text-shadow: 0 0 12px rgba(45, 212, 191, 0.25);
 }
 
 .glance-col-status-pill {
@@ -1004,23 +1006,23 @@
 }
 
 .glance-col-status-pill.completed {
-  background: rgba(225, 106, 14, 0.2);
-  color: #be590c;
-  border: 1px solid rgba(225, 106, 14, 0.3);
+  background: rgba(20, 184, 166, 0.16);
+  color: #2dd4bf;
+  border: 1px solid rgba(20, 184, 166, 0.35);
 }
 
 .glance-col-status-pill.completed:hover {
-  background: rgba(225, 106, 14, 0.3);
+  background: rgba(20, 184, 166, 0.26);
 }
 
 .glance-col-status-pill.incompleted {
-  background: rgba(245, 129, 11, 0.2);
-  color: #d47304;
-  border: 1px solid rgba(245, 129, 11, 0.3);
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .glance-col-status-pill.incompleted:hover {
-  background: rgba(245, 129, 11, 0.3);
+  background: rgba(245, 158, 11, 0.22);
 }
 
 /* Card Body / Items */
@@ -1082,7 +1084,7 @@
   color: var(--text-muted);
   font-size: 0.78rem;
   font-style: italic;
-  border: 1px dashed rgba(249, 115, 22, 0.18);
+  border: 1px dashed rgba(20, 184, 166, 0.2);
   border-radius: 8px;
 }
 
@@ -1093,28 +1095,29 @@
   align-items: center;
   padding: 8px 10px;
   border-radius: 8px;
-  background: rgba(249, 115, 22, 0.06);
-  border: 1px solid rgba(249, 115, 22, 0.12);
+  background: rgba(20, 184, 166, 0.05);
+  border: 1px solid rgba(20, 184, 166, 0.12);
   transition: background 0.2s ease, border-color 0.2s ease;
   gap: 8px;
 }
 
 .glance-item-row:hover {
-  background: rgba(249, 115, 22, 0.06);
+  background: rgba(20, 184, 166, 0.1);
+  border-color: rgba(20, 184, 166, 0.25);
 }
 
 .glance-item-row.item-done {
-  border-left: 3px solid #cd600d;
+  border-left: 3px solid #2dd4bf;
 }
 
 .glance-item-row.item-partial {
-  border-left: 3px solid #eb7c0a;
-  background: rgba(245, 129, 11, 0.05);
+  border-left: 3px solid #fbbf24;
+  background: rgba(245, 158, 11, 0.06);
 }
 
 .glance-item-row.item-pending {
-  border-left: 3px solid #7b726b;
-  background: rgba(110, 101, 94, 0.04);
+  border-left: 3px solid #0ea5e9;
+  background: rgba(14, 165, 233, 0.05);
 }
 
 .glance-item-info {
@@ -1134,9 +1137,9 @@
 }
 
 .glance-creditor-name {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  color: #1c1917;
+  color: #ffffff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1146,19 +1149,27 @@
 }
 
 .glance-item-row.item-pending .glance-creditor-name {
-  color: rgba(28, 25, 23, 0.78);
+  color: #f5f5f4;
+}
+
+.glance-item-row.item-done .glance-creditor-name {
+  color: #fed7aa;
 }
 
 .glance-item-amount {
   font-size: 0.85rem;
   font-weight: 700;
-  color: #be590c;
+  color: #f97316;
   flex-shrink: 0;
   margin-left: 6px;
 }
 
 .glance-item-row.item-pending .glance-item-amount {
-  color: #58514d;
+  color: #fb923c;
+}
+
+.glance-item-row.item-done .glance-item-amount {
+  color: #ea580c;
 }
 
 .glance-item-subline {
@@ -1250,12 +1261,14 @@
 }
 
 .glance-item-toggle-btn.pending {
-  background: rgba(110, 101, 94, 0.15);
-  color: #58514d;
+  background: rgba(249, 115, 22, 0.12);
+  color: #fdba74;
+  border: 1px solid rgba(249, 115, 22, 0.25);
 }
 
 .glance-item-toggle-btn.pending:hover {
-  background: rgba(110, 101, 94, 0.25);
+  background: rgba(249, 115, 22, 0.22);
+  color: #ffffff;
 }
 
 .glance-item-del-btn {
@@ -1292,7 +1305,7 @@
 }
 
 .glance-unfulfilled-icon {
-  color: #524c47;
+  color: #fdba74;
 }
 
 .glance-footer-badge {
@@ -1325,18 +1338,18 @@
   text-align: center;
   width: 100%;
   color: var(--text-muted);
-  border: 1px dashed rgba(249, 115, 22, 0.22);
+  border: 1px dashed rgba(20, 184, 166, 0.22);
   border-radius: 12px;
-  background: rgba(249, 115, 22, 0.06);
+  background: rgba(20, 184, 166, 0.05);
 }
 
 .glance-empty-filter-icon {
   margin: 0 auto 12px;
-  color: #cb6b08;
+  color: #2dd4bf;
 }
 
 .glance-empty-filter-title {
-  color: #1c1917;
+  color: var(--text-primary, #f8fafc);
   margin-bottom: 6px;
   font-size: 1.05rem;
 }
@@ -1364,13 +1377,14 @@
   padding: 24px;
   border-radius: 16px;
   border: 1px solid rgba(249, 115, 22, 0.33);
-  background: rgba(254, 249, 243, 0.95);
-  box-shadow: 0 20px 50px rgba(124, 45, 18, 0.13);
+  background: #120e0a;
+  color: var(--text-primary);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
 }
 
 .glance-modal-header {
   margin: 0 0 16px 0;
-  color: #1c1917;
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   gap: 8px;

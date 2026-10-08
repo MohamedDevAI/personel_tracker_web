@@ -4,7 +4,6 @@ import { PlannedExpense } from '../../../../types';
 import { MONTH_NAMES, getCurrentYear, getCurrentMonth } from '../../../../utils/dateHelpers';
 import GlanceToolbar from './GlanceToolbar';
 import GlanceMonthCard from './GlanceMonthCard';
-import GlanceAddModal from './GlanceAddModal';
 import GlanceDeleteModal from './GlanceDeleteModal';
 import FulfillPaymentModal from '../FulfillPaymentModal';
 import './planned-expenses.css';
@@ -17,7 +16,6 @@ export interface PlannedExpensesGlanceTableProps {
   onFulfillPlan?: (plan: PlannedExpense) => void;
   onSaveFulfillment?: (id: string, isFulfilled: boolean, paidAmount: number, plan?: PlannedExpense) => void;
   onDeletePlan?: (plan: PlannedExpense, e?: React.MouseEvent) => void;
-  onAddPlan?: (newPlan: Partial<PlannedExpense>) => void;
   onRefresh?: () => void;
   onSelectMonth?: (monthShort: string, year?: number) => void;
 }
@@ -48,7 +46,6 @@ export default function PlannedExpensesGlanceTable({
   onFulfillPlan,
   onSaveFulfillment,
   onDeletePlan,
-  onAddPlan,
   onRefresh,
   onSelectMonth
 }: PlannedExpensesGlanceTableProps) {
@@ -68,12 +65,6 @@ export default function PlannedExpensesGlanceTable({
   const currentMonthCardRef = useRef<HTMLDivElement>(null);
 
   // Modal States
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [newTitle, setNewTitle] = useState('');
-  const [newAmount, setNewAmount] = useState('');
-  const [newMonth, setNewMonth] = useState<string>(calendarMonthShort);
-  const [newYear, setNewYear] = useState<number>(calendarYear);
-  const [newNotes, setNewNotes] = useState('');
   const [deleteConfirmPlan, setDeleteConfirmPlan] = useState<PlannedExpense | null>(null);
   const [internalFulfillPlan, setInternalFulfillPlan] = useState<PlannedExpense | null>(null);
 
@@ -168,32 +159,6 @@ export default function PlannedExpensesGlanceTable({
       onDeletePlan(deleteConfirmPlan);
     }
     setDeleteConfirmPlan(null);
-  };
-
-  // Handle Add Item Submit
-  const handleAddSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTitle.trim() || !newAmount || Number(newAmount) <= 0) return;
-
-    const created: Partial<PlannedExpense> = {
-      title: newTitle.trim(),
-      month: newMonth,
-      year: newYear,
-      plannedAmount: parseFloat(newAmount),
-      paidAmount: 0,
-      isFulfilled: false,
-      status: 'Planned',
-      notes: newNotes.trim() || undefined
-    };
-
-    if (onAddPlan) {
-      onAddPlan(created as PlannedExpense);
-    }
-
-    setNewTitle('');
-    setNewAmount('');
-    setNewNotes('');
-    setIsAddModalOpen(false);
   };
 
   // ── Multi-Month Cross-Year Column Matrix Generation ─────────────────────────
@@ -423,7 +388,6 @@ export default function PlannedExpensesGlanceTable({
         completedMonthsCount={kpiStats.completedMonthsCount}
         isLoading={isLoading}
         onScrollToCurrentMonth={() => scrollToCurrentMonth(true)}
-        onAddPlan={() => setIsAddModalOpen(true)}
         onRefresh={onRefresh}
       />
 
@@ -455,24 +419,6 @@ export default function PlannedExpensesGlanceTable({
             )}
           </div>
         </div>
-      )}
-
-      {isAddModalOpen && (
-        <GlanceAddModal
-          calendarYear={calendarYear}
-          newTitle={newTitle}
-          setNewTitle={setNewTitle}
-          newAmount={newAmount}
-          setNewAmount={setNewAmount}
-          newMonth={newMonth}
-          setNewMonth={setNewMonth}
-          newYear={newYear}
-          setNewYear={setNewYear}
-          newNotes={newNotes}
-          setNewNotes={setNewNotes}
-          onSubmit={handleAddSubmit}
-          onClose={() => setIsAddModalOpen(false)}
-        />
       )}
 
       {deleteConfirmPlan && (

@@ -14,10 +14,10 @@
   justify-content: space-between;
   gap: 16px;
   overflow: hidden;
-  background: rgba(14, 10, 7, 0.88);
+  background: rgba(5, 12, 10, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(249, 115, 22, 0.25);
+  border: 1px solid rgba(20, 184, 166, 0.16);
   box-shadow: 0 12px 32px -10px rgba(0, 0, 0, 0.85);
   border-radius: var(--border-radius-lg);
   transition: all 0.3s ease;
@@ -33,17 +33,18 @@ body[data-app="money"] .navbar-header::after {
   background: linear-gradient(90deg, #e9d5ff, #c084fc, #a855f7, #7c3aed, #c084fc, #e9d5ff);
 }
 
-/* Animated warm orange shimmer accent line along bottom edge */
+/* Animated dimmed teal green shimmer accent line along bottom edge */
 .navbar-header::after {
   content: '';
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #fdba74, #f97316, #ea580c, #f97316, #fdba74);
+  height: 2px;
+  background: linear-gradient(90deg, #115e59, #0d9488, #14b8a6, #0d9488, #115e59);
   background-size: 200% 100%;
   animation: navbarShimmer 6s linear infinite;
+  opacity: 0.7;
 }
 
 @keyframes navbarShimmer {
@@ -100,9 +101,9 @@ body[data-app="money"] .navbar-header::after {
 }
 
 .badge-orange {
-  background: rgba(249, 115, 22, 0.18);
-  color: #fb923c;
-  border: 1px solid rgba(249, 115, 22, 0.35);
+  background: rgba(13, 148, 136, 0.14);
+  color: #14b8a6;
+  border: 1px solid rgba(20, 184, 166, 0.22);
   font-weight: 700;
 }
 
@@ -112,7 +113,7 @@ body[data-app="money"] .navbar-header::after {
 
 .navbar-brand-subtitle {
   font-size: 0.75rem;
-  color: #a8a29e;
+  color: #94a3b8;
 }
 
 /* Dual Application Switcher Bar */
@@ -126,10 +127,10 @@ body[data-app="money"] .navbar-header::after {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: #18120b;
+  background: #06110e;
   padding: 5px;
   border-radius: 14px;
-  border: 1px solid rgba(249, 115, 22, 0.28);
+  border: 1px solid rgba(20, 184, 166, 0.18);
 }
 
 body[data-app="money"] .app-switcher-tabs {
@@ -145,7 +146,7 @@ body[data-app="money"] .app-switcher-tabs {
   border-radius: 10px;
   border: none;
   background: transparent;
-  color: #fed7aa;
+  color: #94a3b8;
   font-weight: 700;
   font-size: 0.88rem;
   text-decoration: none;
@@ -154,7 +155,7 @@ body[data-app="money"] .app-switcher-tabs {
 
 .app-switcher-btn:hover {
   color: #ffffff;
-  background: rgba(249, 115, 22, 0.18);
+  background: rgba(20, 184, 166, 0.12);
 }
 
 body[data-app="money"] .app-switcher-btn {
@@ -170,7 +171,7 @@ body[data-app="money"] .app-switcher-btn:hover {
   background: var(--accent-gradient) !important;
   color: #ffffff !important;
   font-weight: 800;
-  box-shadow: 0 6px 16px rgba(234, 88, 12, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .app-switcher-btn.active-money-os {
