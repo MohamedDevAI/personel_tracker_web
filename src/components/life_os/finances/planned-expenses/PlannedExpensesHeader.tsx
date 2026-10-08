@@ -1,4 +1,4 @@
-import { Plus, LayoutGrid } from 'lucide-react';
+import { LayoutGrid } from 'lucide-react';
 
 interface PlannedExpensesHeaderProps {
   onAddPlan: () => void;

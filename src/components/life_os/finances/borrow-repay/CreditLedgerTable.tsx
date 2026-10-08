@@ -1,6 +1,6 @@
 import {
   HandCoins, Search, Filter, ArrowDownLeft, ArrowUpRight,
-  Trash2, Calendar, Clock, User, RotateCcw, ArrowLeft
+  Trash2, Calendar, Clock, User
 } from 'lucide-react';
 import { BorrowRepayRecord, BorrowRepayType } from '../../../../types';
 import { MONTH_NAMES } from '../../../../utils/dateHelpers';

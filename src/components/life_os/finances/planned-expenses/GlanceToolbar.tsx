@@ -4,7 +4,6 @@ import {
   Search,
   Filter,
   LayoutGrid,
-  Plus,
   RefreshCw,
   Target
 } from 'lucide-react';
