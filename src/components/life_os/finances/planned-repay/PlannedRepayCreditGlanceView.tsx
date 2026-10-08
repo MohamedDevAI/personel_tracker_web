@@ -8,12 +8,10 @@ import GlanceAddModal from './GlanceAddModal';
 import GlanceDeleteModal from './GlanceDeleteModal';
 
 interface PlannedRepayCreditGlanceViewProps {
-  onOpenScheduleModal?: () => void;
   actualRecords?: BorrowRepayRecord[];
 }
 
 export default function PlannedRepayCreditGlanceView({
-  onOpenScheduleModal: _onOpenScheduleModal,
   actualRecords = []
 }: PlannedRepayCreditGlanceViewProps) {
   const g = useGlanceData(actualRecords);
