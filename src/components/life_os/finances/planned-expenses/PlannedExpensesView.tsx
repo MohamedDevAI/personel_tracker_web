@@ -331,6 +331,7 @@ export default function PlannedExpensesView({
             });
           }}
           onDeletePlan={plan => deleteMutation.mutate(plan)}
+          onPlanExpense={handleOpenAddModal}
           onRefresh={() => queryClient.invalidateQueries({ queryKey: ['plannedExpenses'] })}
         />
       ) : (

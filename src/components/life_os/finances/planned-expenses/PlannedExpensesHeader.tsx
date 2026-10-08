@@ -39,12 +39,14 @@ export default function PlannedExpensesHeader({
           </span>
         )}
 
-        <button
-          onClick={onAddPlan}
-          className="btn btn-primary"
-        >
-          <Plus size={16} /> Plan An Expense
-        </button>
+        {!isAll && (
+          <button
+            onClick={onAddPlan}
+            className="btn btn-primary"
+          >
+            Add Expense
+          </button>
+        )}
       </div>
     </div>
   );

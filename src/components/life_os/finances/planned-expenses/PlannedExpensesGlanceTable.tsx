@@ -16,6 +16,7 @@ export interface PlannedExpensesGlanceTableProps {
   onFulfillPlan?: (plan: PlannedExpense) => void;
   onSaveFulfillment?: (id: string, isFulfilled: boolean, paidAmount: number, plan?: PlannedExpense) => void;
   onDeletePlan?: (plan: PlannedExpense, e?: React.MouseEvent) => void;
+  onPlanExpense?: () => void;
   onRefresh?: () => void;
   onSelectMonth?: (monthShort: string, year?: number) => void;
 }
@@ -46,6 +47,7 @@ export default function PlannedExpensesGlanceTable({
   onFulfillPlan,
   onSaveFulfillment,
   onDeletePlan,
+  onPlanExpense,
   onRefresh,
   onSelectMonth
 }: PlannedExpensesGlanceTableProps) {
@@ -388,6 +390,7 @@ export default function PlannedExpensesGlanceTable({
         completedMonthsCount={kpiStats.completedMonthsCount}
         isLoading={isLoading}
         onScrollToCurrentMonth={() => scrollToCurrentMonth(true)}
+        onPlanExpense={onPlanExpense}
         onRefresh={onRefresh}
       />
 

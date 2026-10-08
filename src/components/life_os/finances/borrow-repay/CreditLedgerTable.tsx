@@ -29,62 +29,15 @@ interface CreditLedgerTableProps {
 }
 
 export default function CreditLedgerTable({
-  filteredRecords, totalRecords, activeFilterTotals,
+  filteredRecords,
   searchQuery, typeFilter, selectedMonth, selectedYear, selectedCreditorFilter,
   availableYears, existingCreditors,
   onSearchChange, onTypeFilterChange, onMonthChange, onYearChange, onCreditorFilterChange,
-  onDeleteRecord, onAddRecord, onResetFilters, onBackToAggregation, formatINR: _formatINR
+  onDeleteRecord, onAddRecord, formatINR: _formatINR
 }: CreditLedgerTableProps) {
-  const hasFilter = selectedMonth !== 'ALL' || selectedYear !== 'ALL' || typeFilter !== 'ALL' ||
-    selectedCreditorFilter !== 'ALL' || !!searchQuery;
-
   return (
     <>
-      {/* Summary Strip */}
-      <div className="table-summary-strip">
-        <div className="summary-strip-left">
-          {onBackToAggregation && (
-            <button
-              type="button"
-              onClick={onBackToAggregation}
-              className="btn-back-to-agg"
-              style={{ padding: '4px 10px', fontSize: '0.78rem', marginRight: '6px' }}
-              title="Return to Aggregation Table"
-            >
-              <ArrowLeft size={13} /> Back to Aggregations
-            </button>
-          )}
-          <HandCoins size={16} />
-          <span>
-            Showing <strong>{filteredRecords.length}</strong> of <strong>{totalRecords}</strong> transactions
-            {selectedCreditorFilter !== 'ALL' && <> for <strong>{selectedCreditorFilter}</strong></>}
-          </span>
-        </div>
-        <div className="summary-strip-right">
-          <div className="summary-stat-item">
-            <span style={{ color: 'var(--text-muted)' }}>Borrowed:</span>
-            <span style={{ color: '#d47304', fontWeight: 700 }}>₹ {activeFilterTotals.borrowed.toLocaleString('en-IN')}</span>
-          </div>
-          <div className="summary-stat-item">
-            <span style={{ color: 'var(--text-muted)' }}>Repaid:</span>
-            <span style={{ color: '#be590c', fontWeight: 700 }}>₹ {activeFilterTotals.repaid.toLocaleString('en-IN')}</span>
-          </div>
-          <div className="summary-stat-item">
-            <span style={{ color: 'var(--text-muted)' }}>Net:</span>
-            <span style={{ color: activeFilterTotals.net > 0 ? '#58514d' : '#be590c', fontWeight: 700 }}>
-              ₹ {activeFilterTotals.net.toLocaleString('en-IN')}
-            </span>
-          </div>
-          {hasFilter && (
-            <button type="button" onClick={onResetFilters} className="btn-clear-all-filters" title="Reset all filters">
-              <RotateCcw size={12} style={{ display: 'inline', marginRight: 4 }} />
-              Reset All Filters
-            </button>
-          )}
-        </div>
-      </div>
 
-      {/* Toolbar */}
       <div className="borrow-table-toolbar">
         <div className="borrow-search-wrapper">
           <Search size={15} className="search-icon" />
@@ -190,8 +143,8 @@ export default function CreditLedgerTable({
                       {isCreditGiven
                         ? `₹ ${Math.abs(Number(item.amount)).toLocaleString('en-IN')} (Given)`
                         : isBorrow
-                        ? `+₹ ${Number(item.amount).toLocaleString('en-IN')}`
-                        : `-₹ ${Number(item.amount).toLocaleString('en-IN')}`}
+                          ? `+₹ ${Number(item.amount).toLocaleString('en-IN')}`
+                          : `-₹ ${Number(item.amount).toLocaleString('en-IN')}`}
                     </td>
                     <td className="td-notes"><span className="notes-text">{item.notes || '—'}</span></td>
                     <td className="td-action">
