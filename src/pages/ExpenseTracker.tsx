@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { expenseApi } from '../services/expenseApi';
-import { MONTH_NAMES, getCurrentYear, getCurrentMonth } from '../utils/dateHelpers';
+import { plannedExpenseApi } from '../services/plannedExpenseApi';
+import { MONTH_NAMES, getCurrentYear, getCurrentMonth, getLocalDateISO } from '../utils/dateHelpers';
 import { Plus, Tag, Search } from 'lucide-react';
 
 import { parseTxDate } from '../components/life_os/finances/financeConstants';
@@ -20,7 +21,7 @@ import ConfirmDeleteModal from '../components/common/ConfirmDeleteModal';
 import '../components/life_os/finances/finances.css';
 import { TransactionType } from '../interface';
 import { useBorrowRepayRecordsQuery } from '../hooks/useBorrowRepayQueries';
-import { useCategoriesQuery, usePlannedExpensesQuery, useTransactionsQuery } from '../hooks';
+import { useCategoriesQuery, usePlannedExpensesQuery, useTransactionsQuery, QUERY_KEYS } from '../hooks';
 
 export default function ExpenseTracker() {
   const queryClient = useQueryClient();
@@ -74,8 +75,8 @@ export default function ExpenseTracker() {
   const addTransactionMutation = useMutation({
     mutationFn: expenseApi.createTransaction,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboardSummary'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TRANSACTIONS() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.DASHBOARD_SUMMARY() });
     },
     onError: (err: any) => {
       console.error('Failed to create transaction:', err);
@@ -84,24 +85,56 @@ export default function ExpenseTracker() {
   });
 
   const deleteTransactionMutation = useMutation({
-    mutationFn: expenseApi.deleteTransaction,
+    mutationFn: async (id: string) => {
+      const tx = transactions.find(t => (t.id || t._id) === id);
+      await expenseApi.deleteTransaction(id);
+      if (tx?.plannedExpenseId) {
+        // Unlink/reset the planned expense if its linked ledger record was deleted
+        try {
+          const linkedPlan = plannedExpenses.find(p => p.id === tx.plannedExpenseId);
+          if (linkedPlan) {
+            await plannedExpenseApi.setFulfillmentAndPayment(
+              linkedPlan.id,
+              false,
+              0,
+              linkedPlan
+            );
+          }
+        } catch (e) {
+          console.warn('Could not reset linked planned expense after transaction delete:', e);
+        }
+      }
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboardSummary'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TRANSACTIONS() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PLANNED_EXPENSES() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.DASHBOARD_SUMMARY() });
+    },
+    onError: (err: any) => {
+      console.error('Failed to delete transaction:', err);
+      alert('Failed to delete transaction: ' + (err.response?.data?.message || err.message));
     }
   });
 
   const addCategoryMutation = useMutation({
     mutationFn: expenseApi.createCategory,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CATEGORIES });
+    },
+    onError: (err: any) => {
+      console.error('Failed to create category:', err);
+      alert('Failed to add category: ' + (err.response?.data?.message || err.message));
     }
   });
 
   const deleteCategoryMutation = useMutation({
     mutationFn: expenseApi.deleteCategory,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CATEGORIES });
+    },
+    onError: (err: any) => {
+      console.error('Failed to delete category:', err);
+      alert('Failed to delete category: ' + (err.response?.data?.message || err.message));
     }
   });
 
@@ -271,7 +304,7 @@ export default function ExpenseTracker() {
       selectedYear === currentYr &&
       (selectedMonth === 'All' || selectedMonth.toLowerCase() === currentM.toLowerCase())
     ) {
-      return now.toISOString().split('T')[0];
+      return getLocalDateISO(now);
     }
 
     const monthIdx = selectedMonth !== 'All' ? MONTH_NAMES.indexOf(selectedMonth as any) : now.getMonth();

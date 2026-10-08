@@ -10,7 +10,7 @@
     "lint": "eslint . --fix",
     "format": "prettier --write .",
     "test": "vitest",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.102.8",
@@ -43,7 +43,6 @@
     "husky": "^9.1.7",
     "jsdom": "^25.0.1",
     "lint-staged": "^15.5.2",
-    "mongodb": "^7.6.0",
     "prettier": "^3.9.8",
     "typescript": "^5.7.2",
     "vite": "^5.4.2",

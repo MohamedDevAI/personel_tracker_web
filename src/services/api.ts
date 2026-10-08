@@ -11,7 +11,7 @@ import apiClient from './apiClient';
 export const checkBackendHealth = async (): Promise<BackendHealth> => {
   try {
     const res = await fetch(`${apiClient.defaults.baseURL}/health`, {
-      signal: AbortSignal.timeout(1500),
+      signal: AbortSignal.timeout(5000),
     });
     if (res.ok) {
       const data = await res.json();
@@ -29,13 +29,8 @@ export const api = {
   // ── Expenses ──────────────────────────────────────────────────────────────
 
   getExpenses: async (): Promise<Expense[]> => {
-    try {
-      const { data } = await apiClient.get<Expense[]>('/expenses', { timeout: 6000 });
-      if (Array.isArray(data)) return data;
-    } catch (e) {
-      console.warn('Failed to fetch expenses from API:', e);
-    }
-    return [];
+    const { data } = await apiClient.get<Expense[]>('/expenses', { timeout: 6000 });
+    return Array.isArray(data) ? data : [];
   },
 
   createExpense: async (expense: Omit<Expense, 'id'>): Promise<Expense> => {
@@ -51,13 +46,8 @@ export const api = {
   // ── Habits ────────────────────────────────────────────────────────────────
 
   getHabits: async (): Promise<Habit[]> => {
-    try {
-      const { data } = await apiClient.get<Habit[]>('/habits', { timeout: 6000 });
-      if (Array.isArray(data)) return data;
-    } catch (e) {
-      console.warn('Failed to fetch habits from API:', e);
-    }
-    return [];
+    const { data } = await apiClient.get<Habit[]>('/habits', { timeout: 6000 });
+    return Array.isArray(data) ? data : [];
   },
 
   toggleHabit: async (id: string): Promise<Habit> => {
@@ -87,13 +77,8 @@ export const api = {
       return { ...g, unit, title };
     };
 
-    try {
-      const { data } = await apiClient.get<Goal[]>('/goals', { timeout: 6000 });
-      if (Array.isArray(data)) return data.map(sanitizeGoal);
-    } catch (e) {
-      console.warn('Failed to fetch goals from API:', e);
-    }
-    return [];
+    const { data } = await apiClient.get<Goal[]>('/goals', { timeout: 6000 });
+    return Array.isArray(data) ? data.map(sanitizeGoal) : [];
   },
 
   updateGoalProgress: async (id: string, newProgress: number): Promise<Goal> => {
@@ -107,18 +92,16 @@ export const api = {
   },
 
   updateGoal: async (goal: Goal): Promise<Goal> => {
-    // Spring Boot Mongo controller typically uses PUT /goals/{id} or POST /goals
     try {
       const { data } = await apiClient.put<Goal>(`/goals/${goal.id}`, goal);
       if (data) return data;
     } catch (err: any) {
-      if (err?.response?.status === 404 || err?.response?.status === 405) {
-        // Fallback to POST /goals (Spring Data Mongo save updates if ID is present)
+      if (err?.response?.status === 405) {
+        // Fallback to POST /goals only if PUT is not allowed (HTTP 405)
         const { data } = await apiClient.post<Goal>('/goals', goal);
         if (data) return data;
-      } else {
-        throw err;
       }
+      throw err;
     }
     return goal;
   },
@@ -131,13 +114,8 @@ export const api = {
   // ── Tasks ─────────────────────────────────────────────────────────────────
 
   getTasks: async (): Promise<TaskItem[]> => {
-    try {
-      const { data } = await apiClient.get<TaskItem[]>('/tasks', { timeout: 6000 });
-      if (Array.isArray(data)) return data;
-    } catch (e) {
-      console.warn('Failed to fetch tasks from API:', e);
-    }
-    return [];
+    const { data } = await apiClient.get<TaskItem[]>('/tasks', { timeout: 6000 });
+    return Array.isArray(data) ? data : [];
   },
 
   toggleTask: async (id: string): Promise<TaskItem> => {

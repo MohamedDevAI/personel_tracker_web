@@ -19,7 +19,8 @@ import {
   removeLinkedTransactionIfExists,
   formatSAR
 } from './plannedExpenseSync';
-import { usePlannedExpensesQuery } from '../../../../hooks';
+import { usePlannedExpensesQuery, QUERY_KEYS } from '../../../../hooks';
+import { isPlanFulfilled, isPlanPartial } from '../../../../utils/planStatus';
 import './planned-expenses.css';
 
 interface PlannedExpensesViewProps {
@@ -126,7 +127,7 @@ export default function PlannedExpensesView({
     mutationFn: async (planData: Omit<PlannedExpense, 'id' | 'createdAt'>) => {
       let savedPlan: PlannedExpense | null = null;
       if (editingPlan) {
-        savedPlan = await plannedExpenseApi.updatePlannedExpense(editingPlan.id, planData);
+        savedPlan = await plannedExpenseApi.updatePlannedExpense(editingPlan.id, planData, editingPlan);
       } else {
         savedPlan = await plannedExpenseApi.createPlannedExpense(planData);
       }
@@ -142,11 +143,15 @@ export default function PlannedExpensesView({
       return savedPlan;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['plannedExpenses'] });
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboardSummary'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PLANNED_EXPENSES() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TRANSACTIONS() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.DASHBOARD_SUMMARY() });
       setEditingPlan(null);
       setIsAddModalOpen(false);
+    },
+    onError: (err: any) => {
+      console.error('Failed to save planned expense:', err);
+      alert('Failed to save planned expense: ' + (err?.message || 'Server error'));
     }
   });
 
@@ -179,10 +184,14 @@ export default function PlannedExpensesView({
       return updatedPlan;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['plannedExpenses'] });
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboardSummary'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PLANNED_EXPENSES() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TRANSACTIONS() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.DASHBOARD_SUMMARY() });
       setActiveFulfillPlan(null);
+    },
+    onError: (err: any) => {
+      console.error('Failed to update plan fulfillment:', err);
+      alert('Failed to update fulfillment: ' + (err?.message || 'Server error'));
     }
   });
 
@@ -197,10 +206,14 @@ export default function PlannedExpensesView({
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['plannedExpenses'] });
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboardSummary'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PLANNED_EXPENSES() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TRANSACTIONS() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.DASHBOARD_SUMMARY() });
       setDeletePlan(null);
+    },
+    onError: (err: any) => {
+      console.error('Failed to delete planned expense:', err);
+      alert('Failed to delete planned expense: ' + (err?.message || 'Server error'));
     }
   });
 
@@ -238,9 +251,9 @@ export default function PlannedExpensesView({
       let matchesStatus = true;
       if (statusFilter !== 'ALL') {
         if (statusFilter === 'Fulfilled') {
-          matchesStatus = p.isFulfilled || p.status === 'Fulfilled' || (p.paidAmount ?? 0) >= p.plannedAmount;
+          matchesStatus = isPlanFulfilled(p);
         } else if (statusFilter === 'Partial') {
-          matchesStatus = (p.paidAmount ?? 0) > 0 && (p.paidAmount ?? 0) < p.plannedAmount && !p.isFulfilled;
+          matchesStatus = isPlanPartial(p);
         } else {
           matchesStatus = p.status === statusFilter;
         }
@@ -250,9 +263,12 @@ export default function PlannedExpensesView({
         selectedMonth === 'All' ||
         (p.month || '').toLowerCase().slice(0, 3) === selectedMonth.toLowerCase().slice(0, 3);
 
-      return matchesSearch && matchesStatus && matchesMonth;
+      const planYear = p.year || currentCalendarYear;
+      const matchesYear = selectedMonth === 'All' || planYear === selectedYear;
+
+      return matchesSearch && matchesStatus && matchesMonth && matchesYear;
     });
-  }, [plans, searchQuery, statusFilter, selectedMonth]);
+  }, [plans, searchQuery, statusFilter, selectedMonth, selectedYear, currentCalendarYear]);
 
   // Budget summary with variance
   const budgetSummary = useMemo(() => {
@@ -322,17 +338,17 @@ export default function PlannedExpensesView({
           onFulfillPlan={plan => setActiveFulfillPlan(plan)}
           onSaveFulfillment={handleSaveFulfillment}
           onTogglePlanStatus={plan => {
-            const isDone = plan.isFulfilled || plan.status === 'Fulfilled';
+            const willBeDone = !isPlanFulfilled(plan);
             fulfillMutation.mutate({
               id: plan.id,
-              isFulfilled: isDone,
-              paidAmount: isDone ? plan.plannedAmount : 0,
+              isFulfilled: willBeDone,
+              paidAmount: willBeDone ? plan.plannedAmount : 0,
               plan
             });
           }}
           onDeletePlan={plan => deleteMutation.mutate(plan)}
           onPlanExpense={handleOpenAddModal}
-          onRefresh={() => queryClient.invalidateQueries({ queryKey: ['plannedExpenses'] })}
+          onRefresh={() => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PLANNED_EXPENSES() })}
         />
       ) : (
         /* ── Condition 2: When a specific month is clicked, bring the detailed existing one ── */

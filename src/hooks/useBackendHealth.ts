@@ -8,12 +8,14 @@ import { QUERY_KEYS } from './queryKeys';
 import { BackendHealth } from '../interface';
 
 export function useBackendHealth() {
-  const { data: backendStatus = { connected: false, mode: 'local' as const } } =
+  const { data: backendStatus = { connected: false, mode: 'remote' as const } } =
     useQuery<BackendHealth>({
       queryKey: QUERY_KEYS.BACKEND_HEALTH,
       queryFn: checkBackendHealth,
       staleTime: 30_000,
-      refetchOnWindowFocus: false,
+      refetchInterval: 60_000,
+      refetchOnWindowFocus: true,
+      retry: 2,
     });
 
   return backendStatus;

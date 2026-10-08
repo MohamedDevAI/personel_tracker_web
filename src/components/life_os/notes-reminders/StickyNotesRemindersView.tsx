@@ -13,6 +13,8 @@ import ReminderModal from './ReminderModal';
 import ConfirmDeleteModal from '../../common/ConfirmDeleteModal';
 import { useStickyNotesQuery } from '../../../hooks/useStickyNotesQuery';
 import { useRemindersQuery } from '../../../hooks/useRemindersQuery';
+import { QUERY_KEYS } from '../../../hooks/queryKeys';
+import { getLocalDateISO } from '../../../utils/dateHelpers';
 import './notes-reminders.css';
 
 export default function StickyNotesRemindersView() {
@@ -26,61 +28,97 @@ export default function StickyNotesRemindersView() {
   const createNoteMutation = useMutation({
     mutationFn: (data: Omit<StickyNote, 'id' | 'createdAt' | 'updatedAt'>) =>
       notesRemindersService.createNote(data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['sticky-notes'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.STICKY_NOTES }),
+    onError: (err: any) => {
+      console.error('Failed to create note:', err);
+      alert('Failed to create note: ' + (err.message || 'Unknown error'));
+    },
   });
 
   const updateNoteMutation = useMutation({
     mutationFn: ({ id, updates }: { id: string; updates: Partial<StickyNote> }) =>
       notesRemindersService.updateNote(id, updates),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['sticky-notes'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.STICKY_NOTES }),
+    onError: (err: any) => {
+      console.error('Failed to update note:', err);
+      alert('Failed to update note: ' + (err.message || 'Unknown error'));
+    },
   });
 
   const deleteNoteMutation = useMutation({
     mutationFn: (id: string) => notesRemindersService.deleteNote(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['sticky-notes'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.STICKY_NOTES }),
+    onError: (err: any) => {
+      console.error('Failed to delete note:', err);
+      alert('Failed to delete note: ' + (err.message || 'Unknown error'));
+    },
   });
 
   const togglePinMutation = useMutation({
     mutationFn: (id: string) => notesRemindersService.togglePinNote(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['sticky-notes'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.STICKY_NOTES }),
+    onError: (err: any) => {
+      console.error('Failed to toggle pin:', err);
+      alert('Failed to toggle note pin: ' + (err.message || 'Unknown error'));
+    },
   });
 
   // ── Reminder Mutations ─────────────────────────────────────────────────────
   const createReminderMutation = useMutation({
     mutationFn: (data: Omit<ReminderItem, 'id'>) =>
       notesRemindersService.createReminder(data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reminders'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REMINDERS }),
+    onError: (err: any) => {
+      console.error('Failed to create reminder:', err);
+      alert('Failed to create reminder: ' + (err.message || 'Unknown error'));
+    },
   });
 
   const updateReminderMutation = useMutation({
     mutationFn: ({ id, updates }: { id: string; updates: Partial<ReminderItem> }) =>
       notesRemindersService.updateReminder(id, updates),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reminders'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REMINDERS }),
+    onError: (err: any) => {
+      console.error('Failed to update reminder:', err);
+      alert('Failed to update reminder: ' + (err.message || 'Unknown error'));
+    },
   });
 
   const deleteReminderMutation = useMutation({
     mutationFn: (id: string) => notesRemindersService.deleteReminder(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reminders'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REMINDERS }),
+    onError: (err: any) => {
+      console.error('Failed to delete reminder:', err);
+      alert('Failed to delete reminder: ' + (err.message || 'Unknown error'));
+    },
   });
 
   const toggleReminderMutation = useMutation({
     mutationFn: (id: string) => notesRemindersService.toggleReminder(id),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['reminders'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REMINDERS });
       if (data.isCompleted) {
         confetti({
           particleCount: 45,
           spread: 55,
           origin: { y: 0.8 },
-          colors: ['#cd600d', '#df690e', '#f07414', '#f17f28'],
+          colors: ['#0d9488', '#14b8a6', '#2dd4bf', '#5eead4'],
         });
       }
+    },
+    onError: (err: any) => {
+      console.error('Failed to toggle reminder:', err);
+      alert('Failed to toggle reminder: ' + (err.message || 'Unknown error'));
     },
   });
 
   const snoozeReminderMutation = useMutation({
     mutationFn: (id: string) => notesRemindersService.snoozeReminder(id, 1),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reminders'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REMINDERS }),
+    onError: (err: any) => {
+      console.error('Failed to snooze reminder:', err);
+      alert('Failed to snooze reminder: ' + (err.message || 'Unknown error'));
+    },
   });
 
   // ── Local UI State ─────────────────────────────────────────────────────────
@@ -150,7 +188,7 @@ export default function StickyNotesRemindersView() {
   }, [reminders, searchQuery]);
 
   // Reminders Grouped by Overdue, Today, Upcoming, and Completed
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getLocalDateISO();
 
   const groupedReminders = useMemo(() => {
     const overdue: ReminderItem[] = [];

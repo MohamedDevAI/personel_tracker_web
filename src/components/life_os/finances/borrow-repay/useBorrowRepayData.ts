@@ -3,8 +3,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { BorrowRepayRecord, BorrowRepayType, PlannedRepayment, PlannedRepaymentStatus, PlannedRepayCreditItem } from '../../../../types';
 import { borrowRepayApi } from '../../../../services/borrowRepayApi';
 import { plannedRepayCreditApi } from '../../../../services/plannedRepayCreditApi';
-import { MONTH_NAMES, getCurrentYear } from '../../../../utils/dateHelpers';
-import { useBorrowRepayRecordsQuery, usePlannedRepaymentsQuery } from '../../../../hooks';
+import { MONTH_NAMES, getCurrentYear, parseDateMonthYear } from '../../../../utils/dateHelpers';
+import { formatINR } from '../../../../utils/formatters';
+import { useBorrowRepayRecordsQuery, usePlannedRepaymentsQuery, QUERY_KEYS } from '../../../../hooks';
 
 export type BorrowRepayStep = 'aggregation' | 'creditor_transactions' | 'all_transactions' | 'planned_repayment' | 'credit_tracker';
 
@@ -42,9 +43,9 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
 
   // ── Mutations ────────────────────────────────────────────────────────────────
   const invalidateAll = () => {
-    queryClient.invalidateQueries({ queryKey: ['borrowRepayRecords'] });
-    queryClient.invalidateQueries({ queryKey: ['plannedRepayments'] });
-    queryClient.invalidateQueries({ queryKey: ['plannedRepayCreditMatrix'] });
+    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.BORROW_REPAY_RECORDS });
+    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PLANNED_REPAYMENTS });
+    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PLANNED_REPAY_CREDIT_MATRIX });
   };
 
   const createRecordMutation = useMutation({
@@ -91,34 +92,13 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
     onSuccess: invalidateAll,
   });
 
-  // ── Helpers ──────────────────────────────────────────────────────────────────
-  const parseDateMonthYear = (dateStr: string) => {
-    if (!dateStr) return { month: '', year: '' };
-    if (dateStr.includes('/')) {
-      const parts = dateStr.split('/');
-      if (parts.length === 3) {
-        const mIdx = parseInt(parts[0], 10) - 1;
-        const y = parts[2].trim();
-        const m = mIdx >= 0 && mIdx < 12 ? MONTH_NAMES[mIdx] : '';
-        return { month: m, year: y };
-      }
-    }
-    const d = new Date(dateStr);
-    if (!isNaN(d.getTime())) {
-      return { month: MONTH_NAMES[d.getMonth()], year: String(d.getFullYear()) };
-    }
-    return { month: '', year: '' };
-  };
-
-  const formatINR = (val: number) =>
-    new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format(val);
-
   // ── Derived data ─────────────────────────────────────────────────────────────
   const availableYears = useMemo(() => {
     const years = new Set<string>();
     records.forEach(r => { const { year } = parseDateMonthYear(r.date); if (year) years.add(year); });
     plannedRepayments.forEach(p => { const { year } = parseDateMonthYear(p.targetDate); if (year) years.add(year); });
-    [String(getCurrentYear()), '2025', '2026'].forEach(y => years.add(y));
+    const curYr = getCurrentYear();
+    [curYr - 1, curYr, curYr + 1].forEach(y => years.add(String(y)));
     return Array.from(years).sort().reverse();
   }, [records, plannedRepayments]);
 
@@ -136,7 +116,8 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
       const matchesSearch = r.creditorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (r.notes && r.notes.toLowerCase().includes(searchQuery.toLowerCase()));
       const matchesType = typeFilter === 'ALL' || r.type === typeFilter;
-      const matchesCreditor = selectedCreditorFilter === 'ALL' || r.creditorName === selectedCreditorFilter;
+      const matchesCreditor = selectedCreditorFilter === 'ALL' ||
+        r.creditorName.trim().toLowerCase() === selectedCreditorFilter.trim().toLowerCase();
       const { month, year } = parseDateMonthYear(r.date);
       const matchesMonth = selectedMonth === 'ALL' || month === selectedMonth;
       const matchesYear = selectedYear === 'ALL' || year === selectedYear;

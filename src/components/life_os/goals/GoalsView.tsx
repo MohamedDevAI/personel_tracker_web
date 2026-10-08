@@ -10,7 +10,7 @@ import GoalsToolbar, { GoalStatusFilter, GoalViewMode } from './GoalsToolbar';
 import GoalCard from './GoalCard';
 import GoalMatrixSheet from './GoalMatrixSheet';
 import GoalModal from './GoalModal';
-import { useGoalsQuery } from '../../../hooks';
+import { useGoalsQuery, QUERY_KEYS } from '../../../hooks';
 import './goals.css';
 
 export default function GoalsView() {
@@ -23,41 +23,55 @@ export default function GoalsView() {
   const updateProgressMutation = useMutation({
     mutationFn: ({ id, progress }: { id: string; progress: number }) =>
       api.updateGoalProgress(id, progress),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['goals'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GOALS }),
+    onError: (err: any) => {
+      console.error('Failed to update goal progress:', err);
+      alert('Failed to update goal progress: ' + (err.message || 'Unknown error'));
+    },
   });
 
   const createMutation = useMutation({
     mutationFn: api.createGoal,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['goals'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GOALS }),
+    onError: (err: any) => {
+      console.error('Failed to create goal:', err);
+      alert('Failed to create goal: ' + (err.message || 'Unknown error'));
+    },
   });
 
   const updateMutation = useMutation({
     mutationFn: api.updateGoal,
     onMutate: async (updatedGoal: Goal) => {
       // Cancel any outgoing refetches so they don't overwrite optimistic update
-      await queryClient.cancelQueries({ queryKey: ['goals'] });
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.GOALS });
       // Snapshot previous goals
-      const previousGoals = queryClient.getQueryData<Goal[]>(['goals']);
+      const previousGoals = queryClient.getQueryData<Goal[]>(QUERY_KEYS.GOALS);
       // Optimistically update React Query cache immediately
-      queryClient.setQueryData<Goal[]>(['goals'], (old) => {
+      queryClient.setQueryData<Goal[]>(QUERY_KEYS.GOALS, (old) => {
         if (!old) return [updatedGoal];
         return old.map((g) => (g.id === updatedGoal.id ? { ...g, ...updatedGoal } : g));
       });
       return { previousGoals };
     },
-    onError: (_err, _newGoal, context) => {
+    onError: (err: any, _newGoal, context) => {
       if (context?.previousGoals) {
-        queryClient.setQueryData(['goals'], context.previousGoals);
+        queryClient.setQueryData(QUERY_KEYS.GOALS, context.previousGoals);
       }
+      console.error('Failed to update goal:', err);
+      alert('Failed to update goal: ' + (err.message || 'Unknown error'));
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['goals'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GOALS });
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: api.deleteGoal,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['goals'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GOALS }),
+    onError: (err: any) => {
+      console.error('Failed to delete goal:', err);
+      alert('Failed to delete goal: ' + (err.message || 'Unknown error'));
+    },
   });
 
   // State

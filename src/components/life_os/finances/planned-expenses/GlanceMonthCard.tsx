@@ -9,6 +9,7 @@ import {
 import { PlannedExpense } from '../../../../types';
 import { formatSAR } from './plannedExpenseSync';
 import { GlanceColumn } from './PlannedExpensesGlanceTable';
+import { isPlanFulfilled, isPlanPartial, getEffectivePaidAmount } from '../../../../utils/planStatus';
 
 interface GlanceMonthCardProps {
   col: GlanceColumn;
@@ -120,23 +121,9 @@ export default function GlanceMonthCard({
           ) : (
             col.items.map(item => {
               const plannedVal = item.plannedAmount || 0;
-              const hasExplicitPaid = item.paidAmount !== undefined && item.paidAmount !== null;
-              const isExplicitPending = item.status === 'Pending' || item.status === 'Planned';
-              const isExplicitFulfilled =
-                !isExplicitPending && (Boolean(item.isFulfilled) || item.status === 'Fulfilled');
-
-              const paidVal = hasExplicitPaid
-                ? item.paidAmount!
-                : isExplicitFulfilled
-                  ? plannedVal
-                  : 0;
-
-              // If paidVal is greater than 0 and less than plannedVal, it is ALWAYS Partial, NEVER Full!
-              const isPartial = paidVal > 0 && plannedVal > 0 && paidVal < plannedVal;
-              const isItemFulfilled =
-                !isExplicitPending &&
-                !isPartial &&
-                ((paidVal >= plannedVal && plannedVal > 0) || (isExplicitFulfilled && !hasExplicitPaid));
+              const paidVal = getEffectivePaidAmount(item);
+              const isItemFulfilled = isPlanFulfilled(item);
+              const isPartial = isPlanPartial(item);
               const remainingVal = Math.max(0, plannedVal - paidVal);
 
               const handleFulfillClick = (e: React.MouseEvent) => {

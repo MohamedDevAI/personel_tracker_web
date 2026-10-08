@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Target, X, Edit3 } from 'lucide-react';
 import { GOAL_CATEGORIES } from '../../../utils/constants';
 import type { Goal } from '../../../types';
+import { getLocalDateISO } from '../../../utils/dateHelpers';
 
 interface GoalModalProps {
   isOpen: boolean;
@@ -13,9 +14,7 @@ interface GoalModalProps {
 export default function GoalModal({ isOpen, onClose, onSubmit, initialGoal }: GoalModalProps) {
   const isEditing = Boolean(initialGoal);
 
-  const defaultDate = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .split('T')[0]; // +90 days default
+  const defaultDate = getLocalDateISO(new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)); // +90 days default
 
   const [formData, setFormData] = useState({
     title: '',

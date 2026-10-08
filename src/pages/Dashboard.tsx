@@ -30,8 +30,7 @@ import { api } from '../services/api';
 import { notesRemindersService } from '../services/notesRemindersService';
 import { borrowRepayApi } from '../services/borrowRepayApi';
 import { formatDateLong } from '../utils/formatters';
-import { MONTH_NAMES, getCurrentYear, getCurrentMonth } from '../utils/dateHelpers';
-import { parseTxDate } from '../components/life_os/finances/financeConstants';
+import { MONTH_NAMES, getCurrentYear, getCurrentMonth, getLocalDateISO, parseTxDate } from '../utils/dateHelpers';
 import {
   useTransactionsQuery,
   useHabitsQuery,
@@ -39,6 +38,7 @@ import {
   useRemindersQuery,
   usePlannedExpensesQuery,
   useBorrowRepayRecordsQuery,
+  QUERY_KEYS,
 } from '../hooks';
 
 export default function Dashboard() {
@@ -51,8 +51,8 @@ export default function Dashboard() {
   // Inline quick task title state
   const [quickTaskTitle, setQuickTaskTitle] = useState('');
 
-  const currentYear = useMemo(() => getCurrentYear(), []);
-  const currentMonth = useMemo(() => getCurrentMonth(), []);
+  const currentYear = getCurrentYear();
+  const currentMonth = getCurrentMonth();
 
   // Compute next month dynamically (e.g., Oct -> Nov)
   const { nextMonth, nextMonthYear } = useMemo(() => {
@@ -76,7 +76,7 @@ export default function Dashboard() {
   // 1. Habit Toggle
   const toggleHabitMutation = useMutation({
     mutationFn: api.toggleHabit,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['habits'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.HABITS }),
   });
 
   const handleHabitCheck = (id: string, currentlyDone: boolean) => {
@@ -86,7 +86,7 @@ export default function Dashboard() {
         particleCount: 45,
         spread: 60,
         origin: { y: 0.75 },
-        colors: ['#f97316', '#fb923c', '#fdba74', '#ea580c'],
+        colors: ['#0d9488', '#14b8a6', '#2dd4bf', '#5eead4'],
       });
     }
   };
@@ -94,7 +94,7 @@ export default function Dashboard() {
   // 2. Task Toggle
   const toggleTaskMutation = useMutation({
     mutationFn: api.toggleTask,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tasks'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TASKS }),
   });
 
   // 3. Quick Create Task
@@ -106,7 +106,7 @@ export default function Dashboard() {
         priority: 'MEDIUM',
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TASKS });
       setQuickTaskTitle('');
     },
   });
@@ -121,7 +121,7 @@ export default function Dashboard() {
   const toggleReminderMutation = useMutation({
     mutationFn: ({ id, isCompleted }: { id: string; isCompleted: boolean }) =>
       notesRemindersService.toggleReminder(id, isCompleted),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reminders'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REMINDERS }),
   });
 
   // ── 1. Financial Details At A Glance ─────────────────────────────────────
@@ -176,7 +176,7 @@ export default function Dashboard() {
   }, [filteredTransactions, borrowRecords]);
 
   // ── 2. Today's Reminders ─────────────────────────────────────────────────
-  const todayDateStr = useMemo(() => new Date().toISOString().split('T')[0], []);
+  const todayDateStr = getLocalDateISO();
 
   const todaysReminders = useMemo(() => {
     // Show active reminders, prioritizing today's due date
@@ -310,7 +310,7 @@ export default function Dashboard() {
           <div className="dashboard-kpi-top">
             <span className="dashboard-kpi-label">HOW MUCH I REPAID</span>
             <span className="badge badge-emerald">
-              <RotateCcw size={12} /> Repaid
+              <RotateCcw size={12} /> {timeframe === 'month' ? 'SAR (Paybacks)' : 'INR (Loans)'}
             </span>
           </div>
           <div className="dashboard-kpi-value" style={{ color: '#ffffff' }}>

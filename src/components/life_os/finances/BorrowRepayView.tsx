@@ -88,8 +88,8 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
         >
           <CalendarClock size={16} />
           <span>Planned Payback</span>
-          <span className="step-counter" style={{ background: 'rgba(225, 106, 14, 0.2)', color: '#be590c', border: '1px solid rgba(225, 106, 14, 0.4)' }}>
-            9 Mos
+          <span className="step-counter" style={{ background: 'rgba(20, 184, 166, 0.15)', color: '#2dd4bf', border: '1px solid rgba(20, 184, 166, 0.3)' }}>
+            {d.plannedRepayments.length > 0 ? `${d.plannedRepayments.length} Plans` : 'Schedule'}
           </span>
         </button>
       </div>

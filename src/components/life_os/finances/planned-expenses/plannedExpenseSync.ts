@@ -4,7 +4,7 @@
  */
 
 import type { Transaction } from '../../../../types';
-import { isFromOctober2026Onwards, getMonthIndex, MONTH_NAMES } from '../../../../utils/dateHelpers';
+import { isFromOctober2026Onwards, getMonthIndex, parseTxDate } from '../../../../utils/dateHelpers';
 import { formatSAR } from '../../../../utils/formatters';
 import { expenseApi } from '../../../../services/expenseApi';
 
@@ -69,11 +69,12 @@ export const findLinkedTransaction = (
       const note = (t.note || '').trim().toLowerCase();
       // Must be an exact title match (not startsWith, which falsely matches other plans like "Tamara [PE-other]")
       const matchesTitle = desc === normTitle || note === normTitle;
-      const txMonth = t.month || (t.date ? MONTH_NAMES[new Date(t.date).getMonth()] : undefined);
+      const { month: txMonth, year: txYear } = parseTxDate(t);
       const matchesMonth = !plan.month || (txMonth &&
         txMonth.toLowerCase().slice(0, 3) === plan.month.toLowerCase().slice(0, 3));
+      const matchesYear = !plan.year || txYear === plan.year;
       const isDebit = String(t.type).toUpperCase() === 'DEBIT';
-      return matchesTitle && matchesMonth && isDebit;
+      return matchesTitle && matchesMonth && matchesYear && isDebit;
     });
     if (byTitleAndMonth) return byTitleAndMonth;
   }
@@ -109,8 +110,9 @@ export const syncPlanToTransactions = async (
     try {
       const freshTxs = await expenseApi.getTransactions();
       linkedTx = findLinkedTransaction(plan, freshTxs);
-    } catch {
-      /* ignore */
+    } catch (err) {
+      console.warn('Failed to fetch transactions during syncPlanToTransactions:', err);
+      throw err;
     }
   }
 

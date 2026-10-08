@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { PlannedExpense } from '../../../../types';
 import { formatSAR } from './plannedExpenseSync';
+import { isPlanFulfilled, isPlanPartial, getEffectivePaidAmount } from '../../../../utils/planStatus';
 
 interface PlannedExpensesTableProps {
   plans: PlannedExpense[];
@@ -35,23 +36,9 @@ export default function PlannedExpensesTable({
 }: PlannedExpensesTableProps) {
   // Aggregate grand totals for table footer
   const totalPlanned = plans.reduce((acc, p) => acc + (p.plannedAmount || 0), 0);
-  const totalPaid = plans.reduce((acc, p) => {
-    const isDone = p.isFulfilled || p.status === 'Fulfilled';
-    const paidVal =
-      p.paidAmount !== undefined && p.paidAmount !== null
-        ? p.paidAmount
-        : isDone
-        ? p.plannedAmount || 0
-        : 0;
-    return acc + paidVal;
-  }, 0);
+  const totalPaid = plans.reduce((acc, p) => acc + getEffectivePaidAmount(p), 0);
   const totalRemaining = Math.max(0, totalPlanned - totalPaid);
-  const totalFulfilledCount = plans.filter(
-    p =>
-      p.isFulfilled ||
-      p.status === 'Fulfilled' ||
-      (p.paidAmount ?? 0) >= (p.plannedAmount || 0)
-  ).length;
+  const totalFulfilledCount = plans.filter(isPlanFulfilled).length;
   const overallRate =
     totalPlanned > 0 ? Math.min(100, Math.round((totalPaid / totalPlanned) * 100)) : 0;
 
@@ -96,22 +83,9 @@ export default function PlannedExpensesTable({
           ) : (
             plans.map(plan => {
               const plannedVal = Number(plan.plannedAmount) || 0;
-              const hasExplicitPaid = plan.paidAmount !== undefined && plan.paidAmount !== null;
-              const isExplicitPending = plan.status === 'Pending' || plan.status === 'Planned';
-              const isExplicitFulfilled =
-                !isExplicitPending && (Boolean(plan.isFulfilled) || plan.status === 'Fulfilled');
-
-              const paidVal = hasExplicitPaid
-                ? plan.paidAmount!
-                : isExplicitFulfilled
-                  ? plannedVal
-                  : 0;
-
-              const isPartial = paidVal > 0 && plannedVal > 0 && paidVal < plannedVal;
-              const isItemFulfilled =
-                !isExplicitPending &&
-                !isPartial &&
-                ((paidVal >= plannedVal && plannedVal > 0) || (isExplicitFulfilled && !hasExplicitPaid));
+              const paidVal = getEffectivePaidAmount(plan);
+              const isItemFulfilled = isPlanFulfilled(plan);
+              const isPartial = isPlanPartial(plan);
               const isOverpaid = paidVal > plannedVal;
               const extraAmt = Math.max(0, paidVal - plannedVal);
               const remainingVal = Math.max(0, plannedVal - paidVal);

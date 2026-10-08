@@ -3,17 +3,26 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import confetti from 'canvas-confetti';
 import { notesRemindersService } from '../services/notesRemindersService';
 import { useRemindersQuery } from './useRemindersQuery';
+import { QUERY_KEYS } from './queryKeys';
 import { ReminderItem } from '../interface';
+
+let sharedAudioCtx: AudioContext | null = null;
 
 /**
  * Synthesizes a crisp, executive two-tone chime via Web Audio API.
- * 100% self-contained, no external audio files required.
+ * Reuses a single AudioContext to prevent exceeding browser context limits and audio leaks.
  */
 export function playReminderChime() {
   try {
     const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     if (!AudioCtx) return;
-    const ctx = new AudioCtx();
+    if (!sharedAudioCtx || sharedAudioCtx.state === 'closed') {
+      sharedAudioCtx = new AudioCtx();
+    }
+    const ctx = sharedAudioCtx;
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
     const now = ctx.currentTime;
 
     // Tone 1: 587.33 Hz (D5)
@@ -59,12 +68,12 @@ export function useGlobalRemindersNotifier() {
   const completeMutation = useMutation({
     mutationFn: (id: string) => notesRemindersService.toggleReminder(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reminders'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REMINDERS });
       confetti({
         particleCount: 50,
         spread: 60,
         origin: { y: 0.3 },
-        colors: ['#cd600d', '#df690e', '#f07414'],
+        colors: ['#0d9488', '#14b8a6', '#2dd4bf'],
       });
     },
   });
@@ -73,7 +82,7 @@ export function useGlobalRemindersNotifier() {
   const snoozeMutation = useMutation({
     mutationFn: ({ id, minutes }: { id: string; minutes: number }) =>
       notesRemindersService.snoozeReminderMinutes(id, minutes),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reminders'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REMINDERS }),
   });
 
   // Check reminders against current clock

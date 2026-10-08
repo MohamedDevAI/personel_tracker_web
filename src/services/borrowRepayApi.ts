@@ -6,6 +6,7 @@
 
 import apiClient from './apiClient';
 import { BorrowRepayRecord, CreditorSummary, PlannedRepayment } from '../interface';
+import { getLocalDateISO } from '../utils/dateHelpers';
 
 // ─── API Methods ──────────────────────────────────────────────────────────────
 
@@ -14,15 +15,8 @@ export const borrowRepayApi = {
 
   /** Fetch all borrow/repay records from MongoDB. */
   getRecords: async (): Promise<BorrowRepayRecord[]> => {
-    try {
-      const { data } = await apiClient.get<BorrowRepayRecord[]>('/borrow-repay', { timeout: 6000 });
-      if (Array.isArray(data)) {
-        return data;
-      }
-    } catch (e) {
-      console.warn('Unable to fetch borrow/repay records from API:', e);
-    }
-    return [];
+    const { data } = await apiClient.get<BorrowRepayRecord[]>('/borrow-repay', { timeout: 6000 });
+    return Array.isArray(data) ? data : [];
   },
 
 
@@ -103,7 +97,12 @@ export const borrowRepayApi = {
         }
       }
 
-      const sortedDates = data.dates.sort();
+      const sortedDates = [...data.dates].sort((a, b) => {
+        const tA = new Date(a).getTime();
+        const tB = new Date(b).getTime();
+        if (!isNaN(tA) && !isNaN(tB)) return tA - tB;
+        return a.localeCompare(b);
+      });
       const lastActivityDate = sortedDates[sortedDates.length - 1] || 'N/A';
 
       return {
@@ -181,17 +180,9 @@ export const borrowRepayApi = {
 
   /** Fetch all planned repayments from MongoDB. */
   getPlannedRepayments: async (): Promise<PlannedRepayment[]> => {
-    try {
-      const { data } = await apiClient.get<PlannedRepayment[]>('/planned-repayments', { timeout: 6000 });
-      if (Array.isArray(data)) {
-        return data;
-      }
-    } catch (e) {
-      console.warn('Unable to fetch planned repayments from API:', e);
-    }
-    return [];
+    const { data } = await apiClient.get<PlannedRepayment[]>('/planned-repayments', { timeout: 6000 });
+    return Array.isArray(data) ? data : [];
   },
-
 
   /** Create a planned repayment in MongoDB. */
   createPlannedRepayment: async (plan: Omit<PlannedRepayment, 'id' | 'createdAt'>): Promise<PlannedRepayment> => {
@@ -233,14 +224,19 @@ export const borrowRepayApi = {
     }
     if (!plan) return null;
 
+    // Idempotency guard: prevent duplicate repayment records if already paid
+    if (plan.status === 'Paid') {
+      return { plan, record: null };
+    }
+
     const updatedPlan = await borrowRepayApi.updatePlannedRepayment(id, { status: 'Paid' });
 
     const record = await borrowRepayApi.createRecord({
       creditorName: plan.creditorName,
-      date: plan.targetDate || new Date().toISOString().split('T')[0],
+      date: plan.targetDate || getLocalDateISO(),
       type: 'Repaid',
       amount: plan.plannedAmount,
-      currency: 'INR',
+      currency: plan.currency || 'INR',
       notes: `Planned Repayment: ${plan.notes || 'Settled'}`,
     });
 

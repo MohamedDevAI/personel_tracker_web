@@ -36,6 +36,7 @@ export interface PlannedRepayment {
   targetDate: string;
   targetMonth?: string;
   plannedAmount: number;
+  currency?: string;
   status: PlannedRepaymentStatus;
   notes?: string;
   createdAt?: string;

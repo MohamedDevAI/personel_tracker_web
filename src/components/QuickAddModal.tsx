@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Wallet, Flame, Target, CheckSquare, LucideIcon } from 'lucide-react';
 import { Expense, Habit, Goal, TaskItem, ExpenseType, TaskPriority } from '../interface';
+import { getLocalDateISO } from '../utils/dateHelpers';
 import './QuickAddModal.css';
 
 interface QuickAddModalProps {
@@ -50,7 +51,7 @@ export default function QuickAddModal({
       amount: parseFloat(expAmount),
       type: expType,
       category: 'General',
-      date: new Date().toISOString().split('T')[0]
+      date: getLocalDateISO()
     });
     setExpTitle('');
     setExpAmount('');
@@ -89,7 +90,7 @@ export default function QuickAddModal({
       title: taskTitle,
       priority: taskPriority,
       category: 'General',
-      dueDate: new Date().toISOString().split('T')[0]
+      dueDate: getLocalDateISO()
     });
     setTaskTitle('');
     onClose();

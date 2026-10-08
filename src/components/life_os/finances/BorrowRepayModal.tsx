@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { HandCoins, ArrowDownLeft, ArrowUpRight, X } from 'lucide-react';
 import { BorrowRepayRecord, BorrowRepayType } from '../../../types';
+import { getLocalDateISO } from '../../../utils/dateHelpers';
 
 interface BorrowRepayModalProps {
   isOpen: boolean;
@@ -19,7 +20,7 @@ export default function BorrowRepayModal({
   initialType = 'Borrow',
   initialCreditor = ''
 }: BorrowRepayModalProps) {
-  const today = new Date().toISOString().split('T')[0];
+  const today = getLocalDateISO();
 
   const [form, setForm] = useState({
     creditorName: initialCreditor,

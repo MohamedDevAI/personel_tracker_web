@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { plannedRepayCreditApi } from '../../../../services/plannedRepayCreditApi';
 import { MONTH_NAMES } from '../../../../utils/dateHelpers';
 import type { PlannedRepayCreditItem, PlannedRepayCreditMatrix, BorrowRepayRecord } from '../../../../types';
-import { usePlannedRepayCreditMatrixQuery } from '../../../../hooks';
+import { usePlannedRepayCreditMatrixQuery, QUERY_KEYS } from '../../../../hooks';
 
 export interface NextMonthCheckInfo {
   hasCheck?: boolean;
@@ -54,8 +54,8 @@ export function useGlanceData(actualRecords: BorrowRepayRecord[] = []) {
 
   // ── Mutations ────────────────────────────────────────────────────────────────
   const invalidate = () => {
-    queryClient.invalidateQueries({ queryKey: ['plannedRepayCreditMatrix'] });
-    queryClient.invalidateQueries({ queryKey: ['plannedRepayments'] });
+    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PLANNED_REPAY_CREDIT_MATRIX });
+    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PLANNED_REPAYMENTS });
   };
 
   const toggleStatusMutation = useMutation({

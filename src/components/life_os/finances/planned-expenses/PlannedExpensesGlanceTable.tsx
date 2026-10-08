@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { PlannedExpense } from '../../../../types';
 import { MONTH_NAMES, getCurrentYear, getCurrentMonth } from '../../../../utils/dateHelpers';
+import { isPlanFulfilled, getEffectivePaidAmount } from '../../../../utils/planStatus';
 import GlanceToolbar from './GlanceToolbar';
 import GlanceMonthCard from './GlanceMonthCard';
 import GlanceDeleteModal from './GlanceDeleteModal';
@@ -133,6 +134,16 @@ export default function PlannedExpensesGlanceTable({
       return matchesYear && matchesMonth;
     });
 
+    if (!targetFulfilled) {
+      const hasPayments = matchingItems.some(p => (p.paidAmount ?? 0) > 0 || p.isFulfilled);
+      if (hasPayments) {
+        const confirmed = window.confirm(
+          `Are you sure you want to mark all ${monthShort} ${colYear} expenses as incomplete? Any recorded payments for this month will be reset to 0.`
+        );
+        if (!confirmed) return;
+      }
+    }
+
     matchingItems.forEach(p => {
       const plannedVal = p.plannedAmount || 0;
       const finalPaid = targetFulfilled ? plannedVal : 0;
@@ -199,13 +210,7 @@ export default function PlannedExpensesGlanceTable({
         // ONLY include month if it has data
         if (monthItems.length > 0) {
           const monthTotal = monthItems.reduce((acc, it) => acc + (it.plannedAmount || 0), 0);
-          const isCompleted =
-            monthItems.every(
-              it =>
-                it.status !== 'Pending' &&
-                it.status !== 'Planned' &&
-                (it.isFulfilled || it.status === 'Fulfilled' || (it.paidAmount ?? 0) >= it.plannedAmount)
-            );
+          const isCompleted = monthItems.every(isPlanFulfilled);
 
           generated.push({
             monthIndex,
@@ -251,21 +256,13 @@ export default function PlannedExpensesGlanceTable({
   // Overall KPI Stats across the entire schedule
   const kpiStats = useMemo(() => {
     const totalPlanned = plans.reduce((acc, p) => acc + (p.plannedAmount || 0), 0);
-    const isPlanDone = (p: PlannedExpense) => {
-      if (p.status === 'Pending' || p.status === 'Planned') return false;
-      return Boolean(p.isFulfilled) || p.status === 'Fulfilled' || (p.plannedAmount > 0 && (p.paidAmount ?? 0) >= p.plannedAmount);
-    };
-
-    const totalFulfilled = plans.reduce((acc, p) => {
-      const isDone = isPlanDone(p);
-      return acc + (isDone ? p.plannedAmount : (p.paidAmount || 0));
-    }, 0);
+    const totalFulfilled = plans.reduce((acc, p) => acc + getEffectivePaidAmount(p), 0);
     const totalPending = Math.max(0, totalPlanned - totalFulfilled);
     const completedMonthsCount = columns.filter(c => c.status === 'Completed').length;
     const progressPercent =
       totalPlanned > 0 ? Math.min(100, Math.round((totalFulfilled / totalPlanned) * 100)) : 0;
 
-    const fulfilledItemsCount = plans.filter(isPlanDone).length;
+    const fulfilledItemsCount = plans.filter(isPlanFulfilled).length;
     const pendingItemsCount = plans.length - fulfilledItemsCount;
 
     // Current month details
@@ -277,7 +274,7 @@ export default function PlannedExpensesGlanceTable({
       );
     });
     const currentMonthTotal = currentMonthPlans.reduce((acc, p) => acc + (p.plannedAmount || 0), 0);
-    const currentMonthFulfilled = currentMonthPlans.filter(isPlanDone).length;
+    const currentMonthFulfilled = currentMonthPlans.filter(isPlanFulfilled).length;
     const currentMonthPendingCount = currentMonthPlans.length - currentMonthFulfilled;
 
     // Category breakdown & Top Category
@@ -298,9 +295,7 @@ export default function PlannedExpensesGlanceTable({
 
     // Next upcoming unfulfilled item
     const unfulfilledItems = plans
-      .filter(
-        p => !(p.isFulfilled || p.status === 'Fulfilled' || (p.paidAmount ?? 0) >= (p.plannedAmount || 0))
-      )
+      .filter(p => !isPlanFulfilled(p))
       .sort((a, b) => {
         const yDiff = (a.year || calendarYear) - (b.year || calendarYear);
         if (yDiff !== 0) return yDiff;

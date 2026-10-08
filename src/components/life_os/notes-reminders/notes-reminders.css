@@ -1291,7 +1291,7 @@
 .floating-card-title {
   font-size: 0.9rem;
   font-weight: 700;
-  color: #1c1917;
+  color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1319,18 +1319,18 @@
 
 .floating-mini-btn:hover {
   color: var(--text-primary);
-  background: rgba(249, 115, 22, 0.15);
+  background: rgba(13, 148, 136, 0.18);
 }
 
 .floating-mini-btn.unpin-btn:hover {
-  color: #58514d;
+  color: var(--accent-rose, #2dd4bf);
 }
 
 /* Floating Card Body */
 .floating-card-body {
   font-size: 0.82rem;
   line-height: 1.45;
-  color: #453d38;
+  color: var(--text-secondary);
   white-space: pre-wrap;
   word-break: break-word;
   max-height: 120px;
@@ -1341,10 +1341,10 @@
 
 .floating-card-edit-textarea {
   width: 100%;
-  background: rgba(249, 115, 22, 0.12);
+  background: rgba(13, 148, 136, 0.1);
   border: 1px solid var(--accent-primary);
   border-radius: 6px;
-  color: #1c1917;
+  color: var(--text-primary);
   font-size: 0.82rem;
   font-family: inherit;
   padding: 6px;

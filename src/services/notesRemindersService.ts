@@ -7,6 +7,7 @@
 
 import apiClient from './apiClient';
 import { NoteColor, ReminderItem, StickyNote } from '../interface';
+import { getLocalDateISO } from '../utils/dateHelpers';
 
 export function normalizeStickyNote(doc: any): StickyNote {
   const id = String(doc.id || doc._id || '');
@@ -51,15 +52,8 @@ export const notesRemindersService = {
    * Endpoint: GET /api/sticky_notes
    */
   async getNotes(): Promise<StickyNote[]> {
-    try {
-      const response = await apiClient.get<any[]>('/sticky_notes');
-      if (Array.isArray(response.data)) {
-        return response.data.map(normalizeStickyNote);
-      }
-    } catch (err) {
-      console.warn('[API] Could not fetch from /sticky_notes:', err);
-    }
-    return [];
+    const response = await apiClient.get<any[]>('/sticky_notes');
+    return Array.isArray(response.data) ? response.data.map(normalizeStickyNote) : [];
   },
 
   /**
@@ -132,15 +126,8 @@ export const notesRemindersService = {
    * Endpoint: GET /api/remainder
    */
   async getReminders(): Promise<ReminderItem[]> {
-    try {
-      const response = await apiClient.get<any[]>('/remainder');
-      if (Array.isArray(response.data)) {
-        return response.data.map(normalizeReminder);
-      }
-    } catch (err) {
-      console.warn('[API] Could not fetch from /remainder:', err);
-    }
-    return [];
+    const response = await apiClient.get<any[]>('/remainder');
+    return Array.isArray(response.data) ? response.data.map(normalizeReminder) : [];
   },
 
   /**
@@ -170,7 +157,7 @@ export const notesRemindersService = {
       const isCompleted = !currentCompleted;
       return this.updateReminder(id, {
         isCompleted,
-        completedAt: isCompleted ? new Date().toISOString() : undefined,
+        completedAt: isCompleted ? new Date().toISOString() : '',
       });
     }
     try {
@@ -188,7 +175,7 @@ export const notesRemindersService = {
 
     return this.updateReminder(id, {
       isCompleted,
-      completedAt: isCompleted ? new Date().toISOString() : undefined,
+      completedAt: isCompleted ? new Date().toISOString() : '',
     });
   },
 
@@ -206,7 +193,7 @@ export const notesRemindersService = {
   async snoozeReminderMinutes(id: string, minutes: number = 10): Promise<ReminderItem> {
     const now = new Date();
     now.setMinutes(now.getMinutes() + minutes);
-    const newDueDate = now.toISOString().split('T')[0];
+    const newDueDate = getLocalDateISO(now);
     const hours = String(now.getHours()).padStart(2, '0');
     const mins = String(now.getMinutes()).padStart(2, '0');
     const newDueTime = `${hours}:${mins}`;
@@ -224,9 +211,9 @@ export const notesRemindersService = {
   async snoozeReminder(id: string, days: number = 1): Promise<ReminderItem> {
     const { data: rem } = await apiClient.get<any>(`/remainder/${id}`);
     const normalized = normalizeReminder(rem);
-    const targetDate = new Date(normalized.dueDate || new Date().toISOString().split('T')[0]);
+    const targetDate = new Date(normalized.dueDate || getLocalDateISO());
     targetDate.setDate(targetDate.getDate() + days);
-    const newDueDate = targetDate.toISOString().split('T')[0];
+    const newDueDate = getLocalDateISO(targetDate);
 
     return this.updateReminder(id, {
       dueDate: newDueDate,
