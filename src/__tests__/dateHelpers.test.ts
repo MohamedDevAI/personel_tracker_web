@@ -3,8 +3,6 @@ import {
   getLocalDateISO,
   parseDateMonthYear,
   parseTxDate,
-  getCurrentYear,
-  getCurrentMonth,
 } from '../utils/dateHelpers';
 
 describe('dateHelpers resilient date utilities', () => {
