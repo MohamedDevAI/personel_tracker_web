@@ -6,7 +6,6 @@ import AggregationTable from './borrow-repay/AggregationTable';
 import BorrowRepayModal from './BorrowRepayModal';
 import ConfirmDeleteModal from '../../common/ConfirmDeleteModal';
 import PlannedRepayCreditGlanceView from './planned-repay/PlannedRepayCreditGlanceView';
-import PlannedRepaymentModal from './PlannedRepaymentModal';
 
 interface BorrowRepayViewProps {
   initialMonth?: string;
@@ -37,7 +36,7 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
         </div>
 
         <div className="borrow-header-buttons">
-          {d.activeStep !== 'planned_repayment' ? (
+          {d.activeStep !== 'planned_repayment' && (
             <>
               <button
                 onClick={() => d.handleOpenCreditModal('Borrow', d.selectedCreditorFilter !== 'ALL' ? d.selectedCreditorFilter : '')}
@@ -68,10 +67,6 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
                 <HandCoins size={16} /> Give Credit
               </button>
             </>
-          ) : (
-            <button onClick={() => d.setIsPlannedModalOpen(true)} className="btn btn-primary">
-              <CalendarClock size={16} /> + Schedule Planned Repayment
-            </button>
           )}
         </div>
       </div>
@@ -314,7 +309,6 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
       {/* ── STEP 3: Planned Repayment Schedule ──────────────────────────────── */}
       {d.activeStep === 'planned_repayment' && (
         <PlannedRepayCreditGlanceView
-          onOpenScheduleModal={() => d.setIsPlannedModalOpen(true)}
           actualRecords={d.records}
         />
       )}
@@ -327,13 +321,6 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
         existingCreditors={d.existingCreditors}
         initialType={d.modalInitialType}
         initialCreditor={d.modalInitialCreditor}
-      />
-
-      <PlannedRepaymentModal
-        isOpen={d.isPlannedModalOpen}
-        onClose={() => d.setIsPlannedModalOpen(false)}
-        onSubmit={d.handleAddPlannedRepayment}
-        existingCreditors={d.existingCreditors}
       />
 
       <ConfirmDeleteModal

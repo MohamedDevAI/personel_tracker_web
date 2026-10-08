@@ -158,7 +158,7 @@ export default function PlannedExpenseModal({
             </div>
 
             <div className="form-group-custom">
-              <label className="form-label-custom">Planned Amount (SAR)</label>
+              <label className="form-label-custom">Planned Amount</label>
               <div className="currency-input-wrap">
                 <span className="currency-symbol-prefix">SAR</span>
                 <input

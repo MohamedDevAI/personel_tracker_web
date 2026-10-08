@@ -27,9 +27,7 @@ export default function Navbar({ backendStatus, activeRemindersCount = 0 }: Navb
             <span className="navbar-brand-title">
               Life <span className="gradient-text">OS</span>
             </span>
-            <span className="badge badge-orange navbar-pro-badge">
-              LIFE OS APP
-            </span>
+
           </div>
           <div className="navbar-brand-subtitle">
             Executive Goals, Habits & Productivity Engine
@@ -100,18 +98,16 @@ export default function Navbar({ backendStatus, activeRemindersCount = 0 }: Navb
               ? 'Spring Boot & MongoDB Atlas connected'
               : 'Connecting to Spring Boot Server API...'
           }
-          className={`navbar-status-badge ${
-            backendStatus.connected ? 'navbar-status-connected' : 'navbar-status-local'
-          }`}
+          className={`navbar-status-badge ${backendStatus.connected ? 'navbar-status-connected' : 'navbar-status-local'
+            }`}
         >
           <Database size={13} />
           <span className="navbar-status-label">
             {backendStatus.connected ? 'Server: Live' : 'Server: Connecting'}
           </span>
           <span
-            className={`navbar-status-dot ${
-              backendStatus.connected ? 'navbar-status-dot-connected' : 'navbar-status-dot-local'
-            }`}
+            className={`navbar-status-dot ${backendStatus.connected ? 'navbar-status-dot-connected' : 'navbar-status-dot-local'
+              }`}
           />
         </div>
 

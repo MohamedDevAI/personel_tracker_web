@@ -36,8 +36,8 @@ export default function GlanceDeleteModal({
 
         <div style={{ padding: '16px 0', fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
           Are you sure you want to delete the scheduled repayment for{' '}
-          <strong style={{ color: '#1c1917' }}>{creditorName}</strong> ({formatINR(amount)}) in{' '}
-          <strong style={{ color: '#1c1917' }}>{month}</strong>?
+          <strong style={{ color: 'var(--text-primary, #f8fafc)' }}>{creditorName}</strong> ({formatINR(amount)}) in{' '}
+          <strong style={{ color: 'var(--text-primary, #f8fafc)' }}>{month}</strong>?
         </div>
 
         <div className="modal-actions-footer">

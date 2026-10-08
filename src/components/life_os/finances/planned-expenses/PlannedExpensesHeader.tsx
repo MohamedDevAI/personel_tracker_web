@@ -1,4 +1,4 @@
-import { Plus, LayoutGrid } from 'lucide-react';
+import { LayoutGrid } from 'lucide-react';
 
 interface PlannedExpensesHeaderProps {
   onAddPlan: () => void;
@@ -39,12 +39,14 @@ export default function PlannedExpensesHeader({
           </span>
         )}
 
-        <button
-          onClick={onAddPlan}
-          className="btn btn-primary"
-        >
-          <Plus size={16} /> Plan An Expense
-        </button>
+        {!isAll && (
+          <button
+            onClick={onAddPlan}
+            className="btn btn-primary"
+          >
+            Add Expense
+          </button>
+        )}
       </div>
     </div>
   );

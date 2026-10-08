@@ -331,18 +331,7 @@ export default function PlannedExpensesView({
             });
           }}
           onDeletePlan={plan => deleteMutation.mutate(plan)}
-          onAddPlan={newPlan => {
-            savePlanMutation.mutate({
-              title: newPlan.title || 'Untitled',
-              month: newPlan.month || 'Sep',
-              year: newPlan.year || selectedYear,
-              plannedAmount: newPlan.plannedAmount || 0,
-              paidAmount: 0,
-              isFulfilled: false,
-              status: 'Planned',
-              notes: newPlan.notes
-            });
-          }}
+          onPlanExpense={handleOpenAddModal}
           onRefresh={() => queryClient.invalidateQueries({ queryKey: ['plannedExpenses'] })}
         />
       ) : (
