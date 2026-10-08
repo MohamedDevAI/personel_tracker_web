@@ -107,6 +107,23 @@ describe('plannedExpenseSync', () => {
       const match = findLinkedTransaction(otherPlanSameTitle, txs);
       expect(match).toBeUndefined();
     });
+
+    it('does NOT match a fallback transaction from a different year', () => {
+      const priorYearTx: Transaction[] = [
+        {
+          id: 'tx-2025-same-title',
+          date: '2025-10-15',
+          description: 'New Laptop',
+          amount: 1500,
+          type: 'Debit',
+          category: 'Equipment',
+        },
+      ];
+
+      // Sample plan is for year 2026, so 2025 tx must not match
+      const match = findLinkedTransaction(samplePlan, priorYearTx);
+      expect(match).toBeUndefined();
+    });
   });
 
   describe('syncPlanToTransactions', () => {
@@ -159,6 +176,12 @@ describe('plannedExpenseSync', () => {
       await syncPlanToTransactions(unfulfilledPlan, existingTxs);
 
       expect(expenseApi.deleteTransaction).toHaveBeenCalledWith('tx-existing');
+    });
+
+    it('throws when getTransactions fails, preventing duplicate transaction creation', async () => {
+      vi.mocked(expenseApi.getTransactions).mockRejectedValue(new Error('Network error'));
+      await expect(syncPlanToTransactions(samplePlan, [])).rejects.toThrow('Network error');
+      expect(expenseApi.createTransaction).not.toHaveBeenCalled();
     });
   });
 
