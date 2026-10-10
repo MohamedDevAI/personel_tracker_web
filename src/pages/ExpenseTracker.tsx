@@ -385,27 +385,15 @@ export default function ExpenseTracker() {
             {/* Left Column: Persistent Tab Switcher + Equal-Height Scrollable Tables */}
             <div className="finances-left-column">
 
-              {/* Persistent View Switcher & Toolbar */}
-              <div className="finances-table-toolbar-container">
-                <div className="finances-table-toolbar-header">
-                  {/* View switcher tabs / Title */}
-                  <div className="btn btn-primary ">
-                    Transactions List ({filteredTransactions.length})
-                  </div>
-
-                  {/* Add Category and Log Transaction Action Buttons */}
-                  <div className="finances-table-actions">
-                    <button onClick={() => setShowCategoryModal(true)} className="btn btn-secondary">
-                      <Tag size={16} /> Add Category
-                    </button>
-                    <button onClick={() => handleOpenAddModal('Credit')} className="btn btn-primary">
-                      <Plus size={16} /> Log Transaction
-                    </button>
-                  </div>
+              {/* Persistent View Switcher & Inline Toolbar */}
+              <div className="finances-table-toolbar">
+                {/* View switcher tabs / Title */}
+                <div className="btn btn-primary ">
+                  Transactions List ({filteredTransactions.length})
                 </div>
 
-                {/* Filter toolbar */}
-                <div className="finances-table-toolbar-filters">
+                {/* Inline filter & action toolbar */}
+                <div className="finances-toolbar-actions">
                   <div className="finances-search-box">
                     <Search size={14} className="finances-search-icon" />
                     <input
@@ -437,6 +425,13 @@ export default function ExpenseTracker() {
                       <option key={c.id || c._id || c.name} value={c.name}>{c.name}</option>
                     ))}
                   </select>
+
+                  <button onClick={() => setShowCategoryModal(true)} className="btn btn-secondary">
+                    <Tag size={16} /> Add Category
+                  </button>
+                  <button onClick={() => handleOpenAddModal('Credit')} className="btn btn-primary">
+                    <Plus size={16} /> Log Transaction
+                  </button>
                 </div>
               </div>
 

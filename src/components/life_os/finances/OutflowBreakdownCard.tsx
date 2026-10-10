@@ -53,16 +53,28 @@ export default function OutflowBreakdownCard({
                   ))}
                 </Pie>
                 <Tooltip
+                  wrapperStyle={{ outline: 'none', zIndex: 100 }}
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
                       const item = payload[0].payload;
                       const pct = totalDebit > 0 
                         ? ((item.value / totalDebit) * 100).toFixed(1) 
                         : '0';
+                      const sliceColor = payload[0].color || payload[0].fill || item?.fill || '#fb923c';
                       return (
                         <div className="outflow-tooltip">
                           <div className="outflow-tooltip-title">
-                            <span className="outflow-cat-dot" style={{ background: payload[0].color }} />
+                            <span
+                              className="outflow-cat-dot"
+                              style={{
+                                background: sliceColor,
+                                width: 8,
+                                height: 8,
+                                borderRadius: '50%',
+                                display: 'inline-block',
+                                flexShrink: 0
+                              }}
+                            />
                             <span>{item.name}</span>
                           </div>
                           <div className="outflow-tooltip-amount">
