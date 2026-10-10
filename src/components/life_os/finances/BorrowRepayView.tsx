@@ -108,6 +108,11 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
             aggStatusFilter={d.aggStatusFilter}
             onAggSearchChange={d.setAggSearchQuery}
             onAggStatusFilterChange={d.setAggStatusFilter}
+            selectedMonth={d.selectedMonth}
+            onMonthChange={d.setSelectedMonth}
+            selectedYear={d.selectedYear}
+            onYearChange={d.setSelectedYear}
+            availableYears={d.availableYears}
             onInspectCreditor={name => {
               d.setSelectedCreditorFilter(name);
               d.setActiveStep('creditor_transactions');

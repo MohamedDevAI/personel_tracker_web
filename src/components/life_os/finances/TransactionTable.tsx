@@ -118,11 +118,6 @@ export default function TransactionTable({
                         </div>
                         <div>
                           <span>{item.description || item.note || 'Untitled'}</span>
-                          {item._id && (
-                            <div className="tx-id-label">
-                              ID: {item._id.slice(0, 10)}...
-                            </div>
-                          )}
                         </div>
                       </div>
                     </td>

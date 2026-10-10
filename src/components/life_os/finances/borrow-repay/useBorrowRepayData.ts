@@ -122,8 +122,17 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
     return Array.from(years).sort().reverse();
   }, [records, plannedRepayments]);
 
-  const creditorSummaries = useMemo(() => borrowRepayApi.getCreditorSummaries(records), [records]);
-  const stats = useMemo(() => borrowRepayApi.getOverallStats(records), [records]);
+  const timeFilteredRecords = useMemo(() => {
+    return records.filter(r => {
+      const { month, year } = parseDateMonthYear(r.date);
+      const matchesYear = selectedYear === 'ALL' || year === selectedYear;
+      const matchesMonth = selectedMonth === 'ALL' || month.toLowerCase() === selectedMonth.toLowerCase();
+      return matchesYear && matchesMonth;
+    });
+  }, [records, selectedYear, selectedMonth]);
+
+  const creditorSummaries = useMemo(() => borrowRepayApi.getCreditorSummaries(timeFilteredRecords), [timeFilteredRecords]);
+  const stats = useMemo(() => borrowRepayApi.getOverallStats(timeFilteredRecords), [timeFilteredRecords]);
 
   const existingCreditors = useMemo(() => {
     const fromRecords = records.map(r => r.creditorName.trim());

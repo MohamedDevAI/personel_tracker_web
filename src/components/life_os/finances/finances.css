@@ -3234,6 +3234,60 @@
   white-space: nowrap;
 }
 
+.creditor-agg-table thead th.sortable-th {
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+
+.creditor-agg-table thead th.sortable-th:hover {
+  background: rgba(249, 115, 22, 0.14) !important;
+  color: var(--text-primary);
+}
+
+.creditor-agg-table thead th.sorted-th {
+  color: #fb923c !important;
+}
+
+.th-sort-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.th-sort-content.justify-end {
+  justify-content: flex-end;
+}
+
+.th-sort-content.justify-center {
+  justify-content: center;
+}
+
+.sort-icon-active {
+  color: #fb923c;
+  flex-shrink: 0;
+}
+
+.sort-icon-muted {
+  color: rgba(148, 163, 184, 0.5);
+  flex-shrink: 0;
+  transition: color 0.15s ease;
+}
+
+.sortable-th:hover .sort-icon-muted {
+  color: rgba(251, 146, 60, 0.8);
+}
+
+.agg-status-pills-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 10px;
+  margin-bottom: 14px;
+}
+
 .creditor-agg-table tbody tr {
   cursor: pointer;
   transition: all 0.15s ease;
