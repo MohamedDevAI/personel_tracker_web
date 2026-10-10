@@ -110,7 +110,7 @@ export default function GlanceMonthCard({
       <div className="glance-card-body">
         <div className="glance-items-heading">
           <span>Expense Objectives ({col.itemCount})</span>
-          <span className="glance-hint-text">Click Fulfilment to record payment</span>
+
         </div>
 
         <div className="glance-items-list">
@@ -139,10 +139,10 @@ export default function GlanceMonthCard({
                 <div
                   key={item.id || item.title}
                   className={`glance-item-row ${isItemFulfilled
-                      ? 'item-done'
-                      : isPartial
-                        ? 'item-partial'
-                        : 'item-pending'
+                    ? 'item-done'
+                    : isPartial
+                      ? 'item-partial'
+                      : 'item-pending'
                     }`}
                 >
                   {/* 1. Expense Objective & Planned Budget */}
