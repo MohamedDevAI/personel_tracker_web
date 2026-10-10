@@ -396,6 +396,27 @@
 }
 
 /* Persistent View Switcher & Toolbar */
+.finances-table-toolbar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.finances-table-toolbar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.finances-table-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .finances-table-toolbar {
   display: flex;
   justify-content: space-between;
@@ -404,6 +425,30 @@
   flex-wrap: wrap;
   gap: 12px;
 }
+
+.finances-table-toolbar-filters {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 768px) {
+  .finances-table-toolbar-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .finances-table-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .finances-table-toolbar-filters {
+    justify-content: flex-start;
+    width: 100%;
+  }
+}
+
 
 .finances-tabs-group {
   display: flex;

@@ -343,18 +343,6 @@ export default function ExpenseTracker() {
           </p>
         </div>
 
-        <div className="finances-header-actions">
-          {financeMainTab === 'ledger' && (
-            <>
-              <button onClick={() => setShowCategoryModal(true)} className="btn btn-secondary">
-                <Tag size={16} /> Add Category
-              </button>
-              <button onClick={() => handleOpenAddModal('Credit')} className="btn btn-primary">
-                <Plus size={16} /> Log Transaction
-              </button>
-            </>
-          )}
-        </div>
       </div>
 
       {/* 4-Tab Finance Hub Sub-Navigation Bar */}
@@ -398,49 +386,58 @@ export default function ExpenseTracker() {
             <div className="finances-left-column">
 
               {/* Persistent View Switcher & Toolbar */}
-              <div className="finances-table-toolbar">
+              <div className="finances-table-toolbar-container">
+                <div className="finances-table-toolbar-header">
+                  {/* View switcher tabs / Title */}
+                  <div className="btn btn-primary ">
+                    Transactions List ({filteredTransactions.length})
+                  </div>
 
-                {/* View switcher tabs (Always visible!) */}
-                <div className="btn btn-primary ">
-                  Transactions List ({filteredTransactions.length})
+                  {/* Add Category and Log Transaction Action Buttons */}
+                  <div className="finances-table-actions">
+                    <button onClick={() => setShowCategoryModal(true)} className="btn btn-secondary">
+                      <Tag size={16} /> Add Category
+                    </button>
+                    <button onClick={() => handleOpenAddModal('Credit')} className="btn btn-primary">
+                      <Plus size={16} /> Log Transaction
+                    </button>
+                  </div>
                 </div>
 
-                {/* Filter toolbar if transactions tab, or Add Category if categories tab */}
-                {(
-                  <div className="finances-toolbar-actions">
-                    <div className="finances-search-box">
-                      <Search size={14} className="finances-search-icon" />
-                      <input
-                        type="text"
-                        placeholder="Search note, category..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="finances-search-input"
-                      />
-                    </div>
-
-                    <select
-                      value={typeFilter}
-                      onChange={(e) => setTypeFilter(e.target.value as any)}
-                      className="finances-type-select"
-                    >
-                      <option value="ALL">All Types</option>
-                      <option value="Credit">Credit (+)</option>
-                      <option value="Debit">Debit (-)</option>
-                    </select>
-
-                    <select
-                      value={categoryFilter}
-                      onChange={(e) => setCategoryFilter(e.target.value)}
-                      className="finances-type-select"
-                    >
-                      <option value="ALL">All Categories</option>
-                      {categories.map(c => (
-                        <option key={c.id || c._id || c.name} value={c.name}>{c.name}</option>
-                      ))}
-                    </select>
+                {/* Filter toolbar */}
+                <div className="finances-table-toolbar-filters">
+                  <div className="finances-search-box">
+                    <Search size={14} className="finances-search-icon" />
+                    <input
+                      type="text"
+                      placeholder="Search note, category..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="finances-search-input"
+                    />
                   </div>
-                )}
+
+                  <select
+                    value={typeFilter}
+                    onChange={(e) => setTypeFilter(e.target.value as any)}
+                    className="finances-type-select"
+                  >
+                    <option value="ALL">All Types</option>
+                    <option value="Credit">Credit (+)</option>
+                    <option value="Debit">Debit (-)</option>
+                  </select>
+
+                  <select
+                    value={categoryFilter}
+                    onChange={(e) => setCategoryFilter(e.target.value)}
+                    className="finances-type-select"
+                  >
+                    <option value="ALL">All Categories</option>
+                    {categories.map(c => (
+                      <option key={c.id || c._id || c.name} value={c.name}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               {/* Table Component with 90vh height and internal scrolling */}
