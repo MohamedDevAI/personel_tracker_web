@@ -5,13 +5,14 @@
 
 import { BackendHealth, Expense, Goal, Habit, TaskItem } from '../interface';
 import apiClient from './apiClient';
+import { env } from '../config/env';
 
 // ─── Backend Health Check ─────────────────────────────────────────────────────
 
 export const checkBackendHealth = async (): Promise<BackendHealth> => {
   try {
     const res = await fetch(`${apiClient.defaults.baseURL}/health`, {
-      signal: AbortSignal.timeout(8000),
+      signal: AbortSignal.timeout(env.apiHealthTimeout),
     });
     if (res.ok) {
       const data = await res.json().catch(() => ({}));
@@ -29,7 +30,7 @@ export const api = {
   // ── Expenses ──────────────────────────────────────────────────────────────
 
   getExpenses: async (): Promise<Expense[]> => {
-    const { data } = await apiClient.get<Expense[]>('/expenses', { timeout: 6000 });
+    const { data } = await apiClient.get<Expense[]>('/expenses', { timeout: env.apiTimeout });
     return Array.isArray(data) ? data : [];
   },
 
@@ -46,7 +47,7 @@ export const api = {
   // ── Habits ────────────────────────────────────────────────────────────────
 
   getHabits: async (): Promise<Habit[]> => {
-    const { data } = await apiClient.get<Habit[]>('/habits', { timeout: 6000 });
+    const { data } = await apiClient.get<Habit[]>('/habits', { timeout: env.apiTimeout });
     return Array.isArray(data) ? data : [];
   },
 
@@ -77,7 +78,7 @@ export const api = {
       return { ...g, unit, title };
     };
 
-    const { data } = await apiClient.get<Goal[]>('/goals', { timeout: 6000 });
+    const { data } = await apiClient.get<Goal[]>('/goals', { timeout: env.apiTimeout });
     return Array.isArray(data) ? data.map(sanitizeGoal) : [];
   },
 
@@ -114,7 +115,7 @@ export const api = {
   // ── Tasks ─────────────────────────────────────────────────────────────────
 
   getTasks: async (): Promise<TaskItem[]> => {
-    const { data } = await apiClient.get<TaskItem[]>('/tasks', { timeout: 6000 });
+    const { data } = await apiClient.get<TaskItem[]>('/tasks', { timeout: env.apiTimeout });
     return Array.isArray(data) ? data : [];
   },
 

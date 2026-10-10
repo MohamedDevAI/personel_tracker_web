@@ -5,8 +5,9 @@
  */
 
 import { useEffect } from 'react';
+import { env } from '../config/env';
 
-export const APP_THEME = 'light' as const;
+export const APP_THEME = env.defaultTheme;
 
 export function useTheme() {
   useEffect(() => {

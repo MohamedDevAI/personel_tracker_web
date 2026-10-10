@@ -3,9 +3,11 @@
  * Consolidates values previously scattered across financeConstants.ts, Habits.tsx, Goals.tsx, Tasks.tsx, etc.
  */
 
+import { env } from '../config/env';
+
 // ─── API Configuration ───────────────────────────────────────────────────────
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+export const API_BASE_URL = env.apiBaseUrl;
 
 // ─── Category Color Palette (for charts & badges) ────────────────────────────
 
