@@ -1,4 +1,4 @@
-import { Search, Filter, CheckCircle2, Clock, LayoutGrid, Table2, RefreshCw, Plus, Link2 } from 'lucide-react';
+import { Search, Filter, CheckCircle2, Clock, LayoutGrid, Table2, RefreshCw, Link2, Calendar } from 'lucide-react';
 import { GlanceViewMode, GlanceStatusFilter } from './useGlanceData';
 
 interface GlanceToolbarProps {
@@ -17,13 +17,15 @@ interface GlanceToolbarProps {
   onSearchChange: (v: string) => void;
   onRefresh: () => void;
   onAddSchedule: () => void;
+  onScrollToCurrentMonth?: () => void;
 }
 
 export default function GlanceToolbar({
   viewMode, statusFilter, selectedCreditor, searchQuery,
   uniqueCreditors, totalMonths, completedMonthsCount, rolloverCount,
   isFetching,
-  onViewModeChange, onStatusFilterChange, onCreditorChange, onSearchChange, onRefresh, onAddSchedule
+  onViewModeChange, onStatusFilterChange, onCreditorChange, onSearchChange, onRefresh, onAddSchedule,
+  onScrollToCurrentMonth
 }: GlanceToolbarProps) {
   return (
     <div className="glance-toolbar glass-panel">
@@ -44,6 +46,24 @@ export default function GlanceToolbar({
           >
             <Table2 size={15} /> Detailed Ledger Table
           </button>
+          {viewMode === 'matrix' && onScrollToCurrentMonth && (
+            <button
+              type="button"
+              onClick={onScrollToCurrentMonth}
+              className="glance-toggle-btn"
+              title="Jump to Current Month"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                borderColor: 'rgba(245, 158, 11, 0.4)',
+                color: '#fbbf24',
+                background: 'rgba(245, 158, 11, 0.08)'
+              }}
+            >
+              <Calendar size={14} style={{ color: '#fbbf24' }} /> Current Month
+            </button>
+          )}
         </div>
 
         {/* Status Filter Pills */}
@@ -94,8 +114,7 @@ export default function GlanceToolbar({
         </div>
 
         {/* Add Schedule */}
-        <button type="button" onClick={onAddSchedule} className="btn btn-primary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700 }}>
-          <Plus size={15} /> + Add Schedule
+        <button type="button" onClick={onAddSchedule} className="btn btn-primary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700 }}> Add Schedule
         </button>
 
         {/* Refresh */}
