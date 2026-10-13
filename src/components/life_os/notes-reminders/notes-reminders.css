@@ -1,8 +1,3 @@
-/* ==========================================================================
-   STICKY NOTES & REMINDERS (notes-reminders.css)
-   Rich Aesthetics: Dark Obsidian & Clean Light Theme, Realistic Stationery
-   ========================================================================== */
-
 /* ── Container Layout ─────────────────────────────────────────────────────── */
 .notes-reminders-container {
   display: flex;
@@ -17,6 +12,7 @@
     opacity: 0;
     transform: translateY(6px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -251,13 +247,33 @@
   background: conic-gradient(#eb7c0a, #cd600d, #f88d0b, #f2711b, #f1451e, #eb7c0a);
 }
 
-.color-dot-filter.yellow { background: #f48a05; }
-.color-dot-filter.green  { background: #df690e; }
-.color-dot-filter.blue   { background: #f79926; }
-.color-dot-filter.purple { background: #f94d0e; }
-.color-dot-filter.pink   { background: #f2512c; }
-.color-dot-filter.orange { background: #fa770c; }
-.color-dot-filter.slate  { background: #fff2e5; }
+.color-dot-filter.yellow {
+  background: #f48a05;
+}
+
+.color-dot-filter.green {
+  background: #df690e;
+}
+
+.color-dot-filter.blue {
+  background: #f79926;
+}
+
+.color-dot-filter.purple {
+  background: #f94d0e;
+}
+
+.color-dot-filter.pink {
+  background: #f2512c;
+}
+
+.color-dot-filter.orange {
+  background: #fa770c;
+}
+
+.color-dot-filter.slate {
+  background: #fff2e5;
+}
 
 /* Action Buttons */
 .notes-action-btn-primary {
@@ -380,6 +396,7 @@
   background: linear-gradient(145deg, rgba(254, 240, 138, 0.14) 0%, rgba(20, 24, 38, 0.85) 100%);
   border-color: rgba(250, 204, 21, 0.35);
 }
+
 .sticky-note-card.yellow:hover {
   border-color: rgba(250, 204, 21, 0.6);
   box-shadow: 0 12px 28px rgba(250, 204, 21, 0.15);
@@ -389,6 +406,7 @@
   background: linear-gradient(145deg, rgba(167, 243, 208, 0.14) 0%, rgba(20, 24, 38, 0.85) 100%);
   border-color: rgba(52, 211, 153, 0.35);
 }
+
 .sticky-note-card.green:hover {
   border-color: rgba(52, 211, 153, 0.6);
   box-shadow: 0 12px 28px rgba(52, 211, 153, 0.15);
@@ -398,6 +416,7 @@
   background: linear-gradient(145deg, rgba(186, 230, 253, 0.14) 0%, rgba(20, 24, 38, 0.85) 100%);
   border-color: rgba(56, 189, 248, 0.35);
 }
+
 .sticky-note-card.blue:hover {
   border-color: rgba(56, 189, 248, 0.6);
   box-shadow: 0 12px 28px rgba(56, 189, 248, 0.15);
@@ -407,6 +426,7 @@
   background: linear-gradient(145deg, rgba(221, 214, 254, 0.14) 0%, rgba(20, 24, 38, 0.85) 100%);
   border-color: rgba(192, 132, 252, 0.35);
 }
+
 .sticky-note-card.purple:hover {
   border-color: rgba(192, 132, 252, 0.6);
   box-shadow: 0 12px 28px rgba(192, 132, 252, 0.15);
@@ -416,6 +436,7 @@
   background: linear-gradient(145deg, rgba(251, 207, 232, 0.14) 0%, rgba(20, 24, 38, 0.85) 100%);
   border-color: rgba(244, 114, 182, 0.35);
 }
+
 .sticky-note-card.pink:hover {
   border-color: rgba(244, 114, 182, 0.6);
   box-shadow: 0 12px 28px rgba(244, 114, 182, 0.15);
@@ -425,6 +446,7 @@
   background: linear-gradient(145deg, rgba(254, 215, 170, 0.14) 0%, rgba(20, 24, 38, 0.85) 100%);
   border-color: rgba(251, 146, 60, 0.35);
 }
+
 .sticky-note-card.orange:hover {
   border-color: rgba(251, 146, 60, 0.6);
   box-shadow: 0 12px 28px rgba(251, 146, 60, 0.15);
@@ -434,6 +456,7 @@
   background: linear-gradient(145deg, rgba(148, 163, 184, 0.12) 0%, rgba(20, 24, 38, 0.85) 100%);
   border-color: rgba(148, 163, 184, 0.35);
 }
+
 .sticky-note-card.slate:hover {
   border-color: rgba(148, 163, 184, 0.6);
   box-shadow: 0 12px 28px rgba(148, 163, 184, 0.15);
@@ -445,31 +468,37 @@
   border-color: #fde047;
   color: #713f12;
 }
+
 [data-theme='light'] .sticky-note-card.green {
   background: #dcfce7;
   border-color: #86efac;
   color: #14532d;
 }
+
 [data-theme='light'] .sticky-note-card.blue {
   background: #e0f2fe;
   border-color: #7dd3fc;
   color: #0c4a6e;
 }
+
 [data-theme='light'] .sticky-note-card.purple {
   background: #f3e8ff;
   border-color: #d8b4fe;
   color: #581c87;
 }
+
 [data-theme='light'] .sticky-note-card.pink {
   background: #fce7f3;
   border-color: #f472b6;
   color: #831843;
 }
+
 [data-theme='light'] .sticky-note-card.orange {
   background: #ffedd5;
   border-color: #fdba74;
   color: #7c2d12;
 }
+
 [data-theme='light'] .sticky-note-card.slate {
   background: #f1f5f9;
   border-color: #cbd5e1;
@@ -479,6 +508,7 @@
 [data-theme='light'] .sticky-note-title {
   color: #201c19;
 }
+
 [data-theme='light'] .sticky-note-body {
   color: #4c433c;
 }
@@ -868,6 +898,7 @@
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -964,13 +995,33 @@
   box-shadow: 0 0 10px rgba(249, 115, 22, 0.35);
 }
 
-.color-swatch-btn.yellow { background: #f48a05; }
-.color-swatch-btn.green  { background: #df690e; }
-.color-swatch-btn.blue   { background: #f79926; }
-.color-swatch-btn.purple { background: #f94d0e; }
-.color-swatch-btn.pink   { background: #f2512c; }
-.color-swatch-btn.orange { background: #fa770c; }
-.color-swatch-btn.slate  { background: #fff2e5; }
+.color-swatch-btn.yellow {
+  background: #f48a05;
+}
+
+.color-swatch-btn.green {
+  background: #df690e;
+}
+
+.color-swatch-btn.blue {
+  background: #f79926;
+}
+
+.color-swatch-btn.purple {
+  background: #f94d0e;
+}
+
+.color-swatch-btn.pink {
+  background: #f2512c;
+}
+
+.color-swatch-btn.orange {
+  background: #fa770c;
+}
+
+.color-swatch-btn.slate {
+  background: #fff2e5;
+}
 
 .notes-modal-actions {
   display: flex;
@@ -1041,6 +1092,7 @@
     opacity: 0;
     transform: translateY(16px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1087,9 +1139,12 @@
 }
 
 @keyframes pulsePin {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: rotate(0deg);
   }
+
   50% {
     transform: rotate(12deg) scale(1.1);
   }
@@ -1140,6 +1195,7 @@
     opacity: 0;
     transform: scale(0.92) translateY(12px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -1243,42 +1299,87 @@
   background: linear-gradient(145deg, rgba(254, 240, 138, 0.16) 0%, rgba(20, 24, 38, 0.9) 100%);
   border-color: rgba(250, 204, 21, 0.4);
 }
+
 .floating-sticky-card.green {
   background: linear-gradient(145deg, rgba(167, 243, 208, 0.16) 0%, rgba(20, 24, 38, 0.9) 100%);
   border-color: rgba(52, 211, 153, 0.4);
 }
+
 .floating-sticky-card.blue {
   background: linear-gradient(145deg, rgba(186, 230, 253, 0.16) 0%, rgba(20, 24, 38, 0.9) 100%);
   border-color: rgba(56, 189, 248, 0.4);
 }
+
 .floating-sticky-card.purple {
   background: linear-gradient(145deg, rgba(221, 214, 254, 0.16) 0%, rgba(20, 24, 38, 0.9) 100%);
   border-color: rgba(192, 132, 252, 0.4);
 }
+
 .floating-sticky-card.pink {
   background: linear-gradient(145deg, rgba(251, 207, 232, 0.16) 0%, rgba(20, 24, 38, 0.9) 100%);
   border-color: rgba(244, 114, 182, 0.4);
 }
+
 .floating-sticky-card.orange {
   background: linear-gradient(145deg, rgba(254, 215, 170, 0.16) 0%, rgba(20, 24, 38, 0.9) 100%);
   border-color: rgba(251, 146, 60, 0.4);
 }
+
 .floating-sticky-card.slate {
   background: linear-gradient(145deg, rgba(148, 163, 184, 0.14) 0%, rgba(20, 24, 38, 0.9) 100%);
   border-color: rgba(148, 163, 184, 0.4);
 }
 
 /* Light Theme Overrides for Floating Card */
-[data-theme='light'] .floating-sticky-card.yellow { background: #fef9c3; border-color: #fde047; color: #713f12; }
-[data-theme='light'] .floating-sticky-card.green  { background: #dcfce7; border-color: #86efac; color: #14532d; }
-[data-theme='light'] .floating-sticky-card.blue   { background: #e0f2fe; border-color: #7dd3fc; color: #0c4a6e; }
-[data-theme='light'] .floating-sticky-card.purple { background: #f3e8ff; border-color: #d8b4fe; color: #581c87; }
-[data-theme='light'] .floating-sticky-card.pink   { background: #fce7f3; border-color: #f472b6; color: #831843; }
-[data-theme='light'] .floating-sticky-card.orange { background: #ffedd5; border-color: #fdba74; color: #7c2d12; }
-[data-theme='light'] .floating-sticky-card.slate  { background: #f1f5f9; border-color: #cbd5e1; color: #1e293b; }
+[data-theme='light'] .floating-sticky-card.yellow {
+  background: #fef9c3;
+  border-color: #fde047;
+  color: #713f12;
+}
 
-[data-theme='light'] .floating-card-title { color: #201c19; }
-[data-theme='light'] .floating-card-body  { color: #4c433c; }
+[data-theme='light'] .floating-sticky-card.green {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #14532d;
+}
+
+[data-theme='light'] .floating-sticky-card.blue {
+  background: #e0f2fe;
+  border-color: #7dd3fc;
+  color: #0c4a6e;
+}
+
+[data-theme='light'] .floating-sticky-card.purple {
+  background: #f3e8ff;
+  border-color: #d8b4fe;
+  color: #581c87;
+}
+
+[data-theme='light'] .floating-sticky-card.pink {
+  background: #fce7f3;
+  border-color: #f472b6;
+  color: #831843;
+}
+
+[data-theme='light'] .floating-sticky-card.orange {
+  background: #ffedd5;
+  border-color: #fdba74;
+  color: #7c2d12;
+}
+
+[data-theme='light'] .floating-sticky-card.slate {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #1e293b;
+}
+
+[data-theme='light'] .floating-card-title {
+  color: #201c19;
+}
+
+[data-theme='light'] .floating-card-body {
+  color: #4c433c;
+}
 
 /* Floating Card Header */
 .floating-card-header {
@@ -1390,13 +1491,33 @@
   transform: scale(1.2);
 }
 
-.floating-color-dot.yellow { background: #f48a05; }
-.floating-color-dot.green  { background: #df690e; }
-.floating-color-dot.blue   { background: #f79926; }
-.floating-color-dot.purple { background: #f94d0e; }
-.floating-color-dot.pink   { background: #f2512c; }
-.floating-color-dot.orange { background: #fa770c; }
-.floating-color-dot.slate  { background: #fff2e5; }
+.floating-color-dot.yellow {
+  background: #f48a05;
+}
+
+.floating-color-dot.green {
+  background: #df690e;
+}
+
+.floating-color-dot.blue {
+  background: #f79926;
+}
+
+.floating-color-dot.purple {
+  background: #f94d0e;
+}
+
+.floating-color-dot.pink {
+  background: #f2512c;
+}
+
+.floating-color-dot.orange {
+  background: #fa770c;
+}
+
+.floating-color-dot.slate {
+  background: #fff2e5;
+}
 
 .floating-unpin-link {
   background: transparent;
@@ -1435,6 +1556,7 @@
     opacity: 0;
     transform: translateY(-24px) scale(0.94);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -1507,15 +1629,22 @@
 }
 
 @keyframes bellRing {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: rotate(0);
   }
-  10%, 30% {
+
+  10%,
+  30% {
     transform: rotate(14deg);
   }
-  20%, 40% {
+
+  20%,
+  40% {
     transform: rotate(-14deg);
   }
+
   50% {
     transform: rotate(0);
   }
@@ -1539,6 +1668,7 @@
     transform: scale(0.9);
     opacity: 1;
   }
+
   100% {
     transform: scale(1.4);
     opacity: 0;
@@ -1672,5 +1802,3 @@
   color: var(--text-primary);
   background: rgba(249, 115, 22, 0.15);
 }
-
-
