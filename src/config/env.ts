@@ -10,7 +10,7 @@ export const env = {
   appDescription:
     import.meta.env.VITE_APP_DESCRIPTION ||
     'International-grade personal tracker for habits, financial cash flow, strategic goals, and daily tasks with real-time analytics.',
-  defaultTheme: (import.meta.env.VITE_DEFAULT_THEME === 'dark' ? 'dark' : 'light') as 'light' | 'dark',
+  defaultTheme: (import.meta.env.VITE_DEFAULT_THEME === 'light' ? 'light' : 'dark') as 'light' | 'dark',
 
   // ── Dev Server Settings ───────────────────────────────────────────────────
   port: Number(import.meta.env.VITE_PORT) || 5173,

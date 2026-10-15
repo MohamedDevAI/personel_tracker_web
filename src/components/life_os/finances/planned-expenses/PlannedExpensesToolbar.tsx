@@ -1,4 +1,4 @@
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, Plus } from 'lucide-react';
 import { PlannedExpenseStatus } from '../../../../types';
 
 interface PlannedExpensesToolbarProps {
@@ -6,13 +6,15 @@ interface PlannedExpensesToolbarProps {
   onSearchChange: (value: string) => void;
   statusFilter: 'ALL' | PlannedExpenseStatus;
   onStatusFilterChange: (value: 'ALL' | PlannedExpenseStatus) => void;
+  onPlanExpense?: () => void;
 }
 
 export default function PlannedExpensesToolbar({
   searchQuery,
   onSearchChange,
   statusFilter,
-  onStatusFilterChange
+  onStatusFilterChange,
+  onPlanExpense
 }: PlannedExpensesToolbarProps) {
   return (
     <div className="borrow-table-toolbar">
@@ -27,18 +29,31 @@ export default function PlannedExpensesToolbar({
         />
       </div>
 
-      <div className="filter-select-wrapper">
-        <Filter size={14} className="filter-icon" />
-        <select
-          value={statusFilter}
-          onChange={e => onStatusFilterChange(e.target.value as 'ALL' | PlannedExpenseStatus)}
-          className="borrow-select-filter"
-        >
-          <option value="ALL">All Statuses</option>
-          <option value="Fulfilled">Fulfilled (Complete)</option>
-          <option value="Partial">Partially Paid</option>
-          <option value="Planned">Unfulfilled / Planned</option>
-        </select>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div className="filter-select-wrapper">
+          <Filter size={14} className="filter-icon" />
+          <select
+            value={statusFilter}
+            onChange={e => onStatusFilterChange(e.target.value as 'ALL' | PlannedExpenseStatus)}
+            className="borrow-select-filter"
+          >
+            <option value="ALL">All Statuses</option>
+            <option value="Fulfilled">Fulfilled (Complete)</option>
+            <option value="Partial">Partially Paid</option>
+            <option value="Planned">Unfulfilled / Planned</option>
+          </select>
+        </div>
+
+        {onPlanExpense && (
+          <button
+            type="button"
+            onClick={onPlanExpense}
+            className="btn btn-primary"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+          >
+            <Plus size={16} /> Add Expense
+          </button>
+        )}
       </div>
     </div>
   );

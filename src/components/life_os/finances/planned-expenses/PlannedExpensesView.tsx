@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react';
-import { ArrowLeft } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Category, PlannedExpense, PlannedExpenseStatus, Transaction } from '../../../../types';
 import { plannedExpenseApi } from '../../../../services/plannedExpenseApi';
@@ -22,6 +21,7 @@ import {
 import { usePlannedExpensesQuery, QUERY_KEYS } from '../../../../hooks';
 import { isPlanFulfilled, isPlanPartial } from '../../../../utils/planStatus';
 import './planned-expenses.css';
+import { ArrowLeft } from 'lucide-react';
 
 interface PlannedExpensesViewProps {
   categories?: Category[];
@@ -290,11 +290,9 @@ export default function PlannedExpensesView({
 
   return (
     <div className="planned-expenses-container">
-      {/* Header with Title & All-Months Glance Indicator */}
+      {/* Header with Title & Add Expense Action */}
       <PlannedExpensesHeader
         onAddPlan={handleOpenAddModal}
-        selectedMonth={selectedMonth}
-        onSelectAllMonths={() => setSelectedMonth('All')}
       />
 
       {/* Month & Year Filter Strip (always available for navigation) */}
@@ -355,14 +353,6 @@ export default function PlannedExpensesView({
               </span>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setSelectedMonth('All')}
-              className="badge planned-breadcrumb-badge"
-            >
-              ← Glance Matrix (All Months)
-
-            </button>
           </div>
 
           {/* Detailed KPI Cards for this month */}
@@ -373,12 +363,13 @@ export default function PlannedExpensesView({
             overspentItemsCount={filteredPlans.filter(p => (p.paidAmount ?? 0) > p.plannedAmount).length}
           />
 
-          {/* Search & Filter Bar */}
+          {/* Search & Filter Bar with Add Expense at Top of Table */}
           <PlannedExpensesToolbar
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             statusFilter={statusFilter}
             onStatusFilterChange={setStatusFilter}
+            onPlanExpense={handleOpenAddModal}
           />
 
           {/* Detailed Planned Expenses Table */}
