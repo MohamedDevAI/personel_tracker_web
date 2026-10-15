@@ -107,6 +107,7 @@ export const notesRemindersService = {
     const payload = {
       ...(base || {}),
       ...updates,
+      tags: Array.isArray(updates.tags) ? updates.tags : (Array.isArray(base?.tags) ? base.tags : []),
       pinned: isPinnedVal !== undefined ? Boolean(isPinnedVal) : undefined,
       isPinned: isPinnedVal !== undefined ? Boolean(isPinnedVal) : undefined,
       id,
