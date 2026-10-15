@@ -35,21 +35,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #d15f05;
+  color: var(--accent-primary, #0d9488);
   margin-bottom: 20px;
 }
 
 .habits-clean-slate-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--text-primary, #1c1917);
+  color: var(--text-primary, #ffffff);
   margin: 0 0 10px 0;
   letter-spacing: -0.02em;
 }
 
 .habits-clean-slate-desc {
   font-size: 0.95rem;
-  color: var(--text-secondary, #74675f);
+  color: var(--text-secondary, #cbd5e1);
   max-width: 480px;
   line-height: 1.6;
   margin: 0;

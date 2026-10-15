@@ -1,5 +1,6 @@
 import { Check, Clock, AlertCircle, Edit3, Trash2, RotateCw } from 'lucide-react';
 import type { ReminderItem, StickyNote } from '../../../types/notesReminders';
+import { getLocalDateISO } from '../../../utils/dateHelpers';
 
 interface ReminderItemRowProps {
   reminder: ReminderItem;
@@ -17,7 +18,7 @@ export default function ReminderItemRow({
   onDelete,
   onSnooze,
 }: ReminderItemRowProps) {
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getLocalDateISO();
   const isOverdue = !reminder.isCompleted && reminder.dueDate < todayStr;
   const isToday = !reminder.isCompleted && reminder.dueDate === todayStr;
 

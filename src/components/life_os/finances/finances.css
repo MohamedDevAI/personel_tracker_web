@@ -1,8 +1,3 @@
-/* ==========================================================================
-   FINANCES MODULE STYLES (finances.css)
-   Clean, modular CSS for all Personal Tracker finance components & tables
-   ========================================================================== */
-
 /* Main Container & Page Layout */
 .finances-container {
   padding: 0 16px 40px;
@@ -405,6 +400,7 @@
   gap: 12px;
 }
 
+
 .finances-tabs-group {
   display: flex;
   gap: 8px;
@@ -797,34 +793,41 @@
 }
 
 .outflow-tooltip {
-  background: rgba(254, 250, 245, 0.95);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(249, 115, 22, 0.33);
-  padding: 8px 12px;
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(124, 45, 18, 0.15);
-  font-size: 0.82rem;
-  color: #1c1917;
+  background: rgba(18, 14, 10, 0.96) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(249, 115, 22, 0.35) !important;
+  padding: 10px 14px !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7), 0 0 15px rgba(249, 115, 22, 0.12) !important;
+  font-size: 0.82rem !important;
+  color: #f8fafc !important;
+  pointer-events: none !important;
 }
 
 .outflow-tooltip-title {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 600;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-weight: 600 !important;
+  font-size: 0.85rem !important;
+  color: #f8fafc !important;
 }
 
 .outflow-tooltip-amount {
-  font-weight: 700;
-  margin-top: 4px;
-  font-family: var(--font-display);
+  font-weight: 700 !important;
+  margin-top: 6px !important;
+  font-size: 0.95rem !important;
+  color: #fb923c !important;
+  font-family: var(--font-display) !important;
+  display: flex !important;
+  align-items: baseline !important;
+  gap: 6px !important;
 }
 
 .outflow-tooltip-pct {
-  color: var(--text-muted);
-  margin-left: 6px;
-  font-size: 0.75rem;
-  font-weight: 500;
+  color: #94a3b8 !important;
+  font-size: 0.78rem !important;
+  font-weight: 500 !important;
 }
 
 .outflow-empty-state {
@@ -1121,9 +1124,9 @@
 }
 
 .finance-main-nav-tab.active {
-  background: linear-gradient(135deg, rgba(242, 129, 54, 0.25), rgba(245, 102, 50, 0.2));
-  color: #1c1917;
-  box-shadow: 0 4px 12px rgba(242, 129, 54, 0.2);
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.25), rgba(13, 148, 136, 0.2));
+  color: var(--text-primary);
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.2);
   border: 1px solid rgba(244, 110, 52, 0.35);
 }
 
@@ -1233,9 +1236,9 @@
 }
 
 .borrow-step-btn.active {
-  background: linear-gradient(135deg, rgba(242, 129, 54, 0.25), rgba(245, 102, 50, 0.2));
-  color: #1c1917;
-  box-shadow: 0 2px 8px rgba(242, 129, 54, 0.2);
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.25), rgba(13, 148, 136, 0.2));
+  color: var(--text-primary);
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.2);
   border: 1px solid rgba(244, 110, 52, 0.35);
 }
 
@@ -1276,8 +1279,8 @@
 }
 
 .btn-table-action-pay:hover {
-  background: rgba(225, 106, 14, 0.25);
-  color: #1c1917;
+  background: rgba(20, 184, 166, 0.25);
+  color: var(--text-primary);
 }
 
 .borrow-kpi-grid {
@@ -1713,7 +1716,7 @@
 
 .borrow-data-table th.th-action {
   text-align: center;
-  width: 70px;
+  width: 90px;
 }
 
 .borrow-row {
@@ -1812,6 +1815,32 @@
   text-align: center;
 }
 
+.table-actions-cluster {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-icon-edit {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-icon-edit:hover {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  transform: scale(1.08);
+}
+
 .btn-icon-delete {
   background: transparent;
   border: none;
@@ -1819,12 +1848,16 @@
   cursor: pointer;
   padding: 6px;
   border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.2s ease;
 }
 
 .btn-icon-delete:hover {
-  color: #58514d;
-  background: rgba(110, 101, 94, 0.1);
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.12);
+  transform: scale(1.08);
 }
 
 /* Borrow Modal Specifics */
@@ -1861,6 +1894,11 @@
 .modal-icon-badge.credit-given {
   background: rgba(234, 88, 12, 0.2);
   color: #ea580c;
+}
+
+.modal-icon-badge.credit-repaid {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
 }
 
 .borrow-type-toggle-grid {
@@ -1902,6 +1940,12 @@
   background: rgba(234, 88, 12, 0.15);
   border-color: #ea580c;
   color: #ea580c;
+}
+
+.borrow-type-btn.active-credit-repaid {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #10b981;
+  color: #10b981;
 }
 
 .btn-emerald-solid {
@@ -2240,7 +2284,7 @@
 .confirm-modal-title {
   font-size: 1.25rem;
   font-weight: 800;
-  color: #1c1917;
+  color: var(--text-primary);
 }
 
 .confirm-modal-message {
@@ -2459,13 +2503,13 @@
 .fulfill-mode-title {
   font-size: 0.86rem;
   font-weight: 700;
-  color: #1c1917;
+  color: var(--text-primary);
 }
 
 .fulfill-mode-amount {
   font-size: 0.95rem;
   font-weight: 800;
-  color: #1c1917;
+  color: var(--text-primary);
   letter-spacing: -0.01em;
 }
 
@@ -2716,8 +2760,8 @@
 }
 
 .btn-icon-fulfill:hover {
-  background: rgba(242, 129, 54, 0.25);
-  color: #1c1917;
+  background: rgba(20, 184, 166, 0.25);
+  color: var(--text-primary);
   transform: scale(1.06);
 }
 
@@ -2779,7 +2823,7 @@
 
 .btn-icon-delete:hover {
   background: rgba(110, 101, 94, 0.25);
-  color: #1c1917;
+  color: var(--text-primary);
   transform: scale(1.06);
 }
 
@@ -2939,9 +2983,9 @@
 }
 
 .btn-table-fulfill.pending:hover {
-  background: rgba(242, 129, 54, 0.25);
-  border-color: #df4c0c;
-  color: #1c1917;
+  background: rgba(20, 184, 166, 0.25);
+  border-color: #0d9488;
+  color: var(--text-primary);
 }
 
 /* Overpaid / Extra Payment Tracking */
@@ -3165,7 +3209,7 @@
 .banner-creditor-name {
   font-size: 0.95rem;
   font-weight: 700;
-  color: #1c1917;
+  color: var(--text-primary);
   background: rgba(242, 129, 54, 0.25);
   padding: 2px 10px;
   border-radius: 6px;
@@ -3194,7 +3238,7 @@
 
 .banner-clear-btn:hover {
   background: rgba(110, 101, 94, 0.3);
-  color: #1c1917;
+  color: var(--text-primary);
   transform: translateY(-1px);
 }
 
@@ -3224,6 +3268,60 @@
   padding: 12px 14px;
   border-bottom: 1px solid var(--border-subtle);
   white-space: nowrap;
+}
+
+.creditor-agg-table thead th.sortable-th {
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+
+.creditor-agg-table thead th.sortable-th:hover {
+  background: rgba(249, 115, 22, 0.14) !important;
+  color: var(--text-primary);
+}
+
+.creditor-agg-table thead th.sorted-th {
+  color: #fb923c !important;
+}
+
+.th-sort-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.th-sort-content.justify-end {
+  justify-content: flex-end;
+}
+
+.th-sort-content.justify-center {
+  justify-content: center;
+}
+
+.sort-icon-active {
+  color: #fb923c;
+  flex-shrink: 0;
+}
+
+.sort-icon-muted {
+  color: rgba(148, 163, 184, 0.5);
+  flex-shrink: 0;
+  transition: color 0.15s ease;
+}
+
+.sortable-th:hover .sort-icon-muted {
+  color: rgba(251, 146, 60, 0.8);
+}
+
+.agg-status-pills-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 10px;
+  margin-bottom: 14px;
 }
 
 .creditor-agg-table tbody tr {
@@ -3443,8 +3541,8 @@
 }
 
 .btn-clear-all-filters:hover {
-  background: rgba(249, 115, 22, 0.16);
-  color: #1c1917;
+  background: rgba(20, 184, 166, 0.16);
+  color: var(--text-primary);
 }
 
 /* ==========================================================================
@@ -3518,7 +3616,7 @@
 .glance-hero-title {
   font-size: 1.5rem;
   font-weight: 800;
-  color: #1c1917;
+  color: var(--text-primary);
   margin: 0 0 6px 0;
   letter-spacing: -0.02em;
 }
@@ -3567,7 +3665,7 @@
 .glance-stat-value {
   font-size: 1.35rem;
   font-weight: 800;
-  color: #1c1917;
+  color: var(--text-primary);
   letter-spacing: -0.01em;
 }
 
@@ -3599,7 +3697,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #1c1917;
+  color: var(--text-primary);
 }
 
 .glance-progress-meta {
@@ -3776,6 +3874,43 @@
   border-color: rgba(20, 184, 166, 0.2);
   background: linear-gradient(180deg, rgba(15, 23, 42, 0.85) 0%, rgba(10, 15, 29, 0.95) 100%);
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+.glance-month-card.current-month-card {
+  border: 2px solid #f59e0b !important;
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.14) 0%, rgba(18, 14, 10, 0.96) 100%) !important;
+  box-shadow: 0 0 32px rgba(245, 158, 11, 0.35), 0 10px 30px rgba(0, 0, 0, 0.8) !important;
+  position: relative;
+}
+
+.glance-current-month-banner {
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+  color: #ffffff;
+  padding: 5px 12px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.45);
+}
+
+.glance-current-month-badge {
+  background: rgba(245, 158, 11, 0.22);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.6);
+  padding: 1px 8px;
+  border-radius: 9999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 /* Card Header */
@@ -4269,8 +4404,7 @@
 
 .finances-container .finances-header-subtitle,
 .finances-container .borrow-repay-subtitle,
-.finances-container .planned-expenses-subtitle,
-.finances-container .planned-month-breadcrumb {
+.finances-container .planned-expenses-subtitle {
   color: rgba(255, 255, 255, 0.7) !important;
 }
 
@@ -4714,4 +4848,4 @@
   display: flex;
   align-items: center;
   gap: 8px;
-}
+}

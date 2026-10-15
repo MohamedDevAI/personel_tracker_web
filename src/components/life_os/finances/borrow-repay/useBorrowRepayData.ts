@@ -3,8 +3,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { BorrowRepayRecord, BorrowRepayType, PlannedRepayment, PlannedRepaymentStatus, PlannedRepayCreditItem } from '../../../../types';
 import { borrowRepayApi } from '../../../../services/borrowRepayApi';
 import { plannedRepayCreditApi } from '../../../../services/plannedRepayCreditApi';
-import { MONTH_NAMES, getCurrentYear } from '../../../../utils/dateHelpers';
-import { useBorrowRepayRecordsQuery, usePlannedRepaymentsQuery } from '../../../../hooks';
+import { MONTH_NAMES, getCurrentYear, parseDateMonthYear } from '../../../../utils/dateHelpers';
+import { formatINR } from '../../../../utils/formatters';
+import { useBorrowRepayRecordsQuery, usePlannedRepaymentsQuery, QUERY_KEYS } from '../../../../hooks';
 
 export type BorrowRepayStep = 'aggregation' | 'creditor_transactions' | 'all_transactions' | 'planned_repayment' | 'credit_tracker';
 
@@ -29,6 +30,7 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
   const [isPlannedModalOpen, setIsPlannedModalOpen] = useState(false);
   const [modalInitialType, setModalInitialType] = useState<BorrowRepayType>('Borrow');
   const [modalInitialCreditor, setModalInitialCreditor] = useState<string>('');
+  const [editingRecord, setEditingRecord] = useState<BorrowRepayRecord | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{
     isOpen: boolean;
     type: 'credit_record' | 'planned_repayment';
@@ -42,19 +44,37 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
 
   // ── Mutations ────────────────────────────────────────────────────────────────
   const invalidateAll = () => {
-    queryClient.invalidateQueries({ queryKey: ['borrowRepayRecords'] });
-    queryClient.invalidateQueries({ queryKey: ['plannedRepayments'] });
-    queryClient.invalidateQueries({ queryKey: ['plannedRepayCreditMatrix'] });
+    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.BORROW_REPAY_RECORDS });
+    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PLANNED_REPAYMENTS });
+    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PLANNED_REPAY_CREDIT_MATRIX });
   };
 
   const createRecordMutation = useMutation({
     mutationFn: (record: Omit<BorrowRepayRecord, 'id' | 'createdAt'>) => borrowRepayApi.createRecord(record),
     onSuccess: invalidateAll,
+    onError: (err: any) => {
+      console.error('Failed to create borrow/repay record:', err);
+      alert('Failed to save record: ' + (err.message || 'Unknown error'));
+    },
+  });
+
+  const updateRecordMutation = useMutation({
+    mutationFn: ({ id, updates, existingRecord }: { id: string; updates: Partial<BorrowRepayRecord>; existingRecord?: BorrowRepayRecord }) =>
+      borrowRepayApi.updateRecord(id, updates, existingRecord),
+    onSuccess: invalidateAll,
+    onError: (err: any) => {
+      console.error('Failed to update borrow/repay record:', err);
+      alert('Failed to update record: ' + (err.message || 'Unknown error'));
+    },
   });
 
   const deleteRecordMutation = useMutation({
     mutationFn: (id: string) => borrowRepayApi.deleteRecord(id),
     onSuccess: invalidateAll,
+    onError: (err: any) => {
+      console.error('Failed to delete borrow/repay record:', err);
+      alert('Failed to delete record: ' + (err.message || 'Unknown error'));
+    },
   });
 
   const createPlannedMutation = useMutation({
@@ -79,51 +99,51 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
       return borrowRepayApi.createPlannedRepayment(plan);
     },
     onSuccess: invalidateAll,
+    onError: (err: any) => {
+      console.error('Failed to create planned repayment:', err);
+      alert('Failed to create planned repayment: ' + (err.message || 'Unknown error'));
+    },
   });
 
   const deletePlannedMutation = useMutation({
     mutationFn: (id: string) => borrowRepayApi.deletePlannedRepayment(id),
     onSuccess: invalidateAll,
+    onError: (err: any) => {
+      console.error('Failed to delete planned repayment:', err);
+      alert('Failed to delete planned repayment: ' + (err.message || 'Unknown error'));
+    },
   });
 
   const markAsPaidMutation = useMutation({
     mutationFn: (id: string) => borrowRepayApi.markPlannedRepaymentAsPaid(id),
     onSuccess: invalidateAll,
+    onError: (err: any) => {
+      console.error('Failed to mark repayment as paid:', err);
+      alert('Failed to mark repayment as paid: ' + (err.message || 'Unknown error'));
+    },
   });
-
-  // ── Helpers ──────────────────────────────────────────────────────────────────
-  const parseDateMonthYear = (dateStr: string) => {
-    if (!dateStr) return { month: '', year: '' };
-    if (dateStr.includes('/')) {
-      const parts = dateStr.split('/');
-      if (parts.length === 3) {
-        const mIdx = parseInt(parts[0], 10) - 1;
-        const y = parts[2].trim();
-        const m = mIdx >= 0 && mIdx < 12 ? MONTH_NAMES[mIdx] : '';
-        return { month: m, year: y };
-      }
-    }
-    const d = new Date(dateStr);
-    if (!isNaN(d.getTime())) {
-      return { month: MONTH_NAMES[d.getMonth()], year: String(d.getFullYear()) };
-    }
-    return { month: '', year: '' };
-  };
-
-  const formatINR = (val: number) =>
-    new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format(val);
 
   // ── Derived data ─────────────────────────────────────────────────────────────
   const availableYears = useMemo(() => {
     const years = new Set<string>();
     records.forEach(r => { const { year } = parseDateMonthYear(r.date); if (year) years.add(year); });
     plannedRepayments.forEach(p => { const { year } = parseDateMonthYear(p.targetDate); if (year) years.add(year); });
-    [String(getCurrentYear()), '2025', '2026'].forEach(y => years.add(y));
+    const curYr = getCurrentYear();
+    [curYr - 1, curYr, curYr + 1].forEach(y => years.add(String(y)));
     return Array.from(years).sort().reverse();
   }, [records, plannedRepayments]);
 
-  const creditorSummaries = useMemo(() => borrowRepayApi.getCreditorSummaries(records), [records]);
-  const stats = useMemo(() => borrowRepayApi.getOverallStats(records), [records]);
+  const timeFilteredRecords = useMemo(() => {
+    return records.filter(r => {
+      const { month, year } = parseDateMonthYear(r.date);
+      const matchesYear = selectedYear === 'ALL' || year === selectedYear;
+      const matchesMonth = selectedMonth === 'ALL' || month.toLowerCase() === selectedMonth.toLowerCase();
+      return matchesYear && matchesMonth;
+    });
+  }, [records, selectedYear, selectedMonth]);
+
+  const creditorSummaries = useMemo(() => borrowRepayApi.getCreditorSummaries(timeFilteredRecords), [timeFilteredRecords]);
+  const stats = useMemo(() => borrowRepayApi.getOverallStats(timeFilteredRecords), [timeFilteredRecords]);
 
   const existingCreditors = useMemo(() => {
     const fromRecords = records.map(r => r.creditorName.trim());
@@ -136,7 +156,8 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
       const matchesSearch = r.creditorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (r.notes && r.notes.toLowerCase().includes(searchQuery.toLowerCase()));
       const matchesType = typeFilter === 'ALL' || r.type === typeFilter;
-      const matchesCreditor = selectedCreditorFilter === 'ALL' || r.creditorName === selectedCreditorFilter;
+      const matchesCreditor = selectedCreditorFilter === 'ALL' ||
+        r.creditorName.trim().toLowerCase() === selectedCreditorFilter.trim().toLowerCase();
       const { month, year } = parseDateMonthYear(r.date);
       const matchesMonth = selectedMonth === 'ALL' || month === selectedMonth;
       const matchesYear = selectedYear === 'ALL' || year === selectedYear;
@@ -145,10 +166,12 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
   }, [records, searchQuery, typeFilter, selectedCreditorFilter, selectedMonth, selectedYear]);
 
   const activeFilterTotals = useMemo(() => {
-    let borrowed = 0, repaid = 0, creditGiven = 0;
+    let borrowed = 0, repaid = 0, creditGiven = 0, creditRepaid = 0;
     filteredRecords.forEach(r => {
       const amt = Math.abs(Number(r.amount) || 0);
-      if (r.type === 'Credit Given' || (r.type === 'Borrow' && Number(r.amount) < 0)) {
+      if (r.type === 'Credit Repaid') {
+        creditRepaid += amt;
+      } else if (r.type === 'Credit Given' || (r.type === 'Borrow' && Number(r.amount) < 0)) {
         creditGiven += amt;
       } else if (r.type === 'Borrow') {
         borrowed += amt;
@@ -156,7 +179,10 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
         repaid += amt;
       }
     });
-    return { borrowed, repaid, creditGiven, net: borrowed - repaid - creditGiven };
+    const debt = Math.max(0, borrowed - repaid);
+    const excess = Math.max(0, repaid - borrowed);
+    const credit = Math.max(0, creditGiven - creditRepaid - excess);
+    return { borrowed, repaid, creditGiven, creditRepaid, net: debt - credit };
   }, [filteredRecords]);
 
   const filteredCreditorSummaries = useMemo(() => {
@@ -214,8 +240,30 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
   }, [plannedRepayments]);
 
   // ── Action handlers ──────────────────────────────────────────────────────────
-  const handleAddCreditRecord = (newRecord: Omit<BorrowRepayRecord, 'id' | 'createdAt'>) => {
-    createRecordMutation.mutate(newRecord);
+  const handleSaveCreditRecord = (
+    newRecord: Omit<BorrowRepayRecord, 'id' | 'createdAt'>,
+    id?: string
+  ) => {
+    const targetId = id || editingRecord?.id;
+    if (targetId) {
+      updateRecordMutation.mutate({
+        id: targetId,
+        updates: newRecord,
+        existingRecord: editingRecord || undefined
+      });
+    } else {
+      createRecordMutation.mutate(newRecord);
+    }
+    setEditingRecord(null);
+  };
+
+  const handleAddCreditRecord = handleSaveCreditRecord;
+
+  const handleEditCreditRecord = (record: BorrowRepayRecord) => {
+    setEditingRecord(record);
+    setModalInitialType(record.type);
+    setModalInitialCreditor(record.creditorName);
+    setIsCreditModalOpen(true);
   };
 
   const triggerDeleteCreditRecord = (item: BorrowRepayRecord) => {
@@ -226,6 +274,7 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
   };
 
   const handleOpenCreditModal = (type: BorrowRepayType, creditorName: string = '') => {
+    setEditingRecord(null);
     setModalInitialType(type);
     setModalInitialCreditor(creditorName);
     setIsCreditModalOpen(true);
@@ -273,6 +322,7 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
     isPlannedModalOpen, setIsPlannedModalOpen,
     modalInitialType,
     modalInitialCreditor,
+    editingRecord, setEditingRecord,
     deleteConfirm, setDeleteConfirm,
     // Data
     records, plannedRepayments,
@@ -282,9 +332,11 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
     filteredPlannedRepayments, plannedStats,
     availableYears,
     // Mutations
-    createRecordMutation, deleteRecordMutation, markAsPaidMutation,
+    createRecordMutation, updateRecordMutation, deleteRecordMutation, markAsPaidMutation,
     // Handlers
     handleAddCreditRecord,
+    handleSaveCreditRecord,
+    handleEditCreditRecord,
     triggerDeleteCreditRecord,
     handleOpenCreditModal,
     handleAddPlannedRepayment,

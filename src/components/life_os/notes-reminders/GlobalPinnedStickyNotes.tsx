@@ -4,6 +4,7 @@ import { Pin, ChevronDown, ChevronUp, X, Plus, Edit3, Check } from 'lucide-react
 import { notesRemindersService } from '../../../services/notesRemindersService';
 import { StickyNote, NoteColor } from '../../../interface';
 import { useStickyNotesQuery } from '../../../hooks/useStickyNotesQuery';
+import { QUERY_KEYS } from '../../../hooks/queryKeys';
 
 const COLOR_LIST: NoteColor[] = ['yellow', 'green', 'blue', 'purple', 'pink', 'orange', 'slate'];
 
@@ -17,21 +18,21 @@ export default function GlobalPinnedStickyNotes() {
   // Unpin mutation
   const unpinMutation = useMutation({
     mutationFn: (id: string) => notesRemindersService.togglePinNote(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['sticky-notes'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.STICKY_NOTES }),
   });
 
   // Color change mutation
   const colorMutation = useMutation({
     mutationFn: ({ id, color }: { id: string; color: NoteColor }) =>
       notesRemindersService.updateNote(id, { color }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['sticky-notes'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.STICKY_NOTES }),
   });
 
   // Fast inline edit mutation
   const editMutation = useMutation({
     mutationFn: ({ id, content }: { id: string; content: string }) =>
       notesRemindersService.updateNote(id, { content }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['sticky-notes'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.STICKY_NOTES }),
   });
 
   // Fast quick create note mutation
@@ -44,7 +45,7 @@ export default function GlobalPinnedStickyNotes() {
         isPinned: true,
         tags: ['Quick'],
       }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['sticky-notes'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.STICKY_NOTES }),
   });
 
   // Global state for dock expanded / collapsed

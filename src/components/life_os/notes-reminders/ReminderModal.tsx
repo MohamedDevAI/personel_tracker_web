@@ -1,6 +1,7 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import { X, Bell } from 'lucide-react';
 import type { ReminderItem, ReminderPriority } from '../../../types/notesReminders';
+import { getLocalDateISO } from '../../../utils/dateHelpers';
 
 interface ReminderModalProps {
   isOpen: boolean;
@@ -22,7 +23,7 @@ export default function ReminderModal({
   onClose,
   onSave,
 }: ReminderModalProps) {
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getLocalDateISO();
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');

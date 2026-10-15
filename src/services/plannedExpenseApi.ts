@@ -5,6 +5,7 @@
 
 import { PlannedExpense } from '../interface';
 import apiClient from './apiClient';
+import { isPlanFulfilled, getEffectivePaidAmount, getPlanStatus } from '../utils/planStatus';
 
 // ─── API Methods ──────────────────────────────────────────────────────────────
 
@@ -24,11 +25,15 @@ export const plannedExpenseApi = {
   /** Create a planned expense in MongoDB */
   createPlannedExpense: async (plan: Omit<PlannedExpense, 'id' | 'createdAt'>): Promise<PlannedExpense> => {
     const plannedAmt = Math.abs(Number(plan.plannedAmount) || 0);
-    const isFulfilled = plan.isFulfilled ?? (plan.status === 'Fulfilled');
+    const rawPaid = plan.paidAmount !== undefined && plan.paidAmount !== null
+      ? Math.max(0, Number(plan.paidAmount))
+      : undefined;
+    const isExplicitFulfilled = plan.isFulfilled ?? (plan.status === 'Fulfilled');
+    const isFulfilled = Boolean(isExplicitFulfilled || (plannedAmt > 0 && (rawPaid ?? 0) >= plannedAmt));
     const paidAmt = isFulfilled
-      ? plannedAmt
-      : (plan.paidAmount !== undefined ? Math.max(0, Number(plan.paidAmount)) : 0);
-    const status = isFulfilled ? 'Fulfilled' : (paidAmt > 0 ? 'Partial' : (plan.status || 'Planned'));
+      ? (rawPaid !== undefined ? rawPaid : plannedAmt)
+      : (rawPaid ?? 0);
+    const status = getPlanStatus({ ...plan, plannedAmount: plannedAmt, paidAmount: paidAmt, isFulfilled });
 
     const payload = {
       ...plan,
@@ -50,7 +55,14 @@ export const plannedExpenseApi = {
     updates: Partial<PlannedExpense>,
     fallbackBase?: PlannedExpense
   ): Promise<PlannedExpense> => {
-    const merged = { ...(fallbackBase || {}), ...updates, id };
+    let base = fallbackBase;
+    if (!base) {
+      try {
+        const all = await plannedExpenseApi.fetchFromDb();
+        base = all.find(p => p.id === id);
+      } catch {}
+    }
+    const merged = { ...(base || {}), ...updates, id };
     const { data } = await apiClient.put<PlannedExpense>(`/finance_planned/${id}`, merged);
     return data;
   },
@@ -67,15 +79,21 @@ export const plannedExpenseApi = {
     paidAmount?: number,
     existingPlan?: PlannedExpense
   ): Promise<PlannedExpense> => {
-    const plannedAmt = existingPlan?.plannedAmount || 0;
+    const plannedAmt = Number(existingPlan?.plannedAmount || 0);
 
     const finalPaid = paidAmount !== undefined && paidAmount !== null
       ? Math.max(0, Number(paidAmount))
       : (isFulfilled ? plannedAmt : 0);
 
-    const isUnderpaid = finalPaid > 0 && plannedAmt > 0 && finalPaid < plannedAmt;
-    const finalFulfilled = isUnderpaid ? false : (isFulfilled || (finalPaid >= plannedAmt && plannedAmt > 0));
-    const status = finalFulfilled ? 'Fulfilled' : (finalPaid > 0 ? 'Partial' : 'Planned');
+    const candidate: Partial<PlannedExpense> = {
+      ...(existingPlan || {}),
+      id,
+      plannedAmount: plannedAmt,
+      paidAmount: finalPaid,
+      isFulfilled: isFulfilled || (plannedAmt > 0 && finalPaid >= plannedAmt),
+    };
+    const finalFulfilled = isPlanFulfilled(candidate as PlannedExpense);
+    const status = getPlanStatus({ ...candidate, isFulfilled: finalFulfilled });
 
     const updates: Partial<PlannedExpense> = {
       ...(existingPlan || {}),
@@ -94,28 +112,19 @@ export const plannedExpenseApi = {
     actualCategoryExpenses: Record<string, number> = {}
   ) => {
     const totalPlanned = plans.reduce((acc, p) => acc + Number(p.plannedAmount || 0), 0);
-
-    const getPaidAmount = (p: PlannedExpense): number => {
-      if (p.paidAmount !== undefined && p.paidAmount !== null) return Number(p.paidAmount);
-      if (p.isFulfilled || p.status === 'Fulfilled') return Number(p.plannedAmount || 0);
-      return 0;
-    };
-
-    const totalPaid = plans.reduce((acc, p) => acc + getPaidAmount(p), 0);
+    const totalPaid = plans.reduce((acc, p) => acc + getEffectivePaidAmount(p), 0);
 
     const totalRemaining = plans.reduce((acc, p) => {
       const planned = Number(p.plannedAmount || 0);
-      return acc + Math.max(0, planned - getPaidAmount(p));
+      return acc + Math.max(0, planned - getEffectivePaidAmount(p));
     }, 0);
 
     const totalOverpaid = plans.reduce((acc, p) => {
       const planned = Number(p.plannedAmount || 0);
-      return acc + Math.max(0, getPaidAmount(p) - planned);
+      return acc + Math.max(0, getEffectivePaidAmount(p) - planned);
     }, 0);
 
-    const fulfilledCount = plans.filter(
-      (p) => p.isFulfilled || p.status === 'Fulfilled' || ((p.paidAmount ?? 0) >= p.plannedAmount)
-    ).length;
+    const fulfilledCount = plans.filter(isPlanFulfilled).length;
 
     const fulfillmentRate = totalPlanned > 0
       ? Math.min(100, Math.round((totalPaid / totalPlanned) * 100))

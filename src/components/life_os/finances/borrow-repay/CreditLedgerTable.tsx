@@ -1,6 +1,6 @@
 import {
   HandCoins, Search, Filter, ArrowDownLeft, ArrowUpRight,
-  Trash2, Calendar, Clock, User
+  Trash2, Pencil, Calendar, Clock, User
 } from 'lucide-react';
 import { BorrowRepayRecord, BorrowRepayType } from '../../../../types';
 import { MONTH_NAMES } from '../../../../utils/dateHelpers';
@@ -21,6 +21,7 @@ interface CreditLedgerTableProps {
   onMonthChange: (v: string) => void;
   onYearChange: (v: string) => void;
   onCreditorFilterChange: (v: string) => void;
+  onEditRecord?: (item: BorrowRepayRecord) => void;
   onDeleteRecord: (item: BorrowRepayRecord) => void;
   onAddRecord: () => void;
   onResetFilters: () => void;
@@ -33,7 +34,7 @@ export default function CreditLedgerTable({
   searchQuery, typeFilter, selectedMonth, selectedYear, selectedCreditorFilter,
   availableYears, existingCreditors,
   onSearchChange, onTypeFilterChange, onMonthChange, onYearChange, onCreditorFilterChange,
-  onDeleteRecord, onAddRecord, formatINR: _formatINR
+  onEditRecord, onDeleteRecord, onAddRecord, formatINR: _formatINR
 }: CreditLedgerTableProps) {
   return (
     <>
@@ -72,8 +73,9 @@ export default function CreditLedgerTable({
             <select value={typeFilter} onChange={e => onTypeFilterChange(e.target.value as any)} className="borrow-select-filter">
               <option value="ALL">All Types</option>
               <option value="Borrow">Borrow (+INR)</option>
-              <option value="Repaid">Repaid (-INR)</option>
+              <option value="Repaid">I Repaid (-INR)</option>
               <option value="Credit Given">Credit Given (Lent)</option>
+              <option value="Credit Repaid">Repaid to Me (Collected)</option>
             </select>
           </div>
 
@@ -86,6 +88,8 @@ export default function CreditLedgerTable({
               </select>
             </div>
           )}
+
+
         </div>
       </div>
 
@@ -119,6 +123,7 @@ export default function CreditLedgerTable({
               filteredRecords.map(item => {
                 const isBorrow = item.type === 'Borrow';
                 const isCreditGiven = item.type === 'Credit Given' || (isBorrow && Number(item.amount) < 0);
+                const isCreditRepaid = item.type === 'Credit Repaid';
                 return (
                   <tr key={item.id} className="borrow-row">
                     <td className="td-creditor">
@@ -134,23 +139,64 @@ export default function CreditLedgerTable({
                       </div>
                     </td>
                     <td className="td-type">
-                      <span className={`badge ${isCreditGiven ? 'badge-sky' : isBorrow ? 'badge-borrow' : 'badge-repaid'}`}>
-                        {isCreditGiven ? <HandCoins size={12} /> : isBorrow ? <ArrowDownLeft size={12} /> : <ArrowUpRight size={12} />}
-                        {isCreditGiven ? 'Credit Given' : item.type}
+                      <span className={`badge ${isCreditRepaid
+                        ? 'badge-emerald'
+                        : isCreditGiven
+                          ? 'badge-sky'
+                          : isBorrow
+                            ? 'badge-borrow'
+                            : 'badge-repaid'
+                        }`}>
+                        {isCreditRepaid ? (
+                          <ArrowDownLeft size={12} />
+                        ) : isCreditGiven ? (
+                          <HandCoins size={12} />
+                        ) : isBorrow ? (
+                          <ArrowDownLeft size={12} />
+                        ) : (
+                          <ArrowUpRight size={12} />
+                        )}
+                        {isCreditRepaid ? 'Repaid to Me' : isCreditGiven ? 'Credit Given' : isBorrow ? 'Borrow' : 'I Repaid'}
                       </span>
                     </td>
-                    <td className={`td-amount ${isCreditGiven ? 'amount-credit-given-col' : isBorrow ? 'borrow-amt' : 'repaid-amt'}`}>
-                      {isCreditGiven
-                        ? `₹ ${Math.abs(Number(item.amount)).toLocaleString('en-IN')} (Given)`
+                    <td className={`td-amount ${isCreditRepaid
+                      ? 'amount-repaid-col'
+                      : isCreditGiven
+                        ? 'amount-credit-given-col'
                         : isBorrow
-                          ? `+₹ ${Number(item.amount).toLocaleString('en-IN')}`
-                          : `-₹ ${Number(item.amount).toLocaleString('en-IN')}`}
+                          ? 'borrow-amt'
+                          : 'repaid-amt'
+                      }`}>
+                      {isCreditRepaid
+                        ? `+₹ ${Math.abs(Number(item.amount)).toLocaleString('en-IN')} (Received Back)`
+                        : isCreditGiven
+                          ? `₹ ${Math.abs(Number(item.amount)).toLocaleString('en-IN')} (Given)`
+                          : isBorrow
+                            ? `+₹ ${Number(item.amount).toLocaleString('en-IN')}`
+                            : `-₹ ${Number(item.amount).toLocaleString('en-IN')}`}
                     </td>
                     <td className="td-notes"><span className="notes-text">{item.notes || '—'}</span></td>
                     <td className="td-action">
-                      <button onClick={() => onDeleteRecord(item)} className="btn-icon-delete" title="Delete Record">
-                        <Trash2 size={15} />
-                      </button>
+                      <div className="table-actions-cluster">
+                        {onEditRecord && (
+                          <button
+                            type="button"
+                            onClick={() => onEditRecord(item)}
+                            className="btn-icon-edit"
+                            title="Edit Transaction"
+                          >
+                            <Pencil size={15} />
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => onDeleteRecord(item)}
+                          className="btn-icon-delete"
+                          title="Delete Record"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );

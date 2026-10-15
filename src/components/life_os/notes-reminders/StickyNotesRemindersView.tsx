@@ -13,6 +13,8 @@ import ReminderModal from './ReminderModal';
 import ConfirmDeleteModal from '../../common/ConfirmDeleteModal';
 import { useStickyNotesQuery } from '../../../hooks/useStickyNotesQuery';
 import { useRemindersQuery } from '../../../hooks/useRemindersQuery';
+import { QUERY_KEYS } from '../../../hooks/queryKeys';
+import { getLocalDateISO } from '../../../utils/dateHelpers';
 import './notes-reminders.css';
 
 export default function StickyNotesRemindersView() {
@@ -26,61 +28,124 @@ export default function StickyNotesRemindersView() {
   const createNoteMutation = useMutation({
     mutationFn: (data: Omit<StickyNote, 'id' | 'createdAt' | 'updatedAt'>) =>
       notesRemindersService.createNote(data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['sticky-notes'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.STICKY_NOTES }),
+    onError: (err: any) => {
+      console.error('Failed to create note:', err);
+      alert('Failed to create note: ' + (err.message || 'Unknown error'));
+    },
   });
 
   const updateNoteMutation = useMutation({
     mutationFn: ({ id, updates }: { id: string; updates: Partial<StickyNote> }) =>
       notesRemindersService.updateNote(id, updates),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['sticky-notes'] }),
+    onMutate: async ({ id, updates }) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.STICKY_NOTES });
+      const previousNotes = queryClient.getQueryData<StickyNote[]>(QUERY_KEYS.STICKY_NOTES);
+      queryClient.setQueryData<StickyNote[]>(QUERY_KEYS.STICKY_NOTES, (old = []) =>
+        old.map((n) => (n.id === id ? { ...n, ...updates } : n))
+      );
+      return { previousNotes };
+    },
+    onError: (err: any, _vars, context) => {
+      if (context?.previousNotes) {
+        queryClient.setQueryData(QUERY_KEYS.STICKY_NOTES, context.previousNotes);
+      }
+      console.error('Failed to update note:', err);
+      alert('Failed to update note: ' + (err.message || 'Unknown error'));
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.STICKY_NOTES });
+    },
   });
 
   const deleteNoteMutation = useMutation({
     mutationFn: (id: string) => notesRemindersService.deleteNote(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['sticky-notes'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.STICKY_NOTES }),
+    onError: (err: any) => {
+      console.error('Failed to delete note:', err);
+      alert('Failed to delete note: ' + (err.message || 'Unknown error'));
+    },
   });
 
   const togglePinMutation = useMutation({
-    mutationFn: (id: string) => notesRemindersService.togglePinNote(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['sticky-notes'] }),
+    mutationFn: ({ id, isPinned }: { id: string; isPinned?: boolean }) =>
+      notesRemindersService.togglePinNote(id, isPinned),
+    onMutate: async ({ id, isPinned }) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.STICKY_NOTES });
+      const previousNotes = queryClient.getQueryData<StickyNote[]>(QUERY_KEYS.STICKY_NOTES);
+      queryClient.setQueryData<StickyNote[]>(QUERY_KEYS.STICKY_NOTES, (old = []) =>
+        old.map((n) => (n.id === id ? { ...n, isPinned: !isPinned } : n))
+      );
+      return { previousNotes };
+    },
+    onError: (err: any, _vars, context) => {
+      if (context?.previousNotes) {
+        queryClient.setQueryData(QUERY_KEYS.STICKY_NOTES, context.previousNotes);
+      }
+      console.error('Failed to toggle pin:', err);
+      alert('Failed to toggle note pin: ' + (err.message || 'Unknown error'));
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.STICKY_NOTES });
+    },
   });
 
   // ── Reminder Mutations ─────────────────────────────────────────────────────
   const createReminderMutation = useMutation({
     mutationFn: (data: Omit<ReminderItem, 'id'>) =>
       notesRemindersService.createReminder(data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reminders'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REMINDERS }),
+    onError: (err: any) => {
+      console.error('Failed to create reminder:', err);
+      alert('Failed to create reminder: ' + (err.message || 'Unknown error'));
+    },
   });
 
   const updateReminderMutation = useMutation({
     mutationFn: ({ id, updates }: { id: string; updates: Partial<ReminderItem> }) =>
       notesRemindersService.updateReminder(id, updates),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reminders'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REMINDERS }),
+    onError: (err: any) => {
+      console.error('Failed to update reminder:', err);
+      alert('Failed to update reminder: ' + (err.message || 'Unknown error'));
+    },
   });
 
   const deleteReminderMutation = useMutation({
     mutationFn: (id: string) => notesRemindersService.deleteReminder(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reminders'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REMINDERS }),
+    onError: (err: any) => {
+      console.error('Failed to delete reminder:', err);
+      alert('Failed to delete reminder: ' + (err.message || 'Unknown error'));
+    },
   });
 
   const toggleReminderMutation = useMutation({
     mutationFn: (id: string) => notesRemindersService.toggleReminder(id),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['reminders'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REMINDERS });
       if (data.isCompleted) {
         confetti({
           particleCount: 45,
           spread: 55,
           origin: { y: 0.8 },
-          colors: ['#cd600d', '#df690e', '#f07414', '#f17f28'],
+          colors: ['#0d9488', '#14b8a6', '#2dd4bf', '#5eead4'],
         });
       }
+    },
+    onError: (err: any) => {
+      console.error('Failed to toggle reminder:', err);
+      alert('Failed to toggle reminder: ' + (err.message || 'Unknown error'));
     },
   });
 
   const snoozeReminderMutation = useMutation({
     mutationFn: (id: string) => notesRemindersService.snoozeReminder(id, 1),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reminders'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REMINDERS }),
+    onError: (err: any) => {
+      console.error('Failed to snooze reminder:', err);
+      alert('Failed to snooze reminder: ' + (err.message || 'Unknown error'));
+    },
   });
 
   // ── Local UI State ─────────────────────────────────────────────────────────
@@ -135,6 +200,15 @@ export default function StickyNotesRemindersView() {
   const pinnedNotes = useMemo(() => filteredNotes.filter((n) => n.isPinned), [filteredNotes]);
   const unpinnedNotes = useMemo(() => filteredNotes.filter((n) => !n.isPinned), [filteredNotes]);
 
+  // Sorted Notes (pinned on top, then newest)
+  const sortedNotes = useMemo(() => {
+    return [...filteredNotes].sort((a, b) => {
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      return new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime();
+    });
+  }, [filteredNotes]);
+
   // ── Filtered Reminders ─────────────────────────────────────────────────────
   const filteredReminders = useMemo(() => {
     return reminders.filter((r) => {
@@ -150,7 +224,7 @@ export default function StickyNotesRemindersView() {
   }, [reminders, searchQuery]);
 
   // Reminders Grouped by Overdue, Today, Upcoming, and Completed
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getLocalDateISO();
 
   const groupedReminders = useMemo(() => {
     const overdue: ReminderItem[] = [];
@@ -267,7 +341,7 @@ export default function StickyNotesRemindersView() {
           <div className="aio-column">
             <div className="sticky-section-title-wrap">
               <h3 className="sticky-section-title">
-                <StickyNoteIcon size={18} color="#d47304" />
+                <StickyNoteIcon size={18} color="#f59e0b" />
                 <span>Stationery Board</span>
               </h3>
               <span className="sticky-section-badge">{filteredNotes.length} notes</span>
@@ -293,11 +367,13 @@ export default function StickyNotesRemindersView() {
               </div>
             ) : (
               <div className="sticky-notes-grid">
-                {filteredNotes.map((note) => (
+                {sortedNotes.map((note) => (
                   <StickyNoteCard
                     key={note.id}
                     note={note}
-                    onTogglePin={(id) => togglePinMutation.mutate(id)}
+                    onTogglePin={(id, currentPinned) =>
+                      togglePinMutation.mutate({ id, isPinned: currentPinned })
+                    }
                     onColorChange={handleColorChange}
                     onEdit={handleEditNote}
                     onDelete={(n) =>
@@ -318,7 +394,7 @@ export default function StickyNotesRemindersView() {
           <div className="aio-column">
             <div className="sticky-section-title-wrap">
               <h3 className="sticky-section-title">
-                <Bell size={18} color="#ce3b05" />
+                <Bell size={18} color="#14b8a6" />
                 <span>Reminders Schedule</span>
               </h3>
               <span className="sticky-section-badge">
@@ -468,7 +544,9 @@ export default function StickyNotesRemindersView() {
                   <StickyNoteCard
                     key={note.id}
                     note={note}
-                    onTogglePin={(id) => togglePinMutation.mutate(id)}
+                    onTogglePin={(id, currentPinned) =>
+                      togglePinMutation.mutate({ id, isPinned: currentPinned })
+                    }
                     onColorChange={handleColorChange}
                     onEdit={handleEditNote}
                     onDelete={(n) =>
@@ -521,7 +599,9 @@ export default function StickyNotesRemindersView() {
                   <StickyNoteCard
                     key={note.id}
                     note={note}
-                    onTogglePin={(id) => togglePinMutation.mutate(id)}
+                    onTogglePin={(id, currentPinned) =>
+                      togglePinMutation.mutate({ id, isPinned: currentPinned })
+                    }
                     onColorChange={handleColorChange}
                     onEdit={handleEditNote}
                     onDelete={(n) =>

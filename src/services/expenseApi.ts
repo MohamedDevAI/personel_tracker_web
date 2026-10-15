@@ -83,14 +83,9 @@ export const expenseApi = {
   // ── Categories ────────────────────────────────────────────────────────────
 
   getCategories: async (type?: TransactionType): Promise<Category[]> => {
-    try {
-      const url = type ? `/categories?type=${type}` : '/categories';
-      const { data } = await apiClient.get<Category[]>(url);
-      if (Array.isArray(data)) return data;
-    } catch (e) {
-      console.warn('Unable to load categories from MongoDB:', e);
-    }
-    return [];
+    const url = type ? `/categories?type=${type}` : '/categories';
+    const { data } = await apiClient.get<Category[]>(url);
+    return Array.isArray(data) ? data : [];
   },
 
   createCategory: async (category: Omit<Category, 'id'>): Promise<Category> => {
@@ -105,15 +100,8 @@ export const expenseApi = {
   // ── Transactions ──────────────────────────────────────────────────────────
 
   getTransactions: async (): Promise<Transaction[]> => {
-    try {
-      const { data } = await apiClient.get<any[]>('/transactions', { timeout: 8000 });
-      if (Array.isArray(data)) {
-        return data.map(normalizeTransaction);
-      }
-    } catch (e) {
-      console.warn('Unable to load transactions from MongoDB:', e);
-    }
-    return [];
+    const { data } = await apiClient.get<any[]>('/transactions', { timeout: 8000 });
+    return Array.isArray(data) ? data.map(normalizeTransaction) : [];
   },
 
   createTransaction: async (transaction: Omit<Transaction, 'id' | '_id'>): Promise<Transaction> => {

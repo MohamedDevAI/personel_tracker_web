@@ -8,6 +8,7 @@ export interface PlannedRepayCreditItem {
   monthIndex?: number;
   creditorName: string;
   plannedAmount: number;
+  currency?: string;
   monthTotal?: number;
   status: 'Completed' | 'In-Completed';
   notes?: string;
@@ -19,6 +20,7 @@ export interface PlannedRepayCreditColumn {
   targetDate: string;
   monthIndex: number;
   monthTotal: number;
+  currency?: string;
   status: 'Completed' | 'In-Completed';
   itemCount: number;
   items: PlannedRepayCreditItem[];

@@ -1,10 +1,9 @@
 import { useState, useMemo } from 'react';
-import { ArrowLeft } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Category, PlannedExpense, PlannedExpenseStatus, Transaction } from '../../../../types';
 import { plannedExpenseApi } from '../../../../services/plannedExpenseApi';
 import { expenseApi } from '../../../../services/expenseApi';
-import { MONTH_NAMES, getCurrentMonth, getCurrentYear } from '../../../../utils/dateHelpers';
+import { MONTH_NAMES, getCurrentMonth, getCurrentYear, parseTxDate } from '../../../../utils/dateHelpers';
 import MonthYearFilter from '../MonthYearFilter';
 import PlannedExpenseModal from './PlannedExpenseModal';
 import FulfillPaymentModal from '../FulfillPaymentModal';
@@ -19,8 +18,10 @@ import {
   removeLinkedTransactionIfExists,
   formatSAR
 } from './plannedExpenseSync';
-import { usePlannedExpensesQuery } from '../../../../hooks';
+import { usePlannedExpensesQuery, QUERY_KEYS } from '../../../../hooks';
+import { isPlanFulfilled, isPlanPartial } from '../../../../utils/planStatus';
 import './planned-expenses.css';
+import { ArrowLeft } from 'lucide-react';
 
 interface PlannedExpensesViewProps {
   categories?: Category[];
@@ -126,27 +127,27 @@ export default function PlannedExpensesView({
     mutationFn: async (planData: Omit<PlannedExpense, 'id' | 'createdAt'>) => {
       let savedPlan: PlannedExpense | null = null;
       if (editingPlan) {
-        savedPlan = await plannedExpenseApi.updatePlannedExpense(editingPlan.id, planData);
+        savedPlan = await plannedExpenseApi.updatePlannedExpense(editingPlan.id, planData, editingPlan);
       } else {
         savedPlan = await plannedExpenseApi.createPlannedExpense(planData);
       }
 
       if (savedPlan) {
-        try {
-          const freshTransactions = await expenseApi.getTransactions();
-          await syncPlanToTransactions(savedPlan, freshTransactions);
-        } catch (syncErr) {
-          console.error('Error syncing saved plan to transactions:', syncErr);
-        }
+        const freshTransactions = await expenseApi.getTransactions();
+        await syncPlanToTransactions(savedPlan, freshTransactions);
       }
       return savedPlan;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['plannedExpenses'] });
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboardSummary'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PLANNED_EXPENSES() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TRANSACTIONS() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.DASHBOARD_SUMMARY() });
       setEditingPlan(null);
       setIsAddModalOpen(false);
+    },
+    onError: (err: any) => {
+      console.error('Failed to save planned expense:', err);
+      alert('Failed to save planned expense: ' + (err?.message || 'Server error'));
     }
   });
 
@@ -165,58 +166,56 @@ export default function PlannedExpensesView({
       const updatedPlan = await plannedExpenseApi.setFulfillmentAndPayment(id, isFulfilled, paidAmount, plan);
       const targetPlan = plan || plans.find(p => p.id === id) || updatedPlan;
       if (targetPlan) {
-        try {
-          const freshTransactions = await expenseApi.getTransactions();
-          await syncPlanToTransactions(
-            { ...targetPlan, isFulfilled, paidAmount },
-            freshTransactions,
-            { isFulfilled, paidAmount }
-          );
-        } catch (syncErr) {
-          console.error('Error syncing fulfilled plan to transactions:', syncErr);
-        }
+        const freshTransactions = await expenseApi.getTransactions();
+        await syncPlanToTransactions(
+          { ...targetPlan, isFulfilled, paidAmount },
+          freshTransactions,
+          { isFulfilled, paidAmount }
+        );
       }
       return updatedPlan;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['plannedExpenses'] });
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboardSummary'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PLANNED_EXPENSES() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TRANSACTIONS() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.DASHBOARD_SUMMARY() });
       setActiveFulfillPlan(null);
+    },
+    onError: (err: any) => {
+      console.error('Failed to update plan fulfillment:', err);
+      alert('Failed to update fulfillment: ' + (err?.message || 'Server error'));
     }
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (plan: PlannedExpense) => {
       await plannedExpenseApi.deletePlannedExpense(plan.id);
-      try {
-        const freshTransactions = await expenseApi.getTransactions();
-        await removeLinkedTransactionIfExists(plan, freshTransactions);
-      } catch (syncErr) {
-        console.error('Error removing linked transaction on plan deletion:', syncErr);
-      }
+      const freshTransactions = await expenseApi.getTransactions();
+      await removeLinkedTransactionIfExists(plan, freshTransactions);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['plannedExpenses'] });
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboardSummary'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PLANNED_EXPENSES() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TRANSACTIONS() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.DASHBOARD_SUMMARY() });
       setDeletePlan(null);
+    },
+    onError: (err: any) => {
+      console.error('Failed to delete planned expense:', err);
+      alert('Failed to delete planned expense: ' + (err?.message || 'Server error'));
     }
   });
 
-  // Compute actual spending by category for the selected month/year from live MongoDB transactions
+  // Compute actual spending by category for the selected month/year using canonical parseTxDate
   const actualCategoryExpenses = useMemo(() => {
     const expenses: Record<string, number> = {};
     for (const tx of transactions) {
       if (String(tx.type).toUpperCase() !== 'CREDIT') {
-        const matchesMonth = selectedMonth === 'All' || tx.month === selectedMonth;
-        let matchesYear = true;
-        if (tx.date) {
-          const d = new Date(tx.date);
-          if (!isNaN(d.getFullYear())) {
-            matchesYear = d.getFullYear() === selectedYear;
-          }
-        }
+        const { year: txYear, month: txMonth } = parseTxDate(tx);
+        const matchesMonth =
+          selectedMonth === 'All' ||
+          txMonth.toLowerCase().slice(0, 3) === selectedMonth.toLowerCase().slice(0, 3);
+        const matchesYear = selectedMonth === 'All' || txYear === selectedYear;
+
         if (matchesMonth && matchesYear) {
           const cat = tx.category || tx.categoryName || 'Other';
           const amt = Math.abs(Number(tx.amount || tx.amountSar || 0));
@@ -238,9 +237,9 @@ export default function PlannedExpensesView({
       let matchesStatus = true;
       if (statusFilter !== 'ALL') {
         if (statusFilter === 'Fulfilled') {
-          matchesStatus = p.isFulfilled || p.status === 'Fulfilled' || (p.paidAmount ?? 0) >= p.plannedAmount;
+          matchesStatus = isPlanFulfilled(p);
         } else if (statusFilter === 'Partial') {
-          matchesStatus = (p.paidAmount ?? 0) > 0 && (p.paidAmount ?? 0) < p.plannedAmount && !p.isFulfilled;
+          matchesStatus = isPlanPartial(p);
         } else {
           matchesStatus = p.status === statusFilter;
         }
@@ -250,9 +249,12 @@ export default function PlannedExpensesView({
         selectedMonth === 'All' ||
         (p.month || '').toLowerCase().slice(0, 3) === selectedMonth.toLowerCase().slice(0, 3);
 
-      return matchesSearch && matchesStatus && matchesMonth;
+      const planYear = p.year || currentCalendarYear;
+      const matchesYear = selectedMonth === 'All' || planYear === selectedYear;
+
+      return matchesSearch && matchesStatus && matchesMonth && matchesYear;
     });
-  }, [plans, searchQuery, statusFilter, selectedMonth]);
+  }, [plans, searchQuery, statusFilter, selectedMonth, selectedYear, currentCalendarYear]);
 
   // Budget summary with variance
   const budgetSummary = useMemo(() => {
@@ -288,11 +290,9 @@ export default function PlannedExpensesView({
 
   return (
     <div className="planned-expenses-container">
-      {/* Header with Title & All-Months Glance Indicator */}
+      {/* Header with Title & Add Expense Action */}
       <PlannedExpensesHeader
         onAddPlan={handleOpenAddModal}
-        selectedMonth={selectedMonth}
-        onSelectAllMonths={() => setSelectedMonth('All')}
       />
 
       {/* Month & Year Filter Strip (always available for navigation) */}
@@ -322,17 +322,17 @@ export default function PlannedExpensesView({
           onFulfillPlan={plan => setActiveFulfillPlan(plan)}
           onSaveFulfillment={handleSaveFulfillment}
           onTogglePlanStatus={plan => {
-            const isDone = plan.isFulfilled || plan.status === 'Fulfilled';
+            const willBeDone = !isPlanFulfilled(plan);
             fulfillMutation.mutate({
               id: plan.id,
-              isFulfilled: isDone,
-              paidAmount: isDone ? plan.plannedAmount : 0,
+              isFulfilled: willBeDone,
+              paidAmount: willBeDone ? plan.plannedAmount : 0,
               plan
             });
           }}
           onDeletePlan={plan => deleteMutation.mutate(plan)}
           onPlanExpense={handleOpenAddModal}
-          onRefresh={() => queryClient.invalidateQueries({ queryKey: ['plannedExpenses'] })}
+          onRefresh={() => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PLANNED_EXPENSES() })}
         />
       ) : (
         /* ── Condition 2: When a specific month is clicked, bring the detailed existing one ── */
@@ -353,14 +353,6 @@ export default function PlannedExpensesView({
               </span>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setSelectedMonth('All')}
-              className="badge planned-breadcrumb-badge"
-            >
-              ← Glance Matrix (All Months)
-
-            </button>
           </div>
 
           {/* Detailed KPI Cards for this month */}
@@ -371,12 +363,13 @@ export default function PlannedExpensesView({
             overspentItemsCount={filteredPlans.filter(p => (p.paidAmount ?? 0) > p.plannedAmount).length}
           />
 
-          {/* Search & Filter Bar */}
+          {/* Search & Filter Bar with Add Expense at Top of Table */}
           <PlannedExpensesToolbar
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             statusFilter={statusFilter}
             onStatusFilterChange={setStatusFilter}
+            onPlanExpense={handleOpenAddModal}
           />
 
           {/* Detailed Planned Expenses Table */}

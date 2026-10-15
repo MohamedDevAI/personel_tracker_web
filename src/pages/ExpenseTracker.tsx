@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { expenseApi } from '../services/expenseApi';
-import { MONTH_NAMES, getCurrentYear, getCurrentMonth } from '../utils/dateHelpers';
+import { plannedExpenseApi } from '../services/plannedExpenseApi';
+import { MONTH_NAMES, getCurrentYear, getCurrentMonth, getLocalDateISO } from '../utils/dateHelpers';
 import { Plus, Tag, Search } from 'lucide-react';
 
 import { parseTxDate } from '../components/life_os/finances/financeConstants';
@@ -20,7 +21,7 @@ import ConfirmDeleteModal from '../components/common/ConfirmDeleteModal';
 import '../components/life_os/finances/finances.css';
 import { TransactionType } from '../interface';
 import { useBorrowRepayRecordsQuery } from '../hooks/useBorrowRepayQueries';
-import { useCategoriesQuery, usePlannedExpensesQuery, useTransactionsQuery } from '../hooks';
+import { useCategoriesQuery, usePlannedExpensesQuery, useTransactionsQuery, QUERY_KEYS } from '../hooks';
 
 export default function ExpenseTracker() {
   const queryClient = useQueryClient();
@@ -74,8 +75,8 @@ export default function ExpenseTracker() {
   const addTransactionMutation = useMutation({
     mutationFn: expenseApi.createTransaction,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboardSummary'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TRANSACTIONS() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.DASHBOARD_SUMMARY() });
     },
     onError: (err: any) => {
       console.error('Failed to create transaction:', err);
@@ -84,24 +85,61 @@ export default function ExpenseTracker() {
   });
 
   const deleteTransactionMutation = useMutation({
-    mutationFn: expenseApi.deleteTransaction,
+    mutationFn: async (id: string) => {
+      const tx = transactions.find(t => (t.id || t._id) === id);
+      await expenseApi.deleteTransaction(id);
+      let peId = tx?.plannedExpenseId;
+      if (!peId && (tx?.description || tx?.note)) {
+        const match = (tx.description || tx.note || '').match(/\[PE-([^\]]+)\]/);
+        if (match) peId = match[1];
+      }
+      if (peId) {
+        // Unlink/reset the planned expense if its linked ledger record was deleted
+        try {
+          const linkedPlan = plannedExpenses.find(p => p.id === peId);
+          if (linkedPlan) {
+            await plannedExpenseApi.setFulfillmentAndPayment(
+              linkedPlan.id,
+              false,
+              0,
+              linkedPlan
+            );
+          }
+        } catch (e) {
+          console.warn('Could not reset linked planned expense after transaction delete:', e);
+        }
+      }
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboardSummary'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TRANSACTIONS() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PLANNED_EXPENSES() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.DASHBOARD_SUMMARY() });
+    },
+    onError: (err: any) => {
+      console.error('Failed to delete transaction:', err);
+      alert('Failed to delete transaction: ' + (err.response?.data?.message || err.message));
     }
   });
 
   const addCategoryMutation = useMutation({
     mutationFn: expenseApi.createCategory,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CATEGORIES });
+    },
+    onError: (err: any) => {
+      console.error('Failed to create category:', err);
+      alert('Failed to add category: ' + (err.response?.data?.message || err.message));
     }
   });
 
   const deleteCategoryMutation = useMutation({
     mutationFn: expenseApi.deleteCategory,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CATEGORIES });
+    },
+    onError: (err: any) => {
+      console.error('Failed to delete category:', err);
+      alert('Failed to delete category: ' + (err.response?.data?.message || err.message));
     }
   });
 
@@ -271,7 +309,7 @@ export default function ExpenseTracker() {
       selectedYear === currentYr &&
       (selectedMonth === 'All' || selectedMonth.toLowerCase() === currentM.toLowerCase())
     ) {
-      return now.toISOString().split('T')[0];
+      return getLocalDateISO(now);
     }
 
     const monthIdx = selectedMonth !== 'All' ? MONTH_NAMES.indexOf(selectedMonth as any) : now.getMonth();
@@ -305,18 +343,6 @@ export default function ExpenseTracker() {
           </p>
         </div>
 
-        <div className="finances-header-actions">
-          {financeMainTab === 'ledger' && (
-            <>
-              <button onClick={() => setShowCategoryModal(true)} className="btn btn-secondary">
-                <Tag size={16} /> Add Category
-              </button>
-              <button onClick={() => handleOpenAddModal('Credit')} className="btn btn-primary">
-                <Plus size={16} /> Log Transaction
-              </button>
-            </>
-          )}
-        </div>
       </div>
 
       {/* 4-Tab Finance Hub Sub-Navigation Bar */}
@@ -359,50 +385,54 @@ export default function ExpenseTracker() {
             {/* Left Column: Persistent Tab Switcher + Equal-Height Scrollable Tables */}
             <div className="finances-left-column">
 
-              {/* Persistent View Switcher & Toolbar */}
+              {/* Persistent View Switcher & Inline Toolbar */}
               <div className="finances-table-toolbar">
-
-                {/* View switcher tabs (Always visible!) */}
+                {/* View switcher tabs / Title */}
                 <div className="btn btn-primary ">
                   Transactions List ({filteredTransactions.length})
                 </div>
 
-                {/* Filter toolbar if transactions tab, or Add Category if categories tab */}
-                {(
-                  <div className="finances-toolbar-actions">
-                    <div className="finances-search-box">
-                      <Search size={14} className="finances-search-icon" />
-                      <input
-                        type="text"
-                        placeholder="Search note, category..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="finances-search-input"
-                      />
-                    </div>
-
-                    <select
-                      value={typeFilter}
-                      onChange={(e) => setTypeFilter(e.target.value as any)}
-                      className="finances-type-select"
-                    >
-                      <option value="ALL">All Types</option>
-                      <option value="Credit">Credit (+)</option>
-                      <option value="Debit">Debit (-)</option>
-                    </select>
-
-                    <select
-                      value={categoryFilter}
-                      onChange={(e) => setCategoryFilter(e.target.value)}
-                      className="finances-type-select"
-                    >
-                      <option value="ALL">All Categories</option>
-                      {categories.map(c => (
-                        <option key={c.id || c._id || c.name} value={c.name}>{c.name}</option>
-                      ))}
-                    </select>
+                {/* Inline filter & action toolbar */}
+                <div className="finances-toolbar-actions">
+                  <div className="finances-search-box">
+                    <Search size={14} className="finances-search-icon" />
+                    <input
+                      type="text"
+                      placeholder="Search note, category..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="finances-search-input"
+                    />
                   </div>
-                )}
+
+                  <select
+                    value={typeFilter}
+                    onChange={(e) => setTypeFilter(e.target.value as any)}
+                    className="finances-type-select"
+                  >
+                    <option value="ALL">All Types</option>
+                    <option value="Credit">Credit (+)</option>
+                    <option value="Debit">Debit (-)</option>
+                  </select>
+
+                  <select
+                    value={categoryFilter}
+                    onChange={(e) => setCategoryFilter(e.target.value)}
+                    className="finances-type-select"
+                  >
+                    <option value="ALL">All Categories</option>
+                    {categories.map(c => (
+                      <option key={c.id || c._id || c.name} value={c.name}>{c.name}</option>
+                    ))}
+                  </select>
+
+                  <button onClick={() => setShowCategoryModal(true)} className="btn btn-secondary">
+                    <Tag size={16} /> Add Category
+                  </button>
+                  <button onClick={() => handleOpenAddModal('Credit')} className="btn btn-primary">
+                    <Plus size={16} /> Log Transaction
+                  </button>
+                </div>
               </div>
 
               {/* Table Component with 90vh height and internal scrolling */}

@@ -1,8 +1,9 @@
+import { useRef } from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import type { BorrowRepayRecord } from '../../../../types';
 import { useGlanceData } from './useGlanceData';
 import GlanceToolbar from './GlanceToolbar';
-import GlanceMatrixBoard from './GlanceMatrixBoard';
+import GlanceMatrixBoard, { GlanceMatrixBoardHandle } from './GlanceMatrixBoard';
 import GlanceLedgerTable from './GlanceLedgerTable';
 import GlanceAddModal from './GlanceAddModal';
 import GlanceDeleteModal from './GlanceDeleteModal';
@@ -15,6 +16,7 @@ export default function PlannedRepayCreditGlanceView({
   actualRecords = []
 }: PlannedRepayCreditGlanceViewProps) {
   const g = useGlanceData(actualRecords);
+  const matrixBoardRef = useRef<GlanceMatrixBoardHandle>(null);
 
   if (g.isLoading) {
     return (
@@ -42,8 +44,6 @@ export default function PlannedRepayCreditGlanceView({
   return (
     <div className="glance-schedule-wrapper">
 
-
-
       {/* ── Toolbar ────────────────────────────────────────────────────────── */}
       <GlanceToolbar
         viewMode={g.viewMode}
@@ -61,11 +61,13 @@ export default function PlannedRepayCreditGlanceView({
         onSearchChange={g.setSearchQuery}
         onRefresh={() => g.refetch()}
         onAddSchedule={() => g.setIsAddModalOpen(true)}
+        onScrollToCurrentMonth={() => matrixBoardRef.current?.scrollToCurrentMonth(true)}
       />
 
       {/* ── Matrix Board ───────────────────────────────────────────────────── */}
       {g.viewMode === 'matrix' && (
         <GlanceMatrixBoard
+          ref={matrixBoardRef}
           filteredColumns={g.filteredColumns}
           allColumns={m.columns}
           formatINR={g.formatINR}

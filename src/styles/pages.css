@@ -694,7 +694,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #1c1917;
+  color: var(--text-primary);
   transition: var(--transition-smooth);
 }
 
@@ -1148,7 +1148,7 @@
 .confirm-modal-title {
   font-size: 1.25rem;
   font-weight: 800;
-  color: #1c1917;
+  color: var(--text-primary);
 }
 
 .confirm-modal-message {

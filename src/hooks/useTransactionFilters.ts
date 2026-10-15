@@ -4,7 +4,7 @@
  */
 
 import { useState, useMemo, useCallback } from 'react';
-import { MONTH_NAMES, getCurrentMonth, getCurrentYear, parseTxDate } from '../utils/dateHelpers';
+import { MONTH_NAMES, getCurrentMonth, getCurrentYear, parseTxDate, getLocalDateISO } from '../utils/dateHelpers';
 import { Transaction } from '../interface';
 
 interface MonthlyStats {
@@ -165,7 +165,7 @@ export function useTransactionFilters(transactions: Transaction[]) {
       selectedYear === currentYr &&
       (selectedMonth === 'All' || selectedMonth.toLowerCase() === currentM.toLowerCase())
     ) {
-      return now.toISOString().split('T')[0];
+      return getLocalDateISO(now);
     }
 
     const monthIdx = selectedMonth !== 'All'

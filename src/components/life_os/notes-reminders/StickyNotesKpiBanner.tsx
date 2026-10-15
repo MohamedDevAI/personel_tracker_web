@@ -1,5 +1,6 @@
 import { StickyNote as StickyNoteIcon, Bell, AlertTriangle, CheckCircle2, Pin } from 'lucide-react';
 import type { StickyNote, ReminderItem } from '../../../types/notesReminders';
+import { getLocalDateISO } from '../../../utils/dateHelpers';
 
 interface StickyNotesKpiBannerProps {
   notes: StickyNote[];
@@ -9,7 +10,7 @@ interface StickyNotesKpiBannerProps {
 export default function StickyNotesKpiBanner({ notes, reminders }: StickyNotesKpiBannerProps) {
   const pinnedNotesCount = notes.filter((n) => n.isPinned).length;
   
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getLocalDateISO();
   const pendingReminders = reminders.filter((r) => !r.isCompleted);
   const overdueCount = pendingReminders.filter((r) => r.dueDate < todayStr).length;
   const todayCount = pendingReminders.filter((r) => r.dueDate === todayStr).length;

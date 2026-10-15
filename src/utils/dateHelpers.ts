@@ -74,8 +74,21 @@ export const parseTxDate = (tx: { date?: string; transactionDate?: string; month
 // ─── Generic Date String Parsing ──────────────────────────────────────────────
 
 /**
+ * Return date formatted as YYYY-MM-DD in the local timezone.
+ * Avoids UTC boundary shifts where late night or early morning hours produce the wrong day.
+ */
+export const getLocalDateISO = (date: Date = new Date()): string => {
+  const d = date instanceof Date && !isNaN(date.getTime()) ? date : new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+/**
  * Parse an arbitrary date string into { month, year } components.
  * Supports "YYYY-MM-DD", "M/D/YYYY", and ISO 8601 formats.
+ * Uses regex first to avoid UTC timezone shifts on date-only strings.
  */
 export const parseDateMonthYear = (
   dateStr: string
@@ -93,7 +106,15 @@ export const parseDateMonthYear = (
     }
   }
 
-  // Handle ISO / YYYY-MM-DD
+  // Handle YYYY-MM-DD directly without UTC conversion
+  const match = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
+    const mIdx = parseInt(match[2], 10) - 1;
+    const m = mIdx >= 0 && mIdx < 12 ? MONTH_NAMES[mIdx] : '';
+    return { month: m, year: match[1] };
+  }
+
+  // Fallback for timestamps or alternative formats
   const d = new Date(dateStr);
   if (!isNaN(d.getTime())) {
     return {
@@ -128,10 +149,16 @@ export const toISODateString = (rawDate: string | Date): string => {
   return `${rawDate}T00:00:00.000Z`;
 };
 
-/** Extract the date-only portion from an ISO string (e.g. "2026-03-01") */
+/** Extract the date-only portion (YYYY-MM-DD) safely */
 export const toDateOnlyString = (rawDate: string | Date): string => {
-  const iso = toISODateString(rawDate);
-  return iso.split('T')[0];
+  if (rawDate instanceof Date) {
+    return getLocalDateISO(rawDate);
+  }
+  if (typeof rawDate === 'string') {
+    const match = rawDate.match(/^\d{4}-\d{2}-\d{2}/);
+    if (match) return match[0];
+  }
+  return getLocalDateISO(new Date(rawDate));
 };
 
 /**

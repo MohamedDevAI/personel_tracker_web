@@ -6,6 +6,23 @@
 
 import apiClient from './apiClient';
 import { BorrowRepayRecord, CreditorSummary, PlannedRepayment } from '../interface';
+import { getLocalDateISO } from '../utils/dateHelpers';
+import { plannedRepayCreditApi } from './plannedRepayCreditApi';
+
+function parseDateToTimestamp(dStr: string): number {
+  if (!dStr) return 0;
+  if (dStr.includes('/')) {
+    const parts = dStr.split('/');
+    if (parts.length === 3) {
+      const m = parseInt(parts[0], 10) - 1;
+      const d = parseInt(parts[1], 10);
+      const y = parseInt(parts[2], 10);
+      return new Date(y, m, d).getTime();
+    }
+  }
+  const t = new Date(dStr).getTime();
+  return isNaN(t) ? 0 : t;
+}
 
 // ─── API Methods ──────────────────────────────────────────────────────────────
 
@@ -14,18 +31,9 @@ export const borrowRepayApi = {
 
   /** Fetch all borrow/repay records from MongoDB. */
   getRecords: async (): Promise<BorrowRepayRecord[]> => {
-    try {
-      const { data } = await apiClient.get<BorrowRepayRecord[]>('/borrow-repay', { timeout: 6000 });
-      if (Array.isArray(data)) {
-        return data;
-      }
-    } catch (e) {
-      console.warn('Unable to fetch borrow/repay records from API:', e);
-    }
-    return [];
+    const { data } = await apiClient.get<BorrowRepayRecord[]>('/borrow-repay', { timeout: 6000 });
+    return Array.isArray(data) ? data : [];
   },
-
-
 
   /** Create a new borrow/repay record in MongoDB. */
   createRecord: async (record: Omit<BorrowRepayRecord, 'id' | 'createdAt'>): Promise<BorrowRepayRecord> => {
@@ -41,10 +49,23 @@ export const borrowRepayApi = {
   },
 
   /** Update an existing borrow/repay record in MongoDB. */
-  updateRecord: async (id: string, updates: Partial<BorrowRepayRecord>): Promise<BorrowRepayRecord | null> => {
+  updateRecord: async (
+    id: string,
+    updates: Partial<BorrowRepayRecord>,
+    existingRecord?: BorrowRepayRecord
+  ): Promise<BorrowRepayRecord | null> => {
+    let base = existingRecord;
+    if (!base) {
+      try {
+        const all = await borrowRepayApi.getRecords();
+        base = all.find(r => r.id === id);
+      } catch {}
+    }
     const merged = {
+      ...(base || {}),
       ...updates,
       ...(updates.amount !== undefined ? { amount: Math.abs(Number(updates.amount)) } : {}),
+      id,
     };
 
     const { data } = await apiClient.put<BorrowRepayRecord>(`/borrow-repay/${id}`, merged);
@@ -62,59 +83,105 @@ export const borrowRepayApi = {
     const list = Array.isArray(records) ? records : [];
 
     const creditorMap: Record<string, {
+      displayName: string;
       totalBorrowed: number;
       totalRepaid: number;
       creditGiven: number;
+      creditRepaid: number;
       txCount: number;
       dates: string[];
     }> = {};
 
     for (const r of list) {
       if (!r || typeof r !== 'object') continue;
-      const name = (r.creditorName || '').trim() || 'Unknown';
-      if (!creditorMap[name]) {
-        creditorMap[name] = { totalBorrowed: 0, totalRepaid: 0, creditGiven: 0, txCount: 0, dates: [] };
+      const rawName = (r.creditorName || '').trim() || 'Unknown';
+      const key = rawName.toLowerCase();
+      if (!creditorMap[key]) {
+        creditorMap[key] = {
+          displayName: rawName,
+          totalBorrowed: 0,
+          totalRepaid: 0,
+          creditGiven: 0,
+          creditRepaid: 0,
+          txCount: 0,
+          dates: [],
+        };
       }
-      creditorMap[name].txCount += 1;
+      creditorMap[key].txCount += 1;
       const amt = Number(r.amount) || 0;
-      if (r.type === 'Credit Given' || (r.type === 'Borrow' && amt < 0)) {
-        creditorMap[name].creditGiven += Math.abs(amt);
+      if (r.type === 'Credit Repaid') {
+        creditorMap[key].creditRepaid += Math.abs(amt);
+      } else if (r.type === 'Credit Given' || (r.type === 'Borrow' && amt < 0)) {
+        creditorMap[key].creditGiven += Math.abs(amt);
       } else if (r.type === 'Borrow') {
-        creditorMap[name].totalBorrowed += Math.abs(amt);
+        creditorMap[key].totalBorrowed += Math.abs(amt);
       } else {
-        creditorMap[name].totalRepaid += Math.abs(amt);
+        creditorMap[key].totalRepaid += Math.abs(amt);
       }
       if (r.date) {
-        creditorMap[name].dates.push(r.date);
+        creditorMap[key].dates.push(r.date);
       }
     }
 
-    return Object.entries(creditorMap).map(([creditorName, data]) => {
-      // Net balance: positive means we owe them; negative means we gave them credit / overpaid
-      const netBalance = data.totalBorrowed - data.totalRepaid - data.creditGiven;
+    return Object.values(creditorMap).map((data) => {
+      // 1. Debt balance: what we borrowed minus what we returned to them
+      const rawDebt = data.totalBorrowed - data.totalRepaid;
+      const debtWeOwe = Math.max(0, rawDebt);
+      const excessRepaid = Math.max(0, data.totalRepaid - data.totalBorrowed);
+
+      // 2. Credit balance: what we gave them minus what they returned to us
+      // excessRepaid accounts for cases where payback was recorded under 'Repaid'
+      const totalCreditReturned = data.creditRepaid + excessRepaid;
+      const rawCreditOwed = data.creditGiven - totalCreditReturned;
+      const creditTheyOwe = Math.max(0, rawCreditOwed);
+      const excessCreditReturned = Math.max(0, totalCreditReturned - data.creditGiven);
+
+      // 3. Final net balance: positive = we owe them; negative = they owe us; 0 = settled
+      let netBalance = 0;
+      if (debtWeOwe > 0 && creditTheyOwe === 0) {
+        netBalance = debtWeOwe;
+      } else if (creditTheyOwe > 0 && debtWeOwe === 0) {
+        netBalance = -creditTheyOwe;
+      } else if (debtWeOwe > 0 && creditTheyOwe > 0) {
+        netBalance = debtWeOwe - creditTheyOwe;
+      } else if (excessCreditReturned > 0) {
+        netBalance = excessCreditReturned;
+      } else if (excessRepaid > 0 && data.creditGiven === 0) {
+        netBalance = -excessRepaid;
+      } else {
+        netBalance = 0;
+      }
+
       let status: CreditorSummary['status'] = 'Settled';
       if (netBalance > 0) {
         status = 'Outstanding';
       } else if (netBalance < 0) {
-        if (data.creditGiven > 0) {
+        if (creditTheyOwe > 0 || data.creditGiven > 0) {
           status = 'Credit Given';
         } else {
           status = 'Overpaid';
         }
+      } else {
+        status = 'Settled';
       }
 
-      const sortedDates = data.dates.sort();
+      const sortedDates = [...data.dates].sort((a, b) => {
+        const tA = parseDateToTimestamp(a);
+        const tB = parseDateToTimestamp(b);
+        return tA - tB;
+      });
       const lastActivityDate = sortedDates[sortedDates.length - 1] || 'N/A';
 
       return {
-        creditorName,
+        creditorName: data.displayName,
         totalBorrowed: data.totalBorrowed,
         totalRepaid: data.totalRepaid,
         creditGiven: data.creditGiven,
+        creditRepaid: data.creditRepaid,
         txCount: data.txCount,
         netBalance,
         lastActivityDate,
-        status
+        status,
       };
     });
   },
@@ -140,11 +207,14 @@ export const borrowRepayApi = {
     let totalBorrowed = 0;
     let totalRepaid = 0;
     let totalCreditGiven = 0;
+    let totalCreditRepaid = 0;
 
     for (const r of list) {
       if (!r || typeof r !== 'object') continue;
       const amt = Number(r.amount) || 0;
-      if (r.type === 'Credit Given' || (r.type === 'Borrow' && amt < 0)) {
+      if (r.type === 'Credit Repaid') {
+        totalCreditRepaid += Math.abs(amt);
+      } else if (r.type === 'Credit Given' || (r.type === 'Borrow' && amt < 0)) {
         totalCreditGiven += Math.abs(amt);
       } else if (r.type === 'Borrow') {
         totalBorrowed += Math.abs(amt);
@@ -166,11 +236,12 @@ export const borrowRepayApi = {
       totalBorrowed,
       totalRepaid,
       totalCreditGiven,
+      totalCreditRepaid,
       netOutstanding,
       totalOverpaid,
       activeCreditorsCount: summaries.filter(s => s.netBalance > 0).length,
       settledCreditorsCount: summaries.filter(s => s.netBalance === 0).length,
-      creditGivenCreditorsCount: summaries.filter(s => s.status === 'Credit Given' || (s.creditGiven && s.creditGiven > 0)).length,
+      creditGivenCreditorsCount: summaries.filter(s => s.status === 'Credit Given' || (s.creditGiven && s.creditGiven > 0 && s.netBalance < 0)).length,
       overpaidCreditorsCount: summaries.filter(s => s.status === 'Overpaid').length,
       totalCreditorsCount: summaries.length,
       totalTransactions: list.length,
@@ -181,23 +252,16 @@ export const borrowRepayApi = {
 
   /** Fetch all planned repayments from MongoDB. */
   getPlannedRepayments: async (): Promise<PlannedRepayment[]> => {
-    try {
-      const { data } = await apiClient.get<PlannedRepayment[]>('/planned-repayments', { timeout: 6000 });
-      if (Array.isArray(data)) {
-        return data;
-      }
-    } catch (e) {
-      console.warn('Unable to fetch planned repayments from API:', e);
-    }
-    return [];
+    const { data } = await apiClient.get<PlannedRepayment[]>('/planned-repayments', { timeout: 6000 });
+    return Array.isArray(data) ? data : [];
   },
-
 
   /** Create a planned repayment in MongoDB. */
   createPlannedRepayment: async (plan: Omit<PlannedRepayment, 'id' | 'createdAt'>): Promise<PlannedRepayment> => {
     const payload = {
       ...plan,
       plannedAmount: Math.abs(Number(plan.plannedAmount) || 0),
+      currency: plan.currency || 'INR',
       createdAt: new Date().toISOString(),
     };
 
@@ -206,10 +270,23 @@ export const borrowRepayApi = {
   },
 
   /** Update a planned repayment in MongoDB. */
-  updatePlannedRepayment: async (id: string, updates: Partial<PlannedRepayment>): Promise<PlannedRepayment | null> => {
+  updatePlannedRepayment: async (
+    id: string,
+    updates: Partial<PlannedRepayment>,
+    existingPlan?: PlannedRepayment
+  ): Promise<PlannedRepayment | null> => {
+    let base = existingPlan;
+    if (!base) {
+      try {
+        const all = await borrowRepayApi.getPlannedRepayments();
+        base = all.find(p => p.id === id);
+      } catch {}
+    }
     const payload = {
+      ...(base || {}),
       ...updates,
       ...(updates.plannedAmount !== undefined ? { plannedAmount: Math.abs(Number(updates.plannedAmount)) } : {}),
+      id,
     };
 
     const { data } = await apiClient.put<PlannedRepayment>(`/planned-repayments/${id}`, payload);
@@ -233,16 +310,49 @@ export const borrowRepayApi = {
     }
     if (!plan) return null;
 
-    const updatedPlan = await borrowRepayApi.updatePlannedRepayment(id, { status: 'Paid' });
+    // Idempotency guard: prevent duplicate repayment records if already paid
+    if (plan.status === 'Paid') {
+      return { plan, record: null };
+    }
 
+    // 1. Create the repayment record first so failure leaves no orphan Paid status
     const record = await borrowRepayApi.createRecord({
       creditorName: plan.creditorName,
-      date: plan.targetDate || new Date().toISOString().split('T')[0],
+      date: plan.targetDate || getLocalDateISO(),
       type: 'Repaid',
       amount: plan.plannedAmount,
-      currency: 'INR',
+      currency: plan.currency || 'INR',
       notes: `Planned Repayment: ${plan.notes || 'Settled'}`,
     });
+
+    // 2. Mark the plan as Paid
+    let updatedPlan: PlannedRepayment | null = null;
+    try {
+      updatedPlan = await borrowRepayApi.updatePlannedRepayment(id, { status: 'Paid' }, plan);
+    } catch (err) {
+      console.error('Failed to update plan status to Paid after creating record:', err);
+      throw err;
+    }
+
+    // 3. Keep /planned-repay-credit matrix item in sync (mark Completed)
+    try {
+      const allCreditItems = await plannedRepayCreditApi.getAll();
+      const normCreditor = plan.creditorName.trim().toLowerCase();
+      const matchingCreditItem = allCreditItems.find(
+        (ci) =>
+          ci.creditorName.trim().toLowerCase() === normCreditor &&
+          ci.targetDate === plan.targetDate &&
+          ci.status !== 'Completed'
+      );
+      if (matchingCreditItem) {
+        const cId = matchingCreditItem.id || matchingCreditItem._id;
+        if (cId) {
+          await plannedRepayCreditApi.updateStatus(cId, 'Completed');
+        }
+      }
+    } catch (e) {
+      console.warn('Could not sync planned-repay-credit matrix status:', e);
+    }
 
     return { plan: updatedPlan || plan, record };
   },
