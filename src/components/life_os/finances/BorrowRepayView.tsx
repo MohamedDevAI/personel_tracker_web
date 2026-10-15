@@ -35,40 +35,7 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
           </h2>
         </div>
 
-        <div className="borrow-header-buttons">
-          {d.activeStep !== 'planned_repayment' && (
-            <>
-              <button
-                onClick={() => d.handleOpenCreditModal('Borrow', d.selectedCreditorFilter !== 'ALL' ? d.selectedCreditorFilter : '')}
-                className="btn btn-secondary btn-borrow-action"
-              >
-                <ArrowDownLeft size={16} /> Log Borrow
-              </button>
-              <button
-                onClick={() => d.handleOpenCreditModal('Repaid', d.selectedCreditorFilter !== 'ALL' ? d.selectedCreditorFilter : '')}
-                className="btn btn-primary"
-              >
-                <ArrowUpRight size={16} /> Log Repayment
-              </button>
-              <button
-                onClick={() => d.handleOpenCreditModal('Credit Given', d.selectedCreditorFilter !== 'ALL' ? d.selectedCreditorFilter : '')}
-                className="btn btn-credit-given-action"
-                style={{
-                  background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
-                  color: '#ffffff',
-                  border: 'none',
-                  boxShadow: '0 4px 14px rgba(234, 88, 12, 0.35)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  fontWeight: 600
-                }}
-              >
-                <HandCoins size={16} /> Give Credit
-              </button>
-            </>
-          )}
-        </div>
+
       </div>
 
       {/* ── Step Tabs ────────────────────────────────────────────────────────── */}
@@ -153,12 +120,11 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
                   <div className="inspected-creditor-name-row">
                     <h3 className="inspected-creditor-name">{d.selectedCreditorFilter}</h3>
                     {inspectedSummary && (
-                      <span className={`badge ${
-                        inspectedSummary.status === 'Settled' ? 'badge-emerald' :
-                        inspectedSummary.status === 'Credit Given' ? 'badge-sky' :
-                        inspectedSummary.status === 'Overpaid' ? 'badge-purple' :
-                        'badge-amber'
-                      }`}>
+                      <span className={`badge ${inspectedSummary.status === 'Settled' ? 'badge-emerald' :
+                          inspectedSummary.status === 'Credit Given' ? 'badge-sky' :
+                            inspectedSummary.status === 'Overpaid' ? 'badge-purple' :
+                              'badge-amber'
+                        }`}>
                         {inspectedSummary.status}
                       </span>
                     )}
