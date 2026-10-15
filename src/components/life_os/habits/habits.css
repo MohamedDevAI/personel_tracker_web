@@ -3,35 +3,121 @@
 .habits-container {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1300px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 16px 20px;
   box-sizing: border-box;
 }
 
+/* ─── Habits Date Strip Toolbar (Top) ────────────────────────── */
+.habits-date-strip {
+  display: grid;
+  grid-template-columns: repeat(13, minmax(0, 1fr));
+  gap: 6px;
+  background: rgba(5, 12, 10, 0.88);
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid var(--border-subtle, rgba(20, 184, 166, 0.16));
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
+}
+
+.habits-date-pill {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 48px;
+  padding: 8px 4px;
+  border-radius: 8px;
+  border: 1px solid rgba(20, 184, 166, 0.12);
+  background: rgba(20, 184, 166, 0.03);
+  color: var(--text-secondary, #cbd5e1);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.habits-date-pill:hover {
+  background: rgba(20, 184, 166, 0.09);
+  border-color: rgba(20, 184, 166, 0.32);
+  color: var(--text-primary, #ffffff);
+  transform: translateY(-1px);
+}
+
+.habits-date-pill-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-primary, #ffffff);
+  line-height: 1.2;
+}
+
+.habits-date-pill-count {
+  font-size: 0.65rem;
+  color: var(--text-muted, #94a3b8);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+/* Selected Active Month Pill (Signature Emerald Glow) */
+.habits-date-pill.active {
+  background: var(--emerald-gradient, linear-gradient(135deg, #2dd4bf 0%, #0f766e 100%));
+  border: 1px solid #2dd4bf;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(45, 212, 191, 0.35);
+}
+
+.habits-date-pill.active .habits-date-pill-label {
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.habits-date-pill.active .habits-date-pill-count {
+  color: #ffffff;
+  opacity: 0.95;
+  font-weight: 600;
+}
+
+/* Dot indicator on upper right when month has entries/data */
+.habits-date-dot {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #f97316;
+  box-shadow: 0 0 6px rgba(249, 115, 22, 0.7);
+}
+
+/* ─── Clean Slate / Content Area ─────────────────────────────── */
 .habits-clean-slate {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 64px 32px;
-  border-radius: 24px;
-  background: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.95) !important;
-  box-shadow: 0 14px 40px -10px rgba(124, 45, 18, 0.25), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  padding: 56px 32px;
+  border-radius: 18px;
+  background: var(--bg-card, #050c0a);
+  border: 1px solid var(--border-subtle, rgba(20, 184, 166, 0.16));
+  box-shadow: 0 14px 40px -10px rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(16px);
-  min-height: 380px;
+  min-height: 320px;
 }
 
 .habits-clean-slate-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, rgba(249, 122, 22, 0.15), rgba(234, 105, 12, 0.25));
-  border: 1px solid rgba(249, 122, 22, 0.3);
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.12), rgba(13, 148, 136, 0.22));
+  border: 1px solid rgba(20, 184, 166, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -40,7 +126,7 @@
 }
 
 .habits-clean-slate-title {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: var(--text-primary, #ffffff);
   margin: 0 0 10px 0;
@@ -48,9 +134,36 @@
 }
 
 .habits-clean-slate-desc {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   color: var(--text-secondary, #cbd5e1);
   max-width: 480px;
   line-height: 1.6;
   margin: 0;
+}
+
+.habits-active-month-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(20, 184, 166, 0.1);
+  border: 1px solid rgba(20, 184, 166, 0.25);
+  color: #2dd4bf;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+/* Responsiveness */
+@media (max-width: 900px) {
+  .habits-date-strip {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  .habits-date-pill {
+    min-width: 68px;
+    flex-shrink: 0;
+  }
 }
