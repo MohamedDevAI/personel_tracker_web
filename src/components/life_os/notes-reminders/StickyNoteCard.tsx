@@ -3,7 +3,7 @@ import type { StickyNote, NoteColor, ReminderItem } from '../../../types/notesRe
 
 interface StickyNoteCardProps {
   note: StickyNote;
-  onTogglePin: (id: string) => void;
+  onTogglePin: (id: string, currentPinned?: boolean) => void;
   onColorChange: (id: string, color: NoteColor) => void;
   onEdit: (note: StickyNote) => void;
   onDelete: (note: StickyNote) => void;
@@ -11,6 +11,16 @@ interface StickyNoteCardProps {
 }
 
 const COLOR_LIST: NoteColor[] = ['yellow', 'green', 'blue', 'purple', 'pink', 'orange', 'slate'];
+
+const COLOR_DOT_HEX_MAP: Record<NoteColor, string> = {
+  yellow: '#eab308',
+  green: '#22c55e',
+  blue: '#38bdf8',
+  purple: '#a855f7',
+  pink: '#ec4899',
+  orange: '#f97316',
+  slate: '#94a3b8',
+};
 
 export default function StickyNoteCard({
   note,
@@ -26,15 +36,27 @@ export default function StickyNoteCard({
   });
 
   return (
-    <div className={`sticky-note-card ${note.color}`}>
+    <div className={`sticky-note-card ${note.color} ${note.isPinned ? 'is-pinned' : ''}`}>
       {/* Visual Scotch Tape on Top Center */}
       <div className="sticky-tape" />
 
       {/* ── Card Header: Title & Action Icons ── */}
       <div className="sticky-card-header">
-        <h4 className="sticky-note-title" onClick={() => onEdit(note)} style={{ cursor: 'pointer' }}>
-          {note.title}
-        </h4>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1, minWidth: 0, overflow: 'hidden' }}>
+          {note.isPinned && (
+            <span className="sticky-pinned-badge" title="Pinned to top">
+              <Pin size={10} fill="#f59e0b" color="#f59e0b" />
+              PINNED
+            </span>
+          )}
+          <h4
+            className="sticky-note-title"
+            onClick={() => onEdit(note)}
+            style={{ cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+          >
+            {note.title}
+          </h4>
+        </div>
 
         <div className="sticky-card-actions">
           {/* Pin Button */}
@@ -43,11 +65,15 @@ export default function StickyNoteCard({
             className={`sticky-icon-btn ${note.isPinned ? 'pinned' : ''}`}
             onClick={(e) => {
               e.stopPropagation();
-              onTogglePin(note.id);
+              onTogglePin(note.id, note.isPinned);
             }}
             title={note.isPinned ? 'Unpin note' : 'Pin note to top'}
           >
-            <Pin size={15} fill={note.isPinned ? '#f98705' : 'none'} />
+            <Pin
+              size={15}
+              fill={note.isPinned ? '#f59e0b' : 'none'}
+              color={note.isPinned ? '#f59e0b' : 'currentColor'}
+            />
           </button>
 
           {/* Edit Button */}
@@ -122,22 +148,9 @@ export default function StickyNoteCard({
               <button
                 key={c}
                 type="button"
-                className={`sticky-mini-dot ${c}`}
+                className={`sticky-mini-dot ${c} ${note.color === c ? 'active' : ''}`}
                 style={{
-                  background:
-                    c === 'yellow'
-                      ? '#f48a05'
-                      : c === 'green'
-                      ? '#df690e'
-                      : c === 'blue'
-                      ? '#f79926'
-                      : c === 'purple'
-                      ? '#f94d0e'
-                      : c === 'pink'
-                      ? '#f2512c'
-                      : c === 'orange'
-                      ? '#fa770c'
-                      : '#7c716a',
+                  background: COLOR_DOT_HEX_MAP[c],
                 }}
                 onClick={(e) => {
                   e.stopPropagation();

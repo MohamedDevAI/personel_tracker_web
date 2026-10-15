@@ -25,12 +25,13 @@ export function normalizeStickyNote(doc: any): StickyNote {
   const id = String(doc.id || doc._id || '');
   const stableCreatedAt = doc.createdAt || getObjectIdTimestamp(id) || '2026-01-01T00:00:00.000Z';
   const stableUpdatedAt = doc.updatedAt || stableCreatedAt;
+  const isPinned = Boolean(doc.isPinned ?? doc.pinned);
   return {
     id,
     title: doc.title || '',
     content: doc.content || '',
     color: (doc.color as NoteColor) || 'yellow',
-    isPinned: Boolean(doc.isPinned),
+    isPinned,
     tags: Array.isArray(doc.tags) ? doc.tags : [],
     createdAt: stableCreatedAt,
     updatedAt: stableUpdatedAt,
@@ -77,8 +78,11 @@ export const notesRemindersService = {
   async createNote(
     data: Omit<StickyNote, 'id' | 'createdAt' | 'updatedAt'>
   ): Promise<StickyNote> {
+    const isPinned = Boolean(data.isPinned);
     const payload = {
       ...data,
+      pinned: isPinned,
+      isPinned,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -99,9 +103,12 @@ export const notesRemindersService = {
         base = normalizeStickyNote(note);
       } catch {}
     }
+    const isPinnedVal = updates.isPinned !== undefined ? updates.isPinned : (base?.isPinned ?? (base as any)?.pinned);
     const payload = {
       ...(base || {}),
       ...updates,
+      pinned: isPinnedVal !== undefined ? Boolean(isPinnedVal) : undefined,
+      isPinned: isPinnedVal !== undefined ? Boolean(isPinnedVal) : undefined,
       id,
       updatedAt: new Date().toISOString(),
     };
@@ -120,24 +127,17 @@ export const notesRemindersService = {
 
   /**
    * Pin or unpin a sticky note.
-   * If currentPinned boolean is provided, updates directly without extra GET.
+   * Directly posts to /sticky_notes/{id}/toggle-pin or falls back to updateNote.
    */
   async togglePinNote(id: string, currentPinned?: boolean): Promise<StickyNote> {
-    if (typeof currentPinned === 'boolean') {
-      return this.updateNote(id, { isPinned: !currentPinned });
-    }
     try {
       const { data } = await apiClient.post<any>(`/sticky_notes/${id}/toggle-pin`);
       if (data) return normalizeStickyNote(data);
-    } catch (err: any) {
-      // Only fallback to GET + PUT if the endpoint doesn't exist on server (404/405)
-      if (err?.response?.status !== 404 && err?.response?.status !== 405) {
-        throw err;
-      }
+    } catch {
+      // Fall back to updateNote if toggle-pin endpoint fails
     }
-    const { data: note } = await apiClient.get<any>(`/sticky_notes/${id}`);
-    const normalized = normalizeStickyNote(note);
-    return this.updateNote(id, { isPinned: !normalized.isPinned }, normalized);
+    const nextPinned = typeof currentPinned === 'boolean' ? !currentPinned : true;
+    return this.updateNote(id, { isPinned: nextPinned });
   },
 
   // ──────────────────────────────────────────────────────────────────────────
