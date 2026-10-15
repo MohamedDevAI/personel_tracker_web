@@ -1,4 +1,4 @@
-import { CalendarClock, ArrowDownLeft, ArrowUpRight, ArrowLeft, Table2, HandCoins } from 'lucide-react';
+import { CalendarClock, ArrowDownLeft, ArrowUpRight, ArrowLeft, Table2, HandCoins, CheckCircle2 } from 'lucide-react';
 import { useBorrowRepayData } from './borrow-repay/useBorrowRepayData';
 import BorrowKpiCards from './borrow-repay/BorrowKpiCards';
 import CreditLedgerTable from './borrow-repay/CreditLedgerTable';
@@ -94,6 +94,7 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
               d.setSelectedCreditorFilter('ALL');
               d.setActiveStep('all_transactions');
             }}
+            onAddRecord={() => d.handleOpenCreditModal('Borrow', '')}
             formatINR={d.formatINR}
           />
         </>
@@ -121,9 +122,9 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
                     <h3 className="inspected-creditor-name">{d.selectedCreditorFilter}</h3>
                     {inspectedSummary && (
                       <span className={`badge ${inspectedSummary.status === 'Settled' ? 'badge-emerald' :
-                          inspectedSummary.status === 'Credit Given' ? 'badge-sky' :
-                            inspectedSummary.status === 'Overpaid' ? 'badge-purple' :
-                              'badge-amber'
+                        inspectedSummary.status === 'Credit Given' ? 'badge-sky' :
+                          inspectedSummary.status === 'Overpaid' ? 'badge-purple' :
+                            'badge-amber'
                         }`}>
                         {inspectedSummary.status}
                       </span>
@@ -172,9 +173,9 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
               <button
                 type="button"
                 onClick={() => d.handleOpenCreditModal('Repaid', d.selectedCreditorFilter)}
-                className="btn btn-primary btn-sm"
+                className="btn btn-secondary btn-sm"
               >
-                <ArrowUpRight size={14} /> Log Repayment
+                <ArrowUpRight size={14} /> PayBack
               </button>
               <button
                 type="button"
@@ -183,6 +184,14 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
                 style={{ borderColor: 'rgba(234, 88, 12, 0.4)', color: '#ea580c', fontWeight: 600 }}
               >
                 <HandCoins size={14} /> Give Credit
+              </button>
+              <button
+                type="button"
+                onClick={() => d.handleOpenCreditModal('Credit Repaid', d.selectedCreditorFilter)}
+                className="btn btn-primary btn-sm"
+                style={{ background: '#10b981', borderColor: '#10b981', color: '#ffffff', fontWeight: 600 }}
+              >
+                <CheckCircle2 size={14} /> Repaid to Me
               </button>
             </div>
           </div>
@@ -203,6 +212,7 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
             onMonthChange={d.setSelectedMonth}
             onYearChange={d.setSelectedYear}
             onCreditorFilterChange={d.setSelectedCreditorFilter}
+            onEditRecord={d.handleEditCreditRecord}
             onDeleteRecord={d.triggerDeleteCreditRecord}
             onAddRecord={() => d.handleOpenCreditModal('Borrow', d.selectedCreditorFilter)}
             onResetFilters={d.resetFilters}
@@ -268,6 +278,7 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
             onMonthChange={d.setSelectedMonth}
             onYearChange={d.setSelectedYear}
             onCreditorFilterChange={d.setSelectedCreditorFilter}
+            onEditRecord={d.handleEditCreditRecord}
             onDeleteRecord={d.triggerDeleteCreditRecord}
             onAddRecord={() => d.handleOpenCreditModal('Borrow')}
             onResetFilters={d.resetFilters}
@@ -287,11 +298,15 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
       {/* ── Modals ───────────────────────────────────────────────────────────── */}
       <BorrowRepayModal
         isOpen={d.isCreditModalOpen}
-        onClose={() => d.setIsCreditModalOpen(false)}
-        onSubmit={d.handleAddCreditRecord}
+        onClose={() => {
+          d.setIsCreditModalOpen(false);
+          d.setEditingRecord(null);
+        }}
+        onSubmit={d.handleSaveCreditRecord}
         existingCreditors={d.existingCreditors}
         initialType={d.modalInitialType}
         initialCreditor={d.modalInitialCreditor}
+        initialRecord={d.editingRecord}
       />
 
       <ConfirmDeleteModal

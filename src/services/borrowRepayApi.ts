@@ -87,6 +87,7 @@ export const borrowRepayApi = {
       totalBorrowed: number;
       totalRepaid: number;
       creditGiven: number;
+      creditRepaid: number;
       txCount: number;
       dates: string[];
     }> = {};
@@ -101,13 +102,16 @@ export const borrowRepayApi = {
           totalBorrowed: 0,
           totalRepaid: 0,
           creditGiven: 0,
+          creditRepaid: 0,
           txCount: 0,
           dates: [],
         };
       }
       creditorMap[key].txCount += 1;
       const amt = Number(r.amount) || 0;
-      if (r.type === 'Credit Given' || (r.type === 'Borrow' && amt < 0)) {
+      if (r.type === 'Credit Repaid') {
+        creditorMap[key].creditRepaid += Math.abs(amt);
+      } else if (r.type === 'Credit Given' || (r.type === 'Borrow' && amt < 0)) {
         creditorMap[key].creditGiven += Math.abs(amt);
       } else if (r.type === 'Borrow') {
         creditorMap[key].totalBorrowed += Math.abs(amt);
@@ -120,17 +124,45 @@ export const borrowRepayApi = {
     }
 
     return Object.values(creditorMap).map((data) => {
-      // Net balance: positive means we owe them; negative means we gave them credit / overpaid
-      const netBalance = data.totalBorrowed - data.totalRepaid - data.creditGiven;
+      // 1. Debt balance: what we borrowed minus what we returned to them
+      const rawDebt = data.totalBorrowed - data.totalRepaid;
+      const debtWeOwe = Math.max(0, rawDebt);
+      const excessRepaid = Math.max(0, data.totalRepaid - data.totalBorrowed);
+
+      // 2. Credit balance: what we gave them minus what they returned to us
+      // excessRepaid accounts for cases where payback was recorded under 'Repaid'
+      const totalCreditReturned = data.creditRepaid + excessRepaid;
+      const rawCreditOwed = data.creditGiven - totalCreditReturned;
+      const creditTheyOwe = Math.max(0, rawCreditOwed);
+      const excessCreditReturned = Math.max(0, totalCreditReturned - data.creditGiven);
+
+      // 3. Final net balance: positive = we owe them; negative = they owe us; 0 = settled
+      let netBalance = 0;
+      if (debtWeOwe > 0 && creditTheyOwe === 0) {
+        netBalance = debtWeOwe;
+      } else if (creditTheyOwe > 0 && debtWeOwe === 0) {
+        netBalance = -creditTheyOwe;
+      } else if (debtWeOwe > 0 && creditTheyOwe > 0) {
+        netBalance = debtWeOwe - creditTheyOwe;
+      } else if (excessCreditReturned > 0) {
+        netBalance = excessCreditReturned;
+      } else if (excessRepaid > 0 && data.creditGiven === 0) {
+        netBalance = -excessRepaid;
+      } else {
+        netBalance = 0;
+      }
+
       let status: CreditorSummary['status'] = 'Settled';
       if (netBalance > 0) {
         status = 'Outstanding';
       } else if (netBalance < 0) {
-        if (data.creditGiven > 0) {
+        if (creditTheyOwe > 0 || data.creditGiven > 0) {
           status = 'Credit Given';
         } else {
           status = 'Overpaid';
         }
+      } else {
+        status = 'Settled';
       }
 
       const sortedDates = [...data.dates].sort((a, b) => {
@@ -145,6 +177,7 @@ export const borrowRepayApi = {
         totalBorrowed: data.totalBorrowed,
         totalRepaid: data.totalRepaid,
         creditGiven: data.creditGiven,
+        creditRepaid: data.creditRepaid,
         txCount: data.txCount,
         netBalance,
         lastActivityDate,
@@ -174,11 +207,14 @@ export const borrowRepayApi = {
     let totalBorrowed = 0;
     let totalRepaid = 0;
     let totalCreditGiven = 0;
+    let totalCreditRepaid = 0;
 
     for (const r of list) {
       if (!r || typeof r !== 'object') continue;
       const amt = Number(r.amount) || 0;
-      if (r.type === 'Credit Given' || (r.type === 'Borrow' && amt < 0)) {
+      if (r.type === 'Credit Repaid') {
+        totalCreditRepaid += Math.abs(amt);
+      } else if (r.type === 'Credit Given' || (r.type === 'Borrow' && amt < 0)) {
         totalCreditGiven += Math.abs(amt);
       } else if (r.type === 'Borrow') {
         totalBorrowed += Math.abs(amt);
@@ -200,11 +236,12 @@ export const borrowRepayApi = {
       totalBorrowed,
       totalRepaid,
       totalCreditGiven,
+      totalCreditRepaid,
       netOutstanding,
       totalOverpaid,
       activeCreditorsCount: summaries.filter(s => s.netBalance > 0).length,
       settledCreditorsCount: summaries.filter(s => s.netBalance === 0).length,
-      creditGivenCreditorsCount: summaries.filter(s => s.status === 'Credit Given' || (s.creditGiven && s.creditGiven > 0)).length,
+      creditGivenCreditorsCount: summaries.filter(s => s.status === 'Credit Given' || (s.creditGiven && s.creditGiven > 0 && s.netBalance < 0)).length,
       overpaidCreditorsCount: summaries.filter(s => s.status === 'Overpaid').length,
       totalCreditorsCount: summaries.length,
       totalTransactions: list.length,

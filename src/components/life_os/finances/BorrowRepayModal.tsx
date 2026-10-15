@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { HandCoins, ArrowDownLeft, ArrowUpRight, X } from 'lucide-react';
+import { HandCoins, ArrowDownLeft, ArrowUpRight, CheckCircle2, X } from 'lucide-react';
 import { BorrowRepayRecord, BorrowRepayType } from '../../../types';
 import { getLocalDateISO } from '../../../utils/dateHelpers';
 
 interface BorrowRepayModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (record: Omit<BorrowRepayRecord, 'id' | 'createdAt'>) => void;
+  onSubmit: (record: Omit<BorrowRepayRecord, 'id' | 'createdAt'>, id?: string) => void;
   existingCreditors?: string[];
   initialType?: BorrowRepayType;
   initialCreditor?: string;
+  initialRecord?: BorrowRepayRecord | null;
 }
 
 export default function BorrowRepayModal({
@@ -18,7 +19,8 @@ export default function BorrowRepayModal({
   onSubmit,
   existingCreditors = [],
   initialType = 'Borrow',
-  initialCreditor = ''
+  initialCreditor = '',
+  initialRecord = null
 }: BorrowRepayModalProps) {
   const today = getLocalDateISO();
 
@@ -32,15 +34,25 @@ export default function BorrowRepayModal({
 
   useEffect(() => {
     if (isOpen) {
-      setForm({
-        creditorName: initialCreditor || '',
-        date: today,
-        type: initialType,
-        amount: '',
-        notes: ''
-      });
+      if (initialRecord) {
+        setForm({
+          creditorName: initialRecord.creditorName || '',
+          date: initialRecord.date || today,
+          type: initialRecord.type,
+          amount: String(initialRecord.amount || ''),
+          notes: initialRecord.notes || ''
+        });
+      } else {
+        setForm({
+          creditorName: initialCreditor || '',
+          date: today,
+          type: initialType,
+          amount: '',
+          notes: ''
+        });
+      }
     }
-  }, [isOpen, initialType, initialCreditor, today]);
+  }, [isOpen, initialType, initialCreditor, initialRecord, today]);
 
   if (!isOpen) return null;
 
@@ -55,7 +67,7 @@ export default function BorrowRepayModal({
       amount: Math.abs(parseFloat(form.amount)),
       currency: 'INR',
       notes: form.notes.trim()
-    });
+    }, initialRecord?.id);
 
     onClose();
   };
@@ -63,20 +75,39 @@ export default function BorrowRepayModal({
   return (
     <div className="modal-overlay-backdrop">
       <div className="glass-panel modal-content-card">
-        
+
         {/* Header */}
         <div className="modal-header-row">
           <div className="modal-header-with-icon">
-            <div className={`modal-icon-badge ${form.type === 'Borrow' ? 'borrow' : form.type === 'Credit Given' ? 'credit-given' : 'repaid'}`}>
+            <div className={`modal-icon-badge ${form.type === 'Borrow'
+                ? 'borrow'
+                : form.type === 'Credit Given'
+                  ? 'credit-given'
+                  : form.type === 'Credit Repaid'
+                    ? 'credit-repaid'
+                    : 'repaid'
+              }`}>
               <HandCoins size={20} />
             </div>
             <div>
               <h3 className="modal-title-main">
-                {form.type === 'Borrow'
-                  ? 'Log Borrowed Money'
-                  : form.type === 'Credit Given'
-                  ? 'Log Credit Given (Money Lent)'
-                  : 'Log Debt Repayment'}
+                {initialRecord ? (
+                  form.type === 'Borrow'
+                    ? 'Edit Borrowed Money'
+                    : form.type === 'Credit Given'
+                      ? 'Edit Credit Given'
+                      : form.type === 'Credit Repaid'
+                        ? 'Edit Repayment Received'
+                        : 'Edit Debt Repayment'
+                ) : (
+                  form.type === 'Borrow'
+                    ? 'Log Borrowed Money'
+                    : form.type === 'Credit Given'
+                      ? 'Log Credit Given (Money Lent)'
+                      : form.type === 'Credit Repaid'
+                        ? 'Log Repayment Received (He Repaid Me)'
+                        : 'Log Debt Repayment '
+                )}
               </h3>
               <div className="modal-subtitle-schema">Currency: Indian Rupee (INR ₹)</div>
             </div>
@@ -87,16 +118,16 @@ export default function BorrowRepayModal({
         </div>
 
         <form onSubmit={handleSubmit} className="modal-form-vertical">
-          
-          {/* Type Toggle: Borrow vs Repaid vs Credit Given */}
-          <div className="borrow-type-toggle-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+
+          {/* Type Toggle: 4-Way Grid (Borrow vs I Repaid vs Credit Given vs Repaid to Me) */}
+          <div className="borrow-type-toggle-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
             <button
               type="button"
               onClick={() => setForm(prev => ({ ...prev, type: 'Borrow' }))}
               className={`borrow-type-btn ${form.type === 'Borrow' ? 'active-borrow' : ''}`}
             >
               <ArrowDownLeft size={16} />
-              <span>Borrow (Received)</span>
+              <span>Borrow</span>
             </button>
             <button
               type="button"
@@ -104,7 +135,7 @@ export default function BorrowRepayModal({
               className={`borrow-type-btn ${form.type === 'Repaid' ? 'active-repaid' : ''}`}
             >
               <ArrowUpRight size={16} />
-              <span>Repaid (Returned)</span>
+              <span>I Repaid</span>
             </button>
             <button
               type="button"
@@ -112,7 +143,15 @@ export default function BorrowRepayModal({
               className={`borrow-type-btn ${form.type === 'Credit Given' ? 'active-credit' : ''}`}
             >
               <HandCoins size={16} />
-              <span>Credit Given (Lent)</span>
+              <span>Credit Given </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setForm(prev => ({ ...prev, type: 'Credit Repaid' }))}
+              className={`borrow-type-btn ${form.type === 'Credit Repaid' ? 'active-credit-repaid' : ''}`}
+            >
+              <CheckCircle2 size={16} />
+              <span>Repaid to Me </span>
             </button>
           </div>
 
@@ -181,29 +220,48 @@ export default function BorrowRepayModal({
             />
           </div>
 
-          {/* Actions */}
+          {/* Action Buttons */}
           <div className="modal-actions-footer">
             <button type="button" onClick={onClose} className="btn btn-secondary">
               Cancel
             </button>
-            <button 
-              type="submit" 
-              className={`btn ${
-                form.type === 'Borrow'
+            <button
+              type="submit"
+              className={`btn ${form.type === 'Borrow'
                   ? 'btn-primary'
                   : form.type === 'Credit Given'
-                  ? 'btn-credit-given-action'
-                  : 'btn-emerald-solid'
-              }`}
-              style={form.type === 'Credit Given' ? {
-                background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
-                color: '#ffffff',
-                border: 'none',
-                boxShadow: '0 4px 14px rgba(234, 88, 12, 0.35)',
-                fontWeight: 600
-              } : undefined}
+                    ? 'btn-credit-given-action'
+                    : 'btn-emerald-solid'
+                }`}
+              style={
+                form.type === 'Credit Given'
+                  ? {
+                    background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    boxShadow: '0 4px 14px rgba(234, 88, 12, 0.35)',
+                    fontWeight: 600
+                  }
+                  : form.type === 'Credit Repaid'
+                    ? {
+                      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                      color: '#ffffff',
+                      border: 'none',
+                      boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
+                      fontWeight: 600
+                    }
+                    : undefined
+              }
             >
-              Save {form.type === 'Borrow' ? 'Borrow Record' : form.type === 'Credit Given' ? 'Credit Record' : 'Repayment'}
+              {initialRecord ? 'Update' : 'Save'} {
+                form.type === 'Borrow'
+                  ? 'Borrow Record'
+                  : form.type === 'Credit Given'
+                    ? 'Credit Record'
+                    : form.type === 'Credit Repaid'
+                      ? 'Repayment Received'
+                      : 'Repayment'
+              }
             </button>
           </div>
 

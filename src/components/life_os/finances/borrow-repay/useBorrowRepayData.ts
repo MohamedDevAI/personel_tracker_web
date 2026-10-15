@@ -30,6 +30,7 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
   const [isPlannedModalOpen, setIsPlannedModalOpen] = useState(false);
   const [modalInitialType, setModalInitialType] = useState<BorrowRepayType>('Borrow');
   const [modalInitialCreditor, setModalInitialCreditor] = useState<string>('');
+  const [editingRecord, setEditingRecord] = useState<BorrowRepayRecord | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{
     isOpen: boolean;
     type: 'credit_record' | 'planned_repayment';
@@ -54,6 +55,16 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
     onError: (err: any) => {
       console.error('Failed to create borrow/repay record:', err);
       alert('Failed to save record: ' + (err.message || 'Unknown error'));
+    },
+  });
+
+  const updateRecordMutation = useMutation({
+    mutationFn: ({ id, updates, existingRecord }: { id: string; updates: Partial<BorrowRepayRecord>; existingRecord?: BorrowRepayRecord }) =>
+      borrowRepayApi.updateRecord(id, updates, existingRecord),
+    onSuccess: invalidateAll,
+    onError: (err: any) => {
+      console.error('Failed to update borrow/repay record:', err);
+      alert('Failed to update record: ' + (err.message || 'Unknown error'));
     },
   });
 
@@ -155,10 +166,12 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
   }, [records, searchQuery, typeFilter, selectedCreditorFilter, selectedMonth, selectedYear]);
 
   const activeFilterTotals = useMemo(() => {
-    let borrowed = 0, repaid = 0, creditGiven = 0;
+    let borrowed = 0, repaid = 0, creditGiven = 0, creditRepaid = 0;
     filteredRecords.forEach(r => {
       const amt = Math.abs(Number(r.amount) || 0);
-      if (r.type === 'Credit Given' || (r.type === 'Borrow' && Number(r.amount) < 0)) {
+      if (r.type === 'Credit Repaid') {
+        creditRepaid += amt;
+      } else if (r.type === 'Credit Given' || (r.type === 'Borrow' && Number(r.amount) < 0)) {
         creditGiven += amt;
       } else if (r.type === 'Borrow') {
         borrowed += amt;
@@ -166,7 +179,10 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
         repaid += amt;
       }
     });
-    return { borrowed, repaid, creditGiven, net: borrowed - repaid - creditGiven };
+    const debt = Math.max(0, borrowed - repaid);
+    const excess = Math.max(0, repaid - borrowed);
+    const credit = Math.max(0, creditGiven - creditRepaid - excess);
+    return { borrowed, repaid, creditGiven, creditRepaid, net: debt - credit };
   }, [filteredRecords]);
 
   const filteredCreditorSummaries = useMemo(() => {
@@ -224,8 +240,30 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
   }, [plannedRepayments]);
 
   // ── Action handlers ──────────────────────────────────────────────────────────
-  const handleAddCreditRecord = (newRecord: Omit<BorrowRepayRecord, 'id' | 'createdAt'>) => {
-    createRecordMutation.mutate(newRecord);
+  const handleSaveCreditRecord = (
+    newRecord: Omit<BorrowRepayRecord, 'id' | 'createdAt'>,
+    id?: string
+  ) => {
+    const targetId = id || editingRecord?.id;
+    if (targetId) {
+      updateRecordMutation.mutate({
+        id: targetId,
+        updates: newRecord,
+        existingRecord: editingRecord || undefined
+      });
+    } else {
+      createRecordMutation.mutate(newRecord);
+    }
+    setEditingRecord(null);
+  };
+
+  const handleAddCreditRecord = handleSaveCreditRecord;
+
+  const handleEditCreditRecord = (record: BorrowRepayRecord) => {
+    setEditingRecord(record);
+    setModalInitialType(record.type);
+    setModalInitialCreditor(record.creditorName);
+    setIsCreditModalOpen(true);
   };
 
   const triggerDeleteCreditRecord = (item: BorrowRepayRecord) => {
@@ -236,6 +274,7 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
   };
 
   const handleOpenCreditModal = (type: BorrowRepayType, creditorName: string = '') => {
+    setEditingRecord(null);
     setModalInitialType(type);
     setModalInitialCreditor(creditorName);
     setIsCreditModalOpen(true);
@@ -283,6 +322,7 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
     isPlannedModalOpen, setIsPlannedModalOpen,
     modalInitialType,
     modalInitialCreditor,
+    editingRecord, setEditingRecord,
     deleteConfirm, setDeleteConfirm,
     // Data
     records, plannedRepayments,
@@ -292,9 +332,11 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
     filteredPlannedRepayments, plannedStats,
     availableYears,
     // Mutations
-    createRecordMutation, deleteRecordMutation, markAsPaidMutation,
+    createRecordMutation, updateRecordMutation, deleteRecordMutation, markAsPaidMutation,
     // Handlers
     handleAddCreditRecord,
+    handleSaveCreditRecord,
+    handleEditCreditRecord,
     triggerDeleteCreditRecord,
     handleOpenCreditModal,
     handleAddPlannedRepayment,
