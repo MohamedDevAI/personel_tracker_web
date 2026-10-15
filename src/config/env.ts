@@ -6,22 +6,21 @@
 
 export const env = {
   // ── App Metadata ──────────────────────────────────────────────────────────
-  appTitle: import.meta.env.VITE_APP_TITLE || 'Personal Tracker',
+  appTitle: import.meta.env.VITE_APP_TITLE,
   appDescription:
-    import.meta.env.VITE_APP_DESCRIPTION ||
-    'International-grade personal tracker for habits, financial cash flow, strategic goals, and daily tasks with real-time analytics.',
+    import.meta.env.VITE_APP_DESCRIPTION,
   defaultTheme: (import.meta.env.VITE_DEFAULT_THEME === 'light' ? 'light' : 'dark') as 'light' | 'dark',
 
   // ── Dev Server Settings ───────────────────────────────────────────────────
-  port: Number(import.meta.env.VITE_PORT) || 5173,
+  port: Number(import.meta.env.VITE_PORT),
 
   // ── Backend & API Connection ──────────────────────────────────────────────
-  apiBaseUrl: import.meta.env.VITE_API_BASE_URL || '/api',
-  backendUrl: import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080',
+  apiBaseUrl: import.meta.env.VITE_API_BASE_URL,
+  backendUrl: import.meta.env.VITE_BACKEND_URL,
 
   // ── API Timeouts (ms) ─────────────────────────────────────────────────────
-  apiTimeout: Number(import.meta.env.VITE_API_TIMEOUT) || 6000,
-  apiHealthTimeout: Number(import.meta.env.VITE_API_HEALTH_TIMEOUT) || 8000,
+  apiTimeout: Number(import.meta.env.VITE_API_TIMEOUT),
+  apiHealthTimeout: Number(import.meta.env.VITE_API_HEALTH_TIMEOUT),
 
   // ── Diagnostics & Logging ─────────────────────────────────────────────────
   enableApiLogging:
