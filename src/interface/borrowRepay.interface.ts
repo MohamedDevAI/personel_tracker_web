@@ -1,6 +1,6 @@
 // ─── Borrow & Repay (Debt & Creditor Tracker) Interfaces ─────────────────────
 
-export type BorrowRepayType = 'Borrow' | 'Repaid' | 'Credit Given';
+export type BorrowRepayType = 'Borrow' | 'Repaid' | 'Credit Given' | 'Credit Repaid';
 
 export interface BorrowRepayRecord {
   id: string;
@@ -21,6 +21,7 @@ export interface CreditorSummary {
   totalBorrowed: number;
   totalRepaid: number;
   creditGiven?: number;
+  creditRepaid?: number;
   txCount?: number;
   /** Positive = still owe creditor, 0 = settled, negative = credit given to them or overpaid */
   netBalance: number;
