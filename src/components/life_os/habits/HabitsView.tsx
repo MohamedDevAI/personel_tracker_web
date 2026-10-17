@@ -67,11 +67,11 @@ export default function HabitsView() {
         </div>
         <h2 className="habits-clean-slate-title">Habit Tracker Ready</h2>
         <p className="habits-clean-slate-desc">
-          Top date picker strip is active. You can select any day (or "All Month") to view and track your habits.
+          Top date picker strip is active. You can select any day to view and track your habits.
         </p>
         <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '8px', color: '#94a3b8', fontSize: '0.85rem' }}>
           <CheckCircle2 size={16} color="#2dd4bf" />
-          <span>Selected date: <strong style={{ color: '#ffffff' }}>{selectedDate === 'ALL' ? 'All Days' : selectedDate}</strong></span>
+          <span>Selected date: <strong style={{ color: '#ffffff' }}>{selectedDate}</strong></span>
         </div>
       </div>
     </div>

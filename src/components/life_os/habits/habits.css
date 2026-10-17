@@ -189,9 +189,6 @@
   transform: translateY(-1px);
 }
 
-.habits-date-pill-all {
-  min-width: 58px;
-}
 
 /* Day Number (Prominent Date) */
 .habits-date-pill-num {

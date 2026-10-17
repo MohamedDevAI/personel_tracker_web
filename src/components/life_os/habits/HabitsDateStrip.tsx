@@ -55,7 +55,6 @@ export default function HabitsDateStrip({
     return days;
   }, [viewYear, viewMonth, daysInMonth, todayISO, dailyCompletionCounts]);
 
-  const isAllSelected = selectedDate === 'ALL';
   const isViewingCurrentMonth = viewYear === currentRealYear && viewMonth === currentRealMonth;
 
   // Auto-scroll selected date into view smoothly
@@ -160,18 +159,6 @@ export default function HabitsDateStrip({
         </button>
 
         <div className="habits-date-strip" ref={stripScrollRef} role="region" aria-label="Dates selector">
-          {/* All Days in Month Button */}
-          <button
-            type="button"
-            onClick={() => onSelectDate('ALL')}
-            ref={isAllSelected ? activePillRef : null}
-            className={`habits-date-pill habits-date-pill-all ${isAllSelected ? 'active' : ''}`}
-            title={`View all days for ${MONTH_NAMES[viewMonth]} ${viewYear}`}
-          >
-            <span className="habits-date-pill-num">All</span>
-            <span className="habits-date-pill-day">Month</span>
-          </button>
-
           {/* Individual Day Number Pills (1 to 28/30/31) */}
           {monthDays.map((day) => {
             const isSelected = selectedDate === day.dateISO;
