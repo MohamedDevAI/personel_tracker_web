@@ -330,17 +330,9 @@ export default function ExpenseTracker() {
       {/* Page Header */}
       <div className="finances-header">
         <div className="finances-header-info">
-          <div className="finances-header-badge-row">
-            <span className="finances-records-count">
-              Total Transactions: {transactions.length}
-            </span>
-          </div>
           <h1 className="finances-header-title">
             Personal <span className="emerald-gradient-text">Finance Hub</span>
           </h1>
-          <p className="finances-header-subtitle">
-            Track expenses, plan monthly budgets, manage money borrowed & repaid, and inspect combined financial intelligence.
-          </p>
         </div>
 
       </div>
