@@ -1201,7 +1201,7 @@
 }
 
 .glance-item-row.item-done .glance-item-amount {
-  color: #ea580c;
+  color: #2dd4bf !important;
 }
 
 .glance-item-subline {

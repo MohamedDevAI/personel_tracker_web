@@ -111,12 +111,7 @@ const GlanceMatrixBoard = forwardRef<GlanceMatrixBoardHandle, GlanceMatrixBoardP
                 {/* Card Header */}
                 <div className="glance-card-header">
                   <div className="glance-month-meta">
-                    <span className="glance-month-index">Month 0{col.monthIndex || realColIdx + 1}</span>
-                    {isCurrent && (
-                      <span className="glance-current-month-badge">
-                        <Calendar size={11} /> Current Month
-                      </span>
-                    )}
+                    <span className="glance-month-index">Month {col.monthIndex || realColIdx + 1}</span>
                     <span className="glance-target-date">{col.targetDate}</span>
                   </div>
                   <h4 className="glance-month-title">{col.targetMonth}</h4>
