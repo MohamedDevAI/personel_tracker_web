@@ -11,21 +11,157 @@
   box-sizing: border-box;
 }
 
-/* ─── Habits Date Strip Toolbar (Top) ────────────────────────── */
-.habits-date-strip {
-  display: grid;
-  grid-template-columns: repeat(13, minmax(0, 1fr));
-  gap: 6px;
-  background: rgba(5, 12, 10, 0.88);
-  padding: 8px;
-  border-radius: 12px;
+/* ─── Habits Date Toolbar (Top) ──────────────────────────────── */
+.habits-date-toolbar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  background: rgba(5, 12, 10, 0.9);
+  padding: 10px 12px;
+  border-radius: 14px;
   border: 1px solid var(--border-subtle, rgba(20, 184, 166, 0.16));
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  width: 100%;
   box-sizing: border-box;
-  overflow-x: auto;
 }
 
+/* Header row with Month navigation and Today jump */
+.habits-date-nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px 6px 4px;
+  border-bottom: 1px solid rgba(20, 184, 166, 0.1);
+}
+
+.habits-date-month-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.habits-date-nav-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(20, 184, 166, 0.05);
+  border: 1px solid rgba(20, 184, 166, 0.15);
+  color: var(--text-secondary, #cbd5e1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.habits-date-nav-btn:hover {
+  background: rgba(20, 184, 166, 0.15);
+  border-color: rgba(20, 184, 166, 0.35);
+  color: #ffffff;
+}
+
+.habits-date-month-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.habits-date-cal-icon {
+  color: var(--accent-primary, #0d9488);
+}
+
+.habits-date-month-text {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-primary, #ffffff);
+  letter-spacing: -0.01em;
+}
+
+.habits-date-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.habits-date-today-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(20, 184, 166, 0.06);
+  border: 1px solid rgba(20, 184, 166, 0.2);
+  color: #2dd4bf;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.habits-date-today-btn:hover {
+  background: rgba(20, 184, 166, 0.16);
+  border-color: #2dd4bf;
+  color: #ffffff;
+}
+
+.habits-date-today-btn.is-active-today {
+  background: rgba(20, 184, 166, 0.15);
+  border-color: #2dd4bf;
+  box-shadow: 0 0 10px rgba(45, 212, 191, 0.2);
+}
+
+/* ─── Horizontal Dates Strip ─────────────────────────────────── */
+.habits-date-strip-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 4px;
+}
+
+.habits-strip-scroll-arrow {
+  width: 24px;
+  height: 48px;
+  flex-shrink: 0;
+  background: rgba(20, 184, 166, 0.04);
+  border: 1px solid rgba(20, 184, 166, 0.12);
+  border-radius: 6px;
+  color: var(--text-muted, #94a3b8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.habits-strip-scroll-arrow:hover {
+  background: rgba(20, 184, 166, 0.12);
+  color: var(--text-primary, #ffffff);
+  border-color: rgba(20, 184, 166, 0.3);
+}
+
+.habits-date-strip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 4px 2px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(20, 184, 166, 0.25) transparent;
+}
+
+.habits-date-strip::-webkit-scrollbar {
+  height: 4px;
+}
+
+.habits-date-strip::-webkit-scrollbar-thumb {
+  background: rgba(20, 184, 166, 0.25);
+  border-radius: 4px;
+}
+
+/* Date Pill Card (Matching UI from Reference) */
 .habits-date-pill {
   position: relative;
   display: flex;
@@ -33,15 +169,17 @@
   align-items: center;
   justify-content: center;
   gap: 2px;
+  min-width: 54px;
   min-height: 48px;
-  padding: 8px 4px;
+  padding: 6px 8px;
   border-radius: 8px;
   border: 1px solid rgba(20, 184, 166, 0.12);
   background: rgba(20, 184, 166, 0.03);
   color: var(--text-secondary, #cbd5e1);
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
+  flex-shrink: 0;
 }
 
 .habits-date-pill:hover {
@@ -51,21 +189,29 @@
   transform: translateY(-1px);
 }
 
-.habits-date-pill-label {
-  font-size: 0.82rem;
+.habits-date-pill-all {
+  min-width: 58px;
+}
+
+/* Day Number (Prominent Date) */
+.habits-date-pill-num {
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--text-primary, #ffffff);
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
-.habits-date-pill-count {
+/* Day of Week Name */
+.habits-date-pill-day {
   font-size: 0.65rem;
   color: var(--text-muted, #94a3b8);
-  font-weight: 500;
-  line-height: 1.2;
+  font-weight: 600;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
-/* Selected Active Month Pill (Signature Emerald Glow) */
+/* Selected Active Date Pill (Signature Emerald Glow) */
 .habits-date-pill.active {
   background: var(--emerald-gradient, linear-gradient(135deg, #2dd4bf 0%, #0f766e 100%));
   border: 1px solid #2dd4bf;
@@ -73,18 +219,18 @@
   box-shadow: 0 4px 14px rgba(45, 212, 191, 0.35);
 }
 
-.habits-date-pill.active .habits-date-pill-label {
+.habits-date-pill.active .habits-date-pill-num {
   color: #ffffff;
   font-weight: 800;
 }
 
-.habits-date-pill.active .habits-date-pill-count {
+.habits-date-pill.active .habits-date-pill-day {
   color: #ffffff;
   opacity: 0.95;
-  font-weight: 600;
+  font-weight: 700;
 }
 
-/* Dot indicator on upper right when month has entries/data */
+/* Dot indicator on upper right when date has entries/data */
 .habits-date-dot {
   position: absolute;
   top: 4px;
@@ -94,6 +240,19 @@
   border-radius: 50%;
   background: #f97316;
   box-shadow: 0 0 6px rgba(249, 115, 22, 0.7);
+}
+
+/* Indicator for today when not currently active */
+.habits-today-marker {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 2px;
+  border-radius: 2px;
+  background: #2dd4bf;
+  opacity: 0.8;
 }
 
 /* ─── Clean Slate / Content Area ─────────────────────────────── */
@@ -153,17 +312,4 @@
   font-size: 0.82rem;
   font-weight: 600;
   margin-bottom: 12px;
-}
-
-/* Responsiveness */
-@media (max-width: 900px) {
-  .habits-date-strip {
-    display: flex;
-    overflow-x: auto;
-    scrollbar-width: thin;
-  }
-  .habits-date-pill {
-    min-width: 68px;
-    flex-shrink: 0;
-  }
 }

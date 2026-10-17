@@ -1,51 +1,65 @@
 import { useState, useMemo } from 'react';
-import { Sparkles, Calendar } from 'lucide-react';
+import { Sparkles, Calendar, CheckCircle2 } from 'lucide-react';
 import HabitsDateStrip from './HabitsDateStrip';
-import { getCurrentMonth, getCurrentYear } from '../../../utils/dateHelpers';
+import { getLocalDateISO, MONTH_NAMES } from '../../../utils/dateHelpers';
 import { useHabitsQuery } from '../../../hooks/useHabitsQuery';
 import './habits.css';
 
 export default function HabitsView() {
-  const currentMonth = getCurrentMonth();
-  const currentYear = getCurrentYear();
+  const today = useMemo(() => new Date(), []);
+  const todayISO = useMemo(() => getLocalDateISO(today), [today]);
 
-  const [selectedMonth, setSelectedMonth] = useState<string>(currentMonth);
-  const selectedYear = currentYear;
+  const [selectedDate, setSelectedDate] = useState<string>(todayISO);
+  const [viewYear, setViewYear] = useState<number>(today.getFullYear());
+  const [viewMonth, setViewMonth] = useState<number>(today.getMonth());
 
   const { data: habits = [] } = useHabitsQuery();
 
-  // Compute habit completion counts or counts per month
-  const monthlyCounts = useMemo<Record<string, number>>(() => {
+  const handleChangeMonth = (year: number, month: number) => {
+    setViewYear(year);
+    setViewMonth(month);
+  };
+
+  // Completion counts per date (can be mapped from habit history when available)
+  const dailyCompletionCounts = useMemo<Record<string, number>>(() => {
     const counts: Record<string, number> = {};
     if (habits.length > 0) {
-      counts[currentMonth] = habits.length;
+      // Mark today with active habits count
+      counts[todayISO] = habits.filter((h) => h.completedToday).length;
     }
     return counts;
-  }, [habits, currentMonth]);
+  }, [habits, todayISO]);
 
-  const totalCount = useMemo(() => {
-    return habits.length;
-  }, [habits]);
+  // Formatted date string for user display
+  const displaySelectedDate = useMemo(() => {
+    if (selectedDate === 'ALL') {
+      return `All Days (${MONTH_NAMES[viewMonth]} ${viewYear})`;
+    }
+    const [y, m, d] = selectedDate.split('-').map(Number);
+    if (!y || !m || !d) return selectedDate;
+    const dateObj = new Date(y, m - 1, d);
+    const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+    const isToday = selectedDate === todayISO;
+    return `${dayName}, ${MONTH_NAMES[m - 1]} ${d}, ${y}${isToday ? ' (Today)' : ''}`;
+  }, [selectedDate, viewMonth, viewYear, todayISO]);
 
   return (
     <div className="habits-container">
-      {/* Top Dates Filter Strip matching the design */}
+      {/* Top Calendar Dates Strip Toolbar */}
       <HabitsDateStrip
-        selectedMonth={selectedMonth}
-        onSelectMonth={setSelectedMonth}
-        selectedYear={selectedYear}
-        monthlyCounts={monthlyCounts}
-        totalCount={totalCount}
-        countLabel="habits"
+        selectedDate={selectedDate}
+        onSelectDate={setSelectedDate}
+        viewYear={viewYear}
+        viewMonth={viewMonth}
+        onChangeMonth={handleChangeMonth}
+        dailyCompletionCounts={dailyCompletionCounts}
       />
 
-      {/* Habits Main Content Area */}
+      {/* Habits Content Area */}
       <div className="habits-clean-slate">
         <div className="habits-active-month-badge">
           <Calendar size={14} />
-          <span>
-            {selectedMonth === 'All' ? `All Year ${selectedYear}` : `${selectedMonth} ${selectedYear}`}
-          </span>
+          <span>{displaySelectedDate}</span>
         </div>
 
         <div className="habits-clean-slate-icon">
@@ -53,8 +67,12 @@ export default function HabitsView() {
         </div>
         <h2 className="habits-clean-slate-title">Habit Tracker Ready</h2>
         <p className="habits-clean-slate-desc">
-          Top date filter strip has been added. Select any month to filter habits, or describe the next feature you want to add!
+          Top date picker strip is active. You can select any day (or "All Month") to view and track your habits.
         </p>
+        <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '8px', color: '#94a3b8', fontSize: '0.85rem' }}>
+          <CheckCircle2 size={16} color="#2dd4bf" />
+          <span>Selected date: <strong style={{ color: '#ffffff' }}>{selectedDate === 'ALL' ? 'All Days' : selectedDate}</strong></span>
+        </div>
       </div>
     </div>
   );
