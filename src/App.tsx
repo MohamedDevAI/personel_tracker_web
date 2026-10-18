@@ -1,5 +1,10 @@
 import { useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams } from 'react-router-dom';
+
+function HabitRedirect() {
+  const { id } = useParams<{ id: string }>();
+  return <Navigate to={`/life-os/habits/${id}`} replace />;
+}
 import Navbar from './components/Navbar';
 import LifeOSHub from './pages/LifeOSHub';
 import GlobalPinnedStickyNotes from './components/life_os/notes-reminders/GlobalPinnedStickyNotes';
@@ -58,6 +63,7 @@ export default function App() {
           <Route path="/expenses/*" element={<Navigate to="/life-os/finances" replace />} />
           <Route path="/productivity/*" element={<Navigate to="/life-os/overview" replace />} />
           <Route path="/habits" element={<Navigate to="/life-os/habits" replace />} />
+          <Route path="/habits/:id" element={<HabitRedirect />} />
           <Route path="/goals" element={<Navigate to="/life-os/goals" replace />} />
           <Route path="/tasks" element={<Navigate to="/life-os/overview" replace />} />
           <Route path="/notes" element={<Navigate to="/life-os/notes" replace />} />

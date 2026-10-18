@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Flame,
   Check,
@@ -6,6 +7,8 @@ import {
   Edit2,
   Trash2,
   ShieldAlert,
+  BarChart2,
+  ChevronRight,
 } from 'lucide-react';
 import { Habit } from '../../../interface/habit.interface';
 import './habits.css';
@@ -27,10 +30,19 @@ export default function HabitCard({
   onEdit,
   onDelete,
 }: HabitCardProps) {
+  const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
 
   // Completed status
   const isCompleted = habit.completedToday;
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('.habit-dropdown-menu')) {
+      return;
+    }
+    navigate(`/life-os/habits/${habit.id}`);
+  };
 
   // Generate 7-day mini consistency dots from habit history
   const miniHistory = React.useMemo(() => {
@@ -50,8 +62,11 @@ export default function HabitCard({
 
   return (
     <div
-      className={`habit-card-container ${isCompleted ? 'is-completed' : ''} ${habit.missedYesterday && !isCompleted ? 'is-never-miss-twice' : ''
-        }`}
+      className={`habit-card-container ${isCompleted ? 'is-completed' : ''} ${
+        habit.missedYesterday && !isCompleted ? 'is-never-miss-twice' : ''
+      }`}
+      onClick={handleCardClick}
+      title="Click to view detailed analytics & consistency calendar"
     >
       {/* ─── Card Header: Category, Identity & Actions ────────────────── */}
       <div className="habit-card-header">
@@ -71,7 +86,10 @@ export default function HabitCard({
         <div className="habit-menu-wrapper">
           <button
             type="button"
-            onClick={() => setShowMenu((prev) => !prev)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowMenu((prev) => !prev);
+            }}
             className="habit-menu-btn"
             title="Options"
           >
@@ -82,12 +100,28 @@ export default function HabitCard({
             <>
               <div
                 className="habit-menu-backdrop"
-                onClick={() => setShowMenu(false)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowMenu(false);
+                }}
               />
               <div className="habit-dropdown-menu">
                 <button
                   type="button"
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowMenu(false);
+                    navigate(`/life-os/habits/${habit.id}`);
+                  }}
+                  className="habit-dropdown-item"
+                >
+                  <BarChart2 size={13} />
+                  <span>View Analytics</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setShowMenu(false);
                     onEdit(habit);
                   }}
@@ -98,7 +132,8 @@ export default function HabitCard({
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setShowMenu(false);
                     onDelete(habit.id, habit.title);
                   }}
@@ -118,7 +153,10 @@ export default function HabitCard({
         {/* Big Tactile Checkbox Button */}
         <button
           type="button"
-          onClick={() => onToggle(habit.id, isCompleted)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggle(habit.id, isCompleted);
+          }}
           className={`habit-checkbox-btn ${isCompleted ? 'checked' : ''}`}
           title={isCompleted ? 'Mark as incomplete' : 'Mark as completed'}
         >
@@ -126,7 +164,10 @@ export default function HabitCard({
         </button>
 
         {/* Habit Title & Frequency */}
-        <div className="habit-title-wrapper" onClick={() => onToggle(habit.id, isCompleted)}>
+        <div
+          className="habit-title-wrapper"
+          onClick={() => navigate(`/life-os/habits/${habit.id}`)}
+        >
           <h3 className={`habit-title ${isCompleted ? 'completed-text' : ''}`}>
             {habit.title}
           </h3>
@@ -135,8 +176,6 @@ export default function HabitCard({
           </span>
         </div>
       </div>
-
-
 
       {/* 3. Never Miss Twice Alert (Law 4: Make it Satisfying / Resilience) */}
       {habit.missedYesterday && !isCompleted && (
@@ -148,7 +187,7 @@ export default function HabitCard({
         </div>
       )}
 
-      {/* ─── Card Footer: Streak + Consistency Dots ───────────────────── */}
+      {/* ─── Card Footer: Streak + Consistency Dots + Analytics Link ──── */}
       <div className="habit-card-footer">
         {/* Streak Counter */}
         <div className="habit-streak-badge" title={`${habit.streak || 0} consecutive days`}>
@@ -164,12 +203,27 @@ export default function HabitCard({
             {miniHistory.map((val, idx) => (
               <span
                 key={idx}
-                className={`tracker-dot ${val > 0 ? 'active' : ''} ${idx === 6 ? 'today-dot' : ''
-                  }`}
+                className={`tracker-dot ${val > 0 ? 'active' : ''} ${
+                  idx === 6 ? 'today-dot' : ''
+                }`}
                 title={`Day ${idx + 1}: ${val > 0 ? 'Completed' : 'Missed'}`}
               />
             ))}
           </div>
+        </div>
+
+        {/* Quick Analytics Chip Link */}
+        <div
+          className="habit-analytics-chip"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/life-os/habits/${habit.id}`);
+          }}
+          title="Open complete analytics dashboard"
+        >
+          <BarChart2 size={12} />
+          <span>Analytics</span>
+          <ChevronRight size={12} />
         </div>
       </div>
     </div>

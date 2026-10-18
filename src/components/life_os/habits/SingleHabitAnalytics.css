@@ -1,0 +1,856 @@
+/* =========================================================
+   SINGLE HABIT ANALYTICS & DETAILS STYLES
+   Executive Glassmorphism & High-Precision Habit Analytics
+   ========================================================= */
+
+.single-habit-page {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 16px 20px 48px;
+  box-sizing: border-box;
+  animation: fadeInPage 0.25s ease-out;
+}
+
+@keyframes fadeInPage {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── Top Bar & Breadcrumb ────────────────────────────────────────── */
+.single-habit-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.single-habit-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: rgba(20, 184, 166, 0.08);
+  border: 1px solid rgba(20, 184, 166, 0.2);
+  color: #2dd4bf;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.single-habit-back-btn:hover {
+  background: rgba(20, 184, 166, 0.18);
+  border-color: rgba(45, 212, 191, 0.45);
+  color: #ffffff;
+  transform: translateX(-2px);
+}
+
+.single-habit-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.single-habit-breadcrumbs .crumb-link {
+  color: var(--text-secondary, #cbd5e1);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.single-habit-breadcrumbs .crumb-link:hover {
+  color: #2dd4bf;
+}
+
+.single-habit-breadcrumbs .crumb-current {
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+/* ─── Hero Panel: Header, Title & Actions ─────────────────────────── */
+.single-habit-hero-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px 28px;
+  border-radius: 20px;
+  background: rgba(5, 12, 10, 0.88);
+  border: 1px solid rgba(20, 184, 166, 0.22);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(16px);
+  position: relative;
+  overflow: hidden;
+}
+
+.single-habit-hero-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #10b981, #2dd4bf, #f97316);
+}
+
+.single-habit-hero-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.single-habit-identity-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 780px;
+}
+
+.single-habit-meta-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.single-habit-category-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: rgba(20, 184, 166, 0.14);
+  color: #2dd4bf;
+  border: 1px solid rgba(20, 184, 166, 0.28);
+}
+
+.single-habit-frequency-pill {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.single-habit-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 8px;
+}
+
+.single-habit-status-pill.completed {
+  background: rgba(16, 185, 129, 0.16);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.single-habit-status-pill.pending {
+  background: rgba(245, 158, 11, 0.14);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.single-habit-title {
+  margin: 0;
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.single-habit-identity-subtitle {
+  margin: 0;
+  font-size: 0.92rem;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.single-habit-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.single-habit-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid transparent;
+}
+
+.single-habit-toggle-btn.mark-done {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 18px rgba(16, 185, 129, 0.35);
+}
+
+.single-habit-toggle-btn.mark-done:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(16, 185, 129, 0.5);
+}
+
+.single-habit-toggle-btn.completed {
+  background: rgba(16, 185, 129, 0.14);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.single-habit-toggle-btn.completed:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.single-habit-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.single-habit-action-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.single-habit-action-btn.delete:hover {
+  background: rgba(239, 68, 68, 0.14);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* ─── 4-Card Analytics Overview Grid ──────────────────────────────── */
+.single-habit-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+  width: 100%;
+}
+
+.single-habit-stat-card {
+  padding: 20px;
+  border-radius: 16px;
+  background: rgba(5, 12, 10, 0.85);
+  border: 1px solid rgba(20, 184, 166, 0.18);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.single-habit-stat-card:hover {
+  border-color: rgba(45, 212, 191, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+}
+
+.single-habit-stat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.single-habit-stat-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.single-habit-stat-icon-wrap.streak {
+  background: rgba(249, 115, 22, 0.16);
+  color: #f97316;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.single-habit-stat-icon-wrap.best {
+  background: rgba(234, 179, 8, 0.16);
+  color: #eab308;
+  border: 1px solid rgba(234, 179, 8, 0.3);
+}
+
+.single-habit-stat-icon-wrap.rate {
+  background: rgba(16, 185, 129, 0.16);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.single-habit-stat-icon-wrap.total {
+  background: rgba(99, 102, 241, 0.16);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.single-habit-stat-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.single-habit-stat-badge.emerald {
+  background: rgba(16, 185, 129, 0.14);
+  color: #34d399;
+}
+
+.single-habit-stat-badge.orange {
+  background: rgba(249, 115, 22, 0.14);
+  color: #fb923c;
+}
+
+.single-habit-stat-badge.gold {
+  background: rgba(234, 179, 8, 0.14);
+  color: #facc15;
+}
+
+.single-habit-stat-badge.indigo {
+  background: rgba(99, 102, 241, 0.14);
+  color: #a5b4fc;
+}
+
+.single-habit-stat-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.single-habit-stat-number {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.single-habit-stat-unit {
+  font-size: 0.85rem;
+  color: var(--text-muted, #94a3b8);
+  font-weight: 600;
+}
+
+.single-habit-stat-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary, #cbd5e1);
+}
+
+.single-habit-stat-subtext {
+  font-size: 0.75rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+/* ─── 2-Column Analytics Layout ──────────────────────────────────── */
+.single-habit-grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  width: 100%;
+}
+
+@media (max-width: 960px) {
+  .single-habit-grid-2col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─── Analytics Card Base ────────────────────────────────────────── */
+.single-habit-analytics-card {
+  padding: 22px 24px;
+  border-radius: 18px;
+  background: rgba(5, 12, 10, 0.86);
+  border: 1px solid rgba(20, 184, 166, 0.18);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(14px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+.single-habit-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.single-habit-card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.single-habit-card-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(20, 184, 166, 0.12);
+  color: #2dd4bf;
+  border: 1px solid rgba(20, 184, 166, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.single-habit-card-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.single-habit-card-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+/* ─── Interactive Calendar Heatmap ────────────────────────────────── */
+.single-habit-calendar-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.single-habit-cal-nav-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.single-habit-cal-nav-btn:hover {
+  background: rgba(20, 184, 166, 0.15);
+  color: #2dd4bf;
+}
+
+.single-habit-cal-month-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  min-width: 120px;
+  text-align: center;
+}
+
+.single-habit-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+
+.single-habit-cal-day-header {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted, #94a3b8);
+  padding-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.single-habit-cal-day-cell {
+  aspect-ratio: 1;
+  min-height: 40px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.single-habit-cal-day-cell:hover {
+  transform: scale(1.06);
+  z-index: 5;
+}
+
+.single-habit-cal-day-cell.empty {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.single-habit-cal-day-cell.completed {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+}
+
+.single-habit-cal-day-cell.completed .cell-num {
+  color: #34d399;
+  font-weight: 700;
+}
+
+.single-habit-cal-day-cell.missed {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+.single-habit-cal-day-cell.missed .cell-num {
+  color: #f87171;
+}
+
+.single-habit-cal-day-cell.future {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.single-habit-cal-day-cell.today-ring {
+  outline: 2px solid #2dd4bf;
+  outline-offset: 1px;
+}
+
+.cell-num {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.cell-icon {
+  font-size: 0.65rem;
+  line-height: 1;
+}
+
+.single-habit-cal-legend {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 0.75rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.legend-dot.completed {
+  background: #10b981;
+}
+
+.legend-dot.missed {
+  background: rgba(239, 68, 68, 0.5);
+}
+
+.legend-dot.today {
+  border: 2px solid #2dd4bf;
+  background: transparent;
+}
+
+/* ─── Atomic Habits 66-Day Milestone Tracker ─────────────────────── */
+.single-habit-milestones-track {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.milestones-progress-bar-wrap {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.milestones-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #2dd4bf, #f97316);
+  border-radius: 10px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.milestones-cards-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .milestones-cards-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.milestone-node-card {
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.milestone-node-card.achieved {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+.milestone-node-card.next {
+  background: rgba(249, 115, 22, 0.12);
+  border-color: rgba(249, 115, 22, 0.4);
+  box-shadow: 0 0 14px rgba(249, 115, 22, 0.15);
+}
+
+.milestone-node-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.milestone-day-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+}
+
+.milestone-node-card.achieved .milestone-day-badge {
+  background: rgba(16, 185, 129, 0.25);
+  color: #34d399;
+}
+
+.milestone-node-card.next .milestone-day-badge {
+  background: rgba(249, 115, 22, 0.25);
+  color: #fb923c;
+}
+
+.milestone-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0;
+}
+
+.milestone-desc {
+  font-size: 0.7rem;
+  color: var(--text-muted, #94a3b8);
+  margin: 0;
+  line-height: 1.3;
+}
+
+/* ─── Behavioral Insights & Diagnostics ───────────────────────────── */
+.single-habit-insights-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.insight-pill-card {
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.insight-pill-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.insight-pill-icon.emerald {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+.insight-pill-icon.teal {
+  background: rgba(45, 212, 191, 0.15);
+  color: #2dd4bf;
+}
+
+.insight-pill-icon.orange {
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+}
+
+.insight-pill-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 2px 0;
+}
+
+.insight-pill-text {
+  font-size: 0.78rem;
+  color: var(--text-muted, #94a3b8);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ─── Recent Check-In History Log ─────────────────────────────────── */
+.single-habit-history-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.single-habit-history-table th {
+  text-align: left;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted, #94a3b8);
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.single-habit-history-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 0.85rem;
+  color: #cbd5e1;
+}
+
+.single-habit-history-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.history-status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.history-status-tag.completed {
+  background: rgba(16, 185, 129, 0.16);
+  color: #34d399;
+}
+
+.history-status-tag.missed {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+}
+
+/* ─── Chart Tooltip Overrides ─────────────────────────────────────── */
+.single-habit-chart-tooltip {
+  background: #091714;
+  border: 1px solid rgba(45, 212, 191, 0.35);
+  border-radius: 10px;
+  padding: 10px 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.75);
+}
+
+.single-habit-chart-tooltip .tooltip-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 4px;
+}
+
+.single-habit-chart-tooltip .tooltip-value {
+  font-size: 0.75rem;
+  color: #2dd4bf;
+  font-weight: 600;
+}
+
+/* ─── Clickable Card Hint in HabitCard ────────────────────────────── */
+.habit-card-container {
+  cursor: pointer;
+}
+
+.habit-analytics-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(45, 212, 191, 0.08);
+  border: 1px solid rgba(45, 212, 191, 0.2);
+  color: #2dd4bf;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  margin-left: auto;
+}
+
+.habit-analytics-chip:hover {
+  background: rgba(45, 212, 191, 0.2);
+  color: #ffffff;
+  border-color: rgba(45, 212, 191, 0.45);
+  transform: translateX(1px);
+}

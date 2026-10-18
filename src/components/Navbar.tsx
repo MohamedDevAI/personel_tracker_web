@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { Sparkles, Database, Bell, LayoutDashboard, Wallet, Target, Flame, StickyNote } from 'lucide-react';
 import type { BackendHealth } from '../types';
 import './Navbar.css';
@@ -10,6 +10,7 @@ interface NavbarProps {
 
 export default function Navbar({ backendStatus, activeRemindersCount = 0 }: NavbarProps) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <header className="glass-panel navbar-header">
@@ -71,7 +72,11 @@ export default function Navbar({ backendStatus, activeRemindersCount = 0 }: Navb
           <NavLink
             to="/life-os/habits"
             className={({ isActive }) =>
-              `app-switcher-btn ${isActive ? 'active-life-os' : ''}`
+              `app-switcher-btn ${
+                isActive || location.pathname.startsWith('/life-os/habits')
+                  ? 'active-life-os'
+                  : ''
+              }`
             }
           >
             <Flame size={15} />
