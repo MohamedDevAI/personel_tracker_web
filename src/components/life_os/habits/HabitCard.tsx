@@ -186,27 +186,27 @@ export default function HabitCard({
       {/* ─── Atomic Habits Core Modules ─────────────────────────────────── */}
 
       {/* 1. Habit Stack Anchor Cue (Law 1: Make it Obvious) */}
-      {habit.habitStack && (
+      {displayHabitStack && (
         <div className="habit-atomic-cue-box" title="Habit Stacking Anchor">
           <div className="habit-cue-icon">
             <Link2 size={13} />
           </div>
           <div className="habit-cue-content">
             <span className="habit-cue-label">Anchor:</span>
-            <span className="habit-cue-text">{habit.habitStack}</span>
+            <span className="habit-cue-text">{displayHabitStack}</span>
           </div>
         </div>
       )}
 
       {/* 2. The 2-Minute Gateway Rule (Law 3: Make it Easy) */}
-      {habit.twoMinuteRule && (
+      {displayTwoMinuteRule && (
         <div className="habit-atomic-easy-box" title="The 2-Minute Gateway Starter">
           <div className="habit-easy-icon">
             <Zap size={13} />
           </div>
           <div className="habit-easy-content">
             <span className="habit-easy-label">2-Min Starter:</span>
-            <span className="habit-easy-text">{habit.twoMinuteRule}</span>
+            <span className="habit-easy-text">{displayTwoMinuteRule}</span>
           </div>
         </div>
       )}
