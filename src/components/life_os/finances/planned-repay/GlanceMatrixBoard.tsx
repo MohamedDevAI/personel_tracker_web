@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useImperativeHandle, forwardRef } from 'react';
-import { CheckCircle2, Clock, Link2, CheckSquare, Trash2, AlertTriangle, Sparkles, Calendar } from 'lucide-react';
+import { CheckCircle2, Clock, Link2, CheckSquare, Trash2, AlertTriangle, Sparkles } from 'lucide-react';
 import type { PlannedRepayCreditItem, PlannedRepayCreditColumn, PlannedRepayCreditMatrix } from '../../../../types';
 import { NextMonthCheckInfo } from './useGlanceData';
 

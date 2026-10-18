@@ -66,6 +66,20 @@ export const api = {
     return true;
   },
 
+  updateHabit: async (habit: Partial<Habit> & { id: string }): Promise<Habit> => {
+    try {
+      const { data } = await apiClient.put<Habit>(`/habits/${habit.id}`, habit);
+      if (data) return data;
+    } catch (err: any) {
+      if (err?.response?.status === 405) {
+        const { data } = await apiClient.post<Habit>(`/habits/${habit.id}`, habit);
+        if (data) return data;
+      }
+      throw err;
+    }
+    return habit as Habit;
+  },
+
   // ── Goals ─────────────────────────────────────────────────────────────────
 
   getGoals: async (): Promise<Goal[]> => {

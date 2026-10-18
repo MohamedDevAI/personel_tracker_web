@@ -1,0 +1,181 @@
+import { Search, X, Sunrise, Sun, Moon, Sparkles, Filter } from 'lucide-react';
+import { HabitTimeOfDay } from '../../../interface/habit.interface';
+import { HABIT_CATEGORIES } from '../../../utils/constants';
+import './habits.css';
+
+export type HabitStatusFilter = 'ALL' | 'PENDING' | 'COMPLETED' | 'NEVER_MISS_TWICE';
+
+interface HabitsToolbarProps {
+  timeOfDayFilter: HabitTimeOfDay | 'ALL';
+  onChangeTimeOfDay: (filter: HabitTimeOfDay | 'ALL') => void;
+  categoryFilter: string;
+  onChangeCategory: (category: string) => void;
+  statusFilter: HabitStatusFilter;
+  onChangeStatus: (status: HabitStatusFilter) => void;
+  searchQuery: string;
+  onChangeSearch: (query: string) => void;
+  onClearFilters: () => void;
+  counts: {
+    all: number;
+    morning: number;
+    afternoon: number;
+    evening: number;
+    neverMissTwice: number;
+  };
+}
+
+export default function HabitsToolbar({
+  timeOfDayFilter,
+  onChangeTimeOfDay,
+  categoryFilter,
+  onChangeCategory,
+  statusFilter,
+  onChangeStatus,
+  searchQuery,
+  onChangeSearch,
+  onClearFilters,
+  counts,
+}: HabitsToolbarProps) {
+  const hasActiveFilters =
+    timeOfDayFilter !== 'ALL' ||
+    categoryFilter !== 'ALL' ||
+    statusFilter !== 'ALL' ||
+    searchQuery.trim().length > 0;
+
+  return (
+    <div className="habits-toolbar-container">
+      {/* 1. Time of Day Rituals Tabs */}
+      <div className="habits-ritual-tabs">
+        <button
+          type="button"
+          onClick={() => onChangeTimeOfDay('ALL')}
+          className={`habits-ritual-tab ${timeOfDayFilter === 'ALL' ? 'active' : ''}`}
+        >
+          <Sparkles size={15} />
+          <span>All Rituals</span>
+          <span className="habits-tab-count">{counts.all}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onChangeTimeOfDay('MORNING')}
+          className={`habits-ritual-tab ${timeOfDayFilter === 'MORNING' ? 'active' : ''}`}
+        >
+          <Sunrise size={15} className="ritual-icon morning" />
+          <span>Morning Ritual</span>
+          <span className="habits-tab-count">{counts.morning}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onChangeTimeOfDay('AFTERNOON')}
+          className={`habits-ritual-tab ${timeOfDayFilter === 'AFTERNOON' ? 'active' : ''}`}
+        >
+          <Sun size={15} className="ritual-icon afternoon" />
+          <span>Afternoon Focus</span>
+          <span className="habits-tab-count">{counts.afternoon}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onChangeTimeOfDay('EVENING')}
+          className={`habits-ritual-tab ${timeOfDayFilter === 'EVENING' ? 'active' : ''}`}
+        >
+          <Moon size={15} className="ritual-icon evening" />
+          <span>Evening Wind-down</span>
+          <span className="habits-tab-count">{counts.evening}</span>
+        </button>
+      </div>
+
+      {/* 2. Secondary Filter Bar: Search, Category & Status */}
+      <div className="habits-filter-row">
+        {/* Search */}
+        <div className="habits-search-box">
+          <Search size={15} className="habits-search-icon" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => onChangeSearch(e.target.value)}
+            placeholder="Search habits, identities, or anchor cues..."
+            className="habits-search-input"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => onChangeSearch('')}
+              className="habits-search-clear"
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
+
+        {/* Category Filter */}
+        <div className="habits-select-wrap">
+          <Filter size={14} className="habits-select-icon" />
+          <select
+            value={categoryFilter}
+            onChange={(e) => onChangeCategory(e.target.value)}
+            className="habits-category-select"
+          >
+            <option value="ALL">All Categories</option>
+            {HABIT_CATEGORIES.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Status Filter */}
+        <div className="habits-status-filters">
+          <button
+            type="button"
+            onClick={() => onChangeStatus('ALL')}
+            className={`habits-status-pill ${statusFilter === 'ALL' ? 'active' : ''}`}
+          >
+            All
+          </button>
+          <button
+            type="button"
+            onClick={() => onChangeStatus('PENDING')}
+            className={`habits-status-pill ${statusFilter === 'PENDING' ? 'active' : ''}`}
+          >
+            To-Do
+          </button>
+          <button
+            type="button"
+            onClick={() => onChangeStatus('COMPLETED')}
+            className={`habits-status-pill ${statusFilter === 'COMPLETED' ? 'active' : ''}`}
+          >
+            Completed
+          </button>
+          {counts.neverMissTwice > 0 && (
+            <button
+              type="button"
+              onClick={() => onChangeStatus('NEVER_MISS_TWICE')}
+              className={`habits-status-pill alert ${
+                statusFilter === 'NEVER_MISS_TWICE' ? 'active' : ''
+              }`}
+            >
+              ⚡ Comeback ({counts.neverMissTwice})
+            </button>
+          )}
+        </div>
+
+        {/* Reset button if any filter active */}
+        {hasActiveFilters && (
+          <button
+            type="button"
+            onClick={onClearFilters}
+            className="habits-clear-filters-btn"
+            title="Reset all filters"
+          >
+            <X size={13} />
+            <span>Clear</span>
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
