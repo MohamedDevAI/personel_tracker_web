@@ -483,71 +483,12 @@
   opacity: 0.9;
 }
 
-/* ─── Habits Toolbar & Ritual Filter Tabs ─────────────────────────── */
+/* ─── Habits Toolbar & Filter Row ─────────────────────────── */
 .habits-toolbar-container {
   display: flex;
   flex-direction: column;
   gap: 12px;
   width: 100%;
-}
-
-.habits-ritual-tabs {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  padding: 4px;
-  background: rgba(5, 12, 10, 0.75);
-  border: 1px solid rgba(20, 184, 166, 0.15);
-  border-radius: 12px;
-}
-
-.habits-ritual-tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 8px 14px;
-  border-radius: 8px;
-  background: transparent;
-  border: 1px solid transparent;
-  color: var(--text-secondary, #94a3b8);
-  font-size: 0.84rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.18s ease;
-  user-select: none;
-}
-
-.habits-ritual-tab:hover {
-  color: #ffffff;
-  background: rgba(20, 184, 166, 0.08);
-}
-
-.habits-ritual-tab.active {
-  background: rgba(20, 184, 166, 0.18);
-  border-color: rgba(45, 212, 191, 0.4);
-  color: #2dd4bf;
-  box-shadow: 0 0 14px rgba(45, 212, 191, 0.18);
-}
-
-.habits-tab-count {
-  font-size: 0.72rem;
-  padding: 1px 6px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
-}
-
-.ritual-icon.morning {
-  color: #f59e0b;
-}
-
-.ritual-icon.afternoon {
-  color: #38bdf8;
-}
-
-.ritual-icon.evening {
-  color: #a78bfa;
 }
 
 /* Secondary Filter Row */
@@ -765,39 +706,6 @@
   white-space: nowrap;
 }
 
-.habit-tod-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.68rem;
-  font-weight: 600;
-  padding: 2px 7px;
-  border-radius: 6px;
-}
-
-.habit-tod-badge.morning {
-  background: rgba(245, 158, 11, 0.12);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.25);
-}
-
-.habit-tod-badge.afternoon {
-  background: rgba(56, 189, 248, 0.12);
-  color: #38bdf8;
-  border: 1px solid rgba(56, 189, 248, 0.25);
-}
-
-.habit-tod-badge.evening {
-  background: rgba(167, 139, 250, 0.12);
-  color: #c4b5fd;
-  border: 1px solid rgba(167, 139, 250, 0.25);
-}
-
-.habit-tod-badge.anytime {
-  background: rgba(148, 163, 184, 0.1);
-  color: #94a3b8;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-}
 
 /* Card Menu */
 .habit-menu-wrapper {
@@ -1421,49 +1329,6 @@
   margin: 1px 0 0 0;
 }
 
-.habit-tod-selector {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-}
-
-.habit-tod-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 6px;
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(20, 184, 166, 0.16);
-  color: var(--text-secondary, #cbd5e1);
-  cursor: pointer;
-  transition: all 0.18s ease;
-}
-
-.habit-tod-card:hover {
-  background: rgba(20, 184, 166, 0.1);
-  border-color: rgba(45, 212, 191, 0.3);
-  color: #ffffff;
-}
-
-.habit-tod-card.active {
-  background: rgba(45, 212, 191, 0.16);
-  border-color: #2dd4bf;
-  color: #ffffff;
-  box-shadow: 0 0 10px rgba(45, 212, 191, 0.2);
-}
-
-.habit-tod-card-title {
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.habit-tod-card-sub {
-  font-size: 0.64rem;
-  color: var(--text-muted, #94a3b8);
-  margin-top: 2px;
-}
 
 .habit-modal-footer {
   display: flex;
@@ -1504,9 +1369,6 @@
     grid-template-columns: 1fr;
   }
   .atomic-kpi-container {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .habit-tod-selector {
     grid-template-columns: repeat(2, 1fr);
   }
 }

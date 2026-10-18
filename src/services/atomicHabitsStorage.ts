@@ -8,52 +8,63 @@
  * 5. Multi-date completion tracking and "Never Miss Twice" protocol
  */
 
-import { Habit, HabitTimeOfDay } from '../interface/habit.interface';
+import { Habit } from '../interface/habit.interface';
 import { getLocalDateISO } from '../utils/dateHelpers';
 
 export interface HabitAtomicMeta {
   identity?: string;
   habitStack?: string;
   twoMinuteRule?: string;
-  timeOfDay?: HabitTimeOfDay;
   completedDates?: string[];
 }
 
-const STORAGE_KEY_META = 'personel_tracker_atomic_habits_meta_v1';
-const STORAGE_KEY_OFFLINE_HABITS = 'personel_tracker_offline_habits_v1';
+const STORAGE_KEY_META = 'personel_tracker_atomic_habits_meta_v3';
+const STORAGE_KEY_OFFLINE_HABITS = 'personel_tracker_offline_habits_v3';
+const STORAGE_KEY_DELETED = 'personel_tracker_deleted_habit_ids_v3';
 
-// Starter Atomic Habits to populate if no habits exist yet
+// Starter Atomic Habits with Coding & English Practice
 export const STARTER_ATOMIC_HABITS: Habit[] = [
   {
-    id: 'habit-starter-1',
+    id: 'habit-starter-code',
+    title: 'Daily Coding & Problem Solving',
+    category: 'Productivity',
+    streak: 12,
+    targetFrequency: 'Daily',
+    completedToday: true,
+    history: [1, 1, 1, 1, 1, 1, 1],
+    identity: 'Master Software Engineer',
+    habitStack: 'After I open my workstation and sip my coffee, I will write code for 45 minutes',
+    twoMinuteRule: 'Open IDE or LeetCode and write 1 function skeleton',
+    completedDates: [],
+  },
+  {
+    id: 'habit-starter-english',
+    title: 'English Speaking & Fluency Practice',
+    category: 'Learning',
+    streak: 7,
+    targetFrequency: 'Daily',
+    completedToday: false,
+    history: [1, 1, 1, 1, 1, 1, 0],
+    identity: 'Fluent English Communicator',
+    habitStack: 'After I finish lunch, I will practice speaking and shadow an English podcast for 15 mins',
+    twoMinuteRule: 'Read 1 paragraph out loud with clear pronunciation',
+    completedDates: [],
+  },
+  {
+    id: 'habit-starter-health',
     title: 'Hydrate & Morning Sunlight',
     category: 'Health',
     streak: 8,
     targetFrequency: 'Daily',
     completedToday: true,
     history: [1, 1, 1, 1, 1, 1, 1],
-    identity: 'Healthy & Energized Person',
+    identity: 'Healthy & Vital Person',
     habitStack: 'After I get out of bed, I will drink 500ml water and step outside for 5 mins',
     twoMinuteRule: 'Drink 1 full glass of water immediately',
-    timeOfDay: 'MORNING',
     completedDates: [],
   },
   {
-    id: 'habit-starter-2',
-    title: 'Deep Work Sprint (90m)',
-    category: 'Productivity',
-    streak: 15,
-    targetFrequency: 'Daily',
-    completedToday: false,
-    history: [1, 1, 1, 1, 1, 1, 0],
-    identity: 'Deeply Focused Builder',
-    habitStack: 'After I sit at my desk and silence my phone, I will launch a 50m focus timer',
-    twoMinuteRule: 'Open my code editor and type 1 line',
-    timeOfDay: 'MORNING',
-    completedDates: [],
-  },
-  {
-    id: 'habit-starter-3',
+    id: 'habit-starter-fitness',
     title: 'Movement & Bodyweight Workout',
     category: 'Fitness',
     streak: 5,
@@ -61,37 +72,34 @@ export const STARTER_ATOMIC_HABITS: Habit[] = [
     completedToday: false,
     history: [1, 1, 1, 0, 1, 1, 0],
     identity: 'Resilient & Strong Athlete',
-    habitStack: 'After I shut my laptop at 5 PM, I will change into workout gear',
+    habitStack: 'After I finish my work session, I will change into workout gear',
     twoMinuteRule: 'Put on training shoes and do 5 pushups',
-    timeOfDay: 'AFTERNOON',
     completedDates: [],
   },
   {
-    id: 'habit-starter-4',
+    id: 'habit-starter-reading',
     title: 'Read 10 Pages of Non-Fiction',
     category: 'Learning',
-    streak: 12,
+    streak: 14,
     targetFrequency: 'Daily',
     completedToday: false,
     history: [1, 1, 1, 1, 1, 1, 0],
     identity: 'Lifelong Learner & Thinker',
-    habitStack: 'After I finish dinner, I will sit on the couch with a physical book',
+    habitStack: 'After I sit on the couch in the evening, I will open my physical book',
     twoMinuteRule: 'Read just 1 page',
-    timeOfDay: 'EVENING',
     completedDates: [],
   },
   {
-    id: 'habit-starter-5',
+    id: 'habit-starter-mindset',
     title: 'Daily Reflection & Gratitude',
     category: 'Mindset',
     streak: 6,
     targetFrequency: 'Daily',
     completedToday: false,
     history: [1, 1, 1, 1, 1, 0, 0],
-    identity: 'Mindful & Intentional Stoic',
-    habitStack: 'After I plug my phone to charge across the room, I will open my journal',
+    identity: 'Mindful & Grounded Stoic',
+    habitStack: 'After I plug my phone to charge, I will write down 3 wins for the day',
     twoMinuteRule: 'Write down 1 win from today',
-    timeOfDay: 'EVENING',
     completedDates: [],
   },
 ];
@@ -111,6 +119,25 @@ class AtomicHabitsStorageService {
       localStorage.setItem(STORAGE_KEY_META, JSON.stringify(map));
     } catch (e) {
       console.warn('Failed to save atomic habit metadata:', e);
+    }
+  }
+
+  private getDeletedIds(): Set<string> {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_DELETED);
+      return raw ? new Set(JSON.parse(raw)) : new Set();
+    } catch {
+      return new Set();
+    }
+  }
+
+  private saveDeletedId(id: string): void {
+    try {
+      const set = this.getDeletedIds();
+      set.add(id);
+      localStorage.setItem(STORAGE_KEY_DELETED, JSON.stringify(Array.from(set)));
+    } catch {
+      // ignore
     }
   }
 
@@ -156,7 +183,18 @@ class AtomicHabitsStorageService {
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayISO = getLocalDateISO(yesterday);
 
-    const baseList = habits.length > 0 ? habits : this.getOfflineHabits();
+    const deletedIds = this.getDeletedIds();
+    const offlineList = this.getOfflineHabits().filter((h) => !deletedIds.has(h.id));
+
+    // Existing titles from backend (case-insensitive)
+    const existingTitles = new Set(habits.map((h) => h.title.trim().toLowerCase()));
+
+    // Merge offline & starter habits (e.g. Coding & English) that aren't already present in backend
+    const extraHabits = offlineList.filter(
+      (h) => !existingTitles.has(h.title.trim().toLowerCase()) && !deletedIds.has(h.id)
+    );
+
+    const baseList = [...habits, ...extraHabits];
 
     return baseList.map((habit) => {
       const meta = metaMap[habit.id] || {};
@@ -180,7 +218,6 @@ class AtomicHabitsStorageService {
         identity: meta.identity || habit.identity || this.deriveDefaultIdentity(habit.category),
         habitStack: meta.habitStack || habit.habitStack || '',
         twoMinuteRule: meta.twoMinuteRule || habit.twoMinuteRule || '',
-        timeOfDay: meta.timeOfDay || habit.timeOfDay || 'ANYTIME',
         completedDates,
         completedToday: completedDates.includes(todayISO) || habit.completedToday,
         isCompletedOnSelectedDate: isCompletedOnRefDate,
@@ -283,7 +320,6 @@ class AtomicHabitsStorageService {
       identity: newHabit.identity,
       habitStack: newHabit.habitStack,
       twoMinuteRule: newHabit.twoMinuteRule,
-      timeOfDay: newHabit.timeOfDay,
       completedDates: newHabit.completedDates || [],
     };
     this.saveMetaMap(metaMap);
@@ -298,6 +334,7 @@ class AtomicHabitsStorageService {
    * Delete a habit locally
    */
   public deleteHabitLocally(id: string): Habit[] {
+    this.saveDeletedId(id);
     const metaMap = this.getMetaMap();
     delete metaMap[id];
     this.saveMetaMap(metaMap);
@@ -318,9 +355,9 @@ class AtomicHabitsStorageService {
       case 'fitness':
         return 'Resilient & Strong Athlete';
       case 'productivity':
-        return 'Focused & High-Impact Producer';
+        return 'Master Software Engineer';
       case 'learning':
-        return 'Curious & Lifelong Learner';
+        return 'Fluent English Communicator';
       case 'mindset':
         return 'Mindful & Grounded Stoic';
       case 'finance':

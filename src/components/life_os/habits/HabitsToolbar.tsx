@@ -1,13 +1,10 @@
-import { Search, X, Sunrise, Sun, Moon, Sparkles, Filter } from 'lucide-react';
-import { HabitTimeOfDay } from '../../../interface/habit.interface';
+import { Search, X, Filter } from 'lucide-react';
 import { HABIT_CATEGORIES } from '../../../utils/constants';
 import './habits.css';
 
 export type HabitStatusFilter = 'ALL' | 'PENDING' | 'COMPLETED' | 'NEVER_MISS_TWICE';
 
 interface HabitsToolbarProps {
-  timeOfDayFilter: HabitTimeOfDay | 'ALL';
-  onChangeTimeOfDay: (filter: HabitTimeOfDay | 'ALL') => void;
   categoryFilter: string;
   onChangeCategory: (category: string) => void;
   statusFilter: HabitStatusFilter;
@@ -17,16 +14,11 @@ interface HabitsToolbarProps {
   onClearFilters: () => void;
   counts: {
     all: number;
-    morning: number;
-    afternoon: number;
-    evening: number;
     neverMissTwice: number;
   };
 }
 
 export default function HabitsToolbar({
-  timeOfDayFilter,
-  onChangeTimeOfDay,
   categoryFilter,
   onChangeCategory,
   statusFilter,
@@ -37,57 +29,13 @@ export default function HabitsToolbar({
   counts,
 }: HabitsToolbarProps) {
   const hasActiveFilters =
-    timeOfDayFilter !== 'ALL' ||
     categoryFilter !== 'ALL' ||
     statusFilter !== 'ALL' ||
     searchQuery.trim().length > 0;
 
   return (
     <div className="habits-toolbar-container">
-      {/* 1. Time of Day Rituals Tabs */}
-      <div className="habits-ritual-tabs">
-        <button
-          type="button"
-          onClick={() => onChangeTimeOfDay('ALL')}
-          className={`habits-ritual-tab ${timeOfDayFilter === 'ALL' ? 'active' : ''}`}
-        >
-          <Sparkles size={15} />
-          <span>All Rituals</span>
-          <span className="habits-tab-count">{counts.all}</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => onChangeTimeOfDay('MORNING')}
-          className={`habits-ritual-tab ${timeOfDayFilter === 'MORNING' ? 'active' : ''}`}
-        >
-          <Sunrise size={15} className="ritual-icon morning" />
-          <span>Morning Ritual</span>
-          <span className="habits-tab-count">{counts.morning}</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => onChangeTimeOfDay('AFTERNOON')}
-          className={`habits-ritual-tab ${timeOfDayFilter === 'AFTERNOON' ? 'active' : ''}`}
-        >
-          <Sun size={15} className="ritual-icon afternoon" />
-          <span>Afternoon Focus</span>
-          <span className="habits-tab-count">{counts.afternoon}</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => onChangeTimeOfDay('EVENING')}
-          className={`habits-ritual-tab ${timeOfDayFilter === 'EVENING' ? 'active' : ''}`}
-        >
-          <Moon size={15} className="ritual-icon evening" />
-          <span>Evening Wind-down</span>
-          <span className="habits-tab-count">{counts.evening}</span>
-        </button>
-      </div>
-
-      {/* 2. Secondary Filter Bar: Search, Category & Status */}
+      {/* Filter Bar: Search, Category & Status */}
       <div className="habits-filter-row">
         {/* Search */}
         <div className="habits-search-box">
@@ -134,7 +82,7 @@ export default function HabitsToolbar({
             onClick={() => onChangeStatus('ALL')}
             className={`habits-status-pill ${statusFilter === 'ALL' ? 'active' : ''}`}
           >
-            All
+            All ({counts.all})
           </button>
           <button
             type="button"

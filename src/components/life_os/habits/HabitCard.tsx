@@ -7,10 +7,6 @@ import {
   Trash2,
   Link2,
   Zap,
-  Sunrise,
-  Sun,
-  Moon,
-  Clock,
   ShieldAlert,
 } from 'lucide-react';
 import { Habit } from '../../../interface/habit.interface';
@@ -40,40 +36,6 @@ export default function HabitCard({
     habit.isCompletedOnSelectedDate !== undefined
       ? habit.isCompletedOnSelectedDate
       : habit.completedToday;
-
-  // Time of Day Icon & Label
-  const renderTimeOfDay = () => {
-    switch (habit.timeOfDay) {
-      case 'MORNING':
-        return (
-          <span className="habit-tod-badge morning" title="Morning Ritual">
-            <Sunrise size={12} />
-            <span>Morning</span>
-          </span>
-        );
-      case 'AFTERNOON':
-        return (
-          <span className="habit-tod-badge afternoon" title="Afternoon Focus">
-            <Sun size={12} />
-            <span>Afternoon</span>
-          </span>
-        );
-      case 'EVENING':
-        return (
-          <span className="habit-tod-badge evening" title="Evening Wind-down">
-            <Moon size={12} />
-            <span>Evening</span>
-          </span>
-        );
-      default:
-        return (
-          <span className="habit-tod-badge anytime" title="Anytime Habit">
-            <Clock size={12} />
-            <span>Anytime</span>
-          </span>
-        );
-    }
-  };
 
   // Generate 7-day mini consistency dots from habit history
   const miniHistory = React.useMemo(() => {
@@ -109,9 +71,6 @@ export default function HabitCard({
               ✨ {habit.identity}
             </span>
           )}
-
-          {/* Time of Day */}
-          {renderTimeOfDay()}
         </div>
 
         {/* 3-dots Menu */}

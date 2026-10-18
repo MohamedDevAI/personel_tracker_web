@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Sparkles, Link2, Zap, ShieldCheck, Tag } from 'lucide-react';
-import { Habit, HabitTimeOfDay } from '../../../interface/habit.interface';
+import { Habit } from '../../../interface/habit.interface';
 import { HABIT_CATEGORIES } from '../../../utils/constants';
 import './habits.css';
 
@@ -12,8 +12,10 @@ interface HabitModalProps {
 }
 
 const IDENTITY_SUGGESTIONS = [
-  'Healthy & Vital Person',
+  'Master Software Engineer',
+  'Fluent English Communicator',
   'Deeply Focused Builder',
+  'Healthy & Vital Person',
   'Resilient & Strong Athlete',
   'Lifelong Learner & Thinker',
   'Mindful & Grounded Stoic',
@@ -31,7 +33,6 @@ export default function HabitModal({
   const [identity, setIdentity] = useState('');
   const [habitStack, setHabitStack] = useState('');
   const [twoMinuteRule, setTwoMinuteRule] = useState('');
-  const [timeOfDay, setTimeOfDay] = useState<HabitTimeOfDay>('MORNING');
   const [targetFrequency, setTargetFrequency] = useState('Daily');
 
   useEffect(() => {
@@ -41,7 +42,6 @@ export default function HabitModal({
       setIdentity(editingHabit.identity || '');
       setHabitStack(editingHabit.habitStack || '');
       setTwoMinuteRule(editingHabit.twoMinuteRule || '');
-      setTimeOfDay(editingHabit.timeOfDay || 'MORNING');
       setTargetFrequency(editingHabit.targetFrequency || 'Daily');
     } else {
       setTitle('');
@@ -49,7 +49,6 @@ export default function HabitModal({
       setIdentity('');
       setHabitStack('');
       setTwoMinuteRule('');
-      setTimeOfDay('MORNING');
       setTargetFrequency('Daily');
     }
   }, [editingHabit, isOpen]);
@@ -67,7 +66,6 @@ export default function HabitModal({
       identity: identity.trim() || undefined,
       habitStack: habitStack.trim() || undefined,
       twoMinuteRule: twoMinuteRule.trim() || undefined,
-      timeOfDay,
       targetFrequency,
     });
 
@@ -114,7 +112,7 @@ export default function HabitModal({
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Read 10 Pages of Non-Fiction, 50m Deep Work, 100 Pushups"
+              placeholder="e.g. Daily Coding & Problem Solving, English Fluency Practice"
               className="habit-form-input"
               autoFocus
             />
@@ -132,10 +130,10 @@ export default function HabitModal({
               type="text"
               value={identity}
               onChange={(e) => setIdentity(e.target.value)}
-              placeholder="e.g. Focused Builder, Healthy Athlete, Lifelong Thinker"
+              placeholder="e.g. Master Software Engineer, Fluent English Communicator"
               className="habit-form-input"
             />
-            {/* Quick Suggestion Chips */}
+            {/* Quick Suggestion Chips with Coding & English */}
             <div className="habit-identity-chips">
               <span className="chips-label">Suggestions:</span>
               {IDENTITY_SUGGESTIONS.map((sug) => (
@@ -205,7 +203,7 @@ export default function HabitModal({
               type="text"
               value={habitStack}
               onChange={(e) => setHabitStack(e.target.value)}
-              placeholder="e.g. After I pour my morning coffee, I will open my notebook..."
+              placeholder="e.g. After I finish lunch, I will practice speaking English for 15 mins..."
               className="habit-form-input"
             />
           </div>
@@ -229,34 +227,9 @@ export default function HabitModal({
               type="text"
               value={twoMinuteRule}
               onChange={(e) => setTwoMinuteRule(e.target.value)}
-              placeholder="e.g. Read just 1 page, put on gym shoes, do 2 pushups..."
+              placeholder="e.g. Read 1 English paragraph out loud, or write 1 line of code..."
               className="habit-form-input"
             />
-          </div>
-
-          {/* 6. Time of Day Ritual */}
-          <div className="habit-form-group">
-            <label className="habit-form-label">Ritual Time of Day</label>
-            <div className="habit-tod-selector">
-              {(
-                [
-                  { id: 'MORNING', label: '🌅 Morning', sub: 'Early Momentum' },
-                  { id: 'AFTERNOON', label: '☀️ Afternoon', sub: 'Peak Focus' },
-                  { id: 'EVENING', label: '🌙 Evening', sub: 'Wind-down' },
-                  { id: 'ANYTIME', label: '⏱️ Anytime', sub: 'Flexible' },
-                ] as const
-              ).map((tod) => (
-                <button
-                  key={tod.id}
-                  type="button"
-                  onClick={() => setTimeOfDay(tod.id)}
-                  className={`habit-tod-card ${timeOfDay === tod.id ? 'active' : ''}`}
-                >
-                  <span className="habit-tod-card-title">{tod.label}</span>
-                  <span className="habit-tod-card-sub">{tod.sub}</span>
-                </button>
-              ))}
-            </div>
           </div>
 
           {/* Modal Footer */}

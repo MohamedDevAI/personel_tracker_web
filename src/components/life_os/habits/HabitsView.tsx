@@ -13,7 +13,7 @@ import { useHabitsQuery } from '../../../hooks/useHabitsQuery';
 import { QUERY_KEYS } from '../../../hooks/queryKeys';
 import { api } from '../../../services/api';
 import { atomicHabitsStorage } from '../../../services/atomicHabitsStorage';
-import { Habit, HabitTimeOfDay } from '../../../interface/habit.interface';
+import { Habit } from '../../../interface/habit.interface';
 import { getLocalDateISO } from '../../../utils/dateHelpers';
 import './habits.css';
 
@@ -28,7 +28,6 @@ export default function HabitsView() {
   const [viewMonth, setViewMonth] = useState<number>(today.getMonth());
 
   // Filter states
-  const [timeOfDayFilter, setTimeOfDayFilter] = useState<HabitTimeOfDay | 'ALL'>('ALL');
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
   const [statusFilter, setStatusFilter] = useState<HabitStatusFilter>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -149,7 +148,6 @@ export default function HabitsView() {
         identity: updatedData.identity,
         habitStack: updatedData.habitStack,
         twoMinuteRule: updatedData.twoMinuteRule,
-        timeOfDay: updatedData.timeOfDay,
       });
 
       try {
@@ -185,26 +183,18 @@ export default function HabitsView() {
   const counts = useMemo(() => {
     return {
       all: enrichedHabits.length,
-      morning: enrichedHabits.filter((h) => h.timeOfDay === 'MORNING').length,
-      afternoon: enrichedHabits.filter((h) => h.timeOfDay === 'AFTERNOON').length,
-      evening: enrichedHabits.filter((h) => h.timeOfDay === 'EVENING').length,
       neverMissTwice: enrichedHabits.filter((h) => h.missedYesterday).length,
     };
   }, [enrichedHabits]);
 
   const filteredHabits = useMemo(() => {
     return enrichedHabits.filter((habit) => {
-      // 1. Time of Day Filter
-      if (timeOfDayFilter !== 'ALL' && habit.timeOfDay !== timeOfDayFilter) {
-        return false;
-      }
-
-      // 2. Category Filter
+      // 1. Category Filter
       if (categoryFilter !== 'ALL' && habit.category !== categoryFilter) {
         return false;
       }
 
-      // 3. Status Filter
+      // 2. Status Filter
       const isDone =
         habit.isCompletedOnSelectedDate !== undefined
           ? habit.isCompletedOnSelectedDate
@@ -214,7 +204,7 @@ export default function HabitsView() {
       if (statusFilter === 'PENDING' && isDone) return false;
       if (statusFilter === 'NEVER_MISS_TWICE' && !habit.missedYesterday) return false;
 
-      // 4. Search Query
+      // 3. Search Query
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchesTitle = habit.title.toLowerCase().includes(q);
@@ -228,7 +218,7 @@ export default function HabitsView() {
 
       return true;
     });
-  }, [enrichedHabits, timeOfDayFilter, categoryFilter, statusFilter, searchQuery]);
+  }, [enrichedHabits, categoryFilter, statusFilter, searchQuery]);
 
   // ─── Handlers ──────────────────────────────────────────────────────────────
 
@@ -279,7 +269,6 @@ export default function HabitsView() {
   }, [deleteConfirm, deleteMutation]);
 
   const handleClearFilters = useCallback(() => {
-    setTimeOfDayFilter('ALL');
     setCategoryFilter('ALL');
     setStatusFilter('ALL');
     setSearchQuery('');
@@ -287,7 +276,6 @@ export default function HabitsView() {
 
   const handleFilterNeverMissTwice = useCallback(() => {
     setStatusFilter('NEVER_MISS_TWICE');
-    setTimeOfDayFilter('ALL');
   }, []);
 
   const isToday = selectedDate === todayISO;
@@ -313,10 +301,8 @@ export default function HabitsView() {
         onFilterNeverMissTwice={handleFilterNeverMissTwice}
       />
 
-      {/* 3. Toolbar: Time-of-day Ritual tabs, Search, Category & Status */}
+      {/* 3. Toolbar: Search, Category & Status Filters */}
       <HabitsToolbar
-        timeOfDayFilter={timeOfDayFilter}
-        onChangeTimeOfDay={setTimeOfDayFilter}
         categoryFilter={categoryFilter}
         onChangeCategory={setCategoryFilter}
         statusFilter={statusFilter}
@@ -349,12 +335,12 @@ export default function HabitsView() {
           </div>
           <h3 className="habits-empty-title">No Habits Found</h3>
           <p className="habits-empty-desc">
-            {searchQuery || categoryFilter !== 'ALL' || timeOfDayFilter !== 'ALL' || statusFilter !== 'ALL'
+            {searchQuery || categoryFilter !== 'ALL' || statusFilter !== 'ALL'
               ? 'No habits match your active filters. Try resetting them or search for something else.'
               : 'Start your habit journey by designing your first system based on the 4 Laws of Behavior Change.'}
           </p>
           <div style={{ display: 'flex', gap: '10px' }}>
-            {(searchQuery || categoryFilter !== 'ALL' || timeOfDayFilter !== 'ALL' || statusFilter !== 'ALL') && (
+            {(searchQuery || categoryFilter !== 'ALL' || statusFilter !== 'ALL') && (
               <button
                 type="button"
                 onClick={handleClearFilters}

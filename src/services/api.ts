@@ -56,7 +56,7 @@ export const api = {
     return data;
   },
 
-  createHabit: async (habit: Pick<Habit, 'title' | 'category' | 'targetFrequency'>): Promise<Habit> => {
+  createHabit: async (habit: Partial<Habit>): Promise<Habit> => {
     const { data } = await apiClient.post<Habit>('/habits', habit);
     return data;
   },
