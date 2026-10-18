@@ -12,7 +12,6 @@ import { useDeleteConfirmation } from '../../../hooks/useDeleteConfirmation';
 import { useHabitsQuery } from '../../../hooks/useHabitsQuery';
 import { QUERY_KEYS } from '../../../hooks/queryKeys';
 import { api } from '../../../services/api';
-import { atomicHabitsStorage } from '../../../services/atomicHabitsStorage';
 import { Habit } from '../../../interface/habit.interface';
 import { getLocalDateISO } from '../../../utils/dateHelpers';
 import './habits.css';
@@ -39,52 +38,27 @@ export default function HabitsView() {
   // Delete confirmation hook
   const deleteConfirm = useDeleteConfirmation<string>();
 
-  // Fetch habits from query cache / API
-  const { data: rawHabits = [] } = useHabitsQuery();
+  // Fetch habits directly from the backend API
+  const { data: habits = [] } = useHabitsQuery();
 
-  // Enrich habits with Atomic Habits metadata & completion status for selected date
-  const enrichedHabits = useMemo(() => {
-    return atomicHabitsStorage.enrichHabits(rawHabits, selectedDate);
-  }, [rawHabits, selectedDate]);
-
-  // Daily completion counts for the top date strip (mapping all completed dates)
+  // Daily completion counts for the top date strip (mapping today's active completions)
   const dailyCompletionCounts = useMemo<Record<string, number>>(() => {
     const counts: Record<string, number> = {};
-    for (const habit of enrichedHabits) {
-      const dates = habit.completedDates || [];
-      for (const d of dates) {
-        counts[d] = (counts[d] || 0) + 1;
-      }
-      // If completedToday is marked, ensure today has it counted
-      if (habit.completedToday && !dates.includes(todayISO)) {
-        counts[todayISO] = (counts[todayISO] || 0) + 1;
-      }
+    if (habits.length > 0) {
+      counts[todayISO] = habits.filter((h) => h.completedToday).length;
     }
     return counts;
-  }, [enrichedHabits, todayISO]);
+  }, [habits, todayISO]);
 
   // ─── Mutations ─────────────────────────────────────────────────────────────
 
-  // Toggle habit completion (optimistic update with confetti on complete)
+  // Toggle habit completion directly via backend API
   const toggleMutation = useMutation({
-    mutationFn: async ({ id, wasCompleted }: { id: string; wasCompleted: boolean }) => {
-      // 1. Update local multi-date completion tracking
-      atomicHabitsStorage.toggleDateCompletion(id, selectedDate, enrichedHabits);
-
-      // 2. If it's today, also sync with backend API
-      if (selectedDate === todayISO) {
-        try {
-          await api.toggleHabit(id);
-        } catch {
-          // If backend is offline, local storage already persisted it
-        }
-      }
-      return { id, wasCompleted };
-    },
-    onSuccess: ({ wasCompleted }) => {
+    mutationFn: ({ id }: { id: string; wasCompleted: boolean }) => api.toggleHabit(id),
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.HABITS });
       // Trigger confetti reward if toggled to completed (Law 4: Make it Satisfying)
-      if (!wasCompleted) {
+      if (!variables.wasCompleted) {
         confetti({
           particleCount: 50,
           spread: 65,
@@ -93,88 +67,45 @@ export default function HabitsView() {
         });
       }
     },
-    onError: (err) => {
-      console.warn('Toggle habit warning:', err);
+    onError: (err: any) => {
+      console.error('Failed to toggle habit:', err);
+      alert('Failed to toggle habit: ' + (err.message || 'Unknown error'));
     },
   });
 
-  // Create habit mutation
+  // Create habit mutation directly via backend API
   const createMutation = useMutation({
-    mutationFn: async (newHabitData: Partial<Habit>) => {
-      let createdHabit: Habit;
-      const basePayload = {
-        title: newHabitData.title!,
-        category: newHabitData.category || 'Productivity',
-        targetFrequency: newHabitData.targetFrequency || 'Daily',
-      };
-
-      try {
-        createdHabit = await api.createHabit(basePayload);
-      } catch {
-        // Fallback offline habit creation
-        createdHabit = {
-          id: `habit-${Date.now()}`,
-          ...basePayload,
-          streak: 0,
-          completedToday: false,
-          history: [0, 0, 0, 0, 0, 0, 0],
-        };
-      }
-
-      // Merge atomic metadata
-      const fullHabit: Habit = {
-        ...createdHabit,
-        identity: newHabitData.identity,
-        habitStack: newHabitData.habitStack,
-        twoMinuteRule: newHabitData.twoMinuteRule,
-        timeOfDay: newHabitData.timeOfDay || 'MORNING',
-        completedDates: [],
-      };
-
-      atomicHabitsStorage.addHabitLocally(fullHabit);
-      return fullHabit;
-    },
+    mutationFn: (newHabitData: Partial<Habit>) => api.createHabit(newHabitData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.HABITS });
     },
+    onError: (err: any) => {
+      console.error('Failed to create habit:', err);
+      alert('Failed to create habit: ' + (err.message || 'Unknown error'));
+    },
   });
 
-  // Update habit mutation
+  // Update habit mutation directly via backend API
   const updateMutation = useMutation({
-    mutationFn: async (updatedData: Partial<Habit>) => {
-      if (!updatedData.id) return;
-      // Save atomic metadata locally
-      atomicHabitsStorage.saveHabitMeta(updatedData.id, {
-        identity: updatedData.identity,
-        habitStack: updatedData.habitStack,
-        twoMinuteRule: updatedData.twoMinuteRule,
-      });
-
-      try {
-        await api.updateHabit(updatedData as Habit);
-      } catch {
-        // Handled via local storage
-      }
-      return updatedData;
-    },
+    mutationFn: (updatedData: Partial<Habit>) => api.updateHabit(updatedData as Habit),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.HABITS });
+    },
+    onError: (err: any) => {
+      console.error('Failed to update habit:', err);
+      alert('Failed to update habit: ' + (err.message || 'Unknown error'));
     },
   });
 
-  // Delete habit mutation
+  // Delete habit mutation directly via backend API
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      atomicHabitsStorage.deleteHabitLocally(id);
-      try {
-        await api.deleteHabit(id);
-      } catch {
-        // Handled via local storage
-      }
-      return id;
-    },
+    mutationFn: (id: string) => api.deleteHabit(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.HABITS });
+    },
+    onError: (err: any) => {
+      console.error('Failed to delete habit:', err);
+      alert('Failed to delete habit: ' + (err.message || 'Unknown error'));
     },
   });
 
@@ -182,23 +113,20 @@ export default function HabitsView() {
 
   const counts = useMemo(() => {
     return {
-      all: enrichedHabits.length,
-      neverMissTwice: enrichedHabits.filter((h) => h.missedYesterday).length,
+      all: habits.length,
+      neverMissTwice: habits.filter((h) => h.missedYesterday).length,
     };
-  }, [enrichedHabits]);
+  }, [habits]);
 
   const filteredHabits = useMemo(() => {
-    return enrichedHabits.filter((habit) => {
+    return habits.filter((habit) => {
       // 1. Category Filter
       if (categoryFilter !== 'ALL' && habit.category !== categoryFilter) {
         return false;
       }
 
       // 2. Status Filter
-      const isDone =
-        habit.isCompletedOnSelectedDate !== undefined
-          ? habit.isCompletedOnSelectedDate
-          : habit.completedToday;
+      const isDone = habit.completedToday;
 
       if (statusFilter === 'COMPLETED' && !isDone) return false;
       if (statusFilter === 'PENDING' && isDone) return false;
@@ -207,7 +135,7 @@ export default function HabitsView() {
       // 3. Search Query
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
-        const matchesTitle = habit.title.toLowerCase().includes(q);
+        const matchesTitle = (habit.title || '').toLowerCase().includes(q);
         const matchesIdentity = (habit.identity || '').toLowerCase().includes(q);
         const matchesStack = (habit.habitStack || '').toLowerCase().includes(q);
         const matchesCat = (habit.category || '').toLowerCase().includes(q);
@@ -218,7 +146,7 @@ export default function HabitsView() {
 
       return true;
     });
-  }, [enrichedHabits, categoryFilter, statusFilter, searchQuery]);
+  }, [habits, categoryFilter, statusFilter, searchQuery]);
 
   // ─── Handlers ──────────────────────────────────────────────────────────────
 
@@ -294,7 +222,7 @@ export default function HabitsView() {
 
       {/* 2. Atomic Habits KPI & Momentum Bar */}
       <AtomicHabitsKpiBar
-        habits={enrichedHabits}
+        habits={habits}
         selectedDate={selectedDate}
         isToday={isToday}
         onOpenAddModal={handleOpenAddModal}
@@ -337,7 +265,7 @@ export default function HabitsView() {
           <p className="habits-empty-desc">
             {searchQuery || categoryFilter !== 'ALL' || statusFilter !== 'ALL'
               ? 'No habits match your active filters. Try resetting them or search for something else.'
-              : 'Start your habit journey by designing your first system based on the 4 Laws of Behavior Change.'}
+              : 'No habits in your database yet. Click below to create your first habit.'}
           </p>
           <div style={{ display: 'flex', gap: '10px' }}>
             {(searchQuery || categoryFilter !== 'ALL' || statusFilter !== 'ALL') && (

@@ -13,12 +13,53 @@ import { Habit } from '../../../interface/habit.interface';
 import './habits.css';
 
 interface HabitCardProps {
-  habit: Habit & { isCompletedOnSelectedDate?: boolean };
+  habit: Habit;
   selectedDate: string;
   isToday: boolean;
   onToggle: (id: string, wasCompleted: boolean) => void;
   onEdit: (habit: Habit) => void;
   onDelete: (id: string, title: string) => void;
+}
+
+function getDisplayIdentity(habit: Habit): string {
+  if (habit.identity) return habit.identity;
+  const title = (habit.title || '').toLowerCase();
+  const cat = (habit.category || '').toLowerCase();
+  if (title.includes('code') || title.includes('program') || title.includes('dev') || cat === 'productivity') {
+    return 'Master Software Engineer';
+  }
+  if (title.includes('english') || title.includes('speak') || title.includes('read') || cat === 'learning') {
+    return 'Fluent English Communicator';
+  }
+  if (cat === 'health') return 'Healthy & Vital Person';
+  if (cat === 'fitness') return 'Resilient & Strong Athlete';
+  if (cat === 'mindset') return 'Mindful & Grounded Stoic';
+  if (cat === 'finance') return 'Disciplined Wealth Builder';
+  return 'Dedicated & Consistent Individual';
+}
+
+function getDisplayHabitStack(habit: Habit): string | undefined {
+  if (habit.habitStack) return habit.habitStack;
+  const title = (habit.title || '').toLowerCase();
+  if (title.includes('code') || title.includes('problem')) {
+    return 'After I open my workstation and sip my coffee, I will write code for 45 minutes';
+  }
+  if (title.includes('english') || title.includes('speak')) {
+    return 'After I finish lunch, I will practice speaking and shadow an English podcast for 15 mins';
+  }
+  return undefined;
+}
+
+function getDisplayTwoMinuteRule(habit: Habit): string | undefined {
+  if (habit.twoMinuteRule) return habit.twoMinuteRule;
+  const title = (habit.title || '').toLowerCase();
+  if (title.includes('code') || title.includes('problem')) {
+    return 'Open IDE or LeetCode and write 1 function skeleton';
+  }
+  if (title.includes('english') || title.includes('speak')) {
+    return 'Read 1 paragraph out loud with clear pronunciation';
+  }
+  return undefined;
 }
 
 export default function HabitCard({
@@ -31,11 +72,11 @@ export default function HabitCard({
 }: HabitCardProps) {
   const [showMenu, setShowMenu] = useState(false);
 
-  // Completed status for the currently selected date
-  const isCompleted =
-    habit.isCompletedOnSelectedDate !== undefined
-      ? habit.isCompletedOnSelectedDate
-      : habit.completedToday;
+  // Completed status
+  const isCompleted = habit.completedToday;
+  const displayIdentity = getDisplayIdentity(habit);
+  const displayHabitStack = getDisplayHabitStack(habit);
+  const displayTwoMinuteRule = getDisplayTwoMinuteRule(habit);
 
   // Generate 7-day mini consistency dots from habit history
   const miniHistory = React.useMemo(() => {
@@ -66,9 +107,9 @@ export default function HabitCard({
           <span className="habit-category-pill">{habit.category || 'General'}</span>
 
           {/* Identity Statement ("Who you are becoming") */}
-          {habit.identity && (
-            <span className="habit-identity-pill" title={`Identity: ${habit.identity}`}>
-              ✨ {habit.identity}
+          {displayIdentity && (
+            <span className="habit-identity-pill" title={`Identity: ${displayIdentity}`}>
+              ✨ {displayIdentity}
             </span>
           )}
         </div>

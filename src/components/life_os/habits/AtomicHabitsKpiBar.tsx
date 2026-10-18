@@ -21,10 +21,8 @@ export default function AtomicHabitsKpiBar({
   // Calculations
   const stats = useMemo(() => {
     const total = habits.length;
-    // Check completed for current active view
-    const completed = habits.filter((h: any) =>
-      h.isCompletedOnSelectedDate !== undefined ? h.isCompletedOnSelectedDate : h.completedToday
-    ).length;
+    // Check completed habits
+    const completed = habits.filter((h) => h.completedToday).length;
 
     const momentumPercent = total > 0 ? Math.round((completed / total) * 100) : 0;
 
