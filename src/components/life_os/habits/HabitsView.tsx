@@ -174,10 +174,22 @@ export default function HabitsView() {
 
   const handleSaveHabit = useCallback(
     (habitData: Partial<Habit>) => {
+      const cleanData: Partial<Habit> = {
+        title: habitData.title,
+        category: habitData.category || 'General',
+        targetFrequency: habitData.targetFrequency || 'Daily',
+      };
       if (habitData.id) {
-        updateMutation.mutate(habitData);
+        cleanData.id = habitData.id;
+        cleanData.streak = habitData.streak ?? 0;
+        cleanData.completedToday = habitData.completedToday ?? false;
+        cleanData.history = habitData.history ?? [0, 0, 0, 0, 0, 0, 0];
+        updateMutation.mutate(cleanData);
       } else {
-        createMutation.mutate(habitData);
+        cleanData.streak = 0;
+        cleanData.completedToday = false;
+        cleanData.history = [0, 0, 0, 0, 0, 0, 0];
+        createMutation.mutate(cleanData);
       }
     },
     [updateMutation, createMutation]

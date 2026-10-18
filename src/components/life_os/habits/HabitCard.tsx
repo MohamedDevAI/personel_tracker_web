@@ -5,8 +5,6 @@ import {
   MoreVertical,
   Edit2,
   Trash2,
-  Link2,
-  Zap,
   ShieldAlert,
 } from 'lucide-react';
 import { Habit } from '../../../interface/habit.interface';
@@ -21,47 +19,6 @@ interface HabitCardProps {
   onDelete: (id: string, title: string) => void;
 }
 
-function getDisplayIdentity(habit: Habit): string {
-  if (habit.identity) return habit.identity;
-  const title = (habit.title || '').toLowerCase();
-  const cat = (habit.category || '').toLowerCase();
-  if (title.includes('code') || title.includes('program') || title.includes('dev') || cat === 'productivity') {
-    return 'Master Software Engineer';
-  }
-  if (title.includes('english') || title.includes('speak') || title.includes('read') || cat === 'learning') {
-    return 'Fluent English Communicator';
-  }
-  if (cat === 'health') return 'Healthy & Vital Person';
-  if (cat === 'fitness') return 'Resilient & Strong Athlete';
-  if (cat === 'mindset') return 'Mindful & Grounded Stoic';
-  if (cat === 'finance') return 'Disciplined Wealth Builder';
-  return 'Dedicated & Consistent Individual';
-}
-
-function getDisplayHabitStack(habit: Habit): string | undefined {
-  if (habit.habitStack) return habit.habitStack;
-  const title = (habit.title || '').toLowerCase();
-  if (title.includes('code') || title.includes('problem')) {
-    return 'After I open my workstation and sip my coffee, I will write code for 45 minutes';
-  }
-  if (title.includes('english') || title.includes('speak')) {
-    return 'After I finish lunch, I will practice speaking and shadow an English podcast for 15 mins';
-  }
-  return undefined;
-}
-
-function getDisplayTwoMinuteRule(habit: Habit): string | undefined {
-  if (habit.twoMinuteRule) return habit.twoMinuteRule;
-  const title = (habit.title || '').toLowerCase();
-  if (title.includes('code') || title.includes('problem')) {
-    return 'Open IDE or LeetCode and write 1 function skeleton';
-  }
-  if (title.includes('english') || title.includes('speak')) {
-    return 'Read 1 paragraph out loud with clear pronunciation';
-  }
-  return undefined;
-}
-
 export default function HabitCard({
   habit,
   selectedDate: _selectedDate,
@@ -74,9 +31,6 @@ export default function HabitCard({
 
   // Completed status
   const isCompleted = habit.completedToday;
-  const displayIdentity = getDisplayIdentity(habit);
-  const displayHabitStack = getDisplayHabitStack(habit);
-  const displayTwoMinuteRule = getDisplayTwoMinuteRule(habit);
 
   // Generate 7-day mini consistency dots from habit history
   const miniHistory = React.useMemo(() => {
@@ -96,9 +50,8 @@ export default function HabitCard({
 
   return (
     <div
-      className={`habit-card-container ${isCompleted ? 'is-completed' : ''} ${
-        habit.missedYesterday && !isCompleted ? 'is-never-miss-twice' : ''
-      }`}
+      className={`habit-card-container ${isCompleted ? 'is-completed' : ''} ${habit.missedYesterday && !isCompleted ? 'is-never-miss-twice' : ''
+        }`}
     >
       {/* ─── Card Header: Category, Identity & Actions ────────────────── */}
       <div className="habit-card-header">
@@ -107,9 +60,9 @@ export default function HabitCard({
           <span className="habit-category-pill">{habit.category || 'General'}</span>
 
           {/* Identity Statement ("Who you are becoming") */}
-          {displayIdentity && (
-            <span className="habit-identity-pill" title={`Identity: ${displayIdentity}`}>
-              ✨ {displayIdentity}
+          {habit.identity && (
+            <span className="habit-identity-pill" title={`Identity: ${habit.identity}`}>
+              ✨ {habit.identity}
             </span>
           )}
         </div>
@@ -183,33 +136,7 @@ export default function HabitCard({
         </div>
       </div>
 
-      {/* ─── Atomic Habits Core Modules ─────────────────────────────────── */}
 
-      {/* 1. Habit Stack Anchor Cue (Law 1: Make it Obvious) */}
-      {displayHabitStack && (
-        <div className="habit-atomic-cue-box" title="Habit Stacking Anchor">
-          <div className="habit-cue-icon">
-            <Link2 size={13} />
-          </div>
-          <div className="habit-cue-content">
-            <span className="habit-cue-label">Anchor:</span>
-            <span className="habit-cue-text">{displayHabitStack}</span>
-          </div>
-        </div>
-      )}
-
-      {/* 2. The 2-Minute Gateway Rule (Law 3: Make it Easy) */}
-      {displayTwoMinuteRule && (
-        <div className="habit-atomic-easy-box" title="The 2-Minute Gateway Starter">
-          <div className="habit-easy-icon">
-            <Zap size={13} />
-          </div>
-          <div className="habit-easy-content">
-            <span className="habit-easy-label">2-Min Starter:</span>
-            <span className="habit-easy-text">{displayTwoMinuteRule}</span>
-          </div>
-        </div>
-      )}
 
       {/* 3. Never Miss Twice Alert (Law 4: Make it Satisfying / Resilience) */}
       {habit.missedYesterday && !isCompleted && (
@@ -237,9 +164,8 @@ export default function HabitCard({
             {miniHistory.map((val, idx) => (
               <span
                 key={idx}
-                className={`tracker-dot ${val > 0 ? 'active' : ''} ${
-                  idx === 6 ? 'today-dot' : ''
-                }`}
+                className={`tracker-dot ${val > 0 ? 'active' : ''} ${idx === 6 ? 'today-dot' : ''
+                  }`}
                 title={`Day ${idx + 1}: ${val > 0 ? 'Completed' : 'Missed'}`}
               />
             ))}
