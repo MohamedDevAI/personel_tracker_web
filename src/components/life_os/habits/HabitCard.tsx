@@ -6,7 +6,6 @@ import {
   MoreVertical,
   Edit2,
   Trash2,
-  ShieldAlert,
   BarChart2,
   ChevronRight,
 } from 'lucide-react';
@@ -62,9 +61,7 @@ export default function HabitCard({
 
   return (
     <div
-      className={`habit-card-container ${isCompleted ? 'is-completed' : ''} ${
-        habit.missedYesterday && !isCompleted ? 'is-never-miss-twice' : ''
-      }`}
+      className={`habit-card-container ${isCompleted ? 'is-completed' : ''}`}
       onClick={handleCardClick}
       title="Click to view detailed analytics & consistency calendar"
     >
@@ -73,13 +70,6 @@ export default function HabitCard({
         <div className="habit-tags-group">
           {/* Category */}
           <span className="habit-category-pill">{habit.category || 'General'}</span>
-
-          {/* Identity Statement ("Who you are becoming") */}
-          {habit.identity && (
-            <span className="habit-identity-pill" title={`Identity: ${habit.identity}`}>
-              ✨ {habit.identity}
-            </span>
-          )}
         </div>
 
         {/* 3-dots Menu */}
@@ -177,15 +167,6 @@ export default function HabitCard({
         </div>
       </div>
 
-      {/* 3. Never Miss Twice Alert (Law 4: Make it Satisfying / Resilience) */}
-      {habit.missedYesterday && !isCompleted && (
-        <div className="habit-never-miss-alert">
-          <ShieldAlert size={14} className="alert-pulse-icon" />
-          <span>
-            <strong>Never Miss Twice!</strong> Yesterday slipped by — make today your comeback vote.
-          </span>
-        </div>
-      )}
 
       {/* ─── Card Footer: Streak + Consistency Dots + Analytics Link ──── */}
       <div className="habit-card-footer">

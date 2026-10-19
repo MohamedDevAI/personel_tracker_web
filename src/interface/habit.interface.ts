@@ -8,10 +8,8 @@ export interface Habit {
   targetFrequency: string;
   completedToday: boolean;
   history: number[];
-  // Atomic Habits attributes
-  identity?: string;
-  habitStack?: string;
-  twoMinuteRule?: string;
-  missedYesterday?: boolean;
+  lastCompletedDate?: string;
+  completedDates?: string[];
+  createdAt?: string;
 }
 

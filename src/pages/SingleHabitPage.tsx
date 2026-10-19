@@ -211,6 +211,20 @@ export default function SingleHabitPage() {
       trackedDatesMap.set(key, item.isCompleted);
     });
 
+    // Also check habit.completedDates if populated by backend
+    if (habit.completedDates && Array.isArray(habit.completedDates)) {
+      habit.completedDates.forEach((dateStr) => {
+        const parts = dateStr.split('-');
+        if (parts.length === 3) {
+          const y = parseInt(parts[0], 10);
+          const m = parseInt(parts[1], 10) - 1; // 0-indexed month
+          const d = parseInt(parts[2], 10);
+          const key = `${y}-${m}-${d}`;
+          trackedDatesMap.set(key, true);
+        }
+      });
+    }
+
     for (let day = 1; day <= daysInMonth; day++) {
       const isToday =
         calYear === currentYear &&

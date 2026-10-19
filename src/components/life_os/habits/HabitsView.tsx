@@ -114,7 +114,6 @@ export default function HabitsView() {
   const counts = useMemo(() => {
     return {
       all: habits.length,
-      neverMissTwice: habits.filter((h) => h.missedYesterday).length,
     };
   }, [habits]);
 
@@ -130,16 +129,13 @@ export default function HabitsView() {
 
       if (statusFilter === 'COMPLETED' && !isDone) return false;
       if (statusFilter === 'PENDING' && isDone) return false;
-      if (statusFilter === 'NEVER_MISS_TWICE' && !habit.missedYesterday) return false;
 
       // 3. Search Query
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchesTitle = (habit.title || '').toLowerCase().includes(q);
-        const matchesIdentity = (habit.identity || '').toLowerCase().includes(q);
-        const matchesStack = (habit.habitStack || '').toLowerCase().includes(q);
         const matchesCat = (habit.category || '').toLowerCase().includes(q);
-        if (!matchesTitle && !matchesIdentity && !matchesStack && !matchesCat) {
+        if (!matchesTitle && !matchesCat) {
           return false;
         }
       }
@@ -214,10 +210,6 @@ export default function HabitsView() {
     setSearchQuery('');
   }, []);
 
-  const handleFilterNeverMissTwice = useCallback(() => {
-    setStatusFilter('NEVER_MISS_TWICE');
-  }, []);
-
   const isToday = selectedDate === todayISO;
 
   return (
@@ -238,7 +230,6 @@ export default function HabitsView() {
         selectedDate={selectedDate}
         isToday={isToday}
         onOpenAddModal={handleOpenAddModal}
-        onFilterNeverMissTwice={handleFilterNeverMissTwice}
       />
 
       {/* 3. Toolbar: Search, Category & Status Filters */}
@@ -297,7 +288,7 @@ export default function HabitsView() {
               style={{ fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
             >
               <Plus size={15} />
-              <span>Design First Habit</span>
+              <span>Add New Habit</span>
             </button>
           </div>
         </div>

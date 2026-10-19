@@ -2,7 +2,7 @@ import { Search, X, Filter } from 'lucide-react';
 import { HABIT_CATEGORIES } from '../../../utils/constants';
 import './habits.css';
 
-export type HabitStatusFilter = 'ALL' | 'PENDING' | 'COMPLETED' | 'NEVER_MISS_TWICE';
+export type HabitStatusFilter = 'ALL' | 'PENDING' | 'COMPLETED';
 
 interface HabitsToolbarProps {
   categoryFilter: string;
@@ -14,7 +14,6 @@ interface HabitsToolbarProps {
   onClearFilters: () => void;
   counts: {
     all: number;
-    neverMissTwice: number;
   };
 }
 
@@ -44,7 +43,7 @@ export default function HabitsToolbar({
             type="text"
             value={searchQuery}
             onChange={(e) => onChangeSearch(e.target.value)}
-            placeholder="Search habits, identities, or anchor cues..."
+            placeholder="Search habits..."
             className="habits-search-input"
           />
           {searchQuery && (
@@ -98,17 +97,6 @@ export default function HabitsToolbar({
           >
             Completed
           </button>
-          {counts.neverMissTwice > 0 && (
-            <button
-              type="button"
-              onClick={() => onChangeStatus('NEVER_MISS_TWICE')}
-              className={`habits-status-pill alert ${
-                statusFilter === 'NEVER_MISS_TWICE' ? 'active' : ''
-              }`}
-            >
-              ⚡ Comeback ({counts.neverMissTwice})
-            </button>
-          )}
         </div>
 
         {/* Reset button if any filter active */}
