@@ -1328,6 +1328,210 @@
   margin: 1px 0 0 0;
 }
 
+/* Habit Frequency Timeline & Specific Days Picker */
+.habit-timeline-box {
+  background: rgba(20, 184, 166, 0.06);
+  border: 1px solid rgba(45, 212, 191, 0.22);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: habitFadeIn 0.2s ease-out;
+}
+
+@keyframes habitFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.habit-timeline-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.habit-timeline-badge-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #2dd4bf;
+}
+
+.timeline-icon {
+  color: #2dd4bf;
+}
+
+.timeline-subtitle-chip {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 7px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.habit-timeline-days-strip {
+  display: flex;
+  gap: 6px;
+  justify-content: space-between;
+}
+
+.timeline-day-chip {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 2px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.timeline-day-chip.active {
+  background: rgba(45, 212, 191, 0.18);
+  border: 1px solid rgba(45, 212, 191, 0.45);
+  color: #5eead4;
+}
+
+.timeline-day-chip.weekend {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  color: #64748b;
+}
+
+.chip-check {
+  color: #2dd4bf;
+}
+
+.habit-timeline-hint {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* Specific Days Picker Box */
+.habit-specific-days-box {
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(45, 212, 191, 0.22);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: habitFadeIn 0.2s ease-out;
+}
+
+.habit-days-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.habit-days-quick-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.habit-quick-link-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.habit-quick-link-btn:hover {
+  background: rgba(45, 212, 191, 0.15);
+  color: #2dd4bf;
+  border-color: rgba(45, 212, 191, 0.35);
+}
+
+.habit-days-grid {
+  display: flex;
+  gap: 6px;
+  justify-content: space-between;
+}
+
+.habit-day-pill {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 2px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.habit-day-pill:hover {
+  background: rgba(20, 184, 166, 0.12);
+  border-color: rgba(45, 212, 191, 0.3);
+  color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.habit-day-pill.selected {
+  background: linear-gradient(135deg, rgba(45, 212, 191, 0.28) 0%, rgba(13, 148, 136, 0.35) 100%);
+  border-color: #2dd4bf;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(45, 212, 191, 0.25);
+  font-weight: 700;
+}
+
+.day-pill-check {
+  color: #2dd4bf;
+}
+
+.habit-days-summary {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.habit-days-highlight {
+  color: #2dd4bf;
+  font-weight: 600;
+}
+
+.habit-days-warning {
+  font-size: 0.72rem;
+  color: #fbbf24;
+  margin: 0;
+}
+
+.habit-days-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: #f87171;
+  margin: 0;
+}
 
 .habit-modal-footer {
   display: flex;

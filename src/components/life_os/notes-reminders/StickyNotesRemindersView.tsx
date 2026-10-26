@@ -68,8 +68,8 @@ export default function StickyNotesRemindersView() {
   });
 
   const togglePinMutation = useMutation({
-    mutationFn: ({ id, isPinned }: { id: string; isPinned?: boolean }) =>
-      notesRemindersService.togglePinNote(id, isPinned),
+    mutationFn: ({ id }: { id: string; isPinned?: boolean }) =>
+      notesRemindersService.togglePinNote(id),
     onMutate: async ({ id, isPinned }) => {
       await queryClient.cancelQueries({ queryKey: QUERY_KEYS.STICKY_NOTES });
       const previousNotes = queryClient.getQueryData<StickyNote[]>(QUERY_KEYS.STICKY_NOTES);

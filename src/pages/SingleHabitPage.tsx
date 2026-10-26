@@ -784,6 +784,7 @@ export default function SingleHabitPage() {
               title: data.title,
               category: data.category || 'General',
               targetFrequency: data.targetFrequency || 'Daily',
+              targetDays: data.targetDays || [],
               streak: habit.streak || 0,
               completedToday: habit.completedToday || false,
               history: habit.history || [0, 0, 0, 0, 0, 0, 0],

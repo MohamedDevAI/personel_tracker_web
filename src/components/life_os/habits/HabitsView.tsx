@@ -174,6 +174,7 @@ export default function HabitsView() {
         title: habitData.title,
         category: habitData.category || 'General',
         targetFrequency: habitData.targetFrequency || 'Daily',
+        targetDays: habitData.targetDays || [],
       };
       if (habitData.id) {
         cleanData.id = habitData.id;

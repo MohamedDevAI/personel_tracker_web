@@ -143,8 +143,8 @@ export default function Dashboard() {
 
   // 4. Reminder Toggle
   const toggleReminderMutation = useMutation({
-    mutationFn: ({ id, isCompleted }: { id: string; isCompleted: boolean }) =>
-      notesRemindersService.toggleReminder(id, isCompleted),
+    mutationFn: ({ id }: { id: string; isCompleted: boolean }) =>
+      notesRemindersService.toggleReminder(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REMINDERS }),
     onError: (err: any) => {
       console.error('Failed to toggle reminder:', err);

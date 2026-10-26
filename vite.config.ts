@@ -7,7 +7,10 @@ export default defineConfig(({ mode }) => {
 
   const serverPort = Number(env.VITE_PORT) || 5173;
   const apiBaseUrl = env.VITE_API_BASE_URL || '/api';
-  const backendTarget = env.VITE_BACKEND_URL || 'http://localhost:8080';
+  let backendTarget = env.VITE_BACKEND_URL || 'http://localhost:8080';
+  if (backendTarget && !/^https?:\/\//i.test(backendTarget)) {
+    backendTarget = `https://${backendTarget}`;
+  }
 
   return {
     plugins: [react()],

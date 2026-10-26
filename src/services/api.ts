@@ -67,17 +67,8 @@ export const api = {
   },
 
   updateHabit: async (habit: Partial<Habit> & { id: string }): Promise<Habit> => {
-    try {
-      const { data } = await apiClient.put<Habit>(`/habits/${habit.id}`, habit);
-      if (data) return data;
-    } catch (err: any) {
-      if (err?.response?.status === 405) {
-        const { data } = await apiClient.post<Habit>(`/habits/${habit.id}`, habit);
-        if (data) return data;
-      }
-      throw err;
-    }
-    return habit as Habit;
+    const { data } = await apiClient.put<Habit>(`/habits/${habit.id}`, habit);
+    return data || (habit as Habit);
   },
 
   // ── Goals ─────────────────────────────────────────────────────────────────
@@ -107,18 +98,8 @@ export const api = {
   },
 
   updateGoal: async (goal: Goal): Promise<Goal> => {
-    try {
-      const { data } = await apiClient.put<Goal>(`/goals/${goal.id}`, goal);
-      if (data) return data;
-    } catch (err: any) {
-      if (err?.response?.status === 405) {
-        // Fallback to POST /goals only if PUT is not allowed (HTTP 405)
-        const { data } = await apiClient.post<Goal>('/goals', goal);
-        if (data) return data;
-      }
-      throw err;
-    }
-    return goal;
+    const { data } = await apiClient.put<Goal>(`/goals/${goal.id}`, goal);
+    return data || goal;
   },
 
   deleteGoal: async (id: string): Promise<boolean> => {

@@ -6,6 +6,7 @@ export interface Habit {
   category: string;
   streak: number;
   targetFrequency: string;
+  targetDays?: string[];
   completedToday: boolean;
   history: number[];
   lastCompletedDate?: string;

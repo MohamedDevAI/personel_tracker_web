@@ -128,17 +128,11 @@ export const notesRemindersService = {
 
   /**
    * Pin or unpin a sticky note.
-   * Directly posts to /sticky_notes/{id}/toggle-pin or falls back to updateNote.
+   * Endpoint: POST /api/sticky_notes/{id}/toggle-pin
    */
-  async togglePinNote(id: string, currentPinned?: boolean): Promise<StickyNote> {
-    try {
-      const { data } = await apiClient.post<any>(`/sticky_notes/${id}/toggle-pin`);
-      if (data) return normalizeStickyNote(data);
-    } catch {
-      // Fall back to updateNote if toggle-pin endpoint fails
-    }
-    const nextPinned = typeof currentPinned === 'boolean' ? !currentPinned : true;
-    return this.updateNote(id, { isPinned: nextPinned });
+  async togglePinNote(id: string): Promise<StickyNote> {
+    const { data } = await apiClient.post<any>(`/sticky_notes/${id}/toggle-pin`);
+    return normalizeStickyNote(data);
   },
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -187,33 +181,11 @@ export const notesRemindersService = {
 
   /**
    * Toggle completion status of a reminder.
-   * If currentCompleted boolean is provided, updates directly without extra GET.
+   * Endpoint: POST /api/remainder/{id}/toggle
    */
-  async toggleReminder(id: string, currentCompleted?: boolean): Promise<ReminderItem> {
-    if (typeof currentCompleted === 'boolean') {
-      const isCompleted = !currentCompleted;
-      return this.updateReminder(id, {
-        isCompleted,
-        completedAt: isCompleted ? new Date().toISOString() : '',
-      });
-    }
-    try {
-      const { data } = await apiClient.post<any>(`/remainder/${id}/toggle`);
-      if (data) return normalizeReminder(data);
-    } catch (err: any) {
-      // Only fallback to GET + PUT if the endpoint doesn't exist on server (404/405)
-      if (err?.response?.status !== 404 && err?.response?.status !== 405) {
-        throw err;
-      }
-    }
-    const { data: rem } = await apiClient.get<any>(`/remainder/${id}`);
-    const normalized = normalizeReminder(rem);
-    const isCompleted = !normalized.isCompleted;
-
-    return this.updateReminder(id, {
-      isCompleted,
-      completedAt: isCompleted ? new Date().toISOString() : '',
-    }, normalized);
+  async toggleReminder(id: string): Promise<ReminderItem> {
+    const { data } = await apiClient.post<any>(`/remainder/${id}/toggle`);
+    return normalizeReminder(data);
   },
 
   /**
