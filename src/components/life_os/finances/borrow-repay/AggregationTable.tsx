@@ -7,6 +7,7 @@ interface CreditorSummary {
   totalBorrowed: number;
   totalRepaid: number;
   creditGiven?: number;
+  creditRepaid?: number;
   netBalance: number;
   txCount?: number;
   lastActivityDate?: string;
@@ -19,9 +20,10 @@ interface YearlySummary {
   totalBorrowed: number;
   totalRepaid: number;
   creditGiven: number;
+  creditRepaid?: number;
 }
 
-type SortField = 'creditorName' | 'totalBorrowed' | 'totalRepaid' | 'creditGiven' | 'netBalance' | 'txCount' | 'status' | 'lastActivityDate';
+type SortField = 'creditorName' | 'totalBorrowed' | 'totalRepaid' | 'creditGiven' | 'creditRepaid' | 'netBalance' | 'txCount' | 'status' | 'lastActivityDate';
 type SortDirection = 'asc' | 'desc';
 
 interface AggregationTableProps {
@@ -32,6 +34,7 @@ interface AggregationTableProps {
     totalBorrowed: number;
     totalRepaid: number;
     totalCreditGiven?: number;
+    totalCreditRepaid?: number;
     netOutstanding: number;
     totalOverpaid?: number;
     totalTransactions?: number;
@@ -73,7 +76,7 @@ export default function AggregationTable({
     return creditorSummaries.filter(c =>
       status === 'Due' ? c.netBalance > 0 :
         status === 'Settled' ? c.netBalance === 0 :
-          status === 'Credit Given' ? (c.status === 'Credit Given' || ((c.creditGiven || 0) > 0 && c.netBalance <= 0)) :
+          status === 'Credit Given' ? (c.status === 'Credit Given' || ((c.creditGiven || 0) > 0 && c.netBalance < 0)) :
             c.status === 'Overpaid'
     ).length;
   };
@@ -239,6 +242,7 @@ export default function AggregationTable({
               <option value="totalBorrowed-desc">Total Borrowed: High to Low</option>
               <option value="totalRepaid-desc">Total Repaid: High to Low</option>
               <option value="creditGiven-desc">Credit Given: High to Low</option>
+              <option value="creditRepaid-desc">Credit Repaid: High to Low</option>
               <option value="txCount-desc">Tx Count: Most to Least</option>
               <option value="creditorName-asc">Creditor Name: A to Z</option>
               <option value="creditorName-desc">Creditor Name: Z to A</option>
@@ -349,6 +353,17 @@ export default function AggregationTable({
               </th>
 
               <th
+                className={`sortable-th text-align-right ${sortField === 'creditRepaid' ? 'sorted-th' : ''}`}
+                onClick={() => handleSort('creditRepaid')}
+                title="Click to sort by Credit Repaid"
+              >
+                <div className="th-sort-content justify-end">
+                  <span>Credit Repaid</span>
+                  {renderSortIcon('creditRepaid')}
+                </div>
+              </th>
+
+              <th
                 className={`sortable-th text-align-right ${sortField === 'netBalance' ? 'sorted-th' : ''}`}
                 onClick={() => handleSort('netBalance')}
                 title="Click to sort by Net Balance"
@@ -398,7 +413,7 @@ export default function AggregationTable({
           <tbody>
             {sortedCreditorSummaries.length === 0 ? (
               <tr>
-                <td colSpan={9} style={{ textAlign: 'center', padding: '36px', color: 'var(--text-muted)' }}>
+                <td colSpan={10} style={{ textAlign: 'center', padding: '36px', color: 'var(--text-muted)' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
                     <span>No creditors match your filters{aggSearchQuery ? ` for "${aggSearchQuery}"` : ''}.</span>
                     {hasActiveFilters && (
@@ -439,6 +454,9 @@ export default function AggregationTable({
                     </td>
                     <td className="amount-credit-given-col">
                       {c.creditGiven && c.creditGiven > 0 ? `₹ ${c.creditGiven.toLocaleString('en-IN')}` : '—'}
+                    </td>
+                    <td className="amount-credit-repaid-col">
+                      {c.creditRepaid && c.creditRepaid > 0 ? `₹ ${c.creditRepaid.toLocaleString('en-IN')}` : '—'}
                     </td>
                     <td className={`net-balance-col ${isDue ? 'due' : isSettled ? 'settled' : isCreditGiven ? 'credit-given' : 'overpaid'}`}>
                       {isDue ? `Due: ₹ ${c.netBalance.toLocaleString('en-IN')}`
@@ -483,6 +501,9 @@ export default function AggregationTable({
               <td className="amount-borrowed-col">₹ {stats.totalBorrowed.toLocaleString('en-IN')}</td>
               <td className="amount-repaid-col">₹ {stats.totalRepaid.toLocaleString('en-IN')}</td>
               <td className="amount-credit-given-col">₹ {(stats.totalCreditGiven || 0).toLocaleString('en-IN')}</td>
+              <td className="amount-credit-repaid-col">
+                {stats.totalCreditRepaid && stats.totalCreditRepaid > 0 ? `₹ ${stats.totalCreditRepaid.toLocaleString('en-IN')}` : '—'}
+              </td>
               <td className="net-balance-col due" title={`Total Due: ₹${stats.netOutstanding.toLocaleString('en-IN')}${stats.totalOverpaid ? ` | Overpaid: ₹${stats.totalOverpaid.toLocaleString('en-IN')}` : ''}`}>
                 Due: ₹ {stats.netOutstanding.toLocaleString('en-IN')}
                 {stats.totalOverpaid && stats.totalOverpaid > 0 ? (
@@ -523,13 +544,14 @@ export default function AggregationTable({
                   <th className="text-align-right">Total Borrowed</th>
                   <th className="text-align-right">Total Repaid</th>
                   <th className="text-align-right">Credit Given</th>
+                  <th className="text-align-right">Credit Repaid</th>
                   <th className="text-align-right">Net Position</th>
                   <th className="text-align-center">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {yearlySummaries.map(y => {
-                  const net = y.totalBorrowed - y.totalRepaid - y.creditGiven;
+                  const net = y.totalBorrowed - y.totalRepaid - (y.creditGiven - (y.creditRepaid || 0));
                   return (
                     <tr
                       key={y.year}
@@ -546,6 +568,9 @@ export default function AggregationTable({
                       </td>
                       <td className="amount-credit-given-col">
                         {y.creditGiven > 0 ? `₹ ${y.creditGiven.toLocaleString('en-IN')}` : '—'}
+                      </td>
+                      <td className="amount-credit-repaid-col">
+                        {y.creditRepaid && y.creditRepaid > 0 ? `₹ ${y.creditRepaid.toLocaleString('en-IN')}` : '—'}
                       </td>
                       <td className={`net-balance-col ${net > 0 ? 'due' : 'settled'}`}>
                         {net > 0 ? `+₹ ${net.toLocaleString('en-IN')}` : `₹ ${net.toLocaleString('en-IN')}`}

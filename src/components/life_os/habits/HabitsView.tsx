@@ -175,6 +175,7 @@ export default function HabitsView() {
         category: habitData.category || 'General',
         targetFrequency: habitData.targetFrequency || 'Daily',
         targetDays: habitData.targetDays || [],
+        startDate: habitData.startDate || getLocalDateISO(),
       };
       if (habitData.id) {
         cleanData.id = habitData.id;

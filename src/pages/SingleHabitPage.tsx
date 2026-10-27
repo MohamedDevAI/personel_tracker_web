@@ -29,6 +29,7 @@ import {
 import { api } from '../services/api';
 import { QUERY_KEYS } from '../hooks/queryKeys';
 import { Habit } from '../interface/habit.interface';
+import { getLocalDateISO } from '../utils/dateHelpers';
 import HabitModal from '../components/life_os/habits/HabitModal';
 import ConfirmDeleteModal from '../components/common/ConfirmDeleteModal';
 import '../components/life_os/habits/SingleHabitAnalytics.css';
@@ -347,6 +348,11 @@ export default function SingleHabitPage() {
               <span className="single-habit-frequency-pill">
                 Target: {habit.targetFrequency || 'Daily'}
               </span>
+              {(habit.startDate || habit.createdAt) && (
+                <span className="single-habit-frequency-pill" style={{ opacity: 0.9 }}>
+                  Started: {habit.startDate || (habit.createdAt ? habit.createdAt.split('T')[0] : '')}
+                </span>
+              )}
               <span
                 className={`single-habit-status-pill ${
                   habit.completedToday ? 'completed' : 'pending'
@@ -785,6 +791,7 @@ export default function SingleHabitPage() {
               category: data.category || 'General',
               targetFrequency: data.targetFrequency || 'Daily',
               targetDays: data.targetDays || [],
+              startDate: data.startDate || habit.startDate || getLocalDateISO(),
               streak: habit.streak || 0,
               completedToday: habit.completedToday || false,
               history: habit.history || [0, 0, 0, 0, 0, 0, 0],

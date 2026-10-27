@@ -1208,6 +1208,25 @@
   box-shadow: 0 0 12px rgba(45, 212, 191, 0.25);
 }
 
+.habit-date-input {
+  color-scheme: dark;
+}
+
+.habit-date-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.85);
+  cursor: pointer;
+}
+
+.habit-start-date-pill {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: #94a3b8;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 .habit-identity-chips {
   display: flex;
   align-items: center;

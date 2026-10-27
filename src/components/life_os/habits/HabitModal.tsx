@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Plus, Calendar, Check, AlertCircle } from 'lucide-react';
 import { Habit } from '../../../interface/habit.interface';
 import { HABIT_CATEGORIES } from '../../../utils/constants';
+import { getLocalDateISO } from '../../../utils/dateHelpers';
 import './habits.css';
 
 interface HabitModalProps {
@@ -13,12 +14,12 @@ interface HabitModalProps {
 
 const DAYS_OF_WEEK = [
   { key: 'Sun', label: 'Sun', full: 'Sunday' },
-  { key: 'Mon', label: 'Mon', labelFull: 'Mon', full: 'Monday' },
-  { key: 'Tue', label: 'Tue', labelFull: 'Tue', full: 'Tuesday' },
-  { key: 'Wed', label: 'Wed', labelFull: 'Wed', full: 'Wednesday' },
-  { key: 'Thu', label: 'Thu', labelFull: 'Thu', full: 'Thursday' },
-  { key: 'Fri', label: 'Fri', labelFull: 'Fri', full: 'Friday' },
-  { key: 'Sat', label: 'Sat', labelFull: 'Sat', full: 'Saturday' },
+  { key: 'Mon', label: 'Mon', full: 'Monday' },
+  { key: 'Tue', label: 'Tue', full: 'Tuesday' },
+  { key: 'Wed', label: 'Wed', full: 'Wednesday' },
+  { key: 'Thu', label: 'Thu', full: 'Thursday' },
+  { key: 'Fri', label: 'Fri', full: 'Friday' },
+  { key: 'Sat', label: 'Sat', full: 'Saturday' },
 ];
 
 const WEEKDAY_KEYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu'];
@@ -33,6 +34,7 @@ export default function HabitModal({
 }: HabitModalProps) {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<string>('Productivity');
+  const [startDate, setStartDate] = useState<string>(getLocalDateISO());
   const [frequencyType, setFrequencyType] = useState<string>('Daily');
   const [selectedDays, setSelectedDays] = useState<string[]>(['Sun', 'Mon', 'Tue', 'Wed', 'Thu']);
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -41,6 +43,10 @@ export default function HabitModal({
     if (editingHabit) {
       setTitle(editingHabit.title || '');
       setCategory(editingHabit.category || 'Productivity');
+      setStartDate(
+        editingHabit.startDate ||
+          (editingHabit.createdAt ? editingHabit.createdAt.split('T')[0] : getLocalDateISO())
+      );
       setErrorMessage('');
 
       const rawFreq = editingHabit.targetFrequency || 'Daily';
@@ -76,6 +82,7 @@ export default function HabitModal({
     } else {
       setTitle('');
       setCategory('Productivity');
+      setStartDate(getLocalDateISO());
       setFrequencyType('Daily');
       setSelectedDays(['Sun', 'Mon', 'Tue', 'Wed', 'Thu']);
       setErrorMessage('');
@@ -125,6 +132,7 @@ export default function HabitModal({
       ...(editingHabit ? { id: editingHabit.id } : {}),
       title: title.trim(),
       category,
+      startDate: startDate || getLocalDateISO(),
       targetFrequency,
       targetDays,
     });
@@ -170,7 +178,7 @@ export default function HabitModal({
             />
           </div>
 
-          {/* 2. Category & Frequency */}
+          {/* 2. Category & Start Date */}
           <div className="habit-form-row">
             <div className="habit-form-group flex-1">
               <label className="habit-form-label">Category</label>
@@ -190,25 +198,39 @@ export default function HabitModal({
             </div>
 
             <div className="habit-form-group flex-1">
-              <label className="habit-form-label">Frequency</label>
-              <div className="habit-select-wrapper">
-                <select
-                  value={frequencyType}
-                  onChange={(e) => {
-                    setFrequencyType(e.target.value);
-                    setErrorMessage('');
-                  }}
-                  className="habit-form-select"
-                >
-                  <option value="Daily">Daily</option>
-                  <option value="Weekdays (Sun - Thu)">Weekdays (Sun - Thu)</option>
-                  <option value="Specific Days">Specific Days of the Week</option>
-                </select>
-              </div>
+              <label className="habit-form-label">
+                Start Date <span className="required-star">*</span>
+              </label>
+              <input
+                type="date"
+                required
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="habit-form-input habit-date-input"
+              />
             </div>
           </div>
 
-          {/* 3. Conditional: Weekdays (Sunday - Thursday) Timeline Preview */}
+          {/* 3. Frequency */}
+          <div className="habit-form-group">
+            <label className="habit-form-label">Frequency</label>
+            <div className="habit-select-wrapper">
+              <select
+                value={frequencyType}
+                onChange={(e) => {
+                  setFrequencyType(e.target.value);
+                  setErrorMessage('');
+                }}
+                className="habit-form-select"
+              >
+                <option value="Daily">Daily</option>
+                <option value="Weekdays (Sun - Thu)">Weekdays (Sun - Thu)</option>
+                <option value="Specific Days">Specific Days of the Week</option>
+              </select>
+            </div>
+          </div>
+
+          {/* 4. Conditional: Weekdays (Sunday - Thursday) Timeline Preview */}
           {frequencyType === 'Weekdays (Sun - Thu)' && (
             <div className="habit-timeline-box">
               <div className="habit-timeline-header">
@@ -239,7 +261,7 @@ export default function HabitModal({
             </div>
           )}
 
-          {/* 4. Conditional: Specific Days of the Week Picker */}
+          {/* 5. Conditional: Specific Days of the Week Picker */}
           {frequencyType === 'Specific Days' && (
             <div className="habit-specific-days-box">
               <div className="habit-days-header-row">

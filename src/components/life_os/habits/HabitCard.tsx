@@ -70,6 +70,11 @@ export default function HabitCard({
         <div className="habit-tags-group">
           {/* Category */}
           <span className="habit-category-pill">{habit.category || 'General'}</span>
+          {habit.startDate && (
+            <span className="habit-start-date-pill" title={`Started on ${habit.startDate}`}>
+              Since {habit.startDate}
+            </span>
+          )}
         </div>
 
         {/* 3-dots Menu */}

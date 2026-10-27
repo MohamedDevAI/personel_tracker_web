@@ -3398,6 +3398,12 @@
   text-align: right;
 }
 
+.amount-credit-repaid-col {
+  color: #10b981;
+  font-weight: 600;
+  text-align: right;
+}
+
 .net-balance-col {
   font-weight: 700;
   text-align: right;

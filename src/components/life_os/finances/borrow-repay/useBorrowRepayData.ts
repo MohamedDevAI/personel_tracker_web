@@ -192,21 +192,23 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
         aggStatusFilter === 'ALL' ||
         (aggStatusFilter === 'Due' && c.netBalance > 0) ||
         (aggStatusFilter === 'Settled' && c.netBalance === 0) ||
-        (aggStatusFilter === 'Credit Given' && (c.status === 'Credit Given' || ((c.creditGiven || 0) > 0 && c.netBalance <= 0))) ||
+        (aggStatusFilter === 'Credit Given' && (c.status === 'Credit Given' || ((c.creditGiven || 0) > 0 && c.netBalance < 0))) ||
         (aggStatusFilter === 'Overpaid' && c.status === 'Overpaid');
       return matchesSearch && matchesStatus;
     });
   }, [creditorSummaries, aggSearchQuery, aggStatusFilter]);
 
   const yearlySummaries = useMemo(() => {
-    const yearMap: Record<string, { year: string; totalBorrowed: number; totalRepaid: number; creditGiven: number; txCount: number }> = {};
+    const yearMap: Record<string, { year: string; totalBorrowed: number; totalRepaid: number; creditGiven: number; creditRepaid: number; txCount: number }> = {};
     records.forEach(r => {
       const { year } = parseDateMonthYear(r.date);
       if (!year) return;
-      if (!yearMap[year]) yearMap[year] = { year, totalBorrowed: 0, totalRepaid: 0, creditGiven: 0, txCount: 0 };
+      if (!yearMap[year]) yearMap[year] = { year, totalBorrowed: 0, totalRepaid: 0, creditGiven: 0, creditRepaid: 0, txCount: 0 };
       yearMap[year].txCount += 1;
       const amt = Math.abs(Number(r.amount) || 0);
-      if (r.type === 'Credit Given' || (r.type === 'Borrow' && Number(r.amount) < 0)) {
+      if (r.type === 'Credit Repaid') {
+        yearMap[year].creditRepaid += amt;
+      } else if (r.type === 'Credit Given' || (r.type === 'Borrow' && Number(r.amount) < 0)) {
         yearMap[year].creditGiven += amt;
       } else if (r.type === 'Borrow') {
         yearMap[year].totalBorrowed += amt;
