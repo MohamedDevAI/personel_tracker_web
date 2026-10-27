@@ -143,7 +143,7 @@ export default function Dashboard() {
 
   // 4. Reminder Toggle
   const toggleReminderMutation = useMutation({
-    mutationFn: ({ id }: { id: string; isCompleted: boolean }) =>
+    mutationFn: (id: string) =>
       notesRemindersService.toggleReminder(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REMINDERS }),
     onError: (err: any) => {
@@ -423,12 +423,7 @@ export default function Dashboard() {
                 todaysReminders.slice(0, 5).map((reminder) => (
                   <div
                     key={reminder.id}
-                    onClick={() =>
-                      toggleReminderMutation.mutate({
-                        id: reminder.id,
-                        isCompleted: !reminder.isCompleted,
-                      })
-                    }
+                    onClick={() => toggleReminderMutation.mutate(reminder.id)}
                     className={`dashboard-reminder-item ${reminder.isCompleted ? 'completed' : ''}`}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

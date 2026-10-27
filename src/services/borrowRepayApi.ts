@@ -241,7 +241,7 @@ export const borrowRepayApi = {
       totalOverpaid,
       activeCreditorsCount: summaries.filter(s => s.netBalance > 0).length,
       settledCreditorsCount: summaries.filter(s => s.netBalance === 0).length,
-      creditGivenCreditorsCount: summaries.filter(s => s.status === 'Credit Given' || (s.creditGiven && s.creditGiven > 0 && s.netBalance < 0)).length,
+      creditGivenCreditorsCount: summaries.filter(s => s.status === 'Credit Given' || ((s.creditGiven || 0) > 0)).length,
       overpaidCreditorsCount: summaries.filter(s => s.status === 'Overpaid').length,
       totalCreditorsCount: summaries.length,
       totalTransactions: list.length,

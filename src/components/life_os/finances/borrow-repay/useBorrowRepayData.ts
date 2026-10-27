@@ -192,7 +192,7 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
         aggStatusFilter === 'ALL' ||
         (aggStatusFilter === 'Due' && c.netBalance > 0) ||
         (aggStatusFilter === 'Settled' && c.netBalance === 0) ||
-        (aggStatusFilter === 'Credit Given' && (c.status === 'Credit Given' || ((c.creditGiven || 0) > 0 && c.netBalance < 0))) ||
+        (aggStatusFilter === 'Credit Given' && (c.status === 'Credit Given' || ((c.creditGiven || 0) > 0))) ||
         (aggStatusFilter === 'Overpaid' && c.status === 'Overpaid');
       return matchesSearch && matchesStatus;
     });

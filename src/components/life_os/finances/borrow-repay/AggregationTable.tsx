@@ -76,7 +76,7 @@ export default function AggregationTable({
     return creditorSummaries.filter(c =>
       status === 'Due' ? c.netBalance > 0 :
         status === 'Settled' ? c.netBalance === 0 :
-          status === 'Credit Given' ? (c.status === 'Credit Given' || ((c.creditGiven || 0) > 0 && c.netBalance < 0)) :
+          status === 'Credit Given' ? (c.status === 'Credit Given' || ((c.creditGiven || 0) > 0)) :
             c.status === 'Overpaid'
     ).length;
   };
@@ -143,6 +143,89 @@ export default function AggregationTable({
     (selectedMonth && selectedMonth !== 'ALL') ||
     (selectedYear && selectedYear !== 'ALL')
   );
+
+  const footerTotals = useMemo(() => {
+    const list = hasActiveFilters ? sortedCreditorSummaries : creditorSummaries;
+
+    let totalBorrowed = 0;
+    let totalRepaid = 0;
+    let totalCreditGiven = 0;
+    let totalCreditRepaid = 0;
+    let totalTransactions = 0;
+
+    for (const c of list) {
+      totalBorrowed += Number(c.totalBorrowed) || 0;
+      totalRepaid += Number(c.totalRepaid) || 0;
+      totalCreditGiven += Number(c.creditGiven) || 0;
+      totalCreditRepaid += Number(c.creditRepaid) || 0;
+      totalTransactions += Number(c.txCount) || 0;
+    }
+
+    let netDueDisplay = '';
+    let netDueClass = 'due';
+    let netDueTitle = '';
+
+    if (!hasActiveFilters) {
+      netDueDisplay = `Due: ₹ ${stats.netOutstanding.toLocaleString('en-IN')}`;
+      netDueClass = stats.netOutstanding > 0 ? 'due' : 'settled';
+      netDueTitle = `Total Due: ₹${stats.netOutstanding.toLocaleString('en-IN')}${stats.totalOverpaid ? ` | Overpaid: ₹${stats.totalOverpaid.toLocaleString('en-IN')}` : ''}`;
+    } else if (aggStatusFilter === 'Credit Given') {
+      // Due = Total credit I gave - Total amount they repaid to me
+      const creditDue = totalCreditGiven - totalCreditRepaid;
+      if (creditDue > 0) {
+        netDueDisplay = `Due: ₹ ${creditDue.toLocaleString('en-IN')}`;
+        netDueClass = 'credit-given';
+      } else if (creditDue === 0) {
+        netDueDisplay = 'Cleared (₹0)';
+        netDueClass = 'settled';
+      } else {
+        netDueDisplay = `Overpaid: ₹ ${Math.abs(creditDue).toLocaleString('en-IN')}`;
+        netDueClass = 'overpaid';
+      }
+      netDueTitle = `Credit Due: ₹${creditDue.toLocaleString('en-IN')} (Credit Given: ₹${totalCreditGiven.toLocaleString('en-IN')} - Repaid: ₹${totalCreditRepaid.toLocaleString('en-IN')})`;
+    } else if (aggStatusFilter === 'Due') {
+      const debtDue = list.filter(c => c.netBalance > 0).reduce((acc, c) => acc + c.netBalance, 0);
+      netDueDisplay = `Due: ₹ ${debtDue.toLocaleString('en-IN')}`;
+      netDueClass = 'due';
+      netDueTitle = `Outstanding Debt Due: ₹${debtDue.toLocaleString('en-IN')}`;
+    } else if (aggStatusFilter === 'Settled') {
+      netDueDisplay = 'Cleared (₹0)';
+      netDueClass = 'settled';
+      netDueTitle = 'All Settled (₹0)';
+    } else if (aggStatusFilter === 'Overpaid') {
+      const overpaid = list.filter(c => c.status === 'Overpaid').reduce((acc, c) => acc + Math.abs(c.netBalance), 0);
+      netDueDisplay = `Overpaid: ₹ ${overpaid.toLocaleString('en-IN')}`;
+      netDueClass = 'overpaid';
+      netDueTitle = `Overpaid: ₹${overpaid.toLocaleString('en-IN')}`;
+    } else {
+      const debtDue = list.filter(c => c.netBalance > 0).reduce((acc, c) => acc + c.netBalance, 0);
+      const creditDue = list.filter(c => c.status === 'Credit Given' || (c.creditGiven && c.creditGiven > 0 && c.netBalance < 0)).reduce((acc, c) => acc + Math.abs(c.netBalance), 0);
+      const net = debtDue - creditDue;
+      if (net > 0) {
+        netDueDisplay = `Due: ₹ ${net.toLocaleString('en-IN')}`;
+        netDueClass = 'due';
+      } else if (net < 0) {
+        netDueDisplay = `Given: ₹ ${Math.abs(net).toLocaleString('en-IN')}`;
+        netDueClass = 'credit-given';
+      } else {
+        netDueDisplay = 'Cleared (₹0)';
+        netDueClass = 'settled';
+      }
+      netDueTitle = `Net: ₹${net.toLocaleString('en-IN')} (Debt: ₹${debtDue.toLocaleString('en-IN')}, Credit: ₹${creditDue.toLocaleString('en-IN')})`;
+    }
+
+    return {
+      totalBorrowed,
+      totalRepaid,
+      totalCreditGiven,
+      totalCreditRepaid,
+      totalTransactions,
+      count: list.length,
+      netDueDisplay,
+      netDueClass,
+      netDueTitle,
+    };
+  }, [hasActiveFilters, sortedCreditorSummaries, creditorSummaries, stats, aggStatusFilter]);
 
   const handleClearFilters = () => {
     onAggSearchChange('');
@@ -494,29 +577,33 @@ export default function AggregationTable({
             <tr className="aggregation-footer-row">
               <td>
                 <div className="footer-label">
-                  <span>Grand Total</span>
-                  <span className="footer-reset-hint">({creditorSummaries.length} Creditors)</span>
+                  <span>{hasActiveFilters ? 'Filtered Total' : 'Grand Total'}</span>
+                  <span className="footer-reset-hint">({footerTotals.count} Creditors)</span>
                 </div>
               </td>
-              <td className="amount-borrowed-col">₹ {stats.totalBorrowed.toLocaleString('en-IN')}</td>
-              <td className="amount-repaid-col">₹ {stats.totalRepaid.toLocaleString('en-IN')}</td>
-              <td className="amount-credit-given-col">₹ {(stats.totalCreditGiven || 0).toLocaleString('en-IN')}</td>
-              <td className="amount-credit-repaid-col">
-                {stats.totalCreditRepaid && stats.totalCreditRepaid > 0 ? `₹ ${stats.totalCreditRepaid.toLocaleString('en-IN')}` : '—'}
+              <td className="amount-borrowed-col">₹ {footerTotals.totalBorrowed.toLocaleString('en-IN')}</td>
+              <td className="amount-repaid-col">₹ {footerTotals.totalRepaid.toLocaleString('en-IN')}</td>
+              <td className="amount-credit-given-col">
+                {footerTotals.totalCreditGiven > 0 ? `₹ ${footerTotals.totalCreditGiven.toLocaleString('en-IN')}` : '—'}
               </td>
-              <td className="net-balance-col due" title={`Total Due: ₹${stats.netOutstanding.toLocaleString('en-IN')}${stats.totalOverpaid ? ` | Overpaid: ₹${stats.totalOverpaid.toLocaleString('en-IN')}` : ''}`}>
-                Due: ₹ {stats.netOutstanding.toLocaleString('en-IN')}
-                {stats.totalOverpaid && stats.totalOverpaid > 0 ? (
+              <td className="amount-credit-repaid-col">
+                {footerTotals.totalCreditRepaid > 0 ? `₹ ${footerTotals.totalCreditRepaid.toLocaleString('en-IN')}` : '—'}
+              </td>
+              <td className={`net-balance-col ${footerTotals.netDueClass}`} title={footerTotals.netDueTitle}>
+                {footerTotals.netDueDisplay}
+                {!hasActiveFilters && stats.totalOverpaid && stats.totalOverpaid > 0 ? (
                   <div style={{ fontSize: '0.72rem', color: '#9333ea', fontWeight: 600, marginTop: 2 }}>
                     Overpaid: ₹ {stats.totalOverpaid.toLocaleString('en-IN')}
                   </div>
                 ) : null}
               </td>
-              <td className="tx-count-col">{stats.totalTransactions}</td>
+              <td className="tx-count-col">{footerTotals.totalTransactions}</td>
               <td colSpan={3} className="text-align-center">
                 {onGoToLedger && (
                   <button type="button" onClick={onGoToLedger} className="btn-clear-all-filters">
-                    View All Transactions ({stats.totalTransactions || 0}) →
+                    {hasActiveFilters
+                      ? `View Transactions (${footerTotals.totalTransactions}) →`
+                      : `View All Transactions (${stats.totalTransactions || 0}) →`}
                   </button>
                 )}
               </td>
