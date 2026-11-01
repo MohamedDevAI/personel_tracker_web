@@ -106,7 +106,7 @@ export const syncPlanToTransactions = async (
 
   // Find linked transaction, querying latest if not in currentTransactions
   let linkedTx = findLinkedTransaction(plan, currentTransactions);
-  if (!linkedTx) {
+  if (!linkedTx && (!currentTransactions || currentTransactions.length === 0)) {
     try {
       const freshTxs = await expenseApi.getTransactions();
       linkedTx = findLinkedTransaction(plan, freshTxs);

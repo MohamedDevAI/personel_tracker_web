@@ -4,7 +4,8 @@ import {
   XCircle,
   Clock,
   Trash2,
-  ArrowRight
+  ArrowRight,
+  Loader2
 } from 'lucide-react';
 import { PlannedExpense } from '../../../../types';
 import { formatSAR } from './plannedExpenseSync';
@@ -14,6 +15,7 @@ import { isPlanFulfilled, isPlanPartial, getEffectivePaidAmount } from '../../..
 interface GlanceMonthCardProps {
   col: GlanceColumn;
   isCurrent: boolean;
+  isToggling?: boolean;
   cardRef: React.Ref<HTMLDivElement> | null;
   onToggleItem: (plan: PlannedExpense, e?: React.MouseEvent) => void;
   onFulfillItem?: (plan: PlannedExpense, e?: React.MouseEvent) => void;
@@ -25,6 +27,7 @@ interface GlanceMonthCardProps {
 export default function GlanceMonthCard({
   col,
   isCurrent,
+  isToggling = false,
   cardRef,
   onToggleItem,
   onFulfillItem,
@@ -87,12 +90,18 @@ export default function GlanceMonthCard({
 
         <button
           type="button"
-          onClick={() => onToggleColumn(col.mShort, col.year, isColCompleted)}
+          onClick={() => !isToggling && onToggleColumn(col.mShort, col.year, isColCompleted)}
+          disabled={isToggling}
           className={`glance-col-status-pill ${isColCompleted ? 'completed' : 'incompleted'
-            }`}
+            } ${isToggling ? 'opacity-70 pointer-events-none' : ''}`}
           title="Click to toggle all expense objectives in this month"
         >
-          {isColCompleted ? (
+          {isToggling ? (
+            <>
+              <Loader2 size={13} className="spin-icon" />
+              <span>Updating...</span>
+            </>
+          ) : isColCompleted ? (
             <>
               <CheckCircle2 size={13} />
               <span>Completed</span>

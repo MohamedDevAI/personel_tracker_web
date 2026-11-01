@@ -48,6 +48,7 @@ export default function PlannedExpensesView({
   const [editingPlan, setEditingPlan] = useState<PlannedExpense | null>(null);
   const [activeFulfillPlan, setActiveFulfillPlan] = useState<PlannedExpense | null>(null);
   const [deletePlan, setDeletePlan] = useState<PlannedExpense | null>(null);
+  const [togglingColumn, setTogglingColumn] = useState<string | null>(null);
 
   // Live Query from MongoDB via Spring Boot API: /api/finance_planned
   // Fetches all plans across years (current year + next year)
@@ -187,6 +188,61 @@ export default function PlannedExpensesView({
     }
   });
 
+  const batchToggleColumnMutation = useMutation({
+    mutationFn: async ({
+      items,
+      targetFulfilled
+    }: {
+      items: PlannedExpense[];
+      targetFulfilled: boolean;
+    }) => {
+      // 1. Fetch fresh transactions ONCE
+      const freshTransactions = await expenseApi.getTransactions();
+      let txList = [...freshTransactions];
+
+      // 2. Process sequentially so backend is never overwhelmed
+      for (const p of items) {
+        const plannedVal = p.plannedAmount || 0;
+        const finalPaid = targetFulfilled ? Math.max(plannedVal, Number(p.paidAmount || 0)) : 0;
+
+        const updatedPlan = await plannedExpenseApi.setFulfillmentAndPayment(
+          p.id,
+          targetFulfilled,
+          finalPaid,
+          p
+        );
+
+        const targetPlan = { ...p, ...updatedPlan, isFulfilled: targetFulfilled, paidAmount: finalPaid };
+        await syncPlanToTransactions(
+          targetPlan,
+          txList,
+          { isFulfilled: targetFulfilled, paidAmount: finalPaid }
+        );
+
+        if (!targetFulfilled) {
+          const planTag = `[PE-${p.id}]`;
+          txList = txList.filter(
+            t => t.plannedExpenseId !== p.id &&
+                 !(t.description && t.description.includes(planTag)) &&
+                 !(t.note && t.note.includes(planTag))
+          );
+        }
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PLANNED_EXPENSES() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TRANSACTIONS() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.DASHBOARD_SUMMARY() });
+    },
+    onError: (err: any) => {
+      console.error('Failed to update month fulfillment:', err);
+      alert('Failed to update month: ' + (err?.message || 'Server error'));
+    },
+    onSettled: () => {
+      setTogglingColumn(null);
+    }
+  });
+
   const deleteMutation = useMutation({
     mutationFn: async (plan: PlannedExpense) => {
       await plannedExpenseApi.deletePlannedExpense(plan.id);
@@ -320,6 +376,11 @@ export default function PlannedExpensesView({
             if (colYear) setSelectedYear(colYear);
           }}
           onFulfillPlan={plan => setActiveFulfillPlan(plan)}
+          togglingColumn={togglingColumn}
+          onToggleColumnStatus={(mShort, yr, targetFulfilled, matchingItems) => {
+            setTogglingColumn(`${mShort} ${yr}`);
+            batchToggleColumnMutation.mutate({ items: matchingItems, targetFulfilled });
+          }}
           onSaveFulfillment={handleSaveFulfillment}
           onTogglePlanStatus={plan => {
             const willBeDone = !isPlanFulfilled(plan);
@@ -338,7 +399,7 @@ export default function PlannedExpensesView({
         /* ── Condition 2: When a specific month is clicked, bring the detailed existing one ── */
         <>
           {/* Detailed Month Breadcrumb / Back Bar */}
-          <div className="planned-month-breadcrumb">
+          <div>
             <div className="planned-breadcrumb-left">
               <button
                 type="button"
@@ -346,11 +407,8 @@ export default function PlannedExpensesView({
                 className="btn btn-secondary btn-sm planned-back-btn"
                 title="Return to the 12-Month Single Glance Board"
               >
-                <ArrowLeft size={14} /> Back to All Months (Glance Matrix)
+                <ArrowLeft size={14} /> Back to All Months
               </button>
-              <span className="planned-breadcrumb-text">
-                Viewing detailed budget &amp; fulfillment for <strong className="planned-month-highlight">{selectedMonth} {selectedYear}</strong>
-              </span>
             </div>
 
           </div>

@@ -20,6 +20,8 @@ export interface PlannedExpensesGlanceTableProps {
   onPlanExpense?: () => void;
   onRefresh?: () => void;
   onSelectMonth?: (monthShort: string, year?: number) => void;
+  onToggleColumnStatus?: (monthShort: string, colYear: number, targetFulfilled: boolean, matchingItems: PlannedExpense[]) => void;
+  togglingColumn?: string | null;
 }
 
 export type GlanceViewMode = 'matrix' | 'table';
@@ -50,7 +52,9 @@ export default function PlannedExpensesGlanceTable({
   onDeletePlan,
   onPlanExpense,
   onRefresh,
-  onSelectMonth
+  onSelectMonth,
+  onToggleColumnStatus,
+  togglingColumn
 }: PlannedExpensesGlanceTableProps) {
   // Real-world Calendar Anchors
   const calendarYear = getCurrentYear();
@@ -142,6 +146,11 @@ export default function PlannedExpensesGlanceTable({
         );
         if (!confirmed) return;
       }
+    }
+
+    if (onToggleColumnStatus) {
+      onToggleColumnStatus(monthShort, colYear, targetFulfilled, matchingItems);
+      return;
     }
 
     matchingItems.forEach(p => {
@@ -406,6 +415,7 @@ export default function PlannedExpensesGlanceTable({
                   key={`${col.mShort}-${col.year}`}
                   col={col}
                   isCurrent={col.isCurrent}
+                  isToggling={togglingColumn === `${col.mShort} ${col.year}`}
                   cardRef={col.isCurrent ? currentMonthCardRef : null}
                   onToggleItem={handleToggleItem}
                   onFulfillItem={handleFulfillItem}

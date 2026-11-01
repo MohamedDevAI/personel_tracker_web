@@ -104,3 +104,9 @@ export const formatDateISO = (date: Date | string): string => {
   const day = String(d.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
+
+/** Remove [PE-...] internal tracking tags and extra spacing from description strings */
+export const formatCleanDescription = (desc?: string): string => {
+  if (!desc) return '';
+  return desc.replace(/\s*\[PE-[^\]]+\]\s*/g, ' ').replace(/\s{2,}/g, ' ').trim();
+};

@@ -56,5 +56,5 @@ export function getPlanStatus(p?: Partial<PlannedExpense> | null): PlannedExpens
   if (!p) return 'Planned';
   if (isPlanFulfilled(p)) return 'Fulfilled';
   if (isPlanPartial(p)) return 'Partial';
-  return (p.status as PlannedExpenseStatus) || 'Planned';
+  return 'Planned';
 }

@@ -85,15 +85,13 @@ export const plannedExpenseApi = {
       ? Math.max(0, Number(paidAmount))
       : (isFulfilled ? plannedAmt : 0);
 
-    const candidate: Partial<PlannedExpense> = {
-      ...(existingPlan || {}),
-      id,
-      plannedAmount: plannedAmt,
-      paidAmount: finalPaid,
-      isFulfilled: isFulfilled || (plannedAmt > 0 && finalPaid >= plannedAmt),
-    };
-    const finalFulfilled = isPlanFulfilled(candidate as PlannedExpense);
-    const status = getPlanStatus({ ...candidate, isFulfilled: finalFulfilled });
+    const isUnderpaid = finalPaid > 0 && plannedAmt > 0 && finalPaid < plannedAmt;
+    const finalFulfilled = isUnderpaid
+      ? false
+      : (isFulfilled || (plannedAmt > 0 && finalPaid >= plannedAmt));
+    const status = finalFulfilled
+      ? 'Fulfilled'
+      : (finalPaid > 0 ? 'Partial' : 'Planned');
 
     const updates: Partial<PlannedExpense> = {
       ...(existingPlan || {}),

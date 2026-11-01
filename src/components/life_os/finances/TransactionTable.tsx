@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { Category, Transaction, TransactionType } from '../../../types';
 import { formatCurrency } from './financeConstants';
+import { formatCleanDescription } from '../../../utils/formatters';
 
 interface TransactionTableProps {
   transactions: Transaction[];
@@ -117,7 +118,7 @@ export default function TransactionTable({
                           {isCredit ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
                         </div>
                         <div>
-                          <span>{item.description || item.note || 'Untitled'}</span>
+                          <span>{formatCleanDescription(item.description || item.note) || 'Untitled'}</span>
                         </div>
                       </div>
                     </td>

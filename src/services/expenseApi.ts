@@ -100,7 +100,7 @@ export const expenseApi = {
   // ── Transactions ──────────────────────────────────────────────────────────
 
   getTransactions: async (): Promise<Transaction[]> => {
-    const { data } = await apiClient.get<any[]>('/transactions', { timeout: 8000 });
+    const { data } = await apiClient.get<any[]>('/transactions', { timeout: 15000 });
     return Array.isArray(data) ? data.map(normalizeTransaction) : [];
   },
 
