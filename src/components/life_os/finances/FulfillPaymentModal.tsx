@@ -184,14 +184,14 @@ export default function FulfillPaymentModal({
                   paymentMode === 'full' ? 'active-full' : ''
                 }`}
               >
-                <div className="fulfill-mode-icon-wrap emerald">
-                  <CheckCircle2 size={20} />
+                <div className="fulfill-mode-card-header">
+                  <div className="fulfill-mode-icon-wrap emerald">
+                    <CheckCircle2 size={18} />
+                  </div>
+                  <span className="badge badge-emerald-subtle">100%</span>
                 </div>
                 <div className="fulfill-mode-details">
-                  <div className="fulfill-mode-title-row">
-                    <span className="fulfill-mode-title">Full Payment</span>
-                    <span className="badge badge-emerald-subtle">100%</span>
-                  </div>
+                  <span className="fulfill-mode-title">Full Payment</span>
                   <span className="fulfill-mode-amount">
                     SAR {planned.toFixed(2)}
                   </span>
@@ -209,14 +209,14 @@ export default function FulfillPaymentModal({
                   paymentMode === 'custom' ? 'active-custom' : ''
                 }`}
               >
-                <div className="fulfill-mode-icon-wrap amber">
-                  <SlidersHorizontal size={20} />
+                <div className="fulfill-mode-card-header">
+                  <div className="fulfill-mode-icon-wrap amber">
+                    <SlidersHorizontal size={18} />
+                  </div>
+                  <span className="badge badge-amber-subtle">Custom</span>
                 </div>
                 <div className="fulfill-mode-details">
-                  <div className="fulfill-mode-title-row">
-                    <span className="fulfill-mode-title">Customized Payment</span>
-                    <span className="badge badge-amber-subtle">Custom</span>
-                  </div>
+                  <span className="fulfill-mode-title">Customized</span>
                   <span className="fulfill-mode-amount">
                     {paymentMode === 'custom' && currentPaidNum > 0
                       ? `SAR ${currentPaidNum.toFixed(2)}`
@@ -236,14 +236,14 @@ export default function FulfillPaymentModal({
                   paymentMode === 'unpaid' ? 'active-unpaid' : ''
                 }`}
               >
-                <div className="fulfill-mode-icon-wrap rose">
-                  <RotateCcw size={20} />
+                <div className="fulfill-mode-card-header">
+                  <div className="fulfill-mode-icon-wrap rose">
+                    <RotateCcw size={18} />
+                  </div>
+                  <span className="badge badge-rose-subtle">SAR 0</span>
                 </div>
                 <div className="fulfill-mode-details">
-                  <div className="fulfill-mode-title-row">
-                    <span className="fulfill-mode-title">Unpaid / Reset</span>
-                    <span className="badge badge-rose-subtle">SAR 0</span>
-                  </div>
+                  <span className="fulfill-mode-title">Unpaid / Reset</span>
                   <span className="fulfill-mode-amount">SAR 0.00</span>
                   <span className="fulfill-mode-desc">
                     Mark as pending / not paid
@@ -425,15 +425,24 @@ export default function FulfillPaymentModal({
             <button
               type="button"
               onClick={onClose}
-              className="btn btn-secondary"
+              className="btn btn-secondary btn-fulfill-cancel"
             >
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary">
+            <button
+              type="submit"
+              className={`btn ${
+                paymentMode === 'unpaid'
+                  ? 'btn-fulfill-submit-rose'
+                  : paymentMode === 'custom'
+                  ? 'btn-fulfill-submit-amber'
+                  : 'btn-fulfill-submit-emerald'
+              }`}
+            >
               {paymentMode === 'full'
                 ? `Save Full Payment (SAR ${planned.toFixed(2)})`
                 : paymentMode === 'unpaid'
-                ? 'Reset to Unpaid'
+                ? 'Reset to Unpaid (SAR 0.00)'
                 : `Save Payment (SAR ${currentPaidNum.toFixed(2)})`}
             </button>
           </div>
