@@ -21,4 +21,12 @@ export interface PlannedExpense {
   status: PlannedExpenseStatus;
   notes?: string;
   createdAt?: string;
+  /** Whether part of a recurring monthly sequence */
+  isRecurring?: boolean;
+  /** Unique ID connecting all months in this recurring series */
+  recurringGroupId?: string;
+  /** 1-based index of this recurring payment installment (e.g. 1) */
+  installmentIndex?: number;
+  /** Total number of installments in this series (e.g. 4) */
+  totalInstallments?: number;
 }

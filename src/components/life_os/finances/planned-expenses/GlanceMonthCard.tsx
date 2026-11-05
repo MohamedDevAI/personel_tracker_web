@@ -5,7 +5,8 @@ import {
   Clock,
   Trash2,
   ArrowRight,
-  Loader2
+  Loader2,
+  Repeat
 } from 'lucide-react';
 import { PlannedExpense } from '../../../../types';
 import { formatSAR } from './plannedExpenseSync';
@@ -162,6 +163,11 @@ export default function GlanceMonthCard({
                         title={item.title}
                       >
                         {item.title}
+                        {(item.isRecurring || item.notes?.includes('[Recurring')) && (
+                          <span className="glance-recurring-indicator" title="Recurring Monthly Payment">
+                            <Repeat size={10} />
+                          </span>
+                        )}
                       </span>
                       <span
                         className="glance-item-amount"

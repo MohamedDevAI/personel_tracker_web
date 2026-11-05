@@ -125,7 +125,27 @@ export default function PlannedExpensesView({
 
   // Mutations
   const savePlanMutation = useMutation({
-    mutationFn: async (planData: Omit<PlannedExpense, 'id' | 'createdAt'>) => {
+    mutationFn: async (
+      planData: Omit<PlannedExpense, 'id' | 'createdAt'> | Omit<PlannedExpense, 'id' | 'createdAt'>[]
+    ) => {
+      if (Array.isArray(planData)) {
+        // Multi-month Recurring Expense Batch Creation
+        const freshTransactions = await expenseApi.getTransactions();
+        let txList = [...freshTransactions];
+        const createdPlans: PlannedExpense[] = [];
+
+        for (const singlePlan of planData) {
+          const savedPlan = await plannedExpenseApi.createPlannedExpense(singlePlan);
+          if (savedPlan) {
+            createdPlans.push(savedPlan);
+            if (savedPlan.isFulfilled || (savedPlan.paidAmount && savedPlan.paidAmount > 0)) {
+              await syncPlanToTransactions(savedPlan, txList);
+            }
+          }
+        }
+        return createdPlans;
+      }
+
       let savedPlan: PlannedExpense | null = null;
       if (editingPlan) {
         savedPlan = await plannedExpenseApi.updatePlannedExpense(editingPlan.id, planData, editingPlan);
@@ -317,7 +337,9 @@ export default function PlannedExpensesView({
     return plannedExpenseApi.getMonthlyBudgetSummary(filteredPlans, actualCategoryExpenses);
   }, [filteredPlans, actualCategoryExpenses]);
 
-  const handleCreateOrUpdatePlan = (planData: Omit<PlannedExpense, 'id' | 'createdAt'>) => {
+  const handleCreateOrUpdatePlan = (
+    planData: Omit<PlannedExpense, 'id' | 'createdAt'> | Omit<PlannedExpense, 'id' | 'createdAt'>[]
+  ) => {
     savePlanMutation.mutate(planData);
   };
 

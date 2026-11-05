@@ -171,3 +171,63 @@ export const isFromOctober2026Onwards = (month: string, year: number): boolean =
   if (year === 2026 && mIdx >= 9) return true; // Oct = 9
   return false;
 };
+
+// ─── Recurring Schedule Computation ──────────────────────────────────────────
+
+export interface RecurringScheduleItem {
+  month: MonthName;
+  year: number;
+  dueDate?: string;
+  index: number;
+  total: number;
+}
+
+/**
+ * Computes a sequence of future consecutive months starting from a start month and year.
+ * Handles crossing multi-year boundaries (e.g. Nov 2026 -> Feb 2027).
+ */
+export const computeRecurringMonths = (
+  startMonth: string,
+  startYear: number,
+  durationMonths: number,
+  baseDueDate?: string
+): RecurringScheduleItem[] => {
+  const startIdx = getMonthIndex(startMonth);
+  const validStartIdx = startIdx >= 0 ? startIdx : 0;
+
+  // Extract day portion if a base due date was provided (e.g., "2026-11-15" -> "15")
+  let dayPart: string | null = null;
+  if (baseDueDate) {
+    const match = baseDueDate.match(/^\d{4}-\d{2}-(\d{2})/);
+    if (match) {
+      dayPart = match[1];
+    }
+  }
+
+  const items: RecurringScheduleItem[] = [];
+  const count = Math.max(1, Math.min(60, Math.round(durationMonths)));
+
+  for (let i = 0; i < count; i++) {
+    const totalMonthOffset = validStartIdx + i;
+    const targetIdx = totalMonthOffset % 12;
+    const yearOffset = Math.floor(totalMonthOffset / 12);
+    const targetYear = startYear + yearOffset;
+    const targetMonth = MONTH_NAMES[targetIdx];
+
+    let computedDueDate: string | undefined = undefined;
+    if (dayPart) {
+      const mNum = String(targetIdx + 1).padStart(2, '0');
+      computedDueDate = `${targetYear}-${mNum}-${dayPart}`;
+    }
+
+    items.push({
+      month: targetMonth,
+      year: targetYear,
+      dueDate: computedDueDate,
+      index: i + 1,
+      total: count,
+    });
+  }
+
+  return items;
+};

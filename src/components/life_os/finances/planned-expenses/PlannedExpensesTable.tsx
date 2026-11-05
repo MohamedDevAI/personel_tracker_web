@@ -9,7 +9,8 @@ import {
   Database,
   Calendar,
   Tag,
-  FileText
+  FileText,
+  Repeat
 } from 'lucide-react';
 import { PlannedExpense } from '../../../../types';
 import { formatSAR } from './plannedExpenseSync';
@@ -105,6 +106,11 @@ export default function PlannedExpensesTable({
                         {plan.category && (
                           <span className="badge badge-category-soft">
                             <Tag size={10} /> {plan.category}
+                          </span>
+                        )}
+                        {(plan.isRecurring || plan.notes?.includes('[Recurring')) && (
+                          <span className="badge badge-recurring" title="Recurring Monthly Payment">
+                            <Repeat size={9} /> Recurring
                           </span>
                         )}
                       </div>

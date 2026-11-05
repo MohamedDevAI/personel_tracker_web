@@ -1146,15 +1146,11 @@
   border-color: rgba(245, 129, 11, 0.4);
 }
 
-/* =========================================================
-   BORROW AND REPAY VIEW STYLES (INR ₹)
-   ========================================================= */
 .borrow-repay-container,
 .planned-expenses-container,
 .analytics-report-container {
   display: flex;
   flex-direction: column;
-  gap: 24px;
 }
 
 .borrow-repay-header,
