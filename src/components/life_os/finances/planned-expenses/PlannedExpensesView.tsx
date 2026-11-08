@@ -441,6 +441,7 @@ export default function PlannedExpensesView({
             selectedMonth={selectedMonth}
             selectedYear={selectedYear}
             overspentItemsCount={filteredPlans.filter(p => (p.paidAmount ?? 0) > p.plannedAmount).length}
+            isLoading={isLoading}
           />
 
           {/* Search & Filter Bar with Add Expense at Top of Table */}

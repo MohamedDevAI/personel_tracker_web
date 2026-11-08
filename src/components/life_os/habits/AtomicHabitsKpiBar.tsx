@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Flame, Plus, CheckCircle2 } from 'lucide-react';
 import { Habit } from '../../../interface/habit.interface';
+import { KpiValueSkeleton } from '../../common/LoadingState';
 import './habits.css';
 
 interface AtomicHabitsKpiBarProps {
@@ -8,11 +9,13 @@ interface AtomicHabitsKpiBarProps {
   selectedDate?: string;
   isToday?: boolean;
   onOpenAddModal: () => void;
+  isLoading?: boolean;
 }
 
 export default function AtomicHabitsKpiBar({
   habits,
   onOpenAddModal,
+  isLoading = false,
 }: AtomicHabitsKpiBarProps) {
   // Simple, truthful calculations
   const stats = useMemo(() => {
@@ -39,19 +42,25 @@ export default function AtomicHabitsKpiBar({
           </div>
           <span className="atomic-kpi-label">Today's Progress</span>
         </div>
-        <div className="atomic-kpi-main-stat">
-          <span className="atomic-kpi-value">{stats.progressPercent}%</span>
-          <span className="atomic-kpi-subtext">
-            {stats.completed} of {stats.total} habits completed
-          </span>
-        </div>
-        {/* Progress Bar */}
-        <div className="atomic-progress-bar-bg">
-          <div
-            className="atomic-progress-bar-fill"
-            style={{ width: `${stats.progressPercent}%` }}
-          />
-        </div>
+        {isLoading ? (
+          <KpiValueSkeleton />
+        ) : (
+          <>
+            <div className="atomic-kpi-main-stat">
+              <span className="atomic-kpi-value">{stats.progressPercent}%</span>
+              <span className="atomic-kpi-subtext">
+                {stats.completed} of {stats.total} habits completed
+              </span>
+            </div>
+            {/* Progress Bar */}
+            <div className="atomic-progress-bar-bg">
+              <div
+                className="atomic-progress-bar-fill"
+                style={{ width: `${stats.progressPercent}%` }}
+              />
+            </div>
+          </>
+        )}
       </div>
 
       {/* 2. Highest Active Streak */}
@@ -62,10 +71,14 @@ export default function AtomicHabitsKpiBar({
           </div>
           <span className="atomic-kpi-label">Current Best Streak</span>
         </div>
-        <div className="atomic-kpi-main-stat">
-          <span className="atomic-kpi-value">{stats.maxStreak}</span>
-          <span className="atomic-kpi-subtext">Days in a Row</span>
-        </div>
+        {isLoading ? (
+          <KpiValueSkeleton />
+        ) : (
+          <div className="atomic-kpi-main-stat">
+            <span className="atomic-kpi-value">{stats.maxStreak}</span>
+            <span className="atomic-kpi-subtext">Days in a Row</span>
+          </div>
+        )}
       </div>
 
       {/* 3. Add Habit Quick Button */}
@@ -80,7 +93,7 @@ export default function AtomicHabitsKpiBar({
             <Plus size={22} />
           </div>
           <span className="atomic-add-btn-title">Add New Habit</span>
-          <span className="atomic-add-btn-sub">Quick & Simple</span>
+          <span className="atomic-add-btn-sub">Quick &amp; Simple</span>
         </button>
       </div>
     </div>

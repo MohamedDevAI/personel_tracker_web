@@ -4,6 +4,7 @@ import {
 } from 'lucide-react';
 import { BorrowRepayRecord, BorrowRepayType } from '../../../../types';
 import { MONTH_NAMES } from '../../../../utils/dateHelpers';
+import { PageLoadingScreen } from '../../../common/LoadingState';
 
 interface CreditLedgerTableProps {
   filteredRecords: BorrowRepayRecord[];
@@ -27,6 +28,7 @@ interface CreditLedgerTableProps {
   onResetFilters: () => void;
   onBackToAggregation?: () => void;
   formatINR: (val: number) => string;
+  isLoading?: boolean;
 }
 
 export default function CreditLedgerTable({
@@ -34,11 +36,11 @@ export default function CreditLedgerTable({
   searchQuery, typeFilter, selectedMonth, selectedYear, selectedCreditorFilter,
   availableYears, existingCreditors,
   onSearchChange, onTypeFilterChange, onMonthChange, onYearChange, onCreditorFilterChange,
-  onEditRecord, onDeleteRecord, onAddRecord, formatINR: _formatINR
+  onEditRecord, onDeleteRecord, onAddRecord, formatINR: _formatINR,
+  isLoading = false,
 }: CreditLedgerTableProps) {
   return (
     <>
-
       <div className="borrow-table-toolbar">
         <div className="borrow-search-wrapper">
           <Search size={15} className="search-icon" />
@@ -88,8 +90,6 @@ export default function CreditLedgerTable({
               </select>
             </div>
           )}
-
-
         </div>
       </div>
 
@@ -107,7 +107,18 @@ export default function CreditLedgerTable({
             </tr>
           </thead>
           <tbody>
-            {filteredRecords.length === 0 ? (
+            {isLoading ? (
+              <tr>
+                <td colSpan={6} className="empty-table-cell">
+                  <PageLoadingScreen
+                    compact
+                    rows={3}
+                    title="Loading borrow & repayment records..."
+                    subtitle="Fetching individual ledger entries."
+                  />
+                </td>
+              </tr>
+            ) : filteredRecords.length === 0 ? (
               <tr>
                 <td colSpan={6} className="empty-table-cell">
                   <div className="empty-table-placeholder">

@@ -1,11 +1,13 @@
 import { Trophy, Clock, TrendingUp } from 'lucide-react';
 import type { Goal } from '../../../types';
+import { KpiValueSkeleton } from '../../common/LoadingState';
 
 interface GoalsKpiCardsProps {
   goals: Goal[];
+  isLoading?: boolean;
 }
 
-export default function GoalsKpiCards({ goals }: GoalsKpiCardsProps) {
+export default function GoalsKpiCards({ goals, isLoading = false }: GoalsKpiCardsProps) {
   const totalGoals = goals.length;
 
   const achievedGoals = goals.filter((g) => (g.progress || 0) >= 100);
@@ -31,24 +33,30 @@ export default function GoalsKpiCards({ goals }: GoalsKpiCardsProps) {
         <div className="goals-kpi-top">
           <span className="goals-kpi-label">Strategic Progress Index</span>
           <span className="badge badge-indigo">
-            <TrendingUp size={12} /> {achievedGoals.length}/{totalGoals} Achieved
+            <TrendingUp size={12} /> {isLoading ? '...' : `${achievedGoals.length}/${totalGoals} Achieved`}
           </span>
         </div>
-        <div className="goals-kpi-value-row">
-          <span className="goals-kpi-value">{avgProgress}%</span>
-          <span className="goals-kpi-unit">Achieved</span>
-        </div>
-        <div>
-          <div className="goals-progress-track">
-            <div
-              className="goals-progress-bar"
-              style={{ width: `${avgProgress}%` }}
-            />
-          </div>
-          <div className="goals-kpi-subtext" style={{ marginTop: 6 }}>
-            Overall progress across all active & completed milestones
-          </div>
-        </div>
+        {isLoading ? (
+          <KpiValueSkeleton />
+        ) : (
+          <>
+            <div className="goals-kpi-value-row">
+              <span className="goals-kpi-value">{avgProgress}%</span>
+              <span className="goals-kpi-unit">Achieved</span>
+            </div>
+            <div>
+              <div className="goals-progress-track">
+                <div
+                  className="goals-progress-bar"
+                  style={{ width: `${avgProgress}%` }}
+                />
+              </div>
+              <div className="goals-kpi-subtext" style={{ marginTop: 6 }}>
+                Overall progress across all active &amp; completed milestones
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Card 2: Achieved Milestones */}
@@ -59,13 +67,19 @@ export default function GoalsKpiCards({ goals }: GoalsKpiCardsProps) {
             <Trophy size={12} /> Complete
           </span>
         </div>
-        <div className="goals-kpi-value-row">
-          <span className="goals-kpi-value">{achievedGoals.length}</span>
-          <span className="goals-kpi-unit">Milestones</span>
-        </div>
-        <div className="goals-kpi-subtext">
-          Successfully delivered strategic objectives
-        </div>
+        {isLoading ? (
+          <KpiValueSkeleton />
+        ) : (
+          <>
+            <div className="goals-kpi-value-row">
+              <span className="goals-kpi-value">{achievedGoals.length}</span>
+              <span className="goals-kpi-unit">Milestones</span>
+            </div>
+            <div className="goals-kpi-subtext">
+              Successfully delivered strategic objectives
+            </div>
+          </>
+        )}
       </div>
 
       {/* Card 3: Active Pursuits */}
@@ -74,13 +88,19 @@ export default function GoalsKpiCards({ goals }: GoalsKpiCardsProps) {
           <span className="goals-kpi-label">Active Pursuits</span>
           <span className="badge badge-cyan">In Progress</span>
         </div>
-        <div className="goals-kpi-value-row">
-          <span className="goals-kpi-value">{activeGoals.length}</span>
-          <span className="goals-kpi-unit">Goals</span>
-        </div>
-        <div className="goals-kpi-subtext">
-          Currently being tracked & executed
-        </div>
+        {isLoading ? (
+          <KpiValueSkeleton />
+        ) : (
+          <>
+            <div className="goals-kpi-value-row">
+              <span className="goals-kpi-value">{activeGoals.length}</span>
+              <span className="goals-kpi-unit">Goals</span>
+            </div>
+            <div className="goals-kpi-subtext">
+              Currently being tracked &amp; executed
+            </div>
+          </>
+        )}
       </div>
 
       {/* Card 4: Upcoming Deadlines */}
@@ -91,13 +111,19 @@ export default function GoalsKpiCards({ goals }: GoalsKpiCardsProps) {
             <Clock size={12} /> Horizon
           </span>
         </div>
-        <div className="goals-kpi-value-row">
-          <span className="goals-kpi-value">{upcomingCount}</span>
-          <span className="goals-kpi-unit">Deadlines</span>
-        </div>
-        <div className="goals-kpi-subtext">
-          Milestones approaching completion target
-        </div>
+        {isLoading ? (
+          <KpiValueSkeleton />
+        ) : (
+          <>
+            <div className="goals-kpi-value-row">
+              <span className="goals-kpi-value">{upcomingCount}</span>
+              <span className="goals-kpi-unit">Deadlines</span>
+            </div>
+            <div className="goals-kpi-subtext">
+              Milestones approaching completion target
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

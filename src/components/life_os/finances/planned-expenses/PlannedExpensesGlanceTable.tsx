@@ -7,6 +7,7 @@ import GlanceToolbar from './GlanceToolbar';
 import GlanceMonthCard from './GlanceMonthCard';
 import GlanceDeleteModal from './GlanceDeleteModal';
 import FulfillPaymentModal from '../FulfillPaymentModal';
+import { PageLoadingScreen } from '../../../common/LoadingState';
 import './planned-expenses.css';
 
 export interface PlannedExpensesGlanceTableProps {
@@ -400,32 +401,40 @@ export default function PlannedExpensesGlanceTable({
 
       {viewMode === 'matrix' && (
         <div className="glance-matrix-container" ref={containerRef}>
-          <div className={`glance-columns-track ${filteredColumns.length === 0 ? 'glance-columns-track-full' : ''}`}>
-            {filteredColumns.length === 0 ? (
-              <div className="glance-empty-filter-state">
-                <AlertCircle size={32} className="glance-empty-filter-icon" />
-                <h4 className="glance-empty-filter-title">No Planned Expenses Found</h4>
-                <p className="glance-empty-filter-desc">
-                  There are no months with planned expense data matching your current filter.
-                </p>
-              </div>
-            ) : (
-              filteredColumns.map(col => (
-                <GlanceMonthCard
-                  key={`${col.mShort}-${col.year}`}
-                  col={col}
-                  isCurrent={col.isCurrent}
-                  isToggling={togglingColumn === `${col.mShort} ${col.year}`}
-                  cardRef={col.isCurrent ? currentMonthCardRef : null}
-                  onToggleItem={handleToggleItem}
-                  onFulfillItem={handleFulfillItem}
-                  onToggleColumn={handleToggleColumn}
-                  onDeleteItem={handleDeleteItem}
-                  onSelectMonth={onSelectMonth}
-                />
-              ))
-            )}
-          </div>
+          {isLoading ? (
+            <PageLoadingScreen
+              title="Loading Planned Expenses Matrix..."
+              subtitle="Synchronizing multi-month budget commitments."
+              rows={4}
+            />
+          ) : (
+            <div className={`glance-columns-track ${filteredColumns.length === 0 ? 'glance-columns-track-full' : ''}`}>
+              {filteredColumns.length === 0 ? (
+                <div className="glance-empty-filter-state">
+                  <AlertCircle size={32} className="glance-empty-filter-icon" />
+                  <h4 className="glance-empty-filter-title">No Planned Expenses Found</h4>
+                  <p className="glance-empty-filter-desc">
+                    There are no months with planned expense data matching your current filter.
+                  </p>
+                </div>
+              ) : (
+                filteredColumns.map(col => (
+                  <GlanceMonthCard
+                    key={`${col.mShort}-${col.year}`}
+                    col={col}
+                    isCurrent={col.isCurrent}
+                    isToggling={togglingColumn === `${col.mShort} ${col.year}`}
+                    cardRef={col.isCurrent ? currentMonthCardRef : null}
+                    onToggleItem={handleToggleItem}
+                    onFulfillItem={handleFulfillItem}
+                    onToggleColumn={handleToggleColumn}
+                    onDeleteItem={handleDeleteItem}
+                    onSelectMonth={onSelectMonth}
+                  />
+                ))
+              )}
+            </div>
+          )}
         </div>
       )}
 

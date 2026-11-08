@@ -15,14 +15,15 @@ import { useStickyNotesQuery } from '../../../hooks/useStickyNotesQuery';
 import { useRemindersQuery } from '../../../hooks/useRemindersQuery';
 import { QUERY_KEYS } from '../../../hooks/queryKeys';
 import { getLocalDateISO } from '../../../utils/dateHelpers';
+import { PageLoadingScreen } from '../../common/LoadingState';
 import './notes-reminders.css';
 
 export default function StickyNotesRemindersView() {
   const queryClient = useQueryClient();
 
   // ── Queries ────────────────────────────────────────────────────────────────
-  const { data: notes = [] } = useStickyNotesQuery();
-  const { data: reminders = [] } = useRemindersQuery();
+  const { data: notes = [], isLoading: isNotesLoading } = useStickyNotesQuery();
+  const { data: reminders = [], isLoading: isRemindersLoading } = useRemindersQuery();
 
   // ── Note Mutations ─────────────────────────────────────────────────────────
   const createNoteMutation = useMutation({
@@ -315,7 +316,12 @@ export default function StickyNotesRemindersView() {
   return (
     <div className="notes-reminders-container">
       {/* ── 1. Top Executive KPI Banner ────────────────────────────────────── */}
-      <StickyNotesKpiBanner notes={notes} reminders={reminders} />
+      <StickyNotesKpiBanner
+        notes={notes}
+        reminders={reminders}
+        isNotesLoading={isNotesLoading}
+        isRemindersLoading={isRemindersLoading}
+      />
 
       {/* ── 2. Interactive Toolbar ─────────────────────────────────────────── */}
       <StickyNotesToolbar
@@ -347,7 +353,14 @@ export default function StickyNotesRemindersView() {
               <span className="sticky-section-badge">{filteredNotes.length} notes</span>
             </div>
 
-            {filteredNotes.length === 0 ? (
+            {isNotesLoading ? (
+              <PageLoadingScreen
+                compact
+                rows={3}
+                title="Loading Sticky Notes..."
+                subtitle="Fetching stationery board notes."
+              />
+            ) : filteredNotes.length === 0 ? (
               <div className="notes-empty-state">
                 <div className="notes-empty-icon">
                   <StickyNoteIcon size={28} />
@@ -406,6 +419,15 @@ export default function StickyNotesRemindersView() {
             </div>
 
             <div className="reminders-section">
+              {isRemindersLoading ? (
+                <PageLoadingScreen
+                  compact
+                  rows={3}
+                  title="Loading Reminders Schedule..."
+                  subtitle="Synchronizing upcoming and due alerts."
+                />
+              ) : (
+                <>
               {/* Overdue Group */}
               {groupedReminders.overdue.length > 0 && (
                 <div className="reminders-group-container">
@@ -520,6 +542,8 @@ export default function StickyNotesRemindersView() {
                   </button>
                 </div>
               )}
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -528,6 +552,14 @@ export default function StickyNotesRemindersView() {
       {/* VIEW B: Dedicated Sticky Notes Canvas */}
       {viewMode === 'notes' && (
         <div className="sticky-canvas-section">
+          {isNotesLoading ? (
+            <PageLoadingScreen
+              title="Loading Sticky Notes..."
+              subtitle="Fetching pinned and active stationery notes."
+              rows={4}
+            />
+          ) : (
+            <>
           {/* Pinned Section */}
           {pinnedNotes.length > 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -617,12 +649,22 @@ export default function StickyNotesRemindersView() {
               </div>
             )}
           </div>
+            </>
+          )}
         </div>
       )}
 
       {/* VIEW C: Dedicated Reminders Ledger */}
       {viewMode === 'reminders' && (
         <div className="reminders-section" style={{ maxWidth: 840, margin: '0 auto' }}>
+          {isRemindersLoading ? (
+            <PageLoadingScreen
+              title="Loading Reminders Ledger..."
+              subtitle="Synchronizing overdue, today, and upcoming reminders."
+              rows={4}
+            />
+          ) : (
+            <>
           {/* Overdue Group */}
           {groupedReminders.overdue.length > 0 && (
             <div className="reminders-group-container">
@@ -736,6 +778,8 @@ export default function StickyNotesRemindersView() {
                 <Plus size={14} /> Schedule Reminder
               </button>
             </div>
+          )}
+            </>
           )}
         </div>
       )}

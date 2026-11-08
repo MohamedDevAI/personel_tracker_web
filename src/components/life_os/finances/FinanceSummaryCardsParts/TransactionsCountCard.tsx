@@ -1,5 +1,5 @@
-
 import { Filter } from 'lucide-react';
+import { KpiValueSkeleton } from '../../../common/LoadingState';
 
 /** Props for the TransactionsCountCard KPI panel */
 export interface TransactionsCountCardProps {
@@ -13,6 +13,8 @@ export interface TransactionsCountCardProps {
   selectedMonth: string;
   /** The selected year */
   selectedYear: number;
+  /** Whether KPI data is loading */
+  isLoading?: boolean;
 }
 
 /**
@@ -23,6 +25,7 @@ export default function TransactionsCountCard({
   transactionCount,
   selectedMonth,
   selectedYear,
+  isLoading = false,
 }: TransactionsCountCardProps) {
   const footerText = isAll ? `${selectedYear}` : `${selectedMonth} ${selectedYear}`;
 
@@ -34,10 +37,16 @@ export default function TransactionsCountCard({
           <Filter size={16} />
         </div>
       </div>
-      <div className="kpi-card-value kpi-val-count">
-        {transactionCount} <span className="kpi-unit-text">Entries</span>
-      </div>
-      <div className="kpi-card-footer">In {footerText}</div>
+      {isLoading ? (
+        <KpiValueSkeleton />
+      ) : (
+        <>
+          <div className="kpi-card-value kpi-val-count">
+            {transactionCount} <span className="kpi-unit-text">Entries</span>
+          </div>
+          <div className="kpi-card-footer">In {footerText}</div>
+        </>
+      )}
     </div>
   );
 }

@@ -11,13 +11,14 @@ import GoalCard from './GoalCard';
 import GoalMatrixSheet from './GoalMatrixSheet';
 import GoalModal from './GoalModal';
 import { useGoalsQuery, QUERY_KEYS } from '../../../hooks';
+import { PageLoadingScreen } from '../../common/LoadingState';
 import './goals.css';
 
 export default function GoalsView() {
   const queryClient = useQueryClient();
 
   // Data Queries
-  const { data: goals = [] } = useGoalsQuery();
+  const { data: goals = [], isLoading } = useGoalsQuery();
 
   // Mutations
   const updateProgressMutation = useMutation({
@@ -143,7 +144,7 @@ export default function GoalsView() {
   return (
     <div className="goals-view-container">
       {/* 1. KPI Summary Cards */}
-      <GoalsKpiCards goals={goals} />
+      <GoalsKpiCards goals={goals} isLoading={isLoading} />
 
       {/* 2. Toolbar & Filters */}
       <GoalsToolbar
@@ -162,7 +163,13 @@ export default function GoalsView() {
       />
 
       {/* 3. Cards Grid or Matrix Sheet View */}
-      {filteredGoals.length > 0 ? (
+      {isLoading ? (
+        <PageLoadingScreen
+          title="Loading Strategic Milestones..."
+          subtitle="Fetching your high-leverage targets and tracked progress."
+          rows={4}
+        />
+      ) : filteredGoals.length > 0 ? (
         viewMode === 'cards' ? (
           <div className="goals-cards-grid">
             {filteredGoals.map((goal) => (

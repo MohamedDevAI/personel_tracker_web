@@ -1,4 +1,5 @@
 import { ArrowDownLeft, ArrowUpRight, HandCoins } from 'lucide-react';
+import { KpiValueSkeleton } from '../../../common/LoadingState';
 
 interface BorrowKpiCardsProps {
   stats: {
@@ -17,9 +18,15 @@ interface BorrowKpiCardsProps {
   formatINR: (val: number) => string;
   /** If true, shows the 4-card aggregation layout (includes Credit Given). Otherwise 3-card tracker layout */
   variant?: 'tracker' | 'aggregation';
+  isLoading?: boolean;
 }
 
-export default function BorrowKpiCards({ stats, formatINR, variant = 'tracker' }: BorrowKpiCardsProps) {
+export default function BorrowKpiCards({
+  stats,
+  formatINR,
+  variant = 'tracker',
+  isLoading = false,
+}: BorrowKpiCardsProps) {
   return (
     <div className="borrow-kpi-grid">
       {/* Total Borrowed */}
@@ -28,12 +35,11 @@ export default function BorrowKpiCards({ stats, formatINR, variant = 'tracker' }
           <span className="borrow-kpi-label">TOTAL BORROWED</span>
           <div className="borrow-kpi-icon borrow-icon"><ArrowDownLeft size={16} /></div>
         </div>
-        <div className="borrow-kpi-val borrow-text">{formatINR(stats.totalBorrowed)}</div>
-        <div className="borrow-kpi-meta">
-          {variant === 'aggregation'
-            ? `Across ${stats.totalCreditorsCount} creditors`
-            : 'Money received as credit/loans'}
-        </div>
+        {isLoading ? (
+          <KpiValueSkeleton showSubtext={false} />
+        ) : (
+          <div className="borrow-kpi-val borrow-text">{formatINR(stats.totalBorrowed)}</div>
+        )}
       </div>
 
       {/* Total Repaid */}
@@ -42,11 +48,13 @@ export default function BorrowKpiCards({ stats, formatINR, variant = 'tracker' }
           <span className="borrow-kpi-label">TOTAL REPAID</span>
           <div className="borrow-kpi-icon repaid-icon"><ArrowUpRight size={16} /></div>
         </div>
-        <div className="borrow-kpi-val repaid-text">{formatINR(stats.totalRepaid)}</div>
-        <div className="borrow-kpi-meta">Total debt returned to creditors</div>
+        {isLoading ? (
+          <KpiValueSkeleton showSubtext={false} />
+        ) : (
+          <div className="borrow-kpi-val repaid-text">{formatINR(stats.totalRepaid)}</div>
+        )}
       </div>
 
-      {/* Credit Given (aggregation only) */}
       {variant === 'aggregation' && (
         <div className="borrow-kpi-card" style={{ borderColor: 'rgba(248, 158, 48, 0.3)' }}>
           <div className="borrow-kpi-header">
@@ -55,12 +63,13 @@ export default function BorrowKpiCards({ stats, formatINR, variant = 'tracker' }
               <HandCoins size={16} />
             </div>
           </div>
-          <div className="borrow-kpi-val" style={{ color: '#e88308' }}>
-            {formatINR(stats.totalCreditGiven || 0)}
-          </div>
-          <div className="borrow-kpi-meta">
-            {stats.creditGivenCreditorsCount || 0} creditor(s) received credit
-          </div>
+          {isLoading ? (
+            <KpiValueSkeleton showSubtext={false} />
+          ) : (
+            <div className="borrow-kpi-val" style={{ color: '#e88308' }}>
+              {formatINR(stats.totalCreditGiven || 0)}
+            </div>
+          )}
         </div>
       )}
 
@@ -70,20 +79,13 @@ export default function BorrowKpiCards({ stats, formatINR, variant = 'tracker' }
           <span className="borrow-kpi-label">NET OUTSTANDING</span>
           <div className="borrow-kpi-icon outstanding-icon"><HandCoins size={16} /></div>
         </div>
-        <div className={`borrow-kpi-val ${stats.netOutstanding > 0 ? 'outstanding-text' : 'settled-text'}`}>
-          {formatINR(stats.netOutstanding)}
-        </div>
-        <div className="borrow-kpi-meta">
-          {variant === 'aggregation'
-            ? `${stats.activeCreditorsCount} pending / ${stats.settledCreditorsCount} settled${
-                (stats.creditGivenCreditorsCount || 0) > 0 ? ` / ${stats.creditGivenCreditorsCount} credit given` : ''
-              }${
-                (stats.overpaidCreditorsCount || 0) > 0 ? ` / ${stats.overpaidCreditorsCount} overpaid` : ''
-              }`
-            : stats.netOutstanding > 0
-              ? `${stats.activeCreditorsCount} creditor(s) pending settlement`
-              : 'All borrowed money fully settled!'}
-        </div>
+        {isLoading ? (
+          <KpiValueSkeleton showSubtext={false} />
+        ) : (
+          <div className={`borrow-kpi-val ${stats.netOutstanding > 0 ? 'outstanding-text' : 'settled-text'}`}>
+            {formatINR(stats.netOutstanding)}
+          </div>
+        )}
       </div>
     </div>
   );

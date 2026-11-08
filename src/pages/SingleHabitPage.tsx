@@ -32,6 +32,7 @@ import { Habit } from '../interface/habit.interface';
 import { getLocalDateISO } from '../utils/dateHelpers';
 import HabitModal from '../components/life_os/habits/HabitModal';
 import ConfirmDeleteModal from '../components/common/ConfirmDeleteModal';
+import { KpiCardSkeleton, PageLoadingScreen } from '../components/common/LoadingState';
 import '../components/life_os/habits/SingleHabitAnalytics.css';
 
 const MONTH_NAMES = [
@@ -279,10 +280,18 @@ export default function SingleHabitPage() {
       <div className="single-habit-page">
         <div className="single-habit-hero-card">
           <div className="single-habit-identity-block">
-            <div style={{ height: 24, width: 140, background: 'rgba(255,255,255,0.08)', borderRadius: 6 }} />
-            <div style={{ height: 36, width: 320, background: 'rgba(255,255,255,0.1)', borderRadius: 8, marginTop: 8 }} />
+            <span className="skeleton-shimmer skeleton-line" style={{ height: 24, width: 140 }} />
+            <span className="skeleton-shimmer skeleton-value" style={{ height: 36, width: 320, marginTop: 8 }} />
           </div>
         </div>
+        <div className="single-habit-stats-grid">
+          <KpiCardSkeleton count={4} />
+        </div>
+        <PageLoadingScreen
+          title="Loading Habit Analytics..."
+          subtitle="Computing 7-day consistency metrics and monthly calendar heatmap."
+          rows={3}
+        />
       </div>
     );
   }

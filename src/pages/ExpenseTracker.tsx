@@ -45,8 +45,6 @@ export default function ExpenseTracker() {
     return plannedExpenses.filter(p => p.status === 'Planned').length;
   }, [plannedExpenses]);
 
-
-
   const [selectedYear, setSelectedYear] = useState<number>(() => getCurrentYear());
   const [selectedMonth, setSelectedMonth] = useState<string>(() => getCurrentMonth()); // 'All' or 'Jan'..'Dec'
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -152,7 +150,6 @@ export default function ExpenseTracker() {
       itemName: tx ? `${tx.description || tx.category} (SAR ${tx.amount})` : 'Selected Transaction'
     });
   };
-
 
   const handleExecuteDelete = () => {
     if (deleteConfirm.type === 'transaction') {
@@ -334,7 +331,6 @@ export default function ExpenseTracker() {
             Personal <span className="emerald-gradient-text">Finance Hub</span>
           </h1>
         </div>
-
       </div>
 
       {/* 4-Tab Finance Hub Sub-Navigation Bar */}
@@ -369,6 +365,7 @@ export default function ExpenseTracker() {
             totalDebit={monthlyStats.totalDebit}
             netBalance={monthlyStats.netBalance}
             transactionCount={monthlyStats.count}
+            isLoading={isTxsLoading}
           />
 
           {/* Main Grid: Transactions / Categories on Left, Outflow Breakdown on Right */}
@@ -452,6 +449,7 @@ export default function ExpenseTracker() {
                 totalDebit={monthlyStats.totalDebit}
                 pieData={monthlyStats.pieData}
                 onOpenAddModal={handleOpenAddModal}
+                isLoading={isTxsLoading}
               />
             </div>
           </div>
@@ -472,7 +470,6 @@ export default function ExpenseTracker() {
       {financeMainTab === 'borrow_repay' && (
         <BorrowRepayView />
       )}
-
 
       {/* Add Transaction Dialog */}
       <TransactionModal

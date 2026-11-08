@@ -1,6 +1,6 @@
-
 import { Wallet } from 'lucide-react';
 import { formatCurrency } from '../financeConstants';
+import { KpiValueSkeleton } from '../../../common/LoadingState';
 
 /** Props for the NetSavingsCard KPI panel */
 export interface NetSavingsCardProps {
@@ -14,6 +14,8 @@ export interface NetSavingsCardProps {
   netBalance: number;
   /** Total credit used to calculate savings rate */
   totalCredit: number;
+  /** Whether KPI data is loading */
+  isLoading?: boolean;
 }
 
 /**
@@ -26,6 +28,7 @@ export default function NetSavingsCard({
   selectedYear,
   netBalance,
   totalCredit,
+  isLoading = false,
 }: NetSavingsCardProps) {
   const label = isAll ? `${selectedYear} NET SAVINGS` : `${periodLabel} NET SAVINGS`;
   const isPositive = netBalance >= 0;
@@ -40,10 +43,16 @@ export default function NetSavingsCard({
           <Wallet size={16} />
         </div>
       </div>
-      <div className={`kpi-card-value ${isPositive ? 'kpi-val-savings' : 'kpi-val-debit'}`}>
-        SAR {formatCurrency(netBalance)}
-      </div>
-      <div className="kpi-card-footer">{footerText}</div>
+      {isLoading ? (
+        <KpiValueSkeleton />
+      ) : (
+        <>
+          <div className={`kpi-card-value ${isPositive ? 'kpi-val-savings' : 'kpi-val-debit'}`}>
+            SAR {formatCurrency(netBalance)}
+          </div>
+          <div className="kpi-card-footer">{footerText}</div>
+        </>
+      )}
     </div>
   );
 }

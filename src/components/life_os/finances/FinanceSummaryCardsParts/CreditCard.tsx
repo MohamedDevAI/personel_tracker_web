@@ -1,5 +1,6 @@
 import { ArrowUpRight } from 'lucide-react';
 import { formatCurrency } from '../financeConstants';
+import { KpiValueSkeleton } from '../../../common/LoadingState';
 
 /** Props for the CreditCard KPI panel */
 export interface CreditCardProps {
@@ -11,13 +12,21 @@ export interface CreditCardProps {
   selectedYear: number;
   /** Total credit (income) amount for the period in SAR */
   totalCredit: number;
+  /** Whether KPI data is loading */
+  isLoading?: boolean;
 }
 
 /**
  * CreditCard displays the total credit (income) KPI for a finance period.
  * It shows the label, icon, formatted amount, and a brief footer note.
  */
-export default function CreditCard({ isAll, periodLabel, selectedYear, totalCredit }: CreditCardProps) {
+export default function CreditCard({
+  isAll,
+  periodLabel,
+  selectedYear,
+  totalCredit,
+  isLoading = false,
+}: CreditCardProps) {
   const label = isAll ? `${selectedYear} TOTAL CREDIT` : `${periodLabel} CREDIT`;
 
   return (
@@ -28,8 +37,14 @@ export default function CreditCard({ isAll, periodLabel, selectedYear, totalCred
           <ArrowUpRight size={16} />
         </div>
       </div>
-      <div className="kpi-card-value kpi-val-credit">+SAR {formatCurrency(totalCredit)}</div>
-      <div className="kpi-card-footer">Inflows &amp; Salary deposits</div>
+      {isLoading ? (
+        <KpiValueSkeleton />
+      ) : (
+        <>
+          <div className="kpi-card-value kpi-val-credit">+SAR {formatCurrency(totalCredit)}</div>
+          <div className="kpi-card-footer">Inflows &amp; Salary deposits</div>
+        </>
+      )}
     </div>
   );
 }

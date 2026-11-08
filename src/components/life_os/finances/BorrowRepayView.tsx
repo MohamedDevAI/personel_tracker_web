@@ -34,8 +34,6 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
             Borrow &amp; Repay <span className="emerald-gradient-text">Management</span>
           </h2>
         </div>
-
-
       </div>
 
       {/* ── Step Tabs ────────────────────────────────────────────────────────── */}
@@ -46,7 +44,9 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
         >
           <Table2 size={16} />
           <span>Credit Tracker</span>
-          <span className="step-counter">{d.creditorSummaries.length} Creditors</span>
+          <span className="step-counter">
+            {d.isLoading ? '...' : `${d.creditorSummaries.length} Creditors`}
+          </span>
         </button>
 
         <button
@@ -56,7 +56,7 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
           <CalendarClock size={16} />
           <span>Planned Payback</span>
           <span className="step-counter" style={{ background: 'rgba(20, 184, 166, 0.15)', color: '#2dd4bf', border: '1px solid rgba(20, 184, 166, 0.3)' }}>
-            {d.plannedRepayments.length > 0 ? `${d.plannedRepayments.length} Plans` : 'Schedule'}
+            {d.isPlannedLoading ? '...' : d.plannedRepayments.length > 0 ? `${d.plannedRepayments.length} Plans` : 'Schedule'}
           </span>
         </button>
       </div>
@@ -64,7 +64,12 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
       {/* ── MAIN SCREEN: Creditor Aggregations (Only screen shown initially) ── */}
       {(d.activeStep === 'aggregation' || d.activeStep === 'credit_tracker') && (
         <>
-          <BorrowKpiCards stats={d.stats} formatINR={d.formatINR} variant="aggregation" />
+          <BorrowKpiCards
+            stats={d.stats}
+            formatINR={d.formatINR}
+            variant="aggregation"
+            isLoading={d.isLoading}
+          />
 
           <AggregationTable
             filteredCreditorSummaries={d.filteredCreditorSummaries}
@@ -96,6 +101,7 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
             }}
             onAddRecord={() => d.handleOpenCreditModal('Borrow', '')}
             formatINR={d.formatINR}
+            isLoading={d.isLoading}
           />
         </>
       )}
@@ -218,6 +224,7 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
             onResetFilters={d.resetFilters}
             onBackToAggregation={handleBackToAggregation}
             formatINR={d.formatINR}
+            isLoading={d.isLoading}
           />
         </>
       )}
@@ -284,6 +291,7 @@ export default function BorrowRepayView({ initialMonth, initialYear }: BorrowRep
             onResetFilters={d.resetFilters}
             onBackToAggregation={handleBackToAggregation}
             formatINR={d.formatINR}
+            isLoading={d.isLoading}
           />
         </>
       )}

@@ -39,8 +39,8 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
   }>({ isOpen: false, type: 'credit_record', id: '', itemName: '' });
 
   // ── Data Queries ─────────────────────────────────────────────────────────────
-  const { data: records = [] } = useBorrowRepayRecordsQuery();
-  const { data: plannedRepayments = [] } = usePlannedRepaymentsQuery();
+  const { data: records = [], isLoading: isRecordsLoading } = useBorrowRepayRecordsQuery();
+  const { data: plannedRepayments = [], isLoading: isPlannedLoading } = usePlannedRepaymentsQuery();
 
   // ── Mutations ────────────────────────────────────────────────────────────────
   const invalidateAll = () => {
@@ -328,6 +328,8 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
     deleteConfirm, setDeleteConfirm,
     // Data
     records, plannedRepayments,
+    isLoading: isRecordsLoading,
+    isPlannedLoading,
     creditorSummaries, stats, existingCreditors,
     filteredRecords, activeFilterTotals,
     filteredCreditorSummaries, yearlySummaries,

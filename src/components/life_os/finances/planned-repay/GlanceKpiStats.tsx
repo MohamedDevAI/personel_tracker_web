@@ -1,3 +1,4 @@
+import { KpiValueSkeleton } from '../../../common/LoadingState';
 
 interface GlanceKpiStatsProps {
   totalPlanned: number;
@@ -8,12 +9,19 @@ interface GlanceKpiStatsProps {
   totalItems: number;
   rolloverStats: { countRecovered: number; recoveredOriginalTotal: number };
   formatINR: (val: number) => string;
+  isLoading?: boolean;
 }
 
 export default function GlanceKpiStats({
-  totalPlanned, effectiveFulfilled, truePending,
-  completedMonthsCount, totalMonths, totalItems,
-  rolloverStats, formatINR
+  totalPlanned,
+  effectiveFulfilled,
+  truePending,
+  completedMonthsCount,
+  totalMonths,
+  totalItems,
+  rolloverStats,
+  formatINR,
+  isLoading = false,
 }: GlanceKpiStatsProps) {
   return (
     <div className="glance-hero-banner glass-panel" style={{ padding: '16px 20px', gap: 14 }}>
@@ -22,30 +30,48 @@ export default function GlanceKpiStats({
         {/* Total Commitment */}
         <div className="glance-stat-box">
           <span className="glance-stat-label">TOTAL COMMITMENT</span>
-          <span className="glance-stat-value">{formatINR(totalPlanned)}</span>
-          <span className="glance-stat-sub">{totalMonths} Months ({totalItems} items)</span>
+          {isLoading ? (
+            <KpiValueSkeleton />
+          ) : (
+            <>
+              <span className="glance-stat-value">{formatINR(totalPlanned)}</span>
+              <span className="glance-stat-sub">{totalMonths} Months ({totalItems} items)</span>
+            </>
+          )}
         </div>
 
         {/* Fulfilled / Completed */}
         <div className="glance-stat-box fulfilled">
           <span className="glance-stat-label">FULFILLED / COMPLETED</span>
-          <span className="glance-stat-value emerald-text">{formatINR(effectiveFulfilled)}</span>
-          <span className="glance-stat-sub">
-            {completedMonthsCount} of {totalMonths} Months
-          </span>
+          {isLoading ? (
+            <KpiValueSkeleton />
+          ) : (
+            <>
+              <span className="glance-stat-value emerald-text">{formatINR(effectiveFulfilled)}</span>
+              <span className="glance-stat-sub">
+                {completedMonthsCount} of {totalMonths} Months
+              </span>
+            </>
+          )}
         </div>
 
         {/* Remaining Pending */}
         <div className="glance-stat-box pending">
           <span className="glance-stat-label">REMAINING PENDING</span>
-          <span className="glance-stat-value amber-text">{formatINR(Math.max(0, truePending))}</span>
-          <span className="glance-stat-sub">
-            {truePending <= 0 ? 'All debts accounted for ✓' : `${totalMonths - completedMonthsCount} Month(s) Pending`}
-          </span>
+          {isLoading ? (
+            <KpiValueSkeleton />
+          ) : (
+            <>
+              <span className="glance-stat-value amber-text">{formatINR(Math.max(0, truePending))}</span>
+              <span className="glance-stat-sub">
+                {truePending <= 0 ? 'All debts accounted for ✓' : `${totalMonths - completedMonthsCount} Month(s) Pending`}
+              </span>
+            </>
+          )}
         </div>
 
         {/* Next-Month Recovered (conditional) */}
-        {rolloverStats.countRecovered > 0 && (
+        {!isLoading && rolloverStats.countRecovered > 0 && (
           <div className="glance-stat-box" style={{ borderColor: 'rgba(242, 129, 54, 0.4)', background: 'rgba(242, 129, 54, 0.08)' }}>
             <span className="glance-stat-label" style={{ color: '#b83b06' }}>NEXT-MONTH RECOVERED</span>
             <span className="glance-stat-value" style={{ color: '#ae3b0a' }}>{formatINR(rolloverStats.recoveredOriginalTotal)}</span>

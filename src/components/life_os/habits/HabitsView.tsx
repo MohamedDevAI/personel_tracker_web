@@ -14,6 +14,7 @@ import { QUERY_KEYS } from '../../../hooks/queryKeys';
 import { api } from '../../../services/api';
 import { Habit } from '../../../interface/habit.interface';
 import { getLocalDateISO } from '../../../utils/dateHelpers';
+import { PageLoadingScreen } from '../../common/LoadingState';
 import './habits.css';
 
 export default function HabitsView() {
@@ -39,7 +40,7 @@ export default function HabitsView() {
   const deleteConfirm = useDeleteConfirmation<string>();
 
   // Fetch habits directly from the backend API
-  const { data: habits = [] } = useHabitsQuery();
+  const { data: habits = [], isLoading } = useHabitsQuery();
 
   // Daily completion counts for the top date strip (mapping today's active completions)
   const dailyCompletionCounts = useMemo<Record<string, number>>(() => {
@@ -232,6 +233,7 @@ export default function HabitsView() {
         selectedDate={selectedDate}
         isToday={isToday}
         onOpenAddModal={handleOpenAddModal}
+        isLoading={isLoading}
       />
 
       {/* 3. Toolbar: Search, Category & Status Filters */}
@@ -247,7 +249,13 @@ export default function HabitsView() {
       />
 
       {/* 4. Habits Grid or Empty State */}
-      {filteredHabits.length > 0 ? (
+      {isLoading ? (
+        <PageLoadingScreen
+          title="Loading Atomic Habits..."
+          subtitle="Synchronizing daily routines, streaks, and completion records."
+          rows={4}
+        />
+      ) : filteredHabits.length > 0 ? (
         <div className="habits-grid">
           {filteredHabits.map((habit) => (
             <HabitCard

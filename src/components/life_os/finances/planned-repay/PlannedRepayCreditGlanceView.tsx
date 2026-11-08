@@ -7,6 +7,7 @@ import GlanceMatrixBoard, { GlanceMatrixBoardHandle } from './GlanceMatrixBoard'
 import GlanceLedgerTable from './GlanceLedgerTable';
 import GlanceAddModal from './GlanceAddModal';
 import GlanceDeleteModal from './GlanceDeleteModal';
+import { PageLoadingScreen } from '../../../common/LoadingState';
 
 interface PlannedRepayCreditGlanceViewProps {
   actualRecords?: BorrowRepayRecord[];
@@ -20,10 +21,11 @@ export default function PlannedRepayCreditGlanceView({
 
   if (g.isLoading) {
     return (
-      <div className="glance-loading-state glass-panel">
-        <RefreshCw className="spin-icon" size={28} />
-        <h4>Loading Planned Repayments Matrix...</h4>
-      </div>
+      <PageLoadingScreen
+        title="Loading Planned Repayments Matrix..."
+        subtitle="Synchronizing scheduled debt repayments across creditors."
+        rows={4}
+      />
     );
   }
 

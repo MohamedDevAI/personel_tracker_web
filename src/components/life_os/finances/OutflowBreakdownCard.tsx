@@ -2,6 +2,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Plus, Coins } from 'lucide-react';
 import { TransactionType } from '../../../types';
 import { getCategoryColor, formatCurrency } from './financeConstants';
+import { PageLoadingScreen } from '../../common/LoadingState';
 
 interface OutflowBreakdownCardProps {
   selectedMonth: string;
@@ -9,6 +10,7 @@ interface OutflowBreakdownCardProps {
   totalDebit: number;
   pieData: { name: string; value: number }[];
   onOpenAddModal: (type?: TransactionType) => void;
+  isLoading?: boolean;
 }
 
 export default function OutflowBreakdownCard({
@@ -16,7 +18,8 @@ export default function OutflowBreakdownCard({
   selectedYear,
   totalDebit,
   pieData,
-  onOpenAddModal
+  onOpenAddModal,
+  isLoading = false,
 }: OutflowBreakdownCardProps) {
   const isAll = selectedMonth === 'All';
   const periodTitle = isAll ? `${selectedYear} Outflows` : `${selectedMonth} ${selectedYear} Outflows`;
@@ -32,7 +35,14 @@ export default function OutflowBreakdownCard({
         </p>
       </div>
 
-      {pieData.length > 0 ? (
+      {isLoading ? (
+        <PageLoadingScreen
+          compact
+          rows={3}
+          title="Loading spending analytics..."
+          subtitle=""
+        />
+      ) : pieData.length > 0 ? (
         <div className="outflow-body-wrapper">
           {/* Donut Chart with Centered Metric (No Overlapping Legend) */}
           <div className="outflow-donut-wrapper">

@@ -11,6 +11,7 @@ import {
 import { Category, Transaction, TransactionType } from '../../../types';
 import { formatCurrency } from './financeConstants';
 import { formatCleanDescription } from '../../../utils/formatters';
+import { PageLoadingScreen } from '../../common/LoadingState';
 
 interface TransactionTableProps {
   transactions: Transaction[];
@@ -55,9 +56,11 @@ export default function TransactionTable({
   return (
     <div className="glass-panel finance-card-fixed-90vh">
       {isLoading ? (
-        <div className="finance-loading-state">
-          Loading transactions...
-        </div>
+        <PageLoadingScreen
+          title="Loading transactions..."
+          subtitle="Fetching monthly financial ledger entries."
+          rows={5}
+        />
       ) : transactions.length === 0 ? (
         <div className="finance-empty-state">
           <div className="finance-empty-icon">

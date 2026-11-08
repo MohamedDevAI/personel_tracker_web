@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Search, Calendar, Filter, Clock, ArrowUpDown, ArrowUp, ArrowDown, RotateCcw, Plus } from 'lucide-react';
 import { MONTH_NAMES } from '../../../../utils/dateHelpers';
+import { PageLoadingScreen } from '../../../common/LoadingState';
 
 interface CreditorSummary {
   creditorName: string;
@@ -57,6 +58,7 @@ interface AggregationTableProps {
   onGoToLedger: () => void;
   onAddRecord?: () => void;
   formatINR: (val: number) => string;
+  isLoading?: boolean;
 }
 
 export default function AggregationTable({
@@ -66,7 +68,8 @@ export default function AggregationTable({
   selectedMonth, onMonthChange,
   selectedYear, onYearChange,
   availableYears = [],
-  onInspectCreditor, onInspectYear, onGoToLedger, onAddRecord, formatINR: _formatINR
+  onInspectCreditor, onInspectYear, onGoToLedger, onAddRecord, formatINR: _formatINR,
+  isLoading = false,
 }: AggregationTableProps) {
   const [sortField, setSortField] = useState<SortField>('netBalance');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
@@ -494,7 +497,18 @@ export default function AggregationTable({
             </tr>
           </thead>
           <tbody>
-            {sortedCreditorSummaries.length === 0 ? (
+            {isLoading ? (
+              <tr>
+                <td colSpan={10} style={{ padding: '24px' }}>
+                  <PageLoadingScreen
+                    compact
+                    rows={3}
+                    title="Loading creditor aggregations..."
+                    subtitle="Synchronizing borrow & repay balances across accounts."
+                  />
+                </td>
+              </tr>
+            ) : sortedCreditorSummaries.length === 0 ? (
               <tr>
                 <td colSpan={10} style={{ textAlign: 'center', padding: '36px', color: 'var(--text-muted)' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>

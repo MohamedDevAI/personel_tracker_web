@@ -21,6 +21,8 @@ export interface FinanceSummaryCardsProps {
   netBalance: number;
   /** Number of transactions in the period */
   transactionCount: number;
+  /** Whether KPI data is currently loading */
+  isLoading?: boolean;
 }
 
 /**
@@ -40,6 +42,7 @@ export default function FinanceSummaryCards({
   totalDebit,
   netBalance,
   transactionCount,
+  isLoading = false,
 }: FinanceSummaryCardsProps) {
   const isAll = selectedMonth === 'All';
   const periodLabel = isAll
@@ -53,12 +56,14 @@ export default function FinanceSummaryCards({
         periodLabel={periodLabel}
         selectedYear={selectedYear}
         totalCredit={totalCredit}
+        isLoading={isLoading}
       />
       <DebitCard
         isAll={isAll}
         periodLabel={periodLabel}
         selectedYear={selectedYear}
         totalDebit={totalDebit}
+        isLoading={isLoading}
       />
       <NetSavingsCard
         isAll={isAll}
@@ -66,6 +71,7 @@ export default function FinanceSummaryCards({
         selectedYear={selectedYear}
         netBalance={netBalance}
         totalCredit={totalCredit}
+        isLoading={isLoading}
       />
       <TransactionsCountCard
         isAll={isAll}
@@ -73,6 +79,7 @@ export default function FinanceSummaryCards({
         transactionCount={transactionCount}
         selectedMonth={selectedMonth}
         selectedYear={selectedYear}
+        isLoading={isLoading}
       />
     </div>
   );

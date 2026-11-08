@@ -40,6 +40,7 @@ import {
   useBorrowRepayRecordsQuery,
   QUERY_KEYS,
 } from '../hooks';
+import { KpiValueSkeleton, PageLoadingScreen } from '../components/common/LoadingState';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -74,12 +75,12 @@ export default function Dashboard() {
   }, [currentMonth, currentYear]);
 
   // ── Live Data Queries ────────────────────────────────────────────────────
-  const { data: transactions = [] } = useTransactionsQuery();
-  const { data: habits = [] } = useHabitsQuery();
-  const { data: tasks = [] } = useTasksQuery();
-  const { data: reminders = [] } = useRemindersQuery();
-  const { data: plannedExpenses = [] } = usePlannedExpensesQuery('ALL');
-  const { data: borrowRecords = [] } = useBorrowRepayRecordsQuery();
+  const { data: transactions = [], isLoading: isTxsLoading } = useTransactionsQuery();
+  const { data: habits = [], isLoading: isHabitsLoading } = useHabitsQuery();
+  const { data: tasks = [], isLoading: isTasksLoading } = useTasksQuery();
+  const { data: reminders = [], isLoading: isRemindersLoading } = useRemindersQuery();
+  const { data: plannedExpenses = [], isLoading: isPlannedLoading } = usePlannedExpensesQuery('ALL');
+  const { data: borrowRecords = [], isLoading: isBorrowLoading } = useBorrowRepayRecordsQuery();
 
   // ── Mutations ────────────────────────────────────────────────────────────
 
@@ -314,20 +315,24 @@ export default function Dashboard() {
               <Wallet size={12} /> {financialGlance.cashInHand >= 0 ? 'Surplus' : 'Deficit'}
             </span>
           </div>
-          <div
-            className="dashboard-kpi-value"
-            style={{ color: financialGlance.cashInHand >= 0 ? '#ffffff' : '#fb923c' }}
-          >
-            SAR {financialGlance.cashInHand.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </div>
-          <div className="dashboard-kpi-subtext">
-            {timeframe === 'month'
-              ? `Net income minus expenses in ${currentMonth} ${currentYear}`
-              : 'Cumulative credit minus debit across entire ledger'}
-          </div>
+          {isTxsLoading ? (
+            <KpiValueSkeleton />
+          ) : (
+            <>
+              <div
+                className="dashboard-kpi-value"
+                style={{ color: financialGlance.cashInHand >= 0 ? '#ffffff' : '#fb923c' }}
+              >
+                SAR {financialGlance.cashInHand.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+              <div className="dashboard-kpi-subtext">
+                {timeframe === 'month'
+                  ? `Net income minus expenses in ${currentMonth} ${currentYear}`
+                  : 'Cumulative credit minus debit across entire ledger'}
+              </div>
+            </>
+          )}
         </div>
-
-
 
         {/* Card 2: Expense Tracked */}
         <div className="glass-panel dashboard-kpi-card">
@@ -337,12 +342,18 @@ export default function Dashboard() {
               <ArrowDownRight size={12} /> Spent
             </span>
           </div>
-          <div className="dashboard-kpi-value" style={{ color: '#fdba74' }}>
-            SAR {financialGlance.totalDebit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </div>
-          <div className="dashboard-kpi-subtext">
-            Total debit transactions recorded ({financialGlance.txCount} entries)
-          </div>
+          {isTxsLoading ? (
+            <KpiValueSkeleton />
+          ) : (
+            <>
+              <div className="dashboard-kpi-value" style={{ color: '#fdba74' }}>
+                SAR {financialGlance.totalDebit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+              <div className="dashboard-kpi-subtext">
+                Total debit transactions recorded ({financialGlance.txCount} entries)
+              </div>
+            </>
+          )}
         </div>
 
         {/* Card 3: How Much did I repay */}
@@ -353,22 +364,28 @@ export default function Dashboard() {
               <RotateCcw size={12} /> {timeframe === 'month' ? 'SAR (Paybacks)' : 'INR (Loans)'}
             </span>
           </div>
-          <div className="dashboard-kpi-value" style={{ color: '#ffffff' }}>
-            {timeframe === 'month' ? (
-              <>
-                SAR {financialGlance.creditPaybackDebit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </>
-            ) : (
-              <>
-                INR {financialGlance.totalDebtRepaid.toLocaleString('en-US', { minimumFractionDigits: 0 })}
-              </>
-            )}
-          </div>
-          <div className="dashboard-kpi-subtext">
-            {timeframe === 'month'
-              ? `Installments & paybacks settled in ${currentMonth}`
-              : `Total loans & credit debt repaid across accounts`}
-          </div>
+          {(timeframe === 'month' ? isTxsLoading : isBorrowLoading) ? (
+            <KpiValueSkeleton />
+          ) : (
+            <>
+              <div className="dashboard-kpi-value" style={{ color: '#ffffff' }}>
+                {timeframe === 'month' ? (
+                  <>
+                    SAR {financialGlance.creditPaybackDebit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </>
+                ) : (
+                  <>
+                    INR {financialGlance.totalDebtRepaid.toLocaleString('en-US', { minimumFractionDigits: 0 })}
+                  </>
+                )}
+              </div>
+              <div className="dashboard-kpi-subtext">
+                {timeframe === 'month'
+                  ? `Installments & paybacks settled in ${currentMonth}`
+                  : `Total loans & credit debt repaid across accounts`}
+              </div>
+            </>
+          )}
         </div>
 
         {/* Card 4: Next Month Commitments */}
@@ -376,15 +393,21 @@ export default function Dashboard() {
           <div className="dashboard-kpi-top">
             <span className="dashboard-kpi-label">NEXT MONTH COMMITMENTS</span>
             <span className="badge badge-indigo">
-              <Calendar size={12} /> {nextMonthCommitments.length} Items
+              <Calendar size={12} /> {isPlannedLoading ? '...' : `${nextMonthCommitments.length} Items`}
             </span>
           </div>
-          <div className="dashboard-kpi-value" style={{ color: '#fed7aa' }}>
-            SAR {Math.round(nextMonthTotalAmount).toLocaleString('en-US')}
-          </div>
-          <div className="dashboard-kpi-subtext">
-            Scheduled obligations for {nextMonth} {nextMonthYear}
-          </div>
+          {isPlannedLoading ? (
+            <KpiValueSkeleton />
+          ) : (
+            <>
+              <div className="dashboard-kpi-value" style={{ color: '#fed7aa' }}>
+                SAR {Math.round(nextMonthTotalAmount).toLocaleString('en-US')}
+              </div>
+              <div className="dashboard-kpi-subtext">
+                Scheduled obligations for {nextMonth} {nextMonthYear}
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -415,7 +438,14 @@ export default function Dashboard() {
             </div>
 
             <div className="habits-list-vertical">
-              {todaysReminders.length === 0 ? (
+              {isRemindersLoading ? (
+                <PageLoadingScreen
+                  compact
+                  rows={2}
+                  title="Loading today's reminders..."
+                  subtitle=""
+                />
+              ) : todaysReminders.length === 0 ? (
                 <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-muted)' }}>
                   No reminders due today. All caught up!
                 </div>
@@ -478,7 +508,14 @@ export default function Dashboard() {
             </div>
 
             <div className="habits-list-vertical">
-              {todaysTasks.length === 0 ? (
+              {isTasksLoading ? (
+                <PageLoadingScreen
+                  compact
+                  rows={2}
+                  title="Loading today's tasks..."
+                  subtitle=""
+                />
+              ) : todaysTasks.length === 0 ? (
                 <div style={{ padding: '16px', textAlign: 'center', color: 'var(--text-muted)' }}>
                   No active tasks for today. Add one below!
                 </div>
@@ -561,25 +598,40 @@ export default function Dashboard() {
             </div>
 
             {/* Momentum Strip */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Flame size={16} color="#f97316" fill="#f97316" />
-                <span style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-primary)' }}>
-                  {maxStreak} Days Streak
-                </span>
+            {isHabitsLoading ? (
+              <div style={{ marginBottom: 14 }}>
+                <KpiValueSkeleton height={22} subtextWidth="100%" />
               </div>
-              <span className="badge badge-amber">
-                {habitsDoneToday} of {habitsTotal} Done Today ({habitsCompletionPct}%)
-              </span>
-            </div>
+            ) : (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Flame size={16} color="#f97316" fill="#f97316" />
+                    <span style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-primary)' }}>
+                      {maxStreak} Days Streak
+                    </span>
+                  </div>
+                  <span className="badge badge-amber">
+                    {habitsDoneToday} of {habitsTotal} Done Today ({habitsCompletionPct}%)
+                  </span>
+                </div>
 
-            <div className="dashboard-progress-track" style={{ marginBottom: 14 }}>
-              <div className="dashboard-progress-bar" style={{ width: `${habitsCompletionPct}%` }} />
-            </div>
+                <div className="dashboard-progress-track" style={{ marginBottom: 14 }}>
+                  <div className="dashboard-progress-bar" style={{ width: `${habitsCompletionPct}%` }} />
+                </div>
+              </>
+            )}
 
             {/* Habits Checklist */}
             <div className="habits-list-vertical">
-              {habits.length === 0 ? (
+              {isHabitsLoading ? (
+                <PageLoadingScreen
+                  compact
+                  rows={3}
+                  title="Loading daily routines..."
+                  subtitle=""
+                />
+              ) : habits.length === 0 ? (
                 <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-muted)' }}>
                   No habits logged. Click "Routines" to define daily habits.
                 </div>

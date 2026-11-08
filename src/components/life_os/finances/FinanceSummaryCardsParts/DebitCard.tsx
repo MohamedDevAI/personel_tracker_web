@@ -1,5 +1,6 @@
 import { ArrowDownRight } from 'lucide-react';
 import { formatCurrency } from '../financeConstants';
+import { KpiValueSkeleton } from '../../../common/LoadingState';
 
 /** Props for the DebitCard KPI panel */
 export interface DebitCardProps {
@@ -11,12 +12,20 @@ export interface DebitCardProps {
   selectedYear: number;
   /** Total debit (expenses) amount for the period in SAR */
   totalDebit: number;
+  /** Whether KPI data is loading */
+  isLoading?: boolean;
 }
 
 /**
  * DebitCard displays the total debit (expenses) KPI for a finance period.
  */
-export default function DebitCard({ isAll, periodLabel, selectedYear, totalDebit }: DebitCardProps) {
+export default function DebitCard({
+  isAll,
+  periodLabel,
+  selectedYear,
+  totalDebit,
+  isLoading = false,
+}: DebitCardProps) {
   const label = isAll ? `${selectedYear} TOTAL DEBIT` : `${periodLabel} DEBIT`;
 
   return (
@@ -27,8 +36,14 @@ export default function DebitCard({ isAll, periodLabel, selectedYear, totalDebit
           <ArrowDownRight size={16} />
         </div>
       </div>
-      <div className="kpi-card-value kpi-val-debit">-SAR {formatCurrency(Math.abs(totalDebit))}</div>
-      <div className="kpi-card-footer">Expenses &amp; Outgoing payments</div>
+      {isLoading ? (
+        <KpiValueSkeleton />
+      ) : (
+        <>
+          <div className="kpi-card-value kpi-val-debit">-SAR {formatCurrency(Math.abs(totalDebit))}</div>
+          <div className="kpi-card-footer">Expenses &amp; Outgoing payments</div>
+        </>
+      )}
     </div>
   );
 }

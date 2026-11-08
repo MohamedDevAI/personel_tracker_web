@@ -1,13 +1,26 @@
 import { StickyNote as StickyNoteIcon, Bell, AlertTriangle, CheckCircle2, Pin } from 'lucide-react';
 import type { StickyNote, ReminderItem } from '../../../types/notesReminders';
 import { getLocalDateISO } from '../../../utils/dateHelpers';
+import { KpiValueSkeleton } from '../../common/LoadingState';
 
 interface StickyNotesKpiBannerProps {
   notes: StickyNote[];
   reminders: ReminderItem[];
+  isNotesLoading?: boolean;
+  isRemindersLoading?: boolean;
+  isLoading?: boolean;
 }
 
-export default function StickyNotesKpiBanner({ notes, reminders }: StickyNotesKpiBannerProps) {
+export default function StickyNotesKpiBanner({
+  notes,
+  reminders,
+  isNotesLoading = false,
+  isRemindersLoading = false,
+  isLoading = false,
+}: StickyNotesKpiBannerProps) {
+  const notesLoading = isLoading || isNotesLoading;
+  const remindersLoading = isLoading || isRemindersLoading;
+
   const pinnedNotesCount = notes.filter((n) => n.isPinned).length;
   
   const todayStr = getLocalDateISO();
@@ -24,13 +37,19 @@ export default function StickyNotesKpiBanner({ notes, reminders }: StickyNotesKp
         <div className="notes-kpi-icon-wrap yellow">
           <StickyNoteIcon size={24} />
         </div>
-        <div className="notes-kpi-info">
+        <div className="notes-kpi-info" style={{ flex: 1 }}>
           <span className="notes-kpi-label">Active Sticky Notes</span>
-          <span className="notes-kpi-value">{notes.length}</span>
-          <span className="notes-kpi-sub">
-            <Pin size={11} style={{ display: 'inline', marginRight: 4 }} />
-            {pinnedNotesCount} Pinned to Top
-          </span>
+          {notesLoading ? (
+            <KpiValueSkeleton />
+          ) : (
+            <>
+              <span className="notes-kpi-value">{notes.length}</span>
+              <span className="notes-kpi-sub">
+                <Pin size={11} style={{ display: 'inline', marginRight: 4 }} />
+                {pinnedNotesCount} Pinned to Top
+              </span>
+            </>
+          )}
         </div>
       </div>
 
@@ -39,12 +58,18 @@ export default function StickyNotesKpiBanner({ notes, reminders }: StickyNotesKp
         <div className="notes-kpi-icon-wrap purple">
           <Bell size={24} />
         </div>
-        <div className="notes-kpi-info">
+        <div className="notes-kpi-info" style={{ flex: 1 }}>
           <span className="notes-kpi-label">Active Reminders</span>
-          <span className="notes-kpi-value">{pendingReminders.length}</span>
-          <span className="notes-kpi-sub">
-            {todayCount > 0 ? `${todayCount} due today` : 'No urgent alerts for today'}
-          </span>
+          {remindersLoading ? (
+            <KpiValueSkeleton />
+          ) : (
+            <>
+              <span className="notes-kpi-value">{pendingReminders.length}</span>
+              <span className="notes-kpi-sub">
+                {todayCount > 0 ? `${todayCount} due today` : 'No urgent alerts for today'}
+              </span>
+            </>
+          )}
         </div>
       </div>
 
@@ -53,14 +78,20 @@ export default function StickyNotesKpiBanner({ notes, reminders }: StickyNotesKp
         <div className="notes-kpi-icon-wrap rose">
           <AlertTriangle size={24} />
         </div>
-        <div className="notes-kpi-info">
+        <div className="notes-kpi-info" style={{ flex: 1 }}>
           <span className="notes-kpi-label">Overdue Alerts</span>
-          <span className="notes-kpi-value" style={{ color: overdueCount > 0 ? '#58514d' : undefined }}>
-            {overdueCount}
-          </span>
-          <span className="notes-kpi-sub">
-            {overdueCount > 0 ? 'Requires immediate action' : 'All schedules on track ✓'}
-          </span>
+          {remindersLoading ? (
+            <KpiValueSkeleton />
+          ) : (
+            <>
+              <span className="notes-kpi-value" style={{ color: overdueCount > 0 ? '#58514d' : undefined }}>
+                {overdueCount}
+              </span>
+              <span className="notes-kpi-sub">
+                {overdueCount > 0 ? 'Requires immediate action' : 'All schedules on track ✓'}
+              </span>
+            </>
+          )}
         </div>
       </div>
 
@@ -69,14 +100,20 @@ export default function StickyNotesKpiBanner({ notes, reminders }: StickyNotesKp
         <div className="notes-kpi-icon-wrap emerald">
           <CheckCircle2 size={24} />
         </div>
-        <div className="notes-kpi-info">
+        <div className="notes-kpi-info" style={{ flex: 1 }}>
           <span className="notes-kpi-label">Completed Reminders</span>
-          <span className="notes-kpi-value" style={{ color: '#be590c' }}>
-            {completedCount}
-          </span>
-          <span className="notes-kpi-sub">
-            {completionRate}% Fulfillment rate
-          </span>
+          {remindersLoading ? (
+            <KpiValueSkeleton />
+          ) : (
+            <>
+              <span className="notes-kpi-value" style={{ color: '#be590c' }}>
+                {completedCount}
+              </span>
+              <span className="notes-kpi-sub">
+                {completionRate}% Fulfillment rate
+              </span>
+            </>
+          )}
         </div>
       </div>
     </div>
