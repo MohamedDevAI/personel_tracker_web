@@ -9,6 +9,10 @@ import { BorrowRepayRecord, CreditorSummary, PlannedRepayment } from '../interfa
 import { getLocalDateISO } from '../utils/dateHelpers';
 import { plannedRepayCreditApi } from './plannedRepayCreditApi';
 
+function round2(n: number): number {
+  return Math.round((n + Number.EPSILON) * 100) / 100;
+}
+
 function parseDateToTimestamp(dStr: string): number {
   if (!dStr) return 0;
   if (dStr.includes('/')) {
@@ -124,17 +128,22 @@ export const borrowRepayApi = {
     }
 
     return Object.values(creditorMap).map((data) => {
+      const totalBorrowed = round2(data.totalBorrowed);
+      const totalRepaid = round2(data.totalRepaid);
+      const creditGiven = round2(data.creditGiven);
+      const creditRepaid = round2(data.creditRepaid);
+
       // 1. Debt balance: what we borrowed minus what we returned to them
-      const rawDebt = data.totalBorrowed - data.totalRepaid;
+      const rawDebt = round2(totalBorrowed - totalRepaid);
       const debtWeOwe = Math.max(0, rawDebt);
-      const excessRepaid = Math.max(0, data.totalRepaid - data.totalBorrowed);
+      const excessRepaid = Math.max(0, round2(totalRepaid - totalBorrowed));
 
       // 2. Credit balance: what we gave them minus what they returned to us
       // excessRepaid accounts for cases where payback was recorded under 'Repaid'
-      const totalCreditReturned = data.creditRepaid + excessRepaid;
-      const rawCreditOwed = data.creditGiven - totalCreditReturned;
+      const totalCreditReturned = round2(creditRepaid + excessRepaid);
+      const rawCreditOwed = round2(creditGiven - totalCreditReturned);
       const creditTheyOwe = Math.max(0, rawCreditOwed);
-      const excessCreditReturned = Math.max(0, totalCreditReturned - data.creditGiven);
+      const excessCreditReturned = Math.max(0, round2(totalCreditReturned - creditGiven));
 
       // 3. Final net balance: positive = we owe them; negative = they owe us; 0 = settled
       let netBalance = 0;
@@ -143,20 +152,21 @@ export const borrowRepayApi = {
       } else if (creditTheyOwe > 0 && debtWeOwe === 0) {
         netBalance = -creditTheyOwe;
       } else if (debtWeOwe > 0 && creditTheyOwe > 0) {
-        netBalance = debtWeOwe - creditTheyOwe;
+        netBalance = round2(debtWeOwe - creditTheyOwe);
       } else if (excessCreditReturned > 0) {
         netBalance = excessCreditReturned;
-      } else if (excessRepaid > 0 && data.creditGiven === 0) {
+      } else if (excessRepaid > 0 && creditGiven === 0) {
         netBalance = -excessRepaid;
       } else {
         netBalance = 0;
       }
+      if (Object.is(netBalance, -0)) netBalance = 0;
 
       let status: CreditorSummary['status'] = 'Settled';
       if (netBalance > 0) {
         status = 'Outstanding';
       } else if (netBalance < 0) {
-        if (creditTheyOwe > 0 || data.creditGiven > 0) {
+        if (creditTheyOwe > 0 || creditGiven > 0) {
           status = 'Credit Given';
         } else {
           status = 'Overpaid';
@@ -174,10 +184,10 @@ export const borrowRepayApi = {
 
       return {
         creditorName: data.displayName,
-        totalBorrowed: data.totalBorrowed,
-        totalRepaid: data.totalRepaid,
-        creditGiven: data.creditGiven,
-        creditRepaid: data.creditRepaid,
+        totalBorrowed,
+        totalRepaid,
+        creditGiven,
+        creditRepaid,
         txCount: data.txCount,
         netBalance,
         lastActivityDate,
@@ -223,14 +233,23 @@ export const borrowRepayApi = {
       }
     }
 
-    const summaries = borrowRepayApi.getCreditorSummaries(list);
-    const netOutstanding = summaries
-      .filter(s => s.netBalance > 0)
-      .reduce((acc, s) => acc + s.netBalance, 0);
+    totalBorrowed = round2(totalBorrowed);
+    totalRepaid = round2(totalRepaid);
+    totalCreditGiven = round2(totalCreditGiven);
+    totalCreditRepaid = round2(totalCreditRepaid);
 
-    const totalOverpaid = summaries
-      .filter(s => s.status === 'Overpaid')
-      .reduce((acc, s) => acc + Math.abs(s.netBalance), 0);
+    const summaries = borrowRepayApi.getCreditorSummaries(list);
+    const netOutstanding = round2(
+      summaries
+        .filter(s => s.netBalance > 0)
+        .reduce((acc, s) => acc + s.netBalance, 0)
+    );
+
+    const totalOverpaid = round2(
+      summaries
+        .filter(s => s.status === 'Overpaid')
+        .reduce((acc, s) => acc + Math.abs(s.netBalance), 0)
+    );
 
     return {
       totalBorrowed,

@@ -166,6 +166,7 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
   }, [records, searchQuery, typeFilter, selectedCreditorFilter, selectedMonth, selectedYear]);
 
   const activeFilterTotals = useMemo(() => {
+    const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
     let borrowed = 0, repaid = 0, creditGiven = 0, creditRepaid = 0;
     filteredRecords.forEach(r => {
       const amt = Math.abs(Number(r.amount) || 0);
@@ -179,10 +180,14 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
         repaid += amt;
       }
     });
-    const debt = Math.max(0, borrowed - repaid);
-    const excess = Math.max(0, repaid - borrowed);
-    const credit = Math.max(0, creditGiven - creditRepaid - excess);
-    return { borrowed, repaid, creditGiven, creditRepaid, net: debt - credit };
+    borrowed = round2(borrowed);
+    repaid = round2(repaid);
+    creditGiven = round2(creditGiven);
+    creditRepaid = round2(creditRepaid);
+    const debt = Math.max(0, round2(borrowed - repaid));
+    const excess = Math.max(0, round2(repaid - borrowed));
+    const credit = Math.max(0, round2(creditGiven - creditRepaid - excess));
+    return { borrowed, repaid, creditGiven, creditRepaid, net: round2(debt - credit) };
   }, [filteredRecords]);
 
   const filteredCreditorSummaries = useMemo(() => {
@@ -199,6 +204,7 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
   }, [creditorSummaries, aggSearchQuery, aggStatusFilter]);
 
   const yearlySummaries = useMemo(() => {
+    const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
     const yearMap: Record<string, { year: string; totalBorrowed: number; totalRepaid: number; creditGiven: number; creditRepaid: number; txCount: number }> = {};
     records.forEach(r => {
       const { year } = parseDateMonthYear(r.date);
@@ -207,13 +213,13 @@ export function useBorrowRepayData(initialMonth?: string, initialYear?: string) 
       yearMap[year].txCount += 1;
       const amt = Math.abs(Number(r.amount) || 0);
       if (r.type === 'Credit Repaid') {
-        yearMap[year].creditRepaid += amt;
+        yearMap[year].creditRepaid = round2(yearMap[year].creditRepaid + amt);
       } else if (r.type === 'Credit Given' || (r.type === 'Borrow' && Number(r.amount) < 0)) {
-        yearMap[year].creditGiven += amt;
+        yearMap[year].creditGiven = round2(yearMap[year].creditGiven + amt);
       } else if (r.type === 'Borrow') {
-        yearMap[year].totalBorrowed += amt;
+        yearMap[year].totalBorrowed = round2(yearMap[year].totalBorrowed + amt);
       } else {
-        yearMap[year].totalRepaid += amt;
+        yearMap[year].totalRepaid = round2(yearMap[year].totalRepaid + amt);
       }
     });
     return Object.values(yearMap).sort((a, b) => b.year.localeCompare(a.year));

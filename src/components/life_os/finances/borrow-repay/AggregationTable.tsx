@@ -148,6 +148,7 @@ export default function AggregationTable({
   );
 
   const footerTotals = useMemo(() => {
+    const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
     const list = hasActiveFilters ? sortedCreditorSummaries : creditorSummaries;
 
     let totalBorrowed = 0;
@@ -164,6 +165,11 @@ export default function AggregationTable({
       totalTransactions += Number(c.txCount) || 0;
     }
 
+    totalBorrowed = round2(totalBorrowed);
+    totalRepaid = round2(totalRepaid);
+    totalCreditGiven = round2(totalCreditGiven);
+    totalCreditRepaid = round2(totalCreditRepaid);
+
     let netDueDisplay = '';
     let netDueClass = 'due';
     let netDueTitle = '';
@@ -174,7 +180,7 @@ export default function AggregationTable({
       netDueTitle = `Total Due: ₹${stats.netOutstanding.toLocaleString('en-IN')}${stats.totalOverpaid ? ` | Overpaid: ₹${stats.totalOverpaid.toLocaleString('en-IN')}` : ''}`;
     } else if (aggStatusFilter === 'Credit Given') {
       // Due = Total credit I gave - Total amount they repaid to me
-      const creditDue = totalCreditGiven - totalCreditRepaid;
+      const creditDue = round2(totalCreditGiven - totalCreditRepaid);
       if (creditDue > 0) {
         netDueDisplay = `Due: ₹ ${creditDue.toLocaleString('en-IN')}`;
         netDueClass = 'credit-given';
@@ -187,7 +193,7 @@ export default function AggregationTable({
       }
       netDueTitle = `Credit Due: ₹${creditDue.toLocaleString('en-IN')} (Credit Given: ₹${totalCreditGiven.toLocaleString('en-IN')} - Repaid: ₹${totalCreditRepaid.toLocaleString('en-IN')})`;
     } else if (aggStatusFilter === 'Due') {
-      const debtDue = list.filter(c => c.netBalance > 0).reduce((acc, c) => acc + c.netBalance, 0);
+      const debtDue = round2(list.filter(c => c.netBalance > 0).reduce((acc, c) => acc + c.netBalance, 0));
       netDueDisplay = `Due: ₹ ${debtDue.toLocaleString('en-IN')}`;
       netDueClass = 'due';
       netDueTitle = `Outstanding Debt Due: ₹${debtDue.toLocaleString('en-IN')}`;
@@ -196,14 +202,14 @@ export default function AggregationTable({
       netDueClass = 'settled';
       netDueTitle = 'All Settled (₹0)';
     } else if (aggStatusFilter === 'Overpaid') {
-      const overpaid = list.filter(c => c.status === 'Overpaid').reduce((acc, c) => acc + Math.abs(c.netBalance), 0);
+      const overpaid = round2(list.filter(c => c.status === 'Overpaid').reduce((acc, c) => acc + Math.abs(c.netBalance), 0));
       netDueDisplay = `Overpaid: ₹ ${overpaid.toLocaleString('en-IN')}`;
       netDueClass = 'overpaid';
       netDueTitle = `Overpaid: ₹${overpaid.toLocaleString('en-IN')}`;
     } else {
-      const debtDue = list.filter(c => c.netBalance > 0).reduce((acc, c) => acc + c.netBalance, 0);
-      const creditDue = list.filter(c => c.status === 'Credit Given' || (c.creditGiven && c.creditGiven > 0 && c.netBalance < 0)).reduce((acc, c) => acc + Math.abs(c.netBalance), 0);
-      const net = debtDue - creditDue;
+      const debtDue = round2(list.filter(c => c.netBalance > 0).reduce((acc, c) => acc + c.netBalance, 0));
+      const creditDue = round2(list.filter(c => c.status === 'Credit Given' || (c.creditGiven && c.creditGiven > 0 && c.netBalance < 0)).reduce((acc, c) => acc + Math.abs(c.netBalance), 0));
+      const net = round2(debtDue - creditDue);
       if (net > 0) {
         netDueDisplay = `Due: ₹ ${net.toLocaleString('en-IN')}`;
         netDueClass = 'due';
@@ -652,7 +658,7 @@ export default function AggregationTable({
               </thead>
               <tbody>
                 {yearlySummaries.map(y => {
-                  const net = y.totalBorrowed - y.totalRepaid - (y.creditGiven - (y.creditRepaid || 0));
+                  const net = Math.round(((y.totalBorrowed - y.totalRepaid - (y.creditGiven - (y.creditRepaid || 0))) + Number.EPSILON) * 100) / 100;
                   return (
                     <tr
                       key={y.year}
